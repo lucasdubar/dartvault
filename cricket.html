@@ -898,17 +898,18 @@ body {
   .player-mark-cell{padding:0 4px;gap:0;}
   .num-label{font-size:1.5rem;min-width:58px;}
 
-  /* Marques : s'adapte à la hauteur de la ligne */
-  .mark-symbol{font-size:clamp(1.2rem, 5vmin, 3.5rem)!important;}
-  .mark-symbol.done{font-size:clamp(1.2rem, 5vmin, 3.5rem)!important;}
+  /* Marques : centrées, contenues dans la cellule */
+  .player-mark-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;}
+  .mark-symbol{font-size:clamp(1.2rem, 4vmin, 3rem)!important;min-height:0;}
+  .mark-symbol.done{font-size:clamp(1.2rem, 4vmin, 3rem)!important;}
 
   /* Noms + scores dans l'en-tête (override inline styles JS) */
   .num-row:first-child .player-mark-cell > div:first-child{font-size:1.2rem!important;}
   .num-row:first-child .player-mark-cell > div:last-child{font-size:2.6rem!important;}
 
-  /* Boutons de saisie : plus grands et lisibles */
-  .hit-btns{align-items:center;align-self:stretch;justify-content:center;}
-  .btn-hit{padding:10px 20px;font-size:1.15rem;min-width:86px;}
+  /* Boutons de saisie : centrés dans la case */
+  .hit-btns{display:flex;align-items:center;align-self:stretch;justify-content:center;}
+  .btn-hit{padding:10px 20px;font-size:1.15rem;min-width:86px;flex:0;align-self:center;}
 
   /* Barre du bas */
   .bot-bar{padding:12px 16px;gap:10px;}

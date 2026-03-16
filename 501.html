@@ -174,8 +174,8 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
 .pc-avg{font-family:'Rajdhani',sans-serif;font-size:.65rem;font-weight:700;color:var(--dim);white-space:nowrap;}
 
 /* ── Mode 2 joueurs : duel côte à côte ── */
-.players-grid-duel{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.players-grid-duel .player-card-501{padding:10px 12px;display:flex;flex-direction:column;gap:6px;justify-content:flex-start;}
+.players-grid-duel{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1;min-height:0;grid-auto-rows:1fr;}
+.players-grid-duel .player-card-501{padding:10px 12px;display:flex;flex-direction:column;gap:6px;justify-content:flex-start;min-height:0;overflow:hidden;}
 .players-grid-duel .pc-main-row{flex-direction:column;align-items:stretch;gap:4px;}
 .players-grid-duel .pc-left{justify-content:center;gap:6px;}
 .players-grid-duel .pc-name-duel{font-family:'Rajdhani',sans-serif;font-size:1.05rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;}
