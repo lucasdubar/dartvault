@@ -524,6 +524,26 @@ input[type=number]{-moz-appearance:textfield;}
   cursor:pointer; touch-action:manipulation; transition:all .18s;
 }
 .pp-profile-row:active { transform:scale(.98); border-color:var(--accent); background:rgba(232,197,71,.08); }
+.pp-profile-row.checked { border-color:var(--accent); background:rgba(232,197,71,.10); }
+.pp-profile-row.disabled { opacity:.35; pointer-events:none; }
+.pp-check {
+  width:22px; height:22px; border-radius:6px; flex-shrink:0;
+  border:2px solid var(--dim); background:transparent;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .18s; font-size:.75rem; color:transparent; margin-left:auto;
+}
+.pp-profile-row.checked .pp-check {
+  border-color:var(--accent); background:var(--accent); color:#000;
+}
+.pp-btn-confirm {
+  flex:2; padding:11px;
+  background:rgba(40,199,111,.15); border:1.5px solid rgba(40,199,111,.4);
+  border-radius:12px; color:#28C76F;
+  font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700;
+  cursor:pointer; touch-action:manipulation; transition:all .2s; letter-spacing:.5px;
+}
+.pp-btn-confirm:active { transform:scale(.97); background:rgba(40,199,111,.25); }
+.pp-btn-confirm.disabled { opacity:.35; pointer-events:none; }
 .pp-avatar { font-size:1.6rem; line-height:1; }
 .pp-name {
   font-family:'Rajdhani',sans-serif; font-size:1.05rem; font-weight:700;
@@ -1318,6 +1338,7 @@ input[type=number]{-moz-appearance:textfield;}
     </div>
     <div class="pp-footer">
       <button class="pp-btn-cancel" id="pp-btn-cancel" onclick="closeProfilePicker()">Annuler</button>
+      <button class="pp-btn-confirm disabled" id="pp-btn-confirm" onclick="confirmProfileSelection()">Ajouter (0)</button>
       <button class="pp-btn-manage" id="pp-btn-manage" onclick="location.href='profil.html'">＋ Gérer profils</button>
     </div>
   </div>
@@ -2563,8 +2584,46 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
+  const SELECTION_KEY = 'dartvault_last_selection';
+  window._ppSelectionOrder = [];
+
+  function getMaxPlayers() { return 6 - B.players.length; }
+
+  function updateConfirmBtn() {
+    const btn = document.getElementById('pp-btn-confirm');
+    if (!btn) return;
+    const n = window._ppSelectionOrder.length;
+    btn.textContent = 'Ajouter (' + n + ')';
+    if (n === 0) btn.classList.add('disabled');
+    else btn.classList.remove('disabled');
+  }
+
+  function toggleProfileRow(row, emoji, name) {
+    const max = getMaxPlayers();
+    const key = emoji + '||' + name;
+    const idx = window._ppSelectionOrder.findIndex(o => o.key === key);
+    if (idx !== -1) {
+      window._ppSelectionOrder.splice(idx, 1);
+      row.classList.remove('checked');
+    } else {
+      if (window._ppSelectionOrder.length >= max) return;
+      window._ppSelectionOrder.push({ key, emoji, name });
+      row.classList.add('checked');
+    }
+    // disable unchecked rows if max reached
+    const rows = document.querySelectorAll('.pp-profile-row');
+    rows.forEach(r => {
+      if (!r.classList.contains('checked')) {
+        if (window._ppSelectionOrder.length >= max) r.classList.add('disabled');
+        else r.classList.remove('disabled');
+      }
+    });
+    updateConfirmBtn();
+  }
+
   window.openProfilePicker = function() {
     const profiles = getProfiles();
+    window._ppSelectionOrder = [];
     document.getElementById('pp-title').textContent = t('pp_title');
     document.getElementById('pp-btn-cancel').textContent = t('pp_cancel');
     document.getElementById('pp-btn-manage').textContent = t('pp_manage');
@@ -2581,16 +2640,30 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
       if (ib === -1) return -1;
       return ia - ib;
     });
+    // Restore last selection
+    let lastSel = [];
+    try { lastSel = JSON.parse(localStorage.getItem(SELECTION_KEY) || '[]'); } catch(e) {}
+    const max = getMaxPlayers();
     if (available.length === 0) {
       list.innerHTML = '<div class="pp-empty">' + (profiles.length === 0 ? t('pp_empty').replace('\n','<br>') : (t('pp_all_used') || 'Tous les profils sont déjà en jeu.')) + '</div>';
     } else {
-      list.innerHTML = available.map(p =>
-        '<div class="pp-profile-row" onclick="pickProfile(\'' + p.emoji.replace(/'/g,"\\'") + '\',\'' + escHtml(p.name).replace(/'/g,"\\'") + '\')">' +
-        '<span class="pp-avatar">' + p.emoji + '</span>' +
-        '<span class="pp-name">' + escHtml(p.name) + '</span>' +
-        '</div>'
-      ).join('');
+      list.innerHTML = available.map(p => {
+        const fullName = p.emoji + ' ' + p.name;
+        const isLast = lastSel.includes(fullName);
+        const checked = isLast && window._ppSelectionOrder.length < max;
+        if (checked) window._ppSelectionOrder.push({ key: p.emoji + '||' + p.name, emoji: p.emoji, name: p.name });
+        return '<div class="pp-profile-row' + (checked ? ' checked' : '') + '" onclick="toggleProfileRow(this,\'' + p.emoji.replace(/'/g,"\\'") + '\',\'' + escHtml(p.name).replace(/'/g,"\\'") + '\')">' +
+          '<span class="pp-avatar">' + p.emoji + '</span>' +
+          '<span class="pp-name">' + escHtml(p.name) + '</span>' +
+          '<span class="pp-check">✓</span>' +
+          '</div>';
+      }).join('');
+      // disable unchecked if max reached
+      if (window._ppSelectionOrder.length >= max) {
+        document.querySelectorAll('.pp-profile-row:not(.checked)').forEach(r => r.classList.add('disabled'));
+      }
     }
+    updateConfirmBtn();
     document.getElementById('profile-picker').classList.add('open');
     const pmi = document.getElementById('pp-manual-input');
     if (pmi) {
@@ -2601,6 +2674,7 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
 
   window.closeProfilePicker = function() {
     document.getElementById('profile-picker').classList.remove('open');
+    window._ppSelectionOrder = [];
   };
 
   window.pickManual = function() {
@@ -2622,6 +2696,22 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     const idx = B.players.length;
     B.players.push({name: fullName, money:10, is_dealer:false, color:getNextColor(B.players), emoji:PLAYER_EMOJIS[idx], fromProfile:true});
     renderSetupList();
+  };
+
+  window.confirmProfileSelection = function() {
+    const order = window._ppSelectionOrder;
+    if (!order.length) return;
+    order.forEach(({emoji, name}) => {
+      const fullName = emoji + ' ' + name;
+      if (B.players.length >= 6) return;
+      if (B.players.some(p => p.name.toLowerCase() === fullName.toLowerCase())) return;
+      saveRecent(fullName);
+      const idx = B.players.length;
+      B.players.push({name: fullName, money:10, is_dealer:false, color:getNextColor(B.players), emoji:PLAYER_EMOJIS[idx], fromProfile:true});
+    });
+    renderSetupList();
+    closeProfilePicker();
+    localStorage.setItem(SELECTION_KEY, JSON.stringify(order.map(o => o.emoji + ' ' + o.name)));
   };
 
   // Auto-refresh picker quand on revient sur la page (ex: depuis profil.html)

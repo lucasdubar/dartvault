@@ -245,6 +245,13 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
 .pp-list{display:flex;flex-direction:column;gap:8px;max-height:55vh;overflow-y:auto;margin-bottom:14px;}
 .pp-profile-row{display:flex;align-items:center;gap:12px;background:var(--bg3);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:11px 14px;cursor:pointer;touch-action:manipulation;transition:all .18s;}
 .pp-profile-row:active{transform:scale(.98);border-color:var(--accent);}
+.pp-profile-row.checked{border-color:var(--accent);background:rgba(232,197,71,.10);}
+.pp-profile-row.disabled{opacity:.35;pointer-events:none;}
+.pp-check{width:22px;height:22px;border-radius:6px;flex-shrink:0;border:2px solid var(--dim);background:transparent;display:flex;align-items:center;justify-content:center;transition:all .18s;font-size:.75rem;color:transparent;margin-left:auto;}
+.pp-profile-row.checked .pp-check{border-color:var(--accent);background:var(--accent);color:#000;}
+.pp-btn-confirm{flex:2;padding:11px;background:rgba(40,199,111,.15);border:1.5px solid rgba(40,199,111,.4);border-radius:12px;color:#28C76F;font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;touch-action:manipulation;transition:all .2s;letter-spacing:.5px;}
+.pp-btn-confirm:active{transform:scale(.97);background:rgba(40,199,111,.25);}
+.pp-btn-confirm.disabled{opacity:.35;pointer-events:none;}
 .pp-avatar{font-size:1.6rem;line-height:1;}
 .pp-name{font-family:'Rajdhani',sans-serif;font-size:1.05rem;font-weight:700;color:var(--text);flex:1;letter-spacing:.3px;}
 .pp-empty{text-align:center;padding:24px 0;color:var(--dim);font-family:'Rajdhani',sans-serif;font-size:.95rem;}
@@ -715,6 +722,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
     </div>
     <div class="pp-footer">
       <button class="pp-btn-cancel" id="pp-btn-cancel" onclick="closeProfilePicker()">Annuler</button>
+      <button class="pp-btn-confirm disabled" id="pp-btn-confirm" onclick="confirmProfileSelection()">Ajouter (0)</button>
       <button class="pp-btn-manage" id="pp-btn-manage" onclick="location.href='profil.html'">＋ Gérer profils</button>
     </div>
   </div>
@@ -1626,11 +1634,35 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
 <!-- Profile Picker -->
 <script>
 (function(){
-  const PK='dartvault_profiles',RK='dartvault_recent_profiles';
+  const PK='dartvault_profiles',RK='dartvault_recent_profiles',SK='dartvault_last_selection';
+  window._ppSelectionOrder=[];
   function gp(){try{return JSON.parse(localStorage.getItem(PK))||[];}catch(e){return[];}}
   function gr(){try{return JSON.parse(localStorage.getItem(RK))||[];}catch(e){return[];}}
   function sr(n){let r=gr();r=[n,...r.filter(x=>x!==n)];localStorage.setItem(RK,JSON.stringify(r));}
   function eh(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+  function getMaxPlayers(){return 6-G.players.length;}
+
+  function updateConfirmBtn(){
+    const btn=document.getElementById('pp-btn-confirm');
+    if(!btn)return;
+    const n=window._ppSelectionOrder.length;
+    btn.classList.toggle('disabled',n===0);
+    btn.textContent='Ajouter ('+n+')';
+  }
+
+  function syncCheckboxes(){
+    const max=getMaxPlayers();
+    const rows=document.querySelectorAll('.pp-profile-row[data-emoji]');
+    rows.forEach(row=>{
+      const e=row.getAttribute('data-emoji'),nm=row.getAttribute('data-name');
+      const key=e+' '+nm;
+      const isChecked=window._ppSelectionOrder.some(o=>o.emoji===e&&o.name===nm);
+      row.classList.toggle('checked',isChecked);
+      row.classList.toggle('disabled',!isChecked&&window._ppSelectionOrder.length>=max);
+    });
+    updateConfirmBtn();
+  }
 
   window.openProfilePicker=function(){
     const profiles=gp(),list=document.getElementById('pp-list');
@@ -1638,21 +1670,50 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     const avail=profiles.filter(p=>!used.includes((p.emoji+' '+p.name).toLowerCase()));
     const ro=gr();
     avail.sort((a,b)=>{const na=a.emoji+' '+a.name,nb=b.emoji+' '+b.name,ia=ro.indexOf(na),ib=ro.indexOf(nb);if(ia===-1&&ib===-1)return 0;if(ia===-1)return 1;if(ib===-1)return-1;return ia-ib;});
-    list.innerHTML=avail.length===0?'<div class="pp-empty">'+(profiles.length===0?'Aucun profil.<br>Créez-en depuis le menu.':'Tous les profils sont déjà en jeu.')+'</div>':avail.map(p=>'<div class="pp-profile-row" onclick="pickProfile(\''+p.emoji.replace(/'/g,"\\'")+'\',\''+eh(p.name).replace(/'/g,"\\'")+'\')"><span class="pp-avatar">'+p.emoji+'</span><span class="pp-name">'+eh(p.name)+'</span></div>').join('');
+    // Restore last selection
+    let last=[];try{last=JSON.parse(localStorage.getItem(SK))||[];}catch(e){}
+    window._ppSelectionOrder=[];
+    const max=getMaxPlayers();
+    last.forEach(fn=>{
+      if(window._ppSelectionOrder.length>=max)return;
+      const match=avail.find(p=>(p.emoji+' '+p.name)===fn);
+      if(match)window._ppSelectionOrder.push({emoji:match.emoji,name:match.name});
+    });
+    list.innerHTML=avail.length===0?'<div class="pp-empty">'+(profiles.length===0?'Aucun profil.<br>Créez-en depuis le menu.':'Tous les profils sont déjà en jeu.')+'</div>':avail.map(p=>{
+      const isChecked=window._ppSelectionOrder.some(o=>o.emoji===p.emoji&&o.name===p.name);
+      return '<div class="pp-profile-row'+(isChecked?' checked':'')+'" data-emoji="'+p.emoji.replace(/"/g,'&quot;')+'" data-name="'+eh(p.name).replace(/"/g,'&quot;')+'" onclick="toggleProfileRow(this)"><span class="pp-avatar">'+p.emoji+'</span><span class="pp-name">'+eh(p.name)+'</span><span class="pp-check">✓</span></div>';
+    }).join('');
     document.getElementById('profile-picker').classList.add('open');
+    syncCheckboxes();
     const pmi=document.getElementById('pp-manual-input');if(pmi){pmi.value='';pmi.onkeydown=function(e){if(e.key==='Enter')pickManual();};}
   };
-  window.closeProfilePicker=function(){document.getElementById('profile-picker').classList.remove('open');};
-  window.pickManual=function(){const inp=document.getElementById('player-input'),val=document.getElementById('pp-manual-input').value.trim();if(!val){document.getElementById('pp-manual-input').focus();return;}inp.value=val;closeProfilePicker();addPlayer();inp.value='';};
-  window.pickProfile=function(emoji,name){
-    closeProfilePicker();sr(emoji+' '+name);
-    const fn=emoji+' '+name;
-    if(G.players.length>=6){showToast('Maximum 6 joueurs');return;}
-    if(G.players.some(p=>p.name.toLowerCase()===fn.toLowerCase())){showToast(DV_LANG.t('err_name_taken'));return;}
-    const idx=G.players.length;
-    G.players.push({name:fn,color:getNextColor(G.players),emoji:PLAYER_EMOJIS[idx%6],targetIdx:0,hitsOnCurrent:0,fromProfile:true,totalDarts:0,totalHits:0,lastTurnDarts:[]});
-    renderSetupList();
+
+  window.toggleProfileRow=function(row){
+    const e=row.getAttribute('data-emoji'),nm=row.getAttribute('data-name');
+    const idx=window._ppSelectionOrder.findIndex(o=>o.emoji===e&&o.name===nm);
+    if(idx>-1){window._ppSelectionOrder.splice(idx,1);}
+    else{if(window._ppSelectionOrder.length>=getMaxPlayers())return;window._ppSelectionOrder.push({emoji:e,name:nm});}
+    syncCheckboxes();
   };
+
+  window.confirmProfileSelection=function(){
+    const order=window._ppSelectionOrder;
+    if(!order.length)return;
+    order.forEach(({emoji,name})=>{
+      const fullName=emoji+' '+name;
+      if(G.players.length>=6)return;
+      if(G.players.some(p=>p.name.toLowerCase()===fullName.toLowerCase()))return;
+      sr(fullName);
+      const idx=G.players.length;
+      G.players.push({name:fullName,color:getNextColor(G.players),emoji:PLAYER_EMOJIS[idx%6],targetIdx:0,hitsOnCurrent:0,fromProfile:true,totalDarts:0,totalHits:0,lastTurnDarts:[]});
+    });
+    renderSetupList();
+    closeProfilePicker();
+    localStorage.setItem(SK,JSON.stringify(order.map(o=>o.emoji+' '+o.name)));
+  };
+
+  window.closeProfilePicker=function(){document.getElementById('profile-picker').classList.remove('open');window._ppSelectionOrder=[];};
+  window.pickManual=function(){const inp=document.getElementById('player-input'),val=document.getElementById('pp-manual-input').value.trim();if(!val){document.getElementById('pp-manual-input').focus();return;}inp.value=val;closeProfilePicker();addPlayer();inp.value='';};
   document.addEventListener('visibilitychange',()=>{if(!document.hidden){const pk=document.getElementById('profile-picker');if(pk&&pk.classList.contains('open'))openProfilePicker();}});
 })();
 </script>

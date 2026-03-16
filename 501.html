@@ -121,18 +121,20 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
 .players-list-wrap{flex:1;min-height:0;overflow-y:auto;padding:8px 10px;}
 .players-list-wrap::-webkit-scrollbar{width:3px;}
 .players-list-wrap::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px;}
-.players-grid-inner{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.players-grid-inner{display:grid;grid-template-columns:1fr 1fr;gap:7px;height:100%;}
 .players-grid-inner.players-grid-single{grid-template-columns:1fr;}
-/* Compact pour 4+ joueurs portrait mobile */
-.players-grid-inner.players-grid-compact .player-card-501{padding:3px 6px;}
-.players-grid-inner.players-grid-compact .pc-name{font-size:.72rem!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.players-grid-inner.players-grid-compact .pc-score{font-size:1.2rem!important;}
-.players-grid-inner.players-grid-compact .pc-avg{font-size:.58rem!important;}
-.players-grid-inner.players-grid-compact .pc-bottom{margin-top:2px;}
+/* Compact pour 5+ joueurs portrait mobile */
+.players-grid-inner.players-grid-compact{grid-template-rows:1fr 1fr 1fr;}
+.players-grid-inner.players-grid-compact .player-card-501{padding:5px 8px;display:flex;flex-direction:column;justify-content:center;}
+.players-grid-inner.players-grid-compact .pc-name{font-size:.8rem!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.players-grid-inner.players-grid-compact .pc-score{font-size:1.5rem!important;}
+.players-grid-inner.players-grid-compact .pc-avg{font-size:.62rem!important;}
+.players-grid-inner.players-grid-compact .pc-bottom{margin-top:auto;}
 .players-grid-inner.players-grid-compact .pc-dot{width:5px;height:5px;}
 .players-grid-inner.players-grid-compact .pc-info-btn{padding:2px 5px;font-size:.6rem;}
 /* ── Mode 3-4 joueurs : cartes plus grandes ── */
-.players-grid-inner.players-grid-medium .player-card-501{padding:8px 10px;}
+.players-grid-inner.players-grid-medium{grid-template-rows:1fr 1fr;}
+.players-grid-inner.players-grid-medium .player-card-501{padding:8px 10px;display:flex;flex-direction:column;justify-content:center;}
 .players-grid-inner.players-grid-medium .pc-name{font-size:.92rem!important;}
 .players-grid-inner.players-grid-medium .pc-score{font-size:1.6rem!important;}
 .players-grid-inner.players-grid-medium .pc-avg{font-size:.7rem!important;}
@@ -199,7 +201,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
 .players-grid-duel .player-card-501.current{box-shadow:0 0 0 2px var(--pcolor),0 0 18px var(--pcolor),0 0 36px var(--pcolor)!important;}
 .players-grid-duel .pc-bottom{margin-top:auto;}
 /* ── Nouveau bas de carte duel ── */
-.pc-last-duel{text-align:center;font-family:'Rajdhani',sans-serif;font-size:1.05rem;font-weight:700;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pc-last-duel{text-align:center;font-family:'Rajdhani',sans-serif;font-size:1.05rem;font-weight:700;line-height:1.6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:2px 0;}
 .pc-duel-footer{display:flex;justify-content:space-between;align-items:center;font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:700;color:rgba(255,255,255,.45);letter-spacing:.5px;text-transform:uppercase;margin-top:auto;}
 
 /* ── Pavé numérique ── */
@@ -958,7 +960,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
   .game-wrap{flex-direction:row!important;max-width:min(960px,100%);margin:0 auto;width:100%;align-items:stretch;min-height:0;flex:1;}
   .ls-left{display:flex;flex-direction:column;flex:1;min-width:0;min-height:0;overflow-y:auto;background:var(--bg);}
   .hist-inline-ls{display:none!important;}
-  .ls-right{display:flex;flex-direction:column;width:40%;max-width:420px;flex-shrink:0;min-height:0;}
+  .ls-right{display:flex;flex-direction:column;width:40%;max-width:420px;flex-shrink:0;min-height:0;overflow:hidden;}
 
   .active-zone{padding:8px 10px 6px;}
   .active-name{font-size:1.2rem!important;}
@@ -975,26 +977,27 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
   .bottom-fixed{position:static!important;flex:1;display:flex;flex-direction:column;}
   .android-spacer{display:none!important;}
   div[style*="height:8px"]{display:none!important;}
-  .numpad-wrap{padding:5px 8px;padding-bottom:max(6px,env(safe-area-inset-bottom));flex:1;display:flex;flex-direction:column;}
-  .nkey{height:auto;min-height:30px;font-size:1.1rem;flex:1;}
+  .numpad-wrap{padding:5px 8px;padding-bottom:max(6px,env(safe-area-inset-bottom));flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden;}
+  .nkey{height:auto;min-height:0;font-size:1rem;flex:1;}
   .numpad{gap:4px;flex:4;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr);}
   .numpad-bottom-row{margin-top:4px;gap:4px;display:flex;flex:1;}
   .numpad-bottom-row .nkey{flex:1;}
   .nkey.kval,.nkey.kundo{font-size:.85rem;}
 
-  .dart-pad-wrap{padding:5px 8px;padding-bottom:max(6px,env(safe-area-inset-bottom));flex:1;display:flex;flex-direction:column;}
+  .dart-pad-wrap{padding:5px 8px;padding-bottom:max(6px,env(safe-area-inset-bottom));flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden;}
   .dart-mult-row{gap:4px;margin-bottom:4px;}
   .dmb{padding:8px 2px;font-size:.78rem;flex:1;}
   .dart-ngrid{gap:3px;margin-bottom:4px;flex:3;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(3,1fr);}
-  .dnb{height:auto;min-height:28px;font-size:.72rem;border-radius:5px;}
+  .dnb{height:auto;min-height:0;font-size:.72rem;border-radius:5px;}
   .dart-bottom-row{gap:4px;display:flex;flex:1;}
   .dart-bottom-row .nkey{flex:1;}
   .nkey.kout{font-size:.8rem;}
   .nkey.khist{padding:9px 10px;font-size:.8rem;}
   .dart-darts-row{gap:4px;margin-bottom:4px;}
-  .dart-slot{height:39px;font-size:1.17rem;}
-  .input-val{font-size:4rem;}
-  .input-hint{font-size:1.5rem;}
+  .dart-slot{height:32px;font-size:1rem;}
+  .input-display{margin-bottom:3px;padding:4px 10px;}
+  .input-val{font-size:1.4rem;}
+  .input-hint{font-size:.7rem;}
 
 
   /* Historique inline paysage — masqué, on garde uniquement le bouton */
@@ -3635,7 +3638,27 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
   border-radius:12px; padding:11px 14px;
   cursor:pointer; touch-action:manipulation; transition:all .18s;
 }
-.pp-profile-row:active { transform:scale(.98); border-color:var(--accent); background:rgba(232,197,71,.08); }
+.pp-profile-row:active { transform:scale(.98); }
+.pp-profile-row.checked { border-color:var(--accent); background:rgba(232,197,71,.10); }
+.pp-profile-row.disabled { opacity:.35; pointer-events:none; }
+.pp-check {
+  width:22px; height:22px; border-radius:6px; flex-shrink:0;
+  border:2px solid var(--dim); background:transparent;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .18s; font-size:.75rem; color:transparent; margin-left:auto;
+}
+.pp-profile-row.checked .pp-check {
+  border-color:var(--accent); background:var(--accent); color:#000;
+}
+.pp-btn-confirm {
+  flex:2; padding:11px;
+  background:rgba(40,199,111,.15); border:1.5px solid rgba(40,199,111,.4);
+  border-radius:12px; color:#28C76F;
+  font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700;
+  cursor:pointer; touch-action:manipulation; transition:all .2s; letter-spacing:.5px;
+}
+.pp-btn-confirm:active { transform:scale(.97); background:rgba(40,199,111,.25); }
+.pp-btn-confirm.disabled { opacity:.35; pointer-events:none; }
 .pp-avatar { font-size:1.6rem; line-height:1; }
 .pp-name {
   font-family:'Rajdhani',sans-serif; font-size:1.05rem; font-weight:700;
@@ -3692,6 +3715,7 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     </div>
     <div class="pp-footer">
       <button class="pp-btn-cancel" id="pp-btn-cancel" onclick="closeProfilePicker()">Annuler</button>
+      <button class="pp-btn-confirm disabled" id="pp-btn-confirm" onclick="confirmProfileSelection()">Ajouter (0)</button>
       <button class="pp-btn-manage" id="pp-btn-manage" onclick="location.href='profil.html'">＋ Gérer profils</button>
     </div>
   </div>
@@ -3715,17 +3739,24 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     localStorage.setItem(RECENT_KEY, JSON.stringify(recent));
   }
 
+  const SELECTION_KEY = 'dartvault_last_selection';
+  window._ppSelectionOrder = [];
+
+  function getLastSelection() {
+    try { return JSON.parse(localStorage.getItem(SELECTION_KEY)) || []; } catch(e) { return []; }
+  }
+
+  function getMaxPlayers() { return 6 - G.players.length; }
+
   window.openProfilePicker = function() {
     const profiles = getProfiles();
     const list = document.getElementById('pp-list');
-    // Appliquer les traductions
     const t = key => (window.DV_LANG && typeof window.DV_LANG.t === 'function') ? window.DV_LANG.t(key) : key;
     document.getElementById('pp-title').textContent = t('pp_title');
     document.getElementById('pp-btn-cancel').textContent = t('pp_cancel');
     document.getElementById('pp-btn-manage').textContent = t('pp_manage');
     const usedNames = G.players.map(p => p.name.toLowerCase());
     const available = profiles.filter(p => !usedNames.includes((p.emoji + ' ' + p.name).toLowerCase()));
-    // Trier par derniers utilisés
     const recentOrder = getRecentOrder();
     available.sort((a, b) => {
       const na = a.emoji + ' ' + a.name, nb = b.emoji + ' ' + b.name;
@@ -3735,22 +3766,86 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
       if (ib === -1) return -1;
       return ia - ib;
     });
+    window._ppSelectionOrder = [];
+    const lastSel = getLastSelection();
     if (available.length === 0) {
       list.innerHTML = `<div class="pp-empty">${profiles.length === 0 ? t('pp_empty').replace('\n','<br>') : t('pp_all_used') || 'Tous les profils sont déjà en jeu.'}</div>`;
     } else {
-      list.innerHTML = available.map(p => `
-        <div class="pp-profile-row" onclick="pickProfile('${escPP(p.emoji)}','${escPP(p.name)}')">
+      list.innerHTML = available.map(p => {
+        const fullName = p.emoji + ' ' + p.name;
+        const preChecked = lastSel.includes(fullName) && !usedNames.includes(fullName.toLowerCase());
+        if (preChecked) window._ppSelectionOrder.push({emoji: p.emoji, name: p.name});
+        return `<div class="pp-profile-row${preChecked ? ' checked' : ''}" data-emoji="${escPP(p.emoji)}" data-name="${escPP(p.name)}" onclick="togglePPCheck(this)">
           <span class="pp-avatar">${p.emoji}</span>
           <span class="pp-name">${escHtmlPP(p.name)}</span>
-        </div>
-      `).join('');
+          <span class="pp-check">${preChecked ? '✓' : ''}</span>
+        </div>`;
+      }).join('');
     }
+    updatePPConfirm();
     document.getElementById('profile-picker').classList.add('open');
     const pmi = document.getElementById('pp-manual-input');
     if (pmi) {
       pmi.value = '';
       pmi.onkeydown = function(e) { if (e.key === 'Enter') pickManual(); };
     }
+  };
+
+  window.togglePPCheck = function(row) {
+    const emoji = row.dataset.emoji;
+    const name = row.dataset.name;
+    const isChecked = row.classList.contains('checked');
+    if (isChecked) {
+      row.classList.remove('checked');
+      row.querySelector('.pp-check').textContent = '';
+      window._ppSelectionOrder = window._ppSelectionOrder.filter(p => !(p.emoji === emoji && p.name === name));
+    } else {
+      if (window._ppSelectionOrder.length >= getMaxPlayers()) return;
+      row.classList.add('checked');
+      row.querySelector('.pp-check').textContent = '✓';
+      window._ppSelectionOrder.push({emoji, name});
+    }
+    updatePPConfirm();
+  };
+
+  window.updatePPConfirm = function() {
+    const btn = document.getElementById('pp-btn-confirm');
+    const count = window._ppSelectionOrder.length;
+    const max = getMaxPlayers();
+    btn.textContent = count > 0 ? `Ajouter (${count})` : 'Ajouter (0)';
+    btn.classList.toggle('disabled', count === 0);
+    // Disable unchecked rows when max reached
+    document.querySelectorAll('#pp-list .pp-profile-row').forEach(row => {
+      if (!row.classList.contains('checked')) {
+        row.classList.toggle('disabled', count >= max);
+      }
+    });
+  };
+
+  window.confirmProfileSelection = function() {
+    const order = window._ppSelectionOrder;
+    if (order.length === 0) return;
+    const selectionNames = [];
+    order.forEach(({emoji, name}) => {
+      const fullName = emoji + ' ' + name;
+      if (G.players.length >= 6) return;
+      if (G.players.some(p => p.name.toLowerCase() === fullName.toLowerCase())) return;
+      saveRecent(fullName);
+      G.players.push({
+        name: fullName, fromProfile: true,
+        color: getNextColor(G.players),
+        emoji: PLAYER_EMOJIS[G.players.length % PLAYER_EMOJIS.length],
+        score: 0, legs: 0, sets: 0, legsInSet: 0,
+        throws: [], dartsThrown: 0,
+        doubleAttempts: 0, doubleHits: 0,
+        allThrows: [], allDartsThrown: 0,
+        allDoubleAttempts: 0, allDoubleHits: 0,
+      });
+      selectionNames.push(fullName);
+    });
+    renderSetupList();
+    closeProfilePicker();
+    localStorage.setItem(SELECTION_KEY, JSON.stringify(selectionNames));
   };
 
   window.closeProfilePicker = function() {
@@ -3774,8 +3869,7 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     const fullName = emoji + ' ' + name;
     if (G.players.some(p => p.name.toLowerCase() === fullName.toLowerCase())) { showToast(DV_LANG.t('err_name_taken')); return; }
     G.players.push({
-      name: fullName,
-      fromProfile: true,
+      name: fullName, fromProfile: true,
       color: getNextColor(G.players),
       emoji: PLAYER_EMOJIS[G.players.length % PLAYER_EMOJIS.length],
       score: 0, legs: 0, sets: 0, legsInSet: 0,

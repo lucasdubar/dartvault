@@ -689,6 +689,13 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
   cursor:pointer; touch-action:manipulation; transition:all .18s;
 }
 .pp-profile-row:active { transform:scale(.98); border-color:var(--accent); background:rgba(232,197,71,.08); }
+.pp-profile-row.checked { border-color:var(--accent); background:rgba(232,197,71,.10); }
+.pp-profile-row.disabled { opacity:.35; pointer-events:none; }
+.pp-check { width:22px; height:22px; border-radius:6px; flex-shrink:0; border:2px solid var(--dim); background:transparent; display:flex; align-items:center; justify-content:center; transition:all .18s; font-size:.75rem; color:transparent; margin-left:auto; }
+.pp-profile-row.checked .pp-check { border-color:var(--accent); background:var(--accent); color:#000; }
+.pp-btn-confirm { flex:2; padding:11px; background:rgba(40,199,111,.15); border:1.5px solid rgba(40,199,111,.4); border-radius:12px; color:#28C76F; font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700; cursor:pointer; touch-action:manipulation; transition:all .2s; letter-spacing:.5px; }
+.pp-btn-confirm:active { transform:scale(.97); background:rgba(40,199,111,.25); }
+.pp-btn-confirm.disabled { opacity:.35; pointer-events:none; }
 .pp-avatar { font-size:1.6rem; line-height:1; }
 .pp-name {
   font-family:'Rajdhani',sans-serif; font-size:1.05rem; font-weight:700;
@@ -1271,6 +1278,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
     </div>
     <div class="pp-footer">
       <button class="pp-btn-cancel" id="pp-btn-cancel" onclick="closeProfilePicker()">Annuler</button>
+      <button class="pp-btn-confirm disabled" id="pp-btn-confirm" onclick="confirmProfileSelection()">Ajouter (0)</button>
       <button class="pp-btn-manage" id="pp-btn-manage" onclick="location.href='profil.html'">＋ Gérer profils</button>
     </div>
   </div>
@@ -2340,7 +2348,32 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
+  var ppSelected = [];
+
+  function ppUpdateConfirmBtn() {
+    var btn = document.getElementById('pp-btn-confirm');
+    if (!btn) return;
+    if (ppSelected.length > 0) btn.classList.remove('disabled');
+    else btn.classList.add('disabled');
+    btn.textContent = 'Ajouter (' + ppSelected.length + ')';
+  }
+
+  function ppUpdateRows() {
+    var maxPlayers = 6 - state.players.length;
+    var rows = document.querySelectorAll('#pp-list .pp-profile-row');
+    rows.forEach(function(row) {
+      var key = row.getAttribute('data-key');
+      var isChecked = ppSelected.some(function(s) { return s.key === key; });
+      row.classList.toggle('checked', isChecked);
+      row.classList.toggle('disabled', !isChecked && ppSelected.length >= maxPlayers);
+      var check = row.querySelector('.pp-check');
+      if (check) check.textContent = isChecked ? '✓' : '';
+    });
+    ppUpdateConfirmBtn();
+  }
+
   window.openProfilePicker = function() {
+    ppSelected = [];
     const profiles = getProfiles();
     document.getElementById('pp-title').textContent = t('pp_title');
     document.getElementById('pp-btn-cancel').textContent = t('pp_cancel');
@@ -2358,16 +2391,31 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
       if (ib === -1) return -1;
       return ia - ib;
     });
+    // Pre-select last selection
+    var lastSel = [];
+    try { lastSel = JSON.parse(localStorage.getItem('dartvault_last_selection') || '[]'); } catch(e) {}
     if (available.length === 0) {
       list.innerHTML = '<div class="pp-empty">' + (profiles.length === 0 ? t('pp_empty').replace('\n','<br>') : (t('pp_all_used') || 'Tous les profils sont déjà en jeu.')) + '</div>';
     } else {
-      list.innerHTML = available.map(p =>
-        '<div class="pp-profile-row" onclick="pickProfile(\'' + p.emoji.replace(/'/g,"\\'") + '\',\'' + escHtml(p.name).replace(/'/g,"\\'") + '\')">' +
-        '<span class="pp-avatar">' + p.emoji + '</span>' +
-        '<span class="pp-name">' + escHtml(p.name) + '</span>' +
-        '</div>'
-      ).join('');
+      list.innerHTML = available.map(function(p) {
+        var key = p.emoji + '||' + p.name;
+        return '<div class="pp-profile-row" data-key="' + escHtml(key) + '" onclick="toggleProfileRow(this)">' +
+          '<span class="pp-avatar">' + p.emoji + '</span>' +
+          '<span class="pp-name">' + escHtml(p.name) + '</span>' +
+          '<span class="pp-check"></span>' +
+          '</div>';
+      }).join('');
+      // Auto-check last selection
+      var maxPlayers = 6 - state.players.length;
+      available.forEach(function(p) {
+        var fullName = p.emoji + ' ' + p.name;
+        if (lastSel.includes(fullName) && ppSelected.length < maxPlayers) {
+          ppSelected.push({ key: p.emoji + '||' + p.name, emoji: p.emoji, name: p.name });
+        }
+      });
+      ppUpdateRows();
     }
+    ppUpdateConfirmBtn();
     document.getElementById('profile-picker').classList.add('open');
     const pmi = document.getElementById('pp-manual-input');
     if (pmi) {
@@ -2376,7 +2424,38 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     }
   };
 
+  window.toggleProfileRow = function(row) {
+    var key = row.getAttribute('data-key');
+    var idx = -1;
+    ppSelected.forEach(function(s, i) { if (s.key === key) idx = i; });
+    if (idx >= 0) {
+      ppSelected.splice(idx, 1);
+    } else {
+      var maxPlayers = 6 - state.players.length;
+      if (ppSelected.length >= maxPlayers) return;
+      var parts = key.split('||');
+      ppSelected.push({ key: key, emoji: parts[0], name: parts[1] });
+    }
+    ppUpdateRows();
+  };
+
+  window.confirmProfileSelection = function() {
+    if (ppSelected.length === 0) return;
+    var order = ppSelected.slice();
+    order.forEach(function(o) {
+      var fullName = o.emoji + ' ' + o.name;
+      if (state.players.length >= 6) return;
+      if (state.players.some(function(p) { return p.name.toLowerCase() === fullName.toLowerCase(); })) return;
+      saveRecent(fullName);
+      state.players.push({name:fullName, score:0, color:getNextColor(state.players), emoji:PLAYER_EMOJIS[state.players.length % PLAYER_EMOJIS.length], fromProfile:true, roundHits:{s:false,d:false,t:false}, roundHistory:[]});
+    });
+    renderSetupList();
+    closeProfilePicker();
+    localStorage.setItem('dartvault_last_selection', JSON.stringify(order.map(function(o) { return o.emoji + ' ' + o.name; })));
+  };
+
   window.closeProfilePicker = function() {
+    ppSelected = [];
     document.getElementById('profile-picker').classList.remove('open');
   };
 

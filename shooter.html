@@ -696,6 +696,13 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
   cursor:pointer; touch-action:manipulation; transition:all .18s;
 }
 .pp-profile-row:active { transform:scale(.98); border-color:var(--accent); background:rgba(232,197,71,.08); }
+.pp-profile-row.checked { border-color:var(--accent); background:rgba(232,197,71,.10); }
+.pp-profile-row.disabled { opacity:.35; pointer-events:none; }
+.pp-check { width:22px; height:22px; border-radius:6px; flex-shrink:0; border:2px solid var(--dim); background:transparent; display:flex; align-items:center; justify-content:center; transition:all .18s; font-size:.75rem; color:transparent; margin-left:auto; }
+.pp-profile-row.checked .pp-check { border-color:var(--accent); background:var(--accent); color:#000; }
+.pp-btn-confirm { flex:2; padding:11px; background:rgba(40,199,111,.15); border:1.5px solid rgba(40,199,111,.4); border-radius:12px; color:#28C76F; font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700; cursor:pointer; touch-action:manipulation; transition:all .2s; letter-spacing:.5px; }
+.pp-btn-confirm:active { transform:scale(.97); background:rgba(40,199,111,.25); }
+.pp-btn-confirm.disabled { opacity:.35; pointer-events:none; }
 .pp-avatar { font-size:1.6rem; line-height:1; }
 .pp-name {
   font-family:'Rajdhani',sans-serif; font-size:1.05rem; font-weight:700;
@@ -1216,6 +1223,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
     </div>
     <div class="pp-footer">
       <button class="pp-btn-cancel" id="pp-btn-cancel" onclick="closeProfilePicker()">Annuler</button>
+      <button class="pp-btn-confirm disabled" id="pp-btn-confirm" onclick="confirmProfileSelection()">Ajouter (0)</button>
       <button class="pp-btn-manage" id="pp-btn-manage" onclick="location.href='profil.html'">＋ Gérer profils</button>
     </div>
   </div>
@@ -3415,7 +3423,49 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
+  /* ── Multi-select profile picker ── */
+  let ppSelected = [];
+
+  function getMaxPlayers() {
+    const count = document.querySelectorAll('.player-item-name').length;
+    return 6 - count;
+  }
+
+  function updateConfirmBtn() {
+    const btn = document.getElementById('pp-btn-confirm');
+    if (!btn) return;
+    const n = ppSelected.length;
+    btn.textContent = 'Ajouter (' + n + ')';
+    btn.classList.toggle('disabled', n === 0);
+  }
+
+  function toggleProfileRow(row, emoji, name) {
+    const max = getMaxPlayers();
+    const idx = ppSelected.findIndex(s => s.emoji === emoji && s.name === name);
+    if (idx !== -1) {
+      ppSelected.splice(idx, 1);
+      row.classList.remove('checked');
+      // Re-enable disabled rows if under max
+      if (ppSelected.length < max) {
+        document.querySelectorAll('#pp-list .pp-profile-row.disabled').forEach(r => r.classList.remove('disabled'));
+      }
+    } else {
+      if (ppSelected.length >= max) {
+        if (typeof showSetupToast === 'function') showSetupToast(t('pp_max_reached') || 'Maximum atteint');
+        return;
+      }
+      ppSelected.push({ emoji, name });
+      row.classList.add('checked');
+      // Disable remaining if at max
+      if (ppSelected.length >= max) {
+        document.querySelectorAll('#pp-list .pp-profile-row:not(.checked)').forEach(r => r.classList.add('disabled'));
+      }
+    }
+    updateConfirmBtn();
+  }
+
   window.openProfilePicker = function() {
+    ppSelected = [];
     const profiles = getProfiles();
     document.getElementById('pp-title').textContent = t('pp_title');
     document.getElementById('pp-btn-cancel').textContent = t('pp_cancel');
@@ -3433,16 +3483,28 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
       if (ib === -1) return -1;
       return ia - ib;
     });
+    // Pre-select from last selection
+    const lastSel = (function(){ try { return JSON.parse(localStorage.getItem('dartvault_last_selection')||'[]'); } catch(e){ return []; } })();
+    const max = getMaxPlayers();
     if (available.length === 0) {
       list.innerHTML = '<div class="pp-empty">' + (profiles.length === 0 ? t('pp_empty').replace('\n','<br>') : (t('pp_all_used') || 'Tous les profils sont déjà en jeu.')) + '</div>';
     } else {
-      list.innerHTML = available.map(p =>
-        '<div class="pp-profile-row" onclick="pickProfile(\'' + p.emoji.replace(/'/g,"\\'") + '\',\'' + escHtml(p.name).replace(/'/g,"\\'") + '\')">' +
+      list.innerHTML = available.map(p => {
+        const full = p.emoji + ' ' + p.name;
+        const pre = lastSel.includes(full) && ppSelected.length < max;
+        if (pre) ppSelected.push({ emoji: p.emoji, name: p.name });
+        return '<div class="pp-profile-row' + (pre ? ' checked' : '') + '" data-emoji="' + p.emoji.replace(/"/g,'&quot;') + '" data-name="' + escHtml(p.name).replace(/"/g,'&quot;') + '" onclick="toggleProfileRow(this,this.dataset.emoji,this.dataset.name)">' +
         '<span class="pp-avatar">' + p.emoji + '</span>' +
         '<span class="pp-name">' + escHtml(p.name) + '</span>' +
-        '</div>'
-      ).join('');
+        '<span class="pp-check">✓</span>' +
+        '</div>';
+      }).join('');
+      // Disable if at max
+      if (ppSelected.length >= max) {
+        document.querySelectorAll('#pp-list .pp-profile-row:not(.checked)').forEach(r => r.classList.add('disabled'));
+      }
     }
+    updateConfirmBtn();
     document.getElementById('profile-picker').classList.add('open');
     const pmi = document.getElementById('pp-manual-input');
     if (pmi) {
@@ -3453,6 +3515,7 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
 
   window.closeProfilePicker = function() {
     document.getElementById('profile-picker').classList.remove('open');
+    ppSelected = [];
   };
 
   window.pickManual = function() {
@@ -3465,30 +3528,25 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     inp.value = '';
   };
 
-  window.pickProfile = function(emoji, name) {
+  window.confirmProfileSelection = function() {
+    if (ppSelected.length === 0) return;
+    const order = [...ppSelected];
+    order.forEach(({emoji, name}) => {
+      const fullName = emoji + ' ' + name;
+      const allNames = [];
+      document.querySelectorAll('.player-item-name').forEach(el => allNames.push((el.dataset.name || el.textContent).trim()));
+      if (allNames.includes(fullName)) return;
+      saveRecent(fullName);
+      document.getElementById('player-input').value = fullName;
+      profilePlayers.add(fullName);
+      addPlayer();
+      document.getElementById('player-input').value = '';
+    });
     closeProfilePicker();
-    saveRecent(emoji + ' ' + name);
-    const fullName = emoji + ' ' + name;
-    const mode = typeof getMode === 'function' ? getMode() : 'solo';
-    const allNames = [];
-    if(mode === 'solo') {
-      for(let i=1;i<=6;i++) {
-        document.querySelectorAll('#solo-team-'+i+' .player-item-name').forEach(el => {
-          allNames.push(el.dataset.name || el.textContent.trim());
-        });
-      }
-    } else {
-      document.querySelectorAll('#team-a-list .player-item-name, #team-b-list .player-item-name').forEach(el => {
-        allNames.push(el.dataset.name || el.textContent.trim());
-      });
-    }
-    if(allNames.includes(fullName)) { if(typeof showSetupToast==='function') showSetupToast(DV_LANG.t('err_name_taken')); return; }
-    // Inject into input and call addPlayer
-    document.getElementById('player-input').value = fullName;
-    profilePlayers.add(fullName);
-    if(typeof addPlayer==='function') addPlayer();
-    document.getElementById('player-input').value = '';
+    localStorage.setItem('dartvault_last_selection', JSON.stringify(order.map(o => o.emoji + ' ' + o.name)));
   };
+
+  window.toggleProfileRow = toggleProfileRow;
 
   // Auto-refresh picker quand on revient sur la page (ex: depuis profil.html)
   document.addEventListener('visibilitychange', () => {

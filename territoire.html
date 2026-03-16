@@ -973,6 +973,13 @@
   cursor:pointer; touch-action:manipulation; transition:all .18s;
 }
 .pp-profile-row:active { transform:scale(.98); border-color:var(--accent); background:rgba(232,197,71,.08); }
+.pp-profile-row.checked { border-color:var(--accent); background:rgba(232,197,71,.10); }
+.pp-profile-row.disabled { opacity:.35; pointer-events:none; }
+.pp-check { width:22px; height:22px; border-radius:6px; flex-shrink:0; border:2px solid var(--dim); background:transparent; display:flex; align-items:center; justify-content:center; transition:all .18s; font-size:.75rem; color:transparent; margin-left:auto; }
+.pp-profile-row.checked .pp-check { border-color:var(--accent); background:var(--accent); color:#000; }
+.pp-btn-confirm { flex:2; padding:11px; background:rgba(40,199,111,.15); border:1.5px solid rgba(40,199,111,.4); border-radius:12px; color:#28C76F; font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700; cursor:pointer; touch-action:manipulation; transition:all .2s; letter-spacing:.5px; }
+.pp-btn-confirm:active { transform:scale(.97); background:rgba(40,199,111,.25); }
+.pp-btn-confirm.disabled { opacity:.35; pointer-events:none; }
 .pp-avatar { font-size:1.6rem; line-height:1; }
 .pp-name {
   font-family:'Rajdhani',sans-serif; font-size:1.05rem; font-weight:700;
@@ -1511,6 +1518,7 @@
     </div>
     <div class="pp-footer">
       <button class="pp-btn-cancel" id="pp-btn-cancel" onclick="closeProfilePicker()">Annuler</button>
+      <button class="pp-btn-confirm disabled" id="pp-btn-confirm" onclick="confirmProfileSelection()">Ajouter (0)</button>
       <button class="pp-btn-manage" id="pp-btn-manage" onclick="location.href='profil.html'">＋ Gérer profils</button>
     </div>
   </div>
@@ -3248,7 +3256,35 @@ renderTeams();
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
+  let ppSelected = [];
+
+  function getMaxPlayers() {
+    const m = typeof getMode === 'function' ? getMode() : 'solo';
+    const total = state.teamA.length + state.teamB.length + state.teamC.length;
+    if (m === 'solo') return Math.max(0, 3 - total);
+    return Math.max(0, 4 - total);
+  }
+
+  function updatePickerUI() {
+    const max = getMaxPlayers();
+    const rows = document.querySelectorAll('#pp-list .pp-profile-row');
+    rows.forEach(row => {
+      const isChecked = row.classList.contains('checked');
+      if (!isChecked && ppSelected.length >= max) {
+        row.classList.add('disabled');
+      } else {
+        row.classList.remove('disabled');
+      }
+    });
+    const btn = document.getElementById('pp-btn-confirm');
+    if (btn) {
+      btn.textContent = 'Ajouter (' + ppSelected.length + ')';
+      btn.classList.toggle('disabled', ppSelected.length === 0);
+    }
+  }
+
   window.openProfilePicker = function() {
+    ppSelected = [];
     const profiles = getProfiles();
     document.getElementById('pp-title').textContent = t('pp_title');
     document.getElementById('pp-btn-cancel').textContent = t('pp_cancel');
@@ -3270,9 +3306,10 @@ renderTeams();
       list.innerHTML = '<div class="pp-empty">' + (profiles.length === 0 ? t('pp_empty').replace('\n','<br>') : (t('pp_all_used') || 'Tous les profils sont déjà en jeu.')) + '</div>';
     } else {
       list.innerHTML = available.map(p =>
-        '<div class="pp-profile-row" onclick="pickProfile(\'' + p.emoji.replace(/'/g,"\\'") + '\',\'' + escHtml(p.name).replace(/'/g,"\\'") + '\')">' +
+        '<div class="pp-profile-row" data-emoji="' + p.emoji.replace(/"/g,'&quot;') + '" data-name="' + escHtml(p.name).replace(/"/g,'&quot;') + '" onclick="toggleProfileRow(this)">' +
         '<span class="pp-avatar">' + p.emoji + '</span>' +
         '<span class="pp-name">' + escHtml(p.name) + '</span>' +
+        '<span class="pp-check">✔</span>' +
         '</div>'
       ).join('');
     }
@@ -3282,9 +3319,61 @@ renderTeams();
       pmi.value = '';
       pmi.onkeydown = function(e) { if (e.key === 'Enter') pickManual(); };
     }
+    updatePickerUI();
+  };
+
+  window.toggleProfileRow = function(row) {
+    const emoji = row.getAttribute('data-emoji');
+    const name = row.getAttribute('data-name');
+    const key = emoji + ' ' + name;
+    const idx = ppSelected.findIndex(s => s.emoji === emoji && s.name === name);
+    if (idx !== -1) {
+      ppSelected.splice(idx, 1);
+      row.classList.remove('checked');
+    } else {
+      const max = getMaxPlayers();
+      if (ppSelected.length >= max) {
+        if (typeof showToast === 'function') showToast('Max ' + max + ' joueur(s)');
+        return;
+      }
+      ppSelected.push({ emoji, name });
+      row.classList.add('checked');
+    }
+    updatePickerUI();
+  };
+
+  window.confirmProfileSelection = function() {
+    if (ppSelected.length === 0) return;
+    const order = ppSelected.slice();
+    order.forEach(({emoji, name}) => {
+      const fullName = emoji + ' ' + name;
+      const allNames = [...state.teamA, ...state.teamB, ...state.teamC];
+      if (allNames.some(n => n.toLowerCase() === fullName.toLowerCase())) return;
+      saveRecent(fullName);
+      const m = typeof getMode === 'function' ? getMode() : 'solo';
+      if (m === 'solo') {
+        if (state.teamA.length === 0) state.teamA.push(fullName);
+        else if (state.teamB.length === 0) state.teamB.push(fullName);
+        else if (state.teamC.length === 0) state.teamC.push(fullName);
+        else return;
+      } else {
+        if (state.teamA.length <= state.teamB.length) {
+          if (state.teamA.length >= 2) return;
+          state.teamA.push(fullName);
+        } else {
+          if (state.teamB.length >= 2) return;
+          state.teamB.push(fullName);
+        }
+      }
+      profilePlayers.add(fullName);
+    });
+    if (typeof renderTeams === 'function') renderTeams();
+    closeProfilePicker();
+    localStorage.setItem('dartvault_last_selection', JSON.stringify(order.map(o => o.emoji + ' ' + o.name)));
   };
 
   window.closeProfilePicker = function() {
+    ppSelected = [];
     document.getElementById('profile-picker').classList.remove('open');
   };
 
@@ -3296,33 +3385,6 @@ renderTeams();
     closeProfilePicker();
     addPlayer();
     inp.value = '';
-  };
-
-  window.pickProfile = function(emoji, name) {
-    closeProfilePicker();
-    saveRecent(emoji + ' ' + name);
-    const fullName = emoji + ' ' + name;
-    const allNames = [...state.teamA, ...state.teamB, ...state.teamC];
-    if (allNames.some(n => n.toLowerCase() === fullName.toLowerCase())) {
-      if(typeof showToast==='function') showToast(DV_LANG.t('err_name_taken')); return;
-    }
-    const m = typeof getMode === 'function' ? getMode() : 'solo';
-    if (m === 'solo') {
-      if (state.teamA.length === 0) state.teamA.push(fullName);
-      else if (state.teamB.length === 0) state.teamB.push(fullName);
-      else if (state.teamC.length === 0) state.teamC.push(fullName);
-      else { if(typeof showToast==='function') showToast(DV_LANG.t('err_solo_max3')); return; }
-    } else {
-      if (state.teamA.length <= state.teamB.length) {
-        if (state.teamA.length >= 2) { if(typeof showToast==='function') showToast(DV_LANG.t('err_team_max2')); return; }
-        state.teamA.push(fullName);
-      } else {
-        if (state.teamB.length >= 2) { if(typeof showToast==='function') showToast(DV_LANG.t('err_team_max2')); return; }
-        state.teamB.push(fullName);
-      }
-    }
-    profilePlayers.add(fullName);
-    if(typeof renderTeams==='function') renderTeams();
   };
 
   // Auto-refresh picker quand on revient sur la page (ex: depuis profil.html)

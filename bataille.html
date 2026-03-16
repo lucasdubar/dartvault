@@ -880,6 +880,13 @@ body { font-family:'Exo 2',sans-serif; background:var(--bg); color:var(--text); 
   cursor:pointer; touch-action:manipulation; transition:all .18s;
 }
 .pp-profile-row:active { transform:scale(.98); border-color:var(--accent); background:rgba(232,197,71,.08); }
+.pp-profile-row.checked { border-color:var(--accent); background:rgba(232,197,71,.10); }
+.pp-profile-row.disabled { opacity:.35; pointer-events:none; }
+.pp-check { width:22px; height:22px; border-radius:6px; flex-shrink:0; border:2px solid var(--dim); background:transparent; display:flex; align-items:center; justify-content:center; transition:all .18s; font-size:.75rem; color:transparent; margin-left:auto; }
+.pp-profile-row.checked .pp-check { border-color:var(--accent); background:var(--accent); color:#000; }
+.pp-btn-confirm { flex:2; padding:11px; background:rgba(40,199,111,.15); border:1.5px solid rgba(40,199,111,.4); border-radius:12px; color:#28C76F; font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700; cursor:pointer; touch-action:manipulation; transition:all .2s; letter-spacing:.5px; }
+.pp-btn-confirm:active { transform:scale(.97); background:rgba(40,199,111,.25); }
+.pp-btn-confirm.disabled { opacity:.35; pointer-events:none; }
 .pp-avatar { font-size:1.6rem; line-height:1; }
 .pp-name {
   font-family:'Rajdhani',sans-serif; font-size:1.05rem; font-weight:700;
@@ -1484,6 +1491,7 @@ body { font-family:'Exo 2',sans-serif; background:var(--bg); color:var(--text); 
     </div>
     <div class="pp-footer">
       <button class="pp-btn-cancel" id="pp-btn-cancel" onclick="closeProfilePicker()">Annuler</button>
+      <button class="pp-btn-confirm disabled" id="pp-btn-confirm" onclick="confirmProfileSelection()">Ajouter (0)</button>
       <button class="pp-btn-manage" id="pp-btn-manage" onclick="location.href='profil.html'">＋ Gérer profils</button>
     </div>
   </div>
@@ -3174,7 +3182,33 @@ history.pushState(null,'',window.location.href);
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
+  var ppSelection = []; // ordered array of {emoji, name}
+
+  function getMaxPlayers() {
+    const mode = typeof getSelectedMode === 'function' ? getSelectedMode() : 'solo';
+    if (mode === 'solo') {
+      return Math.max(0, 2 - teams.A.length - teams.B.length);
+    } else {
+      return Math.max(0, MAX_PER_TEAM * 2 - teams.A.length - teams.B.length);
+    }
+  }
+
+  function updatePickerUI() {
+    var max = getMaxPlayers();
+    var rows = document.querySelectorAll('#pp-list .pp-profile-row');
+    rows.forEach(function(row) {
+      var emoji = row.getAttribute('data-emoji');
+      var name = row.getAttribute('data-name');
+      var isChecked = ppSelection.some(function(s) { return s.emoji === emoji && s.name === name; });
+      row.classList.toggle('checked', isChecked);
+      row.classList.toggle('disabled', !isChecked && ppSelection.length >= max);
+    });
+    var btn = document.getElementById('pp-btn-confirm');
+    if (btn) { btn.textContent = 'Ajouter (' + ppSelection.length + ')'; btn.classList.toggle('disabled', ppSelection.length === 0); }
+  }
+
   window.openProfilePicker = function() {
+    ppSelection = [];
     const profiles = getProfiles();
     document.getElementById('pp-title').textContent = t('pp_title');
     document.getElementById('pp-btn-cancel').textContent = t('pp_cancel');
@@ -3186,18 +3220,34 @@ history.pushState(null,'',window.location.href);
       list.innerHTML = '<div class="pp-empty">' + (profiles.length === 0 ? t('pp_empty').replace('\n','<br>') : (t('pp_all_used') || 'Tous les profils sont déjà en jeu.')) + '</div>';
     } else {
       list.innerHTML = available.map(p =>
-        '<div class="pp-profile-row" onclick="pickProfile(\'' + p.emoji.replace(/'/g,"\\'") + '\',\'' + escHtml(p.name).replace(/'/g,"\\'") + '\')">' +
+        '<div class="pp-profile-row" data-emoji="' + p.emoji.replace(/"/g,'&quot;') + '" data-name="' + escHtml(p.name).replace(/"/g,'&quot;') + '" onclick="toggleProfileRow(this)">' +
         '<span class="pp-avatar">' + p.emoji + '</span>' +
         '<span class="pp-name">' + escHtml(p.name) + '</span>' +
+        '<span class="pp-check">✓</span>' +
         '</div>'
       ).join('');
     }
+    updatePickerUI();
     document.getElementById('profile-picker').classList.add('open');
     const pmi = document.getElementById('pp-manual-input');
     if (pmi) {
       pmi.value = '';
       pmi.onkeydown = function(e) { if (e.key === 'Enter') pickManual(); };
     }
+  };
+
+  window.toggleProfileRow = function(row) {
+    var emoji = row.getAttribute('data-emoji');
+    var name = row.getAttribute('data-name');
+    var idx = ppSelection.findIndex(function(s) { return s.emoji === emoji && s.name === name; });
+    if (idx >= 0) {
+      ppSelection.splice(idx, 1);
+    } else {
+      var max = getMaxPlayers();
+      if (ppSelection.length >= max) return;
+      ppSelection.push({emoji: emoji, name: name});
+    }
+    updatePickerUI();
   };
 
   window.closeProfilePicker = function() {
@@ -3214,29 +3264,28 @@ history.pushState(null,'',window.location.href);
     inp.value = '';
   };
 
-  window.pickProfile = function(emoji, name) {
+  window.confirmProfileSelection = function() {
+    if (ppSelection.length === 0) return;
+    var order = ppSelection.slice();
+    order.forEach(function(o) {
+      var fullName = o.emoji + ' ' + o.name;
+      if (typeof allNames === 'function' && allNames().some(function(n) { return n.toLowerCase() === fullName.toLowerCase(); })) return;
+      saveRecent(fullName);
+      var mode = typeof getSelectedMode === 'function' ? getSelectedMode() : 'solo';
+      if (mode === 'solo') {
+        if (teams.A.length >= 1 && teams.B.length >= 1) return;
+        var target = teams.A.length <= teams.B.length ? 'A' : 'B';
+        teams[target].push(fullName);
+      } else {
+        var target = teams.A.length <= teams.B.length ? 'A' : 'B';
+        if (teams[target].length >= MAX_PER_TEAM) return;
+        teams[target].push(fullName);
+      }
+      profilePlayers.add(fullName);
+    });
+    if (typeof renderSetupPlayers === 'function') renderSetupPlayers();
     closeProfilePicker();
-    saveRecent(emoji + ' ' + name);
-    const fullName = emoji + ' ' + name;
-    if (typeof allNames === 'function' && allNames().some(n => n.toLowerCase() === fullName.toLowerCase())) {
-      if(typeof showSetupToast==='function') showSetupToast(DV_LANG.t('err_name_taken')); return;
-    }
-    const mode = typeof getSelectedMode === 'function' ? getSelectedMode() : 'solo';
-    if (mode === 'solo') {
-      if (teams.A.length >= 1 && teams.B.length >= 1) {
-        if(typeof showSetupToast==='function') showSetupToast(DV_LANG.t('err_solo1')); return;
-      }
-      const target = teams.A.length <= teams.B.length ? 'A' : 'B';
-      teams[target].push(fullName);
-    } else {
-      const target = teams.A.length <= teams.B.length ? 'A' : 'B';
-      if (teams[target].length >= MAX_PER_TEAM) {
-        if(typeof showSetupToast==='function') showSetupToast(DV_LANG.t('err_team_max_n').replace('{n}',MAX_PER_TEAM)); return;
-      }
-      teams[target].push(fullName);
-    }
-    profilePlayers.add(fullName);
-    if(typeof renderSetupPlayers==='function') renderSetupPlayers();
+    localStorage.setItem('dartvault_last_selection', JSON.stringify(order.map(function(o) { return o.emoji + ' ' + o.name; })));
   };
 
   // Auto-refresh picker quand on revient sur la page (ex: depuis profil.html)

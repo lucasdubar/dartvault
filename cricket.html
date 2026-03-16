@@ -137,7 +137,12 @@ body {
   display: flex; align-items: center; justify-content: center;
 }
 .num-row.closed-all .num-label { color: #444; }
-@media (orientation:portrait) { .num-label { display: none !important; } }
+@media (orientation:portrait) {
+  .num-label { display: none !important; }
+  .mark-symbol { font-size: clamp(1rem, 5vmin, 2.8rem) !important; }
+  .mark-symbol.done { font-size: clamp(1rem, 5vmin, 2.8rem) !important; }
+  .num-row:not(:first-child) .player-mark-cell { overflow: hidden; }
+}
 
 .marks-area { display: flex; flex: 1; gap: 2px; justify-content: center; align-items: stretch; align-self: stretch; }
 .player-mark-cell { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; min-width: 0; border-radius: 4px; padding: 0 2px; }
@@ -147,6 +152,7 @@ body {
   font-family: 'Rajdhani', sans-serif; font-size: clamp(1rem, 4vmin, 2.2rem); font-weight: 700;
   line-height: 1; flex: 1; transition: all 0.2s;
   display: flex; align-items: center; justify-content: center;
+  min-height: 0; max-height: 100%;
 }
 .mark-symbol.open { text-shadow: 0 0 8px currentColor; }
 .mark-symbol.done { font-size: clamp(1rem, 4vmin, 2.2rem); text-shadow: 0 0 12px currentColor, 0 0 24px currentColor; opacity: 1; line-height: 1; }
@@ -155,7 +161,7 @@ body {
   opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
 }
 
-.hit-btns { display: flex; gap: 4px; flex-shrink: 0; }
+.hit-btns { display: flex; gap: 4px; flex-shrink: 0; align-items: center; align-self: stretch; }
 .btn-hit {
   padding: 3px 10px; border-radius: 8px;
   font-family: 'Rajdhani', sans-serif; font-size: 0.82rem; font-weight: 700;
@@ -658,6 +664,26 @@ body {
   cursor:pointer; touch-action:manipulation; transition:all .18s;
 }
 .pp-profile-row:active { transform:scale(.98); border-color:var(--accent); background:rgba(232,197,71,.08); }
+.pp-profile-row.checked { border-color:var(--accent); background:rgba(232,197,71,.10); }
+.pp-profile-row.disabled { opacity:.35; pointer-events:none; }
+.pp-check {
+  width:22px; height:22px; border-radius:6px; flex-shrink:0;
+  border:2px solid var(--dim); background:transparent;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .18s; font-size:.75rem; color:transparent; margin-left:auto;
+}
+.pp-profile-row.checked .pp-check {
+  border-color:var(--accent); background:var(--accent); color:#000;
+}
+.pp-btn-confirm {
+  flex:2; padding:11px;
+  background:rgba(40,199,111,.15); border:1.5px solid rgba(40,199,111,.4);
+  border-radius:12px; color:#28C76F;
+  font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700;
+  cursor:pointer; touch-action:manipulation; transition:all .2s; letter-spacing:.5px;
+}
+.pp-btn-confirm:active { transform:scale(.97); background:rgba(40,199,111,.25); }
+.pp-btn-confirm.disabled { opacity:.35; pointer-events:none; }
 .pp-avatar { font-size:1.6rem; line-height:1; }
 .pp-name {
   font-family:'Rajdhani',sans-serif; font-size:1.05rem; font-weight:700;
@@ -872,15 +898,16 @@ body {
   .player-mark-cell{padding:0 4px;gap:0;}
   .num-label{font-size:1.5rem;min-width:58px;}
 
-  /* Marques lisibles de loin */
-  .mark-symbol{font-size:clamp(2.4rem, 7vmin, 4.8rem)!important;}
-  .mark-symbol.done{font-size:clamp(2.4rem, 7vmin, 4.8rem)!important;}
+  /* Marques : s'adapte à la hauteur de la ligne */
+  .mark-symbol{font-size:clamp(1.2rem, 5vmin, 3.5rem)!important;}
+  .mark-symbol.done{font-size:clamp(1.2rem, 5vmin, 3.5rem)!important;}
 
   /* Noms + scores dans l'en-tête (override inline styles JS) */
   .num-row:first-child .player-mark-cell > div:first-child{font-size:1.2rem!important;}
   .num-row:first-child .player-mark-cell > div:last-child{font-size:2.6rem!important;}
 
   /* Boutons de saisie : plus grands et lisibles */
+  .hit-btns{align-items:center;align-self:stretch;justify-content:center;}
   .btn-hit{padding:10px 20px;font-size:1.15rem;min-width:86px;}
 
   /* Barre du bas */
@@ -893,6 +920,22 @@ body {
   /* Slots fléchettes un peu plus hauts */
   .dart-slot{height:44px;font-size:1rem;}
   .dart-darts-row{padding:0 16px;}
+}
+
+/* ══ Bloquer paysage sur mobile ══ */
+.rotate-overlay {
+  display:none; position:fixed; inset:0; z-index:9999;
+  background:var(--bg); color:var(--text);
+  flex-direction:column; align-items:center; justify-content:center;
+  gap:16px; text-align:center; padding:24px;
+}
+.rotate-overlay .rotate-icon { font-size:3rem; }
+.rotate-overlay .rotate-msg {
+  font-family:'Rajdhani',sans-serif; font-size:1.2rem; font-weight:700;
+  letter-spacing:1px; color:var(--accent);
+}
+@media (orientation:landscape) and (max-height:500px) {
+  .rotate-overlay { display:flex !important; }
 }
 </style>
 <style id="theme-overrides">
@@ -1029,6 +1072,11 @@ body {
   <script src="lang.js"></script>
 </head>
 <body>
+
+<div class="rotate-overlay">
+  <span class="rotate-icon">📱</span>
+  <span class="rotate-msg">Tournez votre appareil en portrait</span>
+</div>
 
 <!-- HEADER -->
 <div class="header">
@@ -1256,6 +1304,7 @@ body {
     </div>
     <div class="pp-footer">
       <button class="pp-btn-cancel" id="pp-btn-cancel" onclick="closeProfilePicker()">Annuler</button>
+      <button class="pp-btn-confirm disabled" id="pp-btn-confirm" onclick="confirmProfileSelection()">Ajouter (0)</button>
       <button class="pp-btn-manage" id="pp-btn-manage" onclick="location.href='profil.html'">＋ Gérer profils</button>
     </div>
   </div>
@@ -2790,6 +2839,8 @@ history.pushState(null, '', window.location.href);
 (function() {
   const PROFILES_KEY = 'dartvault_profiles';
   const RECENT_KEY = 'dartvault_recent_profiles';
+  const SELECTION_KEY = 'dartvault_last_selection';
+  window._ppSelectionOrder = [];
   function getProfiles() {
     try { return JSON.parse(localStorage.getItem(PROFILES_KEY)) || []; } catch(e) { return []; }
   }
@@ -2810,6 +2861,7 @@ history.pushState(null, '', window.location.href);
   }
 
   window.openProfilePicker = function() {
+    window._ppSelectionOrder = [];
     const profiles = getProfiles();
     document.getElementById('pp-title').textContent = t('pp_title');
     document.getElementById('pp-btn-cancel').textContent = t('pp_cancel');
@@ -2827,16 +2879,27 @@ history.pushState(null, '', window.location.href);
       if (ib === -1) return -1;
       return ia - ib;
     });
+    // Pre-check from last selection
+    let lastSel = [];
+    try { lastSel = JSON.parse(localStorage.getItem(SELECTION_KEY)) || []; } catch(e) { lastSel = []; }
     if (available.length === 0) {
       list.innerHTML = '<div class="pp-empty">' + (profiles.length === 0 ? t('pp_empty').replace('\n','<br>') : (t('pp_all_used') || 'Tous les profils sont déjà en jeu.')) + '</div>';
     } else {
-      list.innerHTML = available.map(p =>
-        '<div class="pp-profile-row" onclick="pickProfile(\'' + p.emoji.replace(/'/g,"\\'") + '\',\'' + escHtml(p.name).replace(/'/g,"\\'") + '\')">' +
+      list.innerHTML = available.map(p => {
+        const fullName = p.emoji + ' ' + p.name;
+        const preChecked = lastSel.includes(fullName) && !usedNames.includes(fullName.toLowerCase());
+        return '<div class="pp-profile-row' + (preChecked ? ' checked' : '') + '" data-emoji="' + escHtml(p.emoji) + '" data-name="' + escHtml(p.name) + '" onclick="togglePPCheck(this)">' +
         '<span class="pp-avatar">' + p.emoji + '</span>' +
         '<span class="pp-name">' + escHtml(p.name) + '</span>' +
-        '</div>'
-      ).join('');
+        '<span class="pp-check">✓</span>' +
+        '</div>';
+      }).join('');
+      // Build initial selection order from pre-checked
+      document.querySelectorAll('#pp-list .pp-profile-row.checked').forEach(row => {
+        window._ppSelectionOrder.push({ emoji: row.dataset.emoji, name: row.dataset.name });
+      });
     }
+    updatePPConfirm();
     document.getElementById('profile-picker').classList.add('open');
     const pmi = document.getElementById('pp-manual-input');
     if (pmi) {
@@ -2872,6 +2935,62 @@ history.pushState(null, '', window.location.href);
     profilePlayers.add(fullName);
     players.push(fullName);
     renderPlayerList();
+  };
+
+  window.togglePPCheck = function(row) {
+    const isChecked = row.classList.contains('checked');
+    if (isChecked) {
+      row.classList.remove('checked');
+      const emoji = row.dataset.emoji, name = row.dataset.name;
+      window._ppSelectionOrder = window._ppSelectionOrder.filter(o => !(o.emoji === emoji && o.name === name));
+    } else {
+      const remaining = 6 - players.length;
+      if (window._ppSelectionOrder.length >= remaining) return;
+      row.classList.add('checked');
+      window._ppSelectionOrder.push({ emoji: row.dataset.emoji, name: row.dataset.name });
+    }
+    updatePPConfirm();
+  };
+
+  window.updatePPConfirm = function() {
+    const btn = document.getElementById('pp-btn-confirm');
+    const count = window._ppSelectionOrder.length;
+    const remaining = 6 - players.length;
+    btn.textContent = 'Ajouter (' + count + ')';
+    if (count === 0) {
+      btn.classList.add('disabled');
+    } else {
+      btn.classList.remove('disabled');
+    }
+    // Disable unchecked rows when max reached
+    document.querySelectorAll('#pp-list .pp-profile-row').forEach(row => {
+      if (!row.classList.contains('checked')) {
+        if (count >= remaining) {
+          row.classList.add('disabled');
+        } else {
+          row.classList.remove('disabled');
+        }
+      } else {
+        row.classList.remove('disabled');
+      }
+    });
+  };
+
+  window.confirmProfileSelection = function() {
+    const order = window._ppSelectionOrder.slice();
+    if (order.length === 0) return;
+    order.forEach(function(o) {
+      var emoji = o.emoji, name = o.name;
+      var fullName = emoji + ' ' + name;
+      if (players.length >= 6) return;
+      if (players.some(function(p) { return p.toLowerCase() === fullName.toLowerCase(); })) return;
+      saveRecent(fullName);
+      profilePlayers.add(fullName);
+      players.push(fullName);
+    });
+    renderPlayerList();
+    closeProfilePicker();
+    localStorage.setItem(SELECTION_KEY, JSON.stringify(order.map(function(o) { return o.emoji + ' ' + o.name; })));
   };
 
   // Auto-refresh picker quand on revient sur la page (ex: depuis profil.html)
