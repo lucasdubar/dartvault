@@ -118,14 +118,13 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
 .finish-route{font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;color:var(--text);letter-spacing:.5px;overflow:hidden;text-overflow:ellipsis;}
 
 /* ── Liste joueurs ── */
-.players-list-wrap{flex:1;min-height:0;overflow-y:auto;padding:8px 10px;}
+.players-list-wrap{flex:1;min-height:0;overflow:hidden;padding:8px 10px;display:flex;flex-direction:column;}
 .players-list-wrap::-webkit-scrollbar{width:3px;}
 .players-list-wrap::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px;}
-.players-grid-inner{display:grid;grid-template-columns:1fr 1fr;gap:7px;height:100%;}
+.players-grid-inner{display:grid;grid-template-columns:1fr 1fr;gap:7px;flex:1;min-height:0;grid-auto-rows:1fr;}
 .players-grid-inner.players-grid-single{grid-template-columns:1fr;}
 /* Compact pour 5+ joueurs portrait mobile */
-.players-grid-inner.players-grid-compact{grid-template-rows:1fr 1fr 1fr;}
-.players-grid-inner.players-grid-compact .player-card-501{padding:5px 8px;display:flex;flex-direction:column;justify-content:center;}
+.players-grid-inner.players-grid-compact .player-card-501{padding:5px 8px;min-height:0;overflow:hidden;}
 .players-grid-inner.players-grid-compact .pc-name{font-size:.8rem!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .players-grid-inner.players-grid-compact .pc-score{font-size:1.5rem!important;}
 .players-grid-inner.players-grid-compact .pc-avg{font-size:.62rem!important;}
@@ -133,8 +132,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
 .players-grid-inner.players-grid-compact .pc-dot{width:5px;height:5px;}
 .players-grid-inner.players-grid-compact .pc-info-btn{padding:2px 5px;font-size:.6rem;}
 /* ── Mode 3-4 joueurs : cartes plus grandes ── */
-.players-grid-inner.players-grid-medium{grid-template-rows:1fr 1fr;}
-.players-grid-inner.players-grid-medium .player-card-501{padding:8px 10px;display:flex;flex-direction:column;justify-content:center;}
+.players-grid-inner.players-grid-medium .player-card-501{padding:8px 10px;min-height:0;overflow:hidden;}
 .players-grid-inner.players-grid-medium .pc-name{font-size:.92rem!important;}
 .players-grid-inner.players-grid-medium .pc-score{font-size:1.6rem!important;}
 .players-grid-inner.players-grid-medium .pc-avg{font-size:.7rem!important;}
@@ -143,7 +141,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
 .player-card-501{
   background:var(--bg2);border:1.5px solid rgba(255,255,255,.07);
   border-radius:12px;padding:5px 10px;
-  position:relative;overflow:visible;
+  position:relative;overflow:hidden;min-height:0;
   transition:border-color .3s, box-shadow .3s;
 }
 .player-card-501::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:2px 0 0 2px;background:var(--pcolor,rgba(255,255,255,.2));border-radius:12px 0 0 12px;}
