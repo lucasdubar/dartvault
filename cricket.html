@@ -139,9 +139,9 @@ body {
 .num-row.closed-all .num-label { color: #444; }
 @media (orientation:portrait) {
   .num-label { display: none !important; }
-  .mark-symbol { font-size: clamp(1rem, 5vmin, 2.8rem) !important; }
-  .mark-symbol.done { font-size: clamp(1rem, 5vmin, 2.8rem) !important; }
-  .num-row:not(:first-child) .player-mark-cell { overflow: hidden; }
+  .mark-symbol { font-size: clamp(1.2rem, 8vw, 3rem) !important; }
+  .mark-symbol.done { font-size: clamp(1.2rem, 8vw, 3rem) !important; }
+  .btn-hit { flex: 1; display: flex; align-items: center; justify-content: center; padding: 0 6px; align-self: stretch; }
 }
 
 .marks-area { display: flex; flex: 1; gap: 2px; justify-content: center; align-items: stretch; align-self: stretch; }
@@ -922,21 +922,7 @@ body {
   .dart-darts-row{padding:0 16px;}
 }
 
-/* ══ Bloquer paysage sur mobile ══ */
-.rotate-overlay {
-  display:none; position:fixed; inset:0; z-index:9999;
-  background:var(--bg); color:var(--text);
-  flex-direction:column; align-items:center; justify-content:center;
-  gap:16px; text-align:center; padding:24px;
-}
-.rotate-overlay .rotate-icon { font-size:3rem; }
-.rotate-overlay .rotate-msg {
-  font-family:'Rajdhani',sans-serif; font-size:1.2rem; font-weight:700;
-  letter-spacing:1px; color:var(--accent);
-}
-@media (orientation:landscape) and (max-height:500px) {
-  .rotate-overlay { display:flex !important; }
-}
+/* ══ Lock portrait sur mobile ══ */
 </style>
 <style id="theme-overrides">
 [data-theme="dark"]{--bg:#0E0F10!important;--bg2:#161718!important;--bg3:#1C1E20!important;--bg4:#242628!important;--text:#F0F0F0!important;--dim:#606468!important;--text-dim:#606468!important;--accent:#E8E8E8!important;--ok:#28C76F!important;--warn:#FF9F43!important;--danger:#DC3545!important;}
@@ -1072,11 +1058,12 @@ body {
   <script src="lang.js"></script>
 </head>
 <body>
-
-<div class="rotate-overlay">
-  <span class="rotate-icon">📱</span>
-  <span class="rotate-msg">Tournez votre appareil en portrait</span>
-</div>
+<script>
+// Lock portrait on mobile
+if (screen.orientation && screen.orientation.lock) {
+  screen.orientation.lock('portrait').catch(function(){});
+}
+</script>
 
 <!-- HEADER -->
 <div class="header">
