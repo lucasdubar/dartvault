@@ -1,0 +1,740 @@
+/* ══════════════════════════════════════════════════════════════
+   LUCAS DARTS v3 — THÈME CENTRALISÉ
+   Référence DA : 501 (v33)
+
+   3 modes :
+     • Couleurs  → pas de data-theme sur <html> (variables par jeu)
+     • Sombre    → data-theme="dark"   sur <html>
+     • Clair     → data-theme="light"  sur <html>
+
+   UTILISATION :
+     1. Ajouter <link rel="stylesheet" href="theme.css"> dans <head>
+        APRÈS les styles propres du jeu (pour que les overrides soient prioritaires)
+     2. Conserver le script d'init en tout premier dans <head> :
+        <script>
+        (function(){
+          var t=localStorage.getItem('dartvault_theme')||'dark';
+          if(t==='light'||t==='dark')
+            document.documentElement.setAttribute('data-theme',t);
+        })();
+        </script>
+   ══════════════════════════════════════════════════════════════ */
+
+
+/* ──────────────────────────────────────────
+   1. VARIABLES DARK / LIGHT
+   ────────────────────────────────────────── */
+
+[data-theme="dark"] {
+  --bg:        #1A0A0E !important;
+  --bg2:       #2A1018 !important;
+  --bg3:       #3A1A24 !important;
+  --bg4:       #4A2030 !important;
+  --text:      #F0F0F0 !important;
+  --dim:       #777777 !important;
+  --text-dim:  #777777 !important;
+  --accent:    #E8E8E8 !important;
+  --ok:        #28C76F !important;
+  --warn:      #FF9F43 !important;
+  --danger:    #DC3545 !important;
+}
+
+[data-theme="light"] {
+  --bg:        #F7F0F2 !important;
+  --bg2:       #FFFFFF !important;
+  --bg3:       #EDE4E7 !important;
+  --bg4:       #E2D6DA !important;
+  --text:      #1A0A0E !important;
+  --dim:       #8A6070 !important;
+  --text-dim:  #8A6070 !important;
+  --accent:    #2A1018 !important;
+  --ok:        #1A8A4A !important;
+  --warn:      #C06000 !important;
+  --danger:    #C8272B !important;
+}
+
+
+/* ──────────────────────────────────────────
+   2. SURFACES GÉNÉRALES
+   ────────────────────────────────────────── */
+
+[data-theme="dark"] body,
+[data-theme="light"] body {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+}
+
+/* Header, barre fixe basse, zone de jeu haute */
+[data-theme="dark"] .header,
+[data-theme="light"] .header,
+[data-theme="dark"] .bottom-fixed,
+[data-theme="light"] .bottom-fixed,
+[data-theme="dark"] .game-top,
+[data-theme="light"] .game-top,
+[data-theme="dark"] .numpad-wrap,
+[data-theme="light"] .numpad-wrap,
+[data-theme="dark"] .dart-pad-wrap,
+[data-theme="light"] .dart-pad-wrap {
+  background: var(--bg2) !important;
+}
+
+/* Séparateurs header */
+[data-theme="dark"] .header {
+  border-bottom-color: rgba(232,232,232,.15) !important;
+}
+[data-theme="light"] .header {
+  border-bottom-color: rgba(42,16,24,.12) !important;
+}
+
+/* Cards / drawers / modals conteneurs */
+[data-theme="dark"] .card,
+[data-theme="light"] .card,
+[data-theme="dark"] .mod,
+[data-theme="light"] .mod,
+[data-theme="dark"] .drawer,
+[data-theme="light"] .drawer {
+  background: var(--bg2) !important;
+}
+
+/* Zones actives (active-zone, zone-jeu, …) */
+[data-theme="dark"] .active-zone,
+[data-theme="light"] .active-zone {
+  background: var(--bg2) !important;
+  border-bottom-color: rgba(255,255,255,.06) !important;
+}
+[data-theme="light"] .active-zone {
+  border-bottom-color: rgba(42,16,24,.08) !important;
+}
+
+
+/* ──────────────────────────────────────────
+   3. BOUTONS PRINCIPAUX
+   ────────────────────────────────────────── */
+
+/* Bouton Démarrer / btn-start */
+[data-theme="dark"] .btn-start,
+[data-theme="dark"] .btn-main.btn-start {
+  background: linear-gradient(135deg,#E8E8E8,#B8B8B8) !important;
+  color: #1A0A0E !important;
+  box-shadow: 0 4px 18px rgba(232,232,232,.3) !important;
+  border: none !important;
+}
+[data-theme="light"] .btn-start,
+[data-theme="light"] .btn-main.btn-start {
+  background: linear-gradient(135deg,#2A1018,#4A2030) !important;
+  color: #F7F0F2 !important;
+  box-shadow: 0 4px 18px rgba(42,16,24,.3) !important;
+  border: none !important;
+}
+
+/* btn-gold (même traitement que btn-start) */
+[data-theme="dark"] .btn-gold {
+  background: linear-gradient(135deg,#E8E8E8,#B8B8B8) !important;
+  color: #1A0A0E !important;
+  border: none !important;
+  box-shadow: 0 0 12px rgba(232,232,232,.25) !important;
+}
+[data-theme="light"] .btn-gold {
+  background: linear-gradient(135deg,#2A1018,#4A2030) !important;
+  color: #F7F0F2 !important;
+  border: none !important;
+  box-shadow: 0 0 10px rgba(42,16,24,.18) !important;
+}
+
+/* btn-green */
+[data-theme="dark"] .btn-green {
+  background: var(--ok) !important;
+  color: #fff !important;
+}
+[data-theme="light"] .btn-green {
+  background: var(--ok) !important;
+  color: #fff !important;
+}
+
+/* btn-red */
+[data-theme="dark"] .btn-red {
+  background: var(--danger) !important;
+  color: #fff !important;
+}
+[data-theme="light"] .btn-red {
+  background: var(--danger) !important;
+  color: #fff !important;
+}
+
+/* Boutons secondaires */
+[data-theme="dark"] .btn-sm,
+[data-theme="dark"] .btn-gray,
+[data-theme="dark"] .btn-back,
+[data-theme="dark"] .btn-random,
+[data-theme="dark"] .btn-hist,
+[data-theme="dark"] .btn-undo,
+[data-theme="dark"] .btn-rm {
+  background: var(--bg3) !important;
+  color: var(--text) !important;
+  border-color: rgba(232,232,232,.15) !important;
+  box-shadow: none !important;
+}
+[data-theme="light"] .btn-sm,
+[data-theme="light"] .btn-gray,
+[data-theme="light"] .btn-back,
+[data-theme="light"] .btn-random,
+[data-theme="light"] .btn-hist,
+[data-theme="light"] .btn-undo,
+[data-theme="light"] .btn-rm {
+  background: var(--bg3) !important;
+  color: var(--text) !important;
+  border-color: rgba(42,16,24,.18) !important;
+  box-shadow: none !important;
+}
+
+/* Bouton + (ajout joueur) */
+[data-theme="dark"] .btn-add {
+  background: var(--accent) !important;
+  color: #1A0A0E !important;
+  border: 1.5px solid rgba(232,232,232,.3) !important;
+  box-shadow: 0 0 12px rgba(232,232,232,.25) !important;
+}
+[data-theme="light"] .btn-add {
+  background: var(--accent) !important;
+  color: #F7F0F2 !important;
+  border: 1.5px solid rgba(42,16,24,.35) !important;
+  box-shadow: 0 0 10px rgba(42,16,24,.18) !important;
+}
+
+/* Bouton Supprimer joueur */
+[data-theme="dark"] .btn-del {
+  background: rgba(220,53,69,.2) !important;
+  color: var(--danger) !important;
+  border: none !important;
+}
+[data-theme="light"] .btn-del {
+  background: rgba(200,39,43,.12) !important;
+  color: var(--danger) !important;
+  border: none !important;
+}
+
+/* Bouton OUT */
+[data-theme="dark"] .btn-out,
+[data-theme="dark"] .dart-out-btn {
+  background: rgba(220,53,69,.15) !important;
+  color: var(--danger) !important;
+  border-color: rgba(220,53,69,.35) !important;
+  box-shadow: none !important;
+}
+[data-theme="dark"] .btn-out:active,
+[data-theme="dark"] .dart-out-btn:active {
+  box-shadow: 0 0 16px rgba(220,53,69,.4) !important;
+}
+[data-theme="light"] .btn-out,
+[data-theme="light"] .dart-out-btn {
+  background: rgba(200,39,43,.1) !important;
+  color: var(--danger) !important;
+  border-color: rgba(200,39,43,.3) !important;
+  box-shadow: none !important;
+}
+[data-theme="light"] .btn-out:active,
+[data-theme="light"] .dart-out-btn:active {
+  box-shadow: 0 0 10px rgba(200,39,43,.2) !important;
+}
+
+/* Bouton Undo fléchettes */
+[data-theme="dark"] .dart-undo-btn {
+  background: rgba(255,159,67,.08) !important;
+  color: var(--warn) !important;
+  border-color: rgba(255,159,67,.3) !important;
+}
+[data-theme="light"] .dart-undo-btn {
+  background: rgba(192,96,0,.08) !important;
+  color: var(--warn) !important;
+  border-color: rgba(192,96,0,.3) !important;
+}
+
+/* Bouton légende / zones (Territoire) */
+[data-theme="dark"] .btn-legend,
+[data-theme="dark"] .btn-zones-bottom {
+  background: rgba(26,10,14,.92) !important;
+  color: var(--accent) !important;
+  border-color: rgba(232,232,232,.2) !important;
+}
+[data-theme="light"] .btn-legend,
+[data-theme="light"] .btn-zones-bottom {
+  background: rgba(255,255,255,.95) !important;
+  color: var(--accent) !important;
+  border-color: rgba(42,16,24,.2) !important;
+}
+
+/* Bouton dealer (BlackJack) */
+[data-theme="dark"] .btn-set-dealer {
+  background: rgba(232,232,232,.08) !important;
+  color: var(--accent) !important;
+  border-color: rgba(232,232,232,.2) !important;
+}
+[data-theme="light"] .btn-set-dealer {
+  background: rgba(42,16,24,.06) !important;
+  color: var(--accent) !important;
+  border-color: rgba(42,16,24,.2) !important;
+}
+
+/* Bouton choix (Bataille / DartsPong) */
+[data-theme="dark"] .btn-choice {
+  box-shadow: 0 0 10px rgba(232,232,232,.15) !important;
+}
+[data-theme="light"] .btn-choice {
+  box-shadow: 0 0 6px rgba(42,16,24,.1) !important;
+}
+
+/* Bouton difficulté */
+[data-theme="dark"] .btn-difficulty,
+[data-theme="dark"] .btn-difficulty-dp {
+  background: var(--bg3) !important;
+  color: var(--dim) !important;
+  border: 1.5px solid rgba(255,255,255,.12) !important;
+  box-shadow: none !important;
+}
+[data-theme="dark"] .btn-difficulty.selected,
+[data-theme="dark"] .btn-difficulty-dp.selected,
+[data-theme="dark"] .btn-difficulty.easy.selected,
+[data-theme="dark"] .btn-difficulty.hard.selected {
+  box-shadow: 0 0 8px rgba(232,232,232,.2) !important;
+}
+[data-theme="light"] .btn-difficulty,
+[data-theme="light"] .btn-difficulty-dp {
+  background: var(--bg3) !important;
+  color: var(--dim) !important;
+  border: 1.5px solid rgba(42,16,24,.18) !important;
+  box-shadow: none !important;
+}
+[data-theme="light"] .btn-difficulty.selected,
+[data-theme="light"] .btn-difficulty-dp.selected {
+  box-shadow: 0 0 6px rgba(42,16,24,.12) !important;
+}
+
+
+/* ──────────────────────────────────────────
+   4. PILLS & OPTION BUTTONS (Setup)
+   ────────────────────────────────────────── */
+
+/* Pills */
+[data-theme="dark"] .pill {
+  background: var(--bg3) !important;
+  color: var(--dim) !important;
+  border: 1.5px solid rgba(255,255,255,.1) !important;
+  box-shadow: none !important;
+}
+[data-theme="dark"] .pill-label input:checked ~ .pill,
+[data-theme="dark"] .pill-label input:checked + .pill {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: #1A0A0E !important;
+  box-shadow: 0 0 10px rgba(232,232,232,.3) !important;
+}
+[data-theme="light"] .pill {
+  background: var(--bg3) !important;
+  color: var(--dim) !important;
+  border: 1.5px solid rgba(42,16,24,.18) !important;
+  box-shadow: none !important;
+}
+[data-theme="light"] .pill-label input:checked ~ .pill,
+[data-theme="light"] .pill-label input:checked + .pill {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: #F7F0F2 !important;
+  box-shadow: 0 0 8px rgba(42,16,24,.2) !important;
+}
+
+/* Option buttons et legs buttons */
+[data-theme="dark"] .option-btn,
+[data-theme="dark"] .legs-btn {
+  background: var(--bg3) !important;
+  color: var(--dim) !important;
+  border: 1.5px solid rgba(255,255,255,.12) !important;
+  box-shadow: none !important;
+}
+[data-theme="dark"] .option-btn.selected,
+[data-theme="dark"] .legs-btn.selected {
+  background: rgba(232,232,232,.12) !important;
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+  box-shadow: 0 0 8px rgba(232,232,232,.2) !important;
+}
+[data-theme="light"] .option-btn,
+[data-theme="light"] .legs-btn {
+  background: var(--bg3) !important;
+  color: var(--dim) !important;
+  border: 1.5px solid rgba(42,16,24,.18) !important;
+  box-shadow: none !important;
+}
+[data-theme="light"] .option-btn.selected,
+[data-theme="light"] .legs-btn.selected {
+  background: rgba(42,16,24,.10) !important;
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+  box-shadow: 0 0 6px rgba(42,16,24,.12) !important;
+}
+
+
+/* ──────────────────────────────────────────
+   5. NUMPAD
+   ────────────────────────────────────────── */
+
+[data-theme="dark"] .nkey {
+  background: var(--bg3) !important;
+  color: var(--text) !important;
+  border-color: rgba(232,232,232,.12) !important;
+  box-shadow: none !important;
+}
+[data-theme="dark"] .nkey.kval {
+  background: var(--accent) !important;
+  color: #1A0A0E !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 3px 14px rgba(232,232,232,.3) !important;
+}
+[data-theme="dark"] .nkey.kdel {
+  background: rgba(220,53,69,.12) !important;
+  color: var(--danger) !important;
+  border-color: rgba(220,53,69,.3) !important;
+  box-shadow: none !important;
+}
+[data-theme="dark"] .nkey.kundo {
+  background: rgba(255,159,67,.1) !important;
+  color: var(--warn) !important;
+  border-color: rgba(255,159,67,.3) !important;
+}
+
+[data-theme="light"] .nkey {
+  background: var(--bg3) !important;
+  color: var(--text) !important;
+  border-color: rgba(42,16,24,.15) !important;
+  box-shadow: none !important;
+}
+[data-theme="light"] .nkey.kval {
+  background: var(--accent) !important;
+  color: #F7F0F2 !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 3px 14px rgba(42,16,24,.25) !important;
+}
+[data-theme="light"] .nkey.kdel {
+  background: rgba(200,39,43,.1) !important;
+  color: var(--danger) !important;
+  border-color: rgba(200,39,43,.25) !important;
+  box-shadow: none !important;
+}
+[data-theme="light"] .nkey.kundo {
+  background: rgba(192,96,0,.08) !important;
+  color: var(--warn) !important;
+  border-color: rgba(192,96,0,.3) !important;
+}
+
+/* Boutons fléchettes (dmb : Simple/Double/Triple) */
+[data-theme="dark"] .dmb {
+  background: var(--bg2) !important;
+  color: var(--dim) !important;
+  border-color: rgba(255,255,255,.12) !important;
+}
+[data-theme="dark"] .dmb.dms {
+  background: rgba(255,255,255,.08) !important;
+  border-color: rgba(255,255,255,.3) !important;
+  color: var(--text) !important;
+}
+[data-theme="dark"] .dmb.dmd {
+  background: rgba(40,199,111,.2) !important;
+  border-color: var(--ok) !important;
+  color: var(--ok) !important;
+}
+[data-theme="dark"] .dmb.dmt {
+  background: rgba(220,53,69,.18) !important;
+  border-color: var(--danger) !important;
+  color: var(--danger) !important;
+}
+[data-theme="light"] .dmb {
+  background: var(--bg3) !important;
+  color: var(--dim) !important;
+  border-color: rgba(42,16,24,.15) !important;
+}
+[data-theme="light"] .dmb.dms {
+  background: rgba(42,16,24,.08) !important;
+  border-color: rgba(42,16,24,.3) !important;
+  color: var(--text) !important;
+}
+[data-theme="light"] .dmb.dmd {
+  background: rgba(26,138,74,.15) !important;
+  border-color: var(--ok) !important;
+  color: var(--ok) !important;
+}
+[data-theme="light"] .dmb.dmt {
+  background: rgba(200,39,43,.12) !important;
+  border-color: var(--danger) !important;
+  color: var(--danger) !important;
+}
+
+/* Boutons numéros dart (dnb) */
+[data-theme="dark"] .dnb {
+  background: var(--bg2) !important;
+  color: var(--text) !important;
+  border-color: rgba(255,255,255,.1) !important;
+}
+[data-theme="dark"] .dnb.dnd {
+  background: rgba(40,199,111,.18) !important;
+  border-color: rgba(40,199,111,.5) !important;
+  color: var(--ok) !important;
+}
+[data-theme="dark"] .dnb.dnt {
+  background: rgba(220,53,69,.15) !important;
+  border-color: rgba(220,53,69,.4) !important;
+  color: var(--danger) !important;
+}
+[data-theme="light"] .dnb {
+  background: var(--bg3) !important;
+  color: var(--text) !important;
+  border-color: rgba(42,16,24,.12) !important;
+}
+[data-theme="light"] .dnb.dnd {
+  background: rgba(26,138,74,.12) !important;
+  border-color: rgba(26,138,74,.4) !important;
+  color: var(--ok) !important;
+}
+[data-theme="light"] .dnb.dnt {
+  background: rgba(200,39,43,.1) !important;
+  border-color: rgba(200,39,43,.35) !important;
+  color: var(--danger) !important;
+}
+
+
+/* ──────────────────────────────────────────
+   6. INPUTS TEXTE
+   ────────────────────────────────────────── */
+
+[data-theme="dark"] .input-row input,
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] input[type="number"] {
+  background: var(--bg3) !important;
+  color: var(--text) !important;
+  border-color: rgba(232,232,232,.15) !important;
+}
+[data-theme="light"] .input-row input,
+[data-theme="light"] input[type="text"],
+[data-theme="light"] input[type="number"] {
+  background: var(--bg3) !important;
+  color: var(--text) !important;
+  border-color: rgba(42,16,24,.2) !important;
+}
+[data-theme="dark"] input::placeholder,
+[data-theme="light"] input::placeholder {
+  color: var(--dim) !important;
+}
+[data-theme="dark"] .input-row {
+  box-shadow: 0 0 8px rgba(232,232,232,.15) !important;
+}
+[data-theme="light"] .input-row {
+  box-shadow: 0 0 6px rgba(42,16,24,.08) !important;
+}
+
+
+/* ──────────────────────────────────────────
+   7. CARTES JOUEURS
+   ────────────────────────────────────────── */
+
+/* Ligne joueur (setup) */
+[data-theme="dark"] .player-row {
+  background: rgba(255,255,255,.04) !important;
+  border-color: rgba(232,232,232,.08) !important;
+}
+[data-theme="light"] .player-row {
+  background: rgba(42,16,24,.04) !important;
+  border-color: rgba(42,16,24,.1) !important;
+}
+
+/* Cartes joueurs (jeu) */
+[data-theme="dark"] .player-card-501,
+[data-theme="dark"] .player-card,
+[data-theme="dark"] .sh-card,
+[data-theme="dark"] .scard {
+  background: rgba(255,255,255,.04) !important;
+  border-color: rgba(232,232,232,.08) !important;
+}
+[data-theme="dark"] .player-card-501.current,
+[data-theme="dark"] .player-card.current,
+[data-theme="dark"] .sh-card.current {
+  box-shadow: 0 0 14px rgba(232,232,232,.1) !important;
+}
+[data-theme="light"] .player-card-501,
+[data-theme="light"] .player-card,
+[data-theme="light"] .sh-card,
+[data-theme="light"] .scard {
+  background: rgba(42,16,24,.04) !important;
+  border-color: rgba(42,16,24,.1) !important;
+}
+[data-theme="light"] .player-card-501.current,
+[data-theme="light"] .player-card.current,
+[data-theme="light"] .sh-card.current {
+  box-shadow: 0 0 8px rgba(42,16,24,.08) !important;
+}
+
+/* Player chip (badge mini) */
+[data-theme="dark"] .player-chip {
+  box-shadow: 0 0 14px rgba(232,232,232,.1) !important;
+}
+[data-theme="light"] .player-chip {
+  box-shadow: none !important;
+}
+
+/* Stat row (Shooter) */
+[data-theme="dark"] .player-stat-row {
+  box-shadow: 0 0 10px rgba(232,232,232,.08) !important;
+}
+[data-theme="light"] .player-stat-row {
+  box-shadow: none !important;
+}
+
+
+/* ──────────────────────────────────────────
+   8. MODALS / POPUPS / OVERLAYS
+   ────────────────────────────────────────── */
+
+/* Overlay fond */
+[data-theme="dark"] .modal-ov,
+[data-theme="dark"] .mov,
+[data-theme="dark"] .drawer-ov {
+  background: rgba(0,0,0,.8) !important;
+}
+[data-theme="light"] .modal-ov,
+[data-theme="light"] .mov,
+[data-theme="light"] .drawer-ov {
+  background: rgba(240,235,237,.85) !important;
+}
+
+/* Boîte modale */
+[data-theme="dark"] .modal,
+[data-theme="dark"] .mod {
+  background: var(--bg2) !important;
+  border-color: rgba(232,232,232,.12) !important;
+  box-shadow: 0 0 40px rgba(232,232,232,.08) !important;
+}
+[data-theme="light"] .modal,
+[data-theme="light"] .mod {
+  background: var(--bg2) !important;
+  border-color: rgba(42,16,24,.1) !important;
+  box-shadow: 0 4px 32px rgba(42,16,24,.12), 0 0 0 1px rgba(42,16,24,.06) !important;
+}
+
+/* Titre modal */
+[data-theme="dark"] .modal-title,
+[data-theme="dark"] .wh-title,
+[data-theme="dark"] .sh-popup-title {
+  text-shadow: 0 0 16px rgba(232,232,232,.4) !important;
+  color: var(--text) !important;
+}
+[data-theme="light"] .modal-title,
+[data-theme="light"] .wh-title,
+[data-theme="light"] .sh-popup-title {
+  text-shadow: none !important;
+  color: var(--text) !important;
+}
+
+/* Popup Shanghai */
+[data-theme="dark"] .sh-popup {
+  background: var(--bg2) !important;
+  box-shadow: 0 0 50px rgba(232,232,232,.15) !important;
+}
+[data-theme="light"] .sh-popup {
+  background: var(--bg2) !important;
+  box-shadow: 0 4px 32px rgba(42,16,24,.15) !important;
+}
+
+/* Modal WinHole (Cricket etc.) */
+[data-theme="dark"] .wh-modal {
+  background: var(--bg2) !important;
+  box-shadow: 0 0 40px rgba(232,232,232,.12) !important;
+}
+[data-theme="light"] .wh-modal {
+  background: var(--bg2) !important;
+  box-shadow: 0 4px 24px rgba(42,16,24,.1) !important;
+}
+
+/* Big Fish popup (501) */
+[data-theme="dark"] .bigfish-modal-inner {
+  background: var(--bg2) !important;
+  border-color: rgba(232,232,232,.15) !important;
+  box-shadow: 0 0 40px rgba(232,232,232,.1) !important;
+}
+[data-theme="dark"] .bigfish-title,
+[data-theme="dark"] .bigfish-sub {
+  color: var(--accent) !important;
+  text-shadow: 0 0 16px rgba(232,232,232,.4) !important;
+}
+[data-theme="dark"] .btn-bigfish-close {
+  background: linear-gradient(135deg,#E8E8E8,#B8B8B8) !important;
+  color: #1A0A0E !important;
+  box-shadow: 0 0 12px rgba(232,232,232,.25) !important;
+}
+[data-theme="light"] .bigfish-modal-inner {
+  background: var(--bg2) !important;
+  border-color: rgba(42,16,24,.15) !important;
+  box-shadow: 0 4px 32px rgba(42,16,24,.12) !important;
+}
+[data
+
+/* ── Cases à cocher visibles en dark ── */
+[data-theme="dark"] input[type="checkbox"] {
+  accent-color: #28C76F !important;
+}
+[data-theme="light"] input[type="checkbox"] {
+  accent-color: #1A1A1A !important;
+}
+
+/* ── Fléchettes empilées verticalement ── */
+.dart-stack {
+  position: relative;
+  width: 44px;
+  height: 46px;
+  flex-shrink: 0;
+}
+.dart-stack .dart-icon {
+  position: absolute;
+  left: 0;
+  width: 44px !important;
+  height: 14px !important;
+}
+.dart-stack .dart-icon:nth-child(1) { top: 0px; }
+.dart-stack .dart-icon:nth-child(2) { top: 16px; }
+.dart-stack .dart-icon:nth-child(3) { top: 32px; }
+
+@media (max-height: 600px) {
+  .dart-stack { width: 32px; height: 34px; }
+  .dart-stack .dart-icon { width: 32px !important; height: 10px !important; }
+  .dart-stack .dart-icon:nth-child(1) { top: 0px; }
+  .dart-stack .dart-icon:nth-child(2) { top: 12px; }
+  .dart-stack .dart-icon:nth-child(3) { top: 24px; }
+}
+
+/* ── Indicateurs de fléchettes : boules ── */
+.dart-dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+/* Centrage vertical quand positionné en absolu dans un header */
+div.dart-dots[style*="position:absolute"],
+div.dart-dots[style*="position: absolute"] {
+  top: 50%;
+  transform: translateY(-50%);
+}
+.dart-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--dart-color, rgba(255,255,255,.25));
+  background: transparent;
+  transition: background .2s, border-color .2s, box-shadow .2s;
+  flex-shrink: 0;
+}
+.dart-dot.active {
+  background: var(--dart-color, rgba(255,255,255,.9));
+  border-color: var(--dart-color, rgba(255,255,255,.9));
+  box-shadow: 0 0 8px var(--dart-color, rgba(255,255,255,.7)), 0 0 18px var(--dart-color, rgba(255,255,255,.4)), 0 0 32px var(--dart-color, rgba(255,255,255,.2));
+}
+.dart-dot.used {
+  background: transparent;
+  border-color: rgba(255,255,255,.12);
+  box-shadow: none;
+}

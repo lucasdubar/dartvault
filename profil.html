@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <link rel="stylesheet" href="/fonts/fonts.css">
+  <meta charset="UTF-8">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0A0A0A">
+  <title>DartVault — Profils</title>  <script>
+    (function(){
+      var t = localStorage.getItem('dartvault_theme') || 'dark';
+      if(t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+      else if(t === 'colored') document.documentElement.setAttribute('data-theme', 'colored');
+    })();
+  </script>
+  <style>
+    /* ── Variables thème ── */
+    :root {
+      --bg:#0A0A0A; --bg2:#141414; --bg3:#1E1E1E; --bg4:#252525;
+      --text:#F0F0F0; --dim:#666; --dim2:#444;
+      --accent:#E8C547; --accent-glow:rgba(232,197,71,.25);
+      --border:rgba(255,255,255,.07);
+    }
+    [data-theme="dark"] {
+      --bg:#0E0F10; --bg2:#161718; --bg3:#1C1E20; --bg4:#242628;
+      --text:#F0F0F0; --dim:#777; --dim2:#555;
+      --accent:#E8E8E8; --accent-glow:rgba(232,232,232,.2);
+      --border:rgba(255,255,255,.07);
+    }
+    [data-theme="light"] {
+      --bg:#F7F0F2; --bg2:#FFFFFF; --bg3:#EDE4E7; --bg4:#E2D6DA;
+      --text:#1A0A0E; --dim:#8A6070; --dim2:#C8A0B0;
+      --accent:#2A1018; --accent-glow:rgba(22,23,24,.15);
+      --border:rgba(22,23,24,.10);
+    }
+    [data-theme="colored"] {
+      --bg:#0E0900; --bg2:#1A1200; --bg3:#261B00; --bg4:#332400;
+      --text:#F5E6C0; --dim:#8A7040; --dim2:#5A4820;
+      --accent:#E8A020; --accent-glow:rgba(232,160,32,.35);
+      --border:rgba(232,160,32,.12);
+      --gold:#E8C547; --silver:#B0B8C8; --bronze:#CD7F32;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body {
+      font-family:'Exo 2',sans-serif;
+      background:var(--bg); color:var(--text);
+      min-height:100dvh;
+      display:flex; flex-direction:column; align-items:center;
+      padding:0 0 40px; overflow-x:hidden;
+      transition: background .3s, color .3s;
+    }
+
+    /* ── Header ── */
+    .page-header {
+      width:100%; max-width:520px;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 16px 10px;
+      position:sticky; top:0; z-index:50;
+      background:var(--bg);
+      border-bottom:1px solid var(--border);
+    }
+    .btn-back-page {
+      background:var(--bg3); border:1px solid var(--border);
+      color:var(--text); border-radius:10px;
+      padding:7px 14px; font-family:'Exo 2',sans-serif;
+      font-size:.85rem; font-weight:600; cursor:pointer;
+      touch-action:manipulation; transition:all .2s;
+    }
+    .btn-back-page:active { transform:scale(.94); border-color:var(--accent); }
+    .page-title {
+      font-family:'Rajdhani',sans-serif; font-size:1.4rem; font-weight:700;
+      color:var(--accent); letter-spacing:2px;
+      text-shadow:0 0 16px var(--accent-glow);
+    }
+    .page-header-right { width:80px; display:flex; justify-content:flex-end; }
+
+    /* ── Settings button & panel (same as games) ── */
+    .btn-settings-game {
+      width:34px; height:34px; min-height:44px; border-radius:50%; flex-shrink:0;
+      background:var(--bg3); border:1px solid rgba(255,255,255,.15);
+      color:var(--dim); font-size:1rem;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .2s; touch-action:manipulation; padding:0;
+    }
+    .btn-settings-game:active { transform:scale(.9); border-color:var(--accent); color:var(--accent); }
+    [data-theme="light"] .btn-settings-game { border-color:rgba(22,23,24,.18); }
+    .settings-panel-game {
+      display:none; position:fixed; top:64px; right:14px; z-index:500;
+      background:var(--bg2); border:1px solid var(--border);
+      border-radius:14px; padding:14px 16px; min-width:210px;
+      box-shadow:0 8px 32px rgba(0,0,0,.5);
+      animation:pop .2s cubic-bezier(.34,1.56,.64,1);
+    }
+    [data-theme="light"] .settings-panel-game { box-shadow:0 4px 24px rgba(0,0,0,.12); }
+    .settings-panel-game.open { display:block; }
+    .sg-section-label {
+      font-family:'Rajdhani',sans-serif; font-size:.7rem; font-weight:700;
+      color:var(--dim); letter-spacing:2px; text-transform:uppercase; margin-bottom:6px;
+    }
+    .sg-row { display:flex; align-items:center; gap:10px; padding:8px 0; }
+    .sg-row + .sg-row { border-top:1px solid var(--border); }
+    .sg-row-label {
+      font-family:'Rajdhani',sans-serif; font-size:.95rem; font-weight:700;
+      color:var(--text); flex:1; letter-spacing:.3px;
+    }
+    .sg-toggle { position:relative; width:42px; height:24px; flex-shrink:0; }
+    .sg-toggle input { opacity:0; width:0; height:0; }
+    .sg-slider {
+      position:absolute; inset:0; cursor:pointer;
+      background:var(--bg4); border-radius:24px;
+      border:1px solid rgba(255,255,255,.1); transition:background .2s;
+    }
+    .sg-slider::before {
+      content:''; position:absolute; width:18px; height:18px; left:2px; top:2px;
+      background:#fff; border-radius:50%; transition:transform .2s;
+    }
+    .sg-toggle input:checked + .sg-slider { background:var(--accent); border-color:var(--accent); }
+    .sg-toggle input:checked + .sg-slider::before { transform:translateX(18px); }
+    [data-theme="light"] .sg-slider { background:#DDD; border-color:#CCC; }
+    [data-theme="light"] .sg-slider::before { background:#FFF; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+    .sg-theme-pills { display:flex; gap:6px; width:100%; }
+    .sg-pill {
+      flex:1; padding:7px 4px; border-radius:9px; cursor:pointer;
+      font-family:'Rajdhani',sans-serif; font-size:.78rem; font-weight:700;
+      letter-spacing:.5px; text-align:center; border:1.5px solid var(--border);
+      background:var(--bg3); color:var(--dim);
+      transition:all .18s; touch-action:manipulation;
+    }
+    .sg-pill:active { transform:scale(.94); }
+    .sg-pill.active { background:rgba(232,197,71,.15); border-color:var(--accent); color:var(--accent); }
+    [data-theme="light"] .sg-pill.active { background:rgba(22,23,24,.1); border-color:var(--accent); color:var(--accent); }
+    [data-theme="colored"] .sg-pill.active { background:rgba(232,160,32,.15); border-color:var(--accent); color:var(--accent); }
+
+    /* ── Contenu ── */
+    .page-content {
+      width:100%; max-width:520px;
+      padding:20px 16px;
+      display:flex; flex-direction:column; gap:12px;
+    }
+
+    /* ── Bouton créer profil ── */
+    .btn-create-profile {
+      width:100%; padding:14px;
+      background:rgba(232,197,71,.1); border:1.5px dashed rgba(232,197,71,.4);
+      border-radius:14px; color:var(--accent);
+      font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700;
+      letter-spacing:1px; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      touch-action:manipulation; transition:all .2s;
+    }
+    .btn-create-profile:active { transform:scale(.98); background:rgba(232,197,71,.18); }
+    [data-theme="light"] .btn-create-profile {
+      background:rgba(22,23,24,.06); border-color:rgba(22,23,24,.25); color:var(--accent);
+    }
+
+    /* ── Section label ── */
+    /* ── Boutons transfert ── */
+    .transfer-btns {
+      display:flex; flex-direction:column; gap:10px;
+      margin-top:24px; padding-top:20px;
+      border-top:1px solid var(--border);
+    }
+    .transfer-btns.import-only {
+      margin-top:24px; padding-top:20px;
+      border-top:1px solid var(--border);
+    }
+    #transfer-btns[style*="none"] + .transfer-btns {
+      border-top: none;
+      padding-top: 0;
+      margin-top: 24px;
+    }
+    .btn-transfer {
+      display:flex; align-items:center; gap:12px;
+      padding:14px 18px; border-radius:14px;
+      font-family:'Rajdhani',sans-serif; font-size:.95rem; font-weight:700;
+      letter-spacing:.5px; cursor:pointer; touch-action:manipulation;
+      transition:all .2s; border:1.5px solid var(--border);
+      background:var(--bg2); color:var(--text);
+      text-align:left;
+    }
+    .btn-transfer:active { transform:scale(.98); }
+    .btn-download { border-color:rgba(72,199,142,.3); }
+    .btn-download:active { border-color:rgba(72,199,142,.8); background:rgba(72,199,142,.08); }
+    .btn-import  { border-color:rgba(99,179,237,.3); }
+    .btn-import:active  { border-color:rgba(99,179,237,.8); background:rgba(99,179,237,.08); }
+    [data-theme="colored"] .btn-download { border-color:rgba(232,160,32,.3); }
+    [data-theme="colored"] .btn-download:active { border-color:var(--accent); background:rgba(232,160,32,.1); }
+    [data-theme="colored"] .btn-import  { border-color:rgba(232,160,32,.2); }
+    [data-theme="colored"] .btn-import:active  { border-color:var(--accent); background:rgba(232,160,32,.08); }
+    .transfer-icon { font-size:1.3rem; flex-shrink:0; }
+
+    .section-label {
+      font-family:'Rajdhani',sans-serif; font-size:.7rem; font-weight:700;
+      color:var(--dim); letter-spacing:2.5px; text-transform:uppercase;
+      padding:0 2px;
+    }
+
+    /* ── Carte profil ── */
+    .profile-card {
+      background:var(--bg2); border:1px solid var(--border);
+      border-radius:14px; padding:14px 16px;
+      display:flex; align-items:center; gap:14px;
+      animation:fadeUp .25s ease-out;
+    }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    .profile-avatar {
+      width:52px; height:52px; border-radius:50%;
+      background:var(--bg3); border:1.5px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.8rem; flex-shrink:0;
+      cursor:pointer; touch-action:manipulation;
+      transition:transform .15s, border-color .2s, box-shadow .2s;
+    }
+    .profile-avatar:hover { border-color:var(--accent); box-shadow:0 0 0 3px rgba(232,197,71,.18); }
+    .profile-avatar:active { transform:scale(.9); }
+    .profile-avatar-hint {
+      font-size:.65rem; color:var(--dim); margin-top:2px; text-align:center; opacity:.7;
+    }
+    .profile-info { flex:1; min-width:0; }
+    .profile-name {
+      font-family:'Rajdhani',sans-serif; font-size:1.15rem; font-weight:700;
+      color:var(--text); letter-spacing:.5px;
+    }
+    .profile-meta {
+      font-size:.75rem; color:var(--dim); margin-top:2px;
+    }
+    .profile-actions { display:flex; gap:8px; }
+    .btn-profile-action {
+      width:34px; height:34px; min-height:44px; border-radius:9px;
+      background:var(--bg3); border:1px solid var(--border);
+      color:var(--dim); font-size:.9rem;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; touch-action:manipulation; transition:all .2s;
+    }
+    .btn-profile-action:active { transform:scale(.9); }
+    .btn-profile-delete:active { border-color:#E53935; color:#E53935; }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align:center; padding:40px 20px;
+      color:var(--dim);
+    }
+    .empty-state-icon { font-size:3rem; margin-bottom:12px; opacity:.4; }
+    .empty-state-text {
+      font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:600;
+      letter-spacing:.5px;
+    }
+
+    /* ══════════════════════════════════════════════
+       MODAL CRÉATION DE PROFIL
+    ══════════════════════════════════════════════ */
+    .modal-ov {
+      display:none; position:fixed; inset:0; z-index:200;
+      background:rgba(0,0,0,.7); backdrop-filter:blur(4px);
+      align-items:flex-end; justify-content:center;
+    }
+    .modal-ov.open { display:flex; }
+    .modal-sheet {
+      width:100%; max-width:520px;
+      background:var(--bg2); border-radius:20px 20px 0 0;
+      border:1px solid var(--border); border-bottom:none;
+      padding:20px 20px 32px;
+      animation:slideUp .3s cubic-bezier(.34,1.2,.64,1);
+    }
+    @keyframes slideUp { from { transform:translateY(100%); } to { transform:translateY(0); } }
+    .modal-handle {
+      width:40px; height:4px; border-radius:2px;
+      background:var(--dim2); margin:0 auto 18px;
+    }
+    .modal-title {
+      font-family:'Rajdhani',sans-serif; font-size:1.2rem; font-weight:700;
+      color:var(--accent); text-align:center; letter-spacing:1.5px;
+      margin-bottom:20px;
+    }
+
+    /* Sélecteur emoji */
+    .emoji-section-label {
+      font-family:'Rajdhani',sans-serif; font-size:.7rem; font-weight:700;
+      color:var(--dim); letter-spacing:2px; text-transform:uppercase;
+      margin-bottom:8px;
+    }
+    .emoji-preview {
+      font-size:3.5rem; text-align:center;
+      width:80px; height:80px; border-radius:50%;
+      background:var(--bg3); border:2px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      margin:0 auto 12px; cursor:pointer;
+      transition:all .2s; touch-action:manipulation;
+    }
+    .emoji-preview:active { transform:scale(.94); border-color:var(--accent); }
+    .emoji-hint {
+      text-align:center; font-size:.75rem; color:var(--dim);
+      margin-bottom:18px;
+    }
+    .emoji-grid {
+      display:grid; grid-template-columns:repeat(8,1fr); gap:4px;
+      margin-bottom:16px; max-height:160px; overflow-y:auto;
+    }
+    .emoji-cell {
+      aspect-ratio:1; border-radius:8px;
+      background:var(--bg3); border:1.5px solid transparent;
+      font-size:1.4rem; display:flex; align-items:center; justify-content:center;
+      cursor:pointer; touch-action:manipulation; transition:all .15s;
+    }
+    .emoji-cell:active { transform:scale(.9); }
+    .emoji-cell.selected { border-color:var(--accent); background:rgba(232,197,71,.12); }
+    [data-theme="light"] .emoji-cell.selected { background:rgba(22,23,24,.08); }
+
+    /* Input pseudo */
+    .pseudo-input {
+      width:100%; padding:12px 14px;
+      background:var(--bg3); border:1.5px solid var(--border);
+      border-radius:12px; color:var(--text);
+      font-family:'Exo 2',sans-serif; font-size:1rem;
+      margin-bottom:16px; outline:none; transition:border-color .2s;
+    }
+    .pseudo-input:focus { border-color:var(--accent); }
+    .pseudo-input::placeholder { color:var(--dim); }
+
+    /* Boutons modal */
+    .modal-actions { display:flex; gap:10px; }
+    .btn-modal-cancel {
+      flex:1; padding:12px;
+      background:var(--bg3); border:1px solid var(--border);
+      border-radius:12px; color:var(--dim);
+      font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700;
+      letter-spacing:.5px; cursor:pointer;
+      touch-action:manipulation; transition:all .2s;
+    }
+    .btn-modal-cancel:active { transform:scale(.97); }
+    .btn-modal-confirm {
+      flex:2; padding:12px;
+      background:var(--accent); border:none;
+      border-radius:12px; color:#1A0A0E;
+      font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700;
+      letter-spacing:.5px; cursor:pointer;
+      touch-action:manipulation; transition:all .2s;
+    }
+    .btn-modal-confirm:active { transform:scale(.97); opacity:.88; }
+    [data-theme="light"] .btn-modal-confirm { color:#F7F0F2; }
+
+    /* Confirm delete */
+    .modal-delete-sheet {
+      padding:24px 20px 32px;
+    }
+    .modal-delete-msg {
+      text-align:center; font-size:.95rem; color:var(--text);
+      margin-bottom:20px; line-height:1.5;
+    }
+    .modal-delete-name {
+      font-family:'Rajdhani',sans-serif; font-size:1.1rem;
+      color:var(--accent); font-weight:700;
+    }
+    .btn-modal-delete {
+      flex:2; padding:12px;
+      background:#C62828; border:none;
+      border-radius:12px; color:#FFF;
+      font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700;
+      letter-spacing:.5px; cursor:pointer;
+      touch-action:manipulation; transition:all .2s;
+    }
+    .btn-modal-delete:active { transform:scale(.97); opacity:.88; }
+
+    @keyframes pop { from{transform:scale(.85);opacity:0} to{transform:scale(1);opacity:1} }
+  @media(prefers-reduced-motion:reduce){
+    *{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important;}
+  }
+  </style>
+  <script src="lang.js"></script>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="page-header">
+    <button class="btn-back-page" onclick="history.back()">← Menu</button>
+    <div class="page-title">👤 PROFILS</div>
+    <div class="page-header-right">
+      <button class="btn-settings-game" id="btn-settings-game" aria-label="Paramètres">⚙️</button>
+    </div>
+  </div>
+
+  <!-- Contenu -->
+  <div class="page-content">
+    <button class="btn-create-profile" id="btn-create" onclick="openCreateModal()">
+      <span style="font-size:1.3rem">＋</span> Créer un profil
+    </button>
+
+    <div class="section-label" id="profiles-label" style="display:none;">Profils enregistrés</div>
+    <div id="profiles-list"></div>
+
+    <!-- Boutons import/export -->
+    <div class="transfer-btns" id="transfer-btns" style="display:none;">
+      <button class="btn-transfer btn-download" id="btn-download" onclick="downloadProfiles()">
+        <span class="transfer-icon">⬇️</span>
+        <span id="lbl-download">Télécharger les profils</span>
+      </button>
+    </div>
+    <div class="transfer-btns" style="margin-top:0; padding-top:0; border-top:none;">
+      <button class="btn-transfer btn-import" id="btn-import" onclick="document.getElementById('import-input').click()">
+        <span class="transfer-icon">⬆️</span>
+        <span id="lbl-import">Importer les profils</span>
+      </button>
+      <input type="file" id="import-input" accept=".json" style="display:none;" onchange="importProfiles(event)">
+    </div>
+  </div>
+
+  <!-- ══ Modal : Créer un profil ══ -->
+  <div class="modal-ov" id="modal-create" onclick="handleOverlayClick(event,'modal-create')">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title" id="modal-create-title">✨ NOUVEAU PROFIL</div>
+
+      <div class="emoji-section-label">Choix de l'emoji</div>
+      <div class="emoji-preview" id="emoji-preview" onclick="toggleEmojiGrid()">🎯</div>
+      <div class="emoji-hint">Appuie pour choisir</div>
+
+      <div class="emoji-grid" id="emoji-grid" style="display:none;"></div>
+
+      <div class="emoji-section-label" style="margin-top:4px;">Pseudo</div>
+      <input type="text" class="pseudo-input" id="pseudo-input"
+             placeholder="Ton pseudo..." maxlength="16" autocomplete="off"
+             oninput="updatePreview()">
+
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" onclick="closeCreateModal()">Annuler</button>
+        <button class="btn-modal-confirm" id="btn-confirm-create" onclick="confirmSave()">Créer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Modal : Confirmer suppression ══ -->
+  <div class="modal-ov" id="modal-delete" onclick="handleOverlayClick(event,'modal-delete')">
+    <div class="modal-sheet modal-delete-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title" style="color:#EF5350;">🗑 SUPPRIMER</div>
+      <div class="modal-delete-msg">
+        Supprimer le profil<br>
+        <span class="modal-delete-name" id="delete-profile-name"></span> ?<br>
+        <span style="font-size:.8rem;color:var(--dim);">Cette action est irréversible.</span>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" onclick="closeDeleteModal()">Annuler</button>
+        <button class="btn-modal-delete" onclick="confirmDelete()">Supprimer</button>
+      </div>
+    </div>
+  </div>
+
+<!-- Settings Panel -->
+<div class="settings-panel-game" id="sg-panel">
+  <div class="sg-section-label" data-i18n="theme">Thème</div>
+  <div class="sg-row" style="padding-top:0;border-top:none;">
+    <div class="sg-theme-pills">
+      <button class="sg-pill" id="sg-pill-dark" data-i18n="theme_dark">🌙 Sombre</button>
+      <button class="sg-pill" id="sg-pill-light" data-i18n="theme_light">☀️ Clair</button>
+      <button class="sg-pill" id="sg-pill-colored" data-i18n="theme_colored">🎨 Coloré</button>
+    </div>
+  </div>
+  <div class="sg-row">
+    <span>📳</span>
+    <span class="sg-row-label" data-i18n="vibrations">Vibrations</span>
+    <label class="sg-toggle">
+      <input type="checkbox" id="sg-toggle-vib" checked>
+      <span class="sg-slider"></span>
+    </label>
+  </div>
+  <div class="sg-row">
+    <span>🔊</span>
+    <span class="sg-row-label" data-i18n="sounds">Sons</span>
+    <label class="sg-toggle">
+      <input type="checkbox" id="sg-toggle-snd" checked>
+      <span class="sg-slider"></span>
+    </label>
+  </div>
+  <div class="sg-row">
+    <span class="sg-row-label">Langue / Language</span>
+    <button id="sg-btn-lang" aria-label="Changer de langue" style="background:none;border:none;cursor:pointer;font-size:1.8rem;line-height:1;padding:2px;border-radius:6px;touch-action:manipulation;transition:transform .15s;">🇫🇷</button>
+  </div>
+</div>
+
+<script>
+// ── Settings Panel ─────────────────────────────────────────────────
+(function() {
+  const THEME_KEY = 'dartvault_theme';
+  const VIB_KEY   = 'dartvault_vibration';
+  const SND_KEY   = 'dartvault_sound';
+  const LANG_KEY  = 'dartvault_lang';
+
+  const btnSg   = document.getElementById('btn-settings-game');
+  const sgPanel = document.getElementById('sg-panel');
+
+  btnSg.addEventListener('click', e => {
+    e.stopPropagation();
+    sgPanel.classList.toggle('open');
+    if (sgPanel.classList.contains('open')) syncSgPanel();
+  });
+  document.addEventListener('click', e => {
+    if (!sgPanel.contains(e.target) && e.target !== btnSg)
+      sgPanel.classList.remove('open');
+  });
+
+  function syncSgPanel() {
+    const t = localStorage.getItem(THEME_KEY) || 'dark';
+    ['dark','light','colored'].forEach(k => {
+      const p = document.getElementById('sg-pill-'+k);
+      if (p) p.classList.toggle('active', t === k);
+    });
+    const vt = document.getElementById('sg-toggle-vib');
+    if (vt) vt.checked = localStorage.getItem(VIB_KEY) !== 'off';
+    const st = document.getElementById('sg-toggle-snd');
+    if (st) st.checked = localStorage.getItem(SND_KEY) !== 'off';
+    const lang = localStorage.getItem(LANG_KEY) || 'fr';
+    const lb = document.getElementById('sg-btn-lang');
+    if (lb) lb.textContent = lang === 'fr' ? '🇫🇷' : '🇬🇧';
+    // i18n labels via DV_LANG
+    if (window.DV_LANG && typeof window.DV_LANG.t === 'function') {
+      sgPanel.querySelectorAll('[data-i18n]').forEach(el => {
+        const val = window.DV_LANG.t(el.dataset.i18n);
+        if (val) el.textContent = val;
+      });
+    }
+  }
+
+  function applyTheme(t) {
+    localStorage.setItem(THEME_KEY, t);
+    document.documentElement.setAttribute('data-theme', t === 'colored' ? 'colored' : t);
+    syncSgPanel();
+  }
+
+  ['dark','light','colored'].forEach(k => {
+    const p = document.getElementById('sg-pill-'+k);
+    if (p) p.addEventListener('click', () => applyTheme(k));
+  });
+
+  const vibTog = document.getElementById('sg-toggle-vib');
+  if (vibTog) {
+    vibTog.checked = localStorage.getItem(VIB_KEY) !== 'off';
+    vibTog.addEventListener('change', () => localStorage.setItem(VIB_KEY, vibTog.checked ? 'on' : 'off'));
+  }
+  const sndTog = document.getElementById('sg-toggle-snd');
+  if (sndTog) {
+    sndTog.checked = localStorage.getItem(SND_KEY) !== 'off';
+    sndTog.addEventListener('change', () => localStorage.setItem(SND_KEY, sndTog.checked ? 'on' : 'off'));
+  }
+
+  const langBtn = document.getElementById('sg-btn-lang');
+  if (langBtn) langBtn.addEventListener('click', () => {
+    const cur = localStorage.getItem(LANG_KEY) || 'fr';
+    const next = cur === 'fr' ? 'en' : 'fr';
+    localStorage.setItem(LANG_KEY, next);
+    if (window.DV_LANG && typeof window.DV_LANG.apply === 'function') window.DV_LANG.apply();
+    // Traduire le titre et bouton retour
+    applyPageLang(next);
+    syncSgPanel();
+  });
+
+  function applyPageLang(lang) {
+    if (!window.DV_LANG) return;
+    const isFr = lang === 'fr';
+    // Titre page
+    const title = document.querySelector('.page-title');
+    if (title) title.textContent = isFr ? '👤 PROFILS' : '👤 PROFILES';
+    // Bouton retour
+    const back = document.querySelector('.btn-back-page');
+    if (back) back.textContent = '← Menu';
+    // Bouton créer
+    const create = document.getElementById('btn-create');
+    if (create) create.innerHTML = `<span style="font-size:1.3rem">＋</span> ${isFr ? 'Créer un profil' : 'Create a profile'}`;
+    // Label section
+    const lbl = document.getElementById('profiles-label');
+    if (lbl) lbl.textContent = isFr ? 'Profils enregistrés' : 'Saved profiles';
+    // ── Modal création ──
+    const modalTitle = document.querySelector('#modal-create .modal-title');
+    if (modalTitle) modalTitle.textContent = isFr ? '✨ NOUVEAU PROFIL' : '✨ NEW PROFILE';
+    const emojiLabels = document.querySelectorAll('#modal-create .emoji-section-label');
+    if (emojiLabels[0]) emojiLabels[0].textContent = isFr ? 'Choix de l\'emoji' : 'Choose an emoji';
+    if (emojiLabels[1]) emojiLabels[1].textContent = isFr ? 'Pseudo' : 'Username';
+    const emojiHint = document.querySelector('#modal-create .emoji-hint');
+    if (emojiHint) emojiHint.textContent = isFr ? 'Appuie pour choisir' : 'Tap to choose';
+    const pseudoInput = document.getElementById('pseudo-input');
+    if (pseudoInput) pseudoInput.placeholder = isFr ? 'Ton pseudo...' : 'Your username...';
+    const btnCancel = document.querySelector('#modal-create .btn-modal-cancel');
+    if (btnCancel) btnCancel.textContent = isFr ? 'Annuler' : 'Cancel';
+    const btnConfirm = document.getElementById('btn-confirm-create');
+    if (btnConfirm) btnConfirm.textContent = isFr ? 'Créer' : 'Create';
+    // ── Modal suppression ──
+    const delTitle = document.querySelector('#modal-delete .modal-title');
+    if (delTitle) delTitle.textContent = isFr ? '🗑 SUPPRIMER' : '🗑 DELETE';
+    const delMsg = document.querySelector('#modal-delete .modal-delete-msg');
+    if (delMsg) {
+      const name = document.getElementById('delete-profile-name');
+      const nameText = name ? name.outerHTML : '';
+      delMsg.innerHTML = (isFr ? 'Supprimer le profil' : 'Delete profile') + '<br>' +
+        nameText + ' ?<br>' +
+        `<span style="font-size:.8rem;color:var(--dim);">${isFr ? 'Cette action est irréversible.' : 'This action cannot be undone.'}</span>`;
+    }
+    const delCancel = document.querySelector('#modal-delete .btn-modal-cancel');
+    if (delCancel) delCancel.textContent = isFr ? 'Annuler' : 'Cancel';
+    const delConfirm = document.querySelector('#modal-delete .btn-modal-delete');
+    if (delConfirm) delConfirm.textContent = isFr ? 'Supprimer' : 'Delete';
+    // ── Boutons transfert ──
+    const lblDl = document.getElementById('lbl-download');
+    if (lblDl) lblDl.textContent = isFr ? 'Télécharger les profils' : 'Download profiles';
+    const lblImp = document.getElementById('lbl-import');
+    if (lblImp) lblImp.textContent = isFr ? 'Importer les profils' : 'Import profiles';
+    // Re-render pour les dates et boutons
+    renderProfiles();
+  }
+
+  // Init lang au chargement
+  const initLang = localStorage.getItem(LANG_KEY) || 'fr';
+  if (initLang === 'en') applyPageLang('en');
+})();
+</script>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════
+// STORAGE
+// ══════════════════════════════════════════════════════════════════════
+const PROFILES_KEY = 'dartvault_profiles';
+const WINS_KEY     = 'dartvault_wins';
+
+function getProfiles() {
+  try { return JSON.parse(localStorage.getItem(PROFILES_KEY)) || []; }
+  catch(e) { return []; }
+}
+function saveProfiles(arr) {
+  localStorage.setItem(PROFILES_KEY, JSON.stringify(arr));
+}
+
+// ── Téléchargement / Import ───────────────────────────────────────────
+function downloadProfiles() {
+  const lang = localStorage.getItem('dartvault_lang') || 'fr';
+  const isFr = lang === 'fr';
+  const profiles = getProfiles();
+  let wins = {};
+  try { wins = JSON.parse(localStorage.getItem(WINS_KEY)) || {}; } catch(e) {}
+
+  // Filtrer les victoires : uniquement les joueurs présents dans les profils
+  const profileNames = new Set(profiles.map(p => p.emoji + ' ' + p.name));
+  const filteredWins = {};
+  Object.entries(wins).forEach(([name, data]) => {
+    if (profileNames.has(name)) filteredWins[name] = data;
+  });
+
+  const payload = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    profiles,
+    wins: filteredWins
+  };
+
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const date = new Date().toISOString().slice(0,10);
+  a.href     = url;
+  a.download = `dartvault-profils-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+
+  showToastMsg(isFr ? '✅ Profils téléchargés !' : '✅ Profiles downloaded!');
+}
+
+function importProfiles(event) {
+  const lang = localStorage.getItem('dartvault_lang') || 'fr';
+  const isFr = lang === 'fr';
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const payload = JSON.parse(e.target.result);
+
+      // Validation basique
+      if (!payload.profiles || !Array.isArray(payload.profiles)) {
+        showToastMsg(isFr ? '❌ Fichier invalide.' : '❌ Invalid file.');
+        return;
+      }
+
+      // Fusionner les profils (éviter les doublons par emoji+name)
+      const existing = getProfiles();
+      const existingKeys = new Set(existing.map(p => p.emoji + '|' + p.name));
+      const newProfiles  = payload.profiles.filter(p => !existingKeys.has(p.emoji + '|' + p.name));
+      const merged = [...existing, ...newProfiles];
+      saveProfiles(merged);
+
+      // Fusionner les victoires
+      if (payload.wins && typeof payload.wins === 'object') {
+        let currentWins = {};
+        try { currentWins = JSON.parse(localStorage.getItem(WINS_KEY)) || {}; } catch(ex) {}
+        Object.entries(payload.wins).forEach(([name, data]) => {
+          if (!currentWins[name]) {
+            currentWins[name] = data;
+          } else {
+            // Fusionner chaque jeu
+            Object.entries(data).forEach(([game, gameData]) => {
+              if (!currentWins[name][game]) {
+                currentWins[name][game] = gameData;
+              } else {
+                // Additionner les compteurs
+                const g = currentWins[name][game];
+                g.total = (g.total || 0) + (gameData.total || 0);
+                ['daily','weekly','monthly'].forEach(period => {
+                  if (!g[period]) g[period] = {};
+                  Object.entries(gameData[period] || {}).forEach(([k, v]) => {
+                    g[period][k] = (g[period][k] || 0) + v;
+                  });
+                });
+              }
+            });
+          }
+        });
+        localStorage.setItem(WINS_KEY, JSON.stringify(currentWins));
+      }
+
+      renderProfiles();
+      const added = newProfiles.length;
+      showToastMsg(isFr
+        ? `✅ ${added} profil${added !== 1 ? 's' : ''} importé${added !== 1 ? 's' : ''} !`
+        : `✅ ${added} profile${added !== 1 ? 's' : ''} imported!`
+      );
+    } catch(err) {
+      showToastMsg(isFr ? '❌ Fichier corrompu.' : '❌ Corrupted file.');
+    }
+    // Reset l'input pour permettre de réimporter le même fichier
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function showToastMsg(msg) {
+  // Réutilise le toast existant s'il existe, sinon crée un simple
+  if (typeof showToast === 'function') { showToast(msg); return; }
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bg2);color:var(--text);border:1px solid var(--border);padding:10px 20px;border-radius:10px;font-family:Rajdhani,sans-serif;font-weight:700;font-size:.95rem;z-index:9999;pointer-events:none;opacity:0;transition:opacity .2s;';
+  document.body.appendChild(t);
+  requestAnimationFrame(() => { t.style.opacity = '1'; });
+  setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 2500);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// RENDU DE LA LISTE
+// ══════════════════════════════════════════════════════════════════════
+function renderProfiles() {
+  const profiles = getProfiles();
+  const list = document.getElementById('profiles-list');
+  const label = document.getElementById('profiles-label');
+  const lang = localStorage.getItem('dartvault_lang') || 'fr';
+  const isFr = lang === 'fr';
+
+  label.style.display = profiles.length > 0 ? '' : 'none';
+  const transferBtns = document.getElementById('transfer-btns');
+  if (transferBtns) transferBtns.style.display = profiles.length > 0 ? 'flex' : 'none';
+
+  if (profiles.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">👤</div>
+        <div class="empty-state-text">${isFr ? 'Aucun profil créé' : 'No profiles yet'}</div>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = profiles.map((p, i) => `
+    <div class="profile-card" id="profile-card-${i}">
+      <div class="profile-avatar-wrap" style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
+        <div class="profile-avatar" onclick="openEditModal(${i})" title="${isFr ? 'Modifier' : 'Edit'}">${p.emoji}</div>
+        <div class="profile-avatar-hint">${isFr ? '✏️ modifier' : '✏️ edit'}</div>
+      </div>
+      <div class="profile-info">
+        <div class="profile-name">${escHtml(p.name)}</div>
+        <div class="profile-meta">${isFr ? 'Créé le' : 'Created'} ${p.createdAt || '—'}</div>
+      </div>
+      <div class="profile-actions">
+        <button class="btn-profile-action btn-profile-delete" onclick="askDelete(${i})" title="${isFr ? 'Supprimer' : 'Delete'}" aria-label="Supprimer ${p.name}">🗑</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// CRÉATION
+// ══════════════════════════════════════════════════════════════════════
+const EMOJIS = [
+  // Fléchettes & Sport
+  '🎯','🏹','🎳','🏆','🥇','🥈','🥉','🏅',
+  '⚽','🏀','🎾','🏈','⚾','🏐','🏉','🎱',
+  '🏓','🏸','🥊','🥋','🎿','⛷️','🏊','🚴',
+  '🤸','🏋️','🤼','🧗','🏇','🤺','🥅','⛳',
+  // Animaux sauvages
+  '🦁','🐯','🐻','🐼','🦊','🐺','🦝','🐗',
+  '🦅','🦉','🦇','🐉','🦄','🦋','🦈','🦊',
+  '🐲','🦖','🦕','🦑','🦂','🦁','🐆','🐅',
+  '🦬','🦏','🦛','🦘','🐊','🦎','🐍','🦀',
+  // Symboles & Magie
+  '⭐','🌟','💫','✨','🔥','❄️','⚡','🌊',
+  '💎','👑','🔮','🎭','🃏','🎲','🎪','🎨',
+  '🌙','☀️','🌈','⚡','💥','🌋','🍀','🌀',
+  '☄️','🌠','🌌','🪐','🌑','🌕','⚜️','🔱',
+  '🧿','🪬','☯️','🔯','✡️','♾️','🏴','🎌',
+  // Personnages & Avatars
+  '🤠','😈','👾','🤖','🎅','🧙','🦸','🥷',
+  '🧝','🧛','🧟','🧞','🧜','🧚','👸','🤴',
+  '🦹','👻','💀','👽','🤡','🎃','🥸','🤩',
+  '😎','🤬','🤯','🥶','🥵','😤','🫡','🤑',
+  // Nature
+  '🌵','🌴','🌲','🌿','🍄','🪸','🌺','🌸',
+  '🌻','🪷','🌹','🍁','🍂','🍀','🌾','🎋',
+  '🪨','🏔️','🌄','🏝️','🌅','🌃','🌉','🌁',
+  // Nourriture & Boissons
+  '🍕','🌮','🍣','🍩','🍺','🥃','☕','🧃',
+  '🍔','🌯','🍜','🍦','🥂','🍷','🧉','🫖',
+  '🍉','🍓','🍇','🍑','🥭','🍋','🍒','🍎',
+  // Objets & Outils
+  '🚀','🛸','✈️','🚁','⛵','🏎️','🚂','🛺',
+  '💡','🔭','🔬','⚗️','🧲','🪄','🎸','🎺',
+  '🎵','🎹','🥁','🪘','🎻','🪗','📯','🔔',
+  '💣','🪃','🗡️','⚔️','🛡️','🏴‍☠️','🪖','🎖️',
+  // Drapeau & Lieux
+  '🗼','🏰','🗽','🏯','⛩️','🕌','🛕','⛪',
+  '🌍','🌎','🌏','🗺️','🧭','🏄','🤿','🧊',
+];
+
+let selectedEmoji = '🎯';
+
+function buildEmojiGrid() {
+  const grid = document.getElementById('emoji-grid');
+  grid.innerHTML = EMOJIS.map(e => `
+    <div class="emoji-cell ${e === selectedEmoji ? 'selected' : ''}"
+         onclick="selectEmoji('${e}')">${e}</div>
+  `).join('');
+}
+
+function selectEmoji(e) {
+  selectedEmoji = e;
+  document.getElementById('emoji-preview').textContent = e;
+  document.querySelectorAll('.emoji-cell').forEach(el => {
+    el.classList.toggle('selected', el.textContent === e);
+  });
+}
+
+function toggleEmojiGrid() {
+  const grid = document.getElementById('emoji-grid');
+  const isHidden = grid.style.display === 'none';
+  grid.style.display = isHidden ? 'grid' : 'none';
+  if (isHidden) buildEmojiGrid();
+}
+
+function updatePreview() {
+  // rien pour l'instant — le preview est l'emoji
+}
+
+// ── Mode modal : 'create' ou 'edit' ─────────────────────────────────
+let _modalMode = 'create';
+let _editIdx = -1;
+
+function openCreateModal() {
+  _modalMode = 'create';
+  _editIdx = -1;
+  selectedEmoji = '🎯';
+  document.getElementById('emoji-preview').textContent = '🎯';
+  document.getElementById('emoji-grid').style.display = 'none';
+  document.getElementById('pseudo-input').value = '';
+  document.getElementById('modal-create-title').textContent = '✨ NOUVEAU PROFIL';
+  document.getElementById('btn-confirm-create').textContent = 'Créer';
+  document.getElementById('modal-create').classList.add('open');
+  setTimeout(() => document.getElementById('pseudo-input').focus(), 350);
+}
+
+function openEditModal(i) {
+  const profiles = getProfiles();
+  const p = profiles[i];
+  if (!p) return;
+  _modalMode = 'edit';
+  _editIdx = i;
+  selectedEmoji = p.emoji;
+  document.getElementById('emoji-preview').textContent = p.emoji;
+  document.getElementById('emoji-grid').style.display = 'none';
+  document.getElementById('pseudo-input').value = p.name;
+  document.getElementById('modal-create-title').textContent = '✏️ MODIFIER LE PROFIL';
+  document.getElementById('btn-confirm-create').textContent = 'Enregistrer';
+  document.getElementById('modal-create').classList.add('open');
+  setTimeout(() => document.getElementById('pseudo-input').focus(), 350);
+}
+
+function closeCreateModal() {
+  document.getElementById('modal-create').classList.remove('open');
+  _modalMode = 'create';
+  _editIdx = -1;
+}
+
+function confirmSave() {
+  if (_modalMode === 'edit') { confirmEdit(); } else { confirmCreate(); }
+}
+
+function confirmCreate() {
+  const pseudo = document.getElementById('pseudo-input').value.trim();
+  if (!pseudo) {
+    document.getElementById('pseudo-input').focus();
+    document.getElementById('pseudo-input').style.borderColor = '#E53935';
+    setTimeout(() => document.getElementById('pseudo-input').style.borderColor = '', 1000);
+    return;
+  }
+  const profiles = getProfiles();
+  if (profiles.some(p => p.name.toLowerCase() === pseudo.toLowerCase())) {
+    document.getElementById('pseudo-input').style.borderColor = '#E53935';
+    setTimeout(() => document.getElementById('pseudo-input').style.borderColor = '', 1000);
+    return;
+  }
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
+  profiles.push({ emoji: selectedEmoji, name: pseudo, createdAt: dateStr });
+  saveProfiles(profiles);
+  closeCreateModal();
+  renderProfiles();
+}
+
+function confirmEdit() {
+  if (_editIdx < 0) return;
+  const pseudo = document.getElementById('pseudo-input').value.trim();
+  if (!pseudo) {
+    document.getElementById('pseudo-input').focus();
+    document.getElementById('pseudo-input').style.borderColor = '#E53935';
+    setTimeout(() => document.getElementById('pseudo-input').style.borderColor = '', 1000);
+    return;
+  }
+  const profiles = getProfiles();
+  const oldProfile = profiles[_editIdx];
+  // Vérifier doublon pseudo (sauf lui-même)
+  if (profiles.some((p, i) => i !== _editIdx && p.name.toLowerCase() === pseudo.toLowerCase())) {
+    document.getElementById('pseudo-input').style.borderColor = '#E53935';
+    setTimeout(() => document.getElementById('pseudo-input').style.borderColor = '', 1000);
+    return;
+  }
+
+  const oldKey = oldProfile.emoji + ' ' + oldProfile.name;
+  const newKey = selectedEmoji + ' ' + pseudo;
+
+  // Migrer les victoires si la clé a changé
+  if (oldKey !== newKey) {
+    try {
+      const wins = JSON.parse(localStorage.getItem('dartvault_wins') || '{}');
+      if (wins[oldKey]) {
+        wins[newKey] = wins[oldKey];
+        delete wins[oldKey];
+        localStorage.setItem('dartvault_wins', JSON.stringify(wins));
+      }
+    } catch(e) {}
+  }
+
+  // Mettre à jour le profil
+  profiles[_editIdx] = { ...oldProfile, emoji: selectedEmoji, name: pseudo };
+  saveProfiles(profiles);
+  closeCreateModal();
+  renderProfiles();
+  showToastMsg('✅ Profil mis à jour');
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// SUPPRESSION
+// ══════════════════════════════════════════════════════════════════════
+let deleteTargetIdx = -1;
+
+function askDelete(i) {
+  const profiles = getProfiles();
+  deleteTargetIdx = i;
+  document.getElementById('delete-profile-name').textContent =
+    profiles[i].emoji + ' ' + profiles[i].name;
+  document.getElementById('modal-delete').classList.add('open');
+}
+
+function closeDeleteModal() {
+  document.getElementById('modal-delete').classList.remove('open');
+  deleteTargetIdx = -1;
+}
+
+function confirmDelete() {
+  if (deleteTargetIdx < 0) return;
+  const profiles = getProfiles();
+  profiles.splice(deleteTargetIdx, 1);
+  saveProfiles(profiles);
+  closeDeleteModal();
+  renderProfiles();
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════════════════════════
+function handleOverlayClick(e, modalId) {
+  if (e.target === document.getElementById(modalId)) {
+    document.getElementById(modalId).classList.remove('open');
+  }
+}
+
+// Enter sur l'input pseudo
+document.getElementById('pseudo-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') confirmCreate();
+});
+
+// Init
+renderProfiles();
+</script>
+</body>
+</html>

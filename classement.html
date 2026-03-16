@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <link rel="stylesheet" href="/fonts/fonts.css">
+  <meta charset="UTF-8">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0A0A0A">
+  <title>DartVault — Classement</title>  <script>
+    (function(){
+      var t = localStorage.getItem('dartvault_theme') || 'dark';
+      if(t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+      else if(t === 'colored') document.documentElement.setAttribute('data-theme', 'colored');
+    })();
+  </script>
+  <style>
+    :root {
+      --bg:#0A0A0A; --bg2:#141414; --bg3:#1E1E1E; --bg4:#252525;
+      --text:#F0F0F0; --dim:#666; --dim2:#444;
+      --accent:#E8C547; --accent-glow:rgba(232,197,71,.25);
+      --border:rgba(255,255,255,.07);
+      --gold:#E8C547; --silver:#B0B8C8; --bronze:#CD7F32;
+    }
+    [data-theme="dark"] {
+      --bg:#0E0F10; --bg2:#161718; --bg3:#1C1E20; --bg4:#242628;
+      --text:#F0F0F0; --dim:#777; --dim2:#555;
+      --accent:#E8E8E8; --accent-glow:rgba(232,232,232,.2);
+      --border:rgba(255,255,255,.07);
+    }
+    [data-theme="light"] {
+      --bg:#F7F0F2; --bg2:#FFFFFF; --bg3:#EDE4E7; --bg4:#E2D6DA;
+      --text:#1A0A0E; --dim:#8A6070; --dim2:#C8A0B0;
+      --accent:#2A1018; --accent-glow:rgba(22,23,24,.15);
+      --border:rgba(22,23,24,.10);
+    }
+    [data-theme="colored"] {
+      --bg:#0E0900; --bg2:#1A1200; --bg3:#261B00; --bg4:#332400;
+      --text:#F5E6C0; --dim:#8A7040; --dim2:#5A4820;
+      --accent:#E8A020; --accent-glow:rgba(232,160,32,.35);
+      --border:rgba(232,160,32,.12);
+      --gold:#E8C547; --silver:#B0B8C8; --bronze:#CD7F32;
+    }
+    [data-theme="colored"] {
+      --bg:#0E0900; --bg2:#1A1200; --bg3:#261B00; --bg4:#332400;
+      --text:#F5E6C0; --dim:#8A7040; --dim2:#5A4820;
+      --accent:#E8A020; --accent-glow:rgba(232,160,32,.35);
+      --border:rgba(232,160,32,.12);
+      --gold:#E8C547; --silver:#B0B8C8; --bronze:#CD7F32;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body {
+      font-family:'Exo 2',sans-serif;
+      background:var(--bg); color:var(--text);
+      min-height:100dvh;
+      display:flex; flex-direction:column; align-items:center;
+      padding:0 0 40px; overflow-x:hidden;
+      transition:background .3s, color .3s;
+    }
+
+    /* ── Header ── */
+    .page-header {
+      width:100%; max-width:520px;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 16px 10px;
+      position:sticky; top:0; z-index:50;
+      background:var(--bg);
+      border-bottom:1px solid var(--border);
+    }
+    .btn-back-page {
+      background:var(--bg3); border:1px solid var(--border);
+      color:var(--text); border-radius:10px;
+      padding:7px 14px; font-family:'Exo 2',sans-serif;
+      font-size:.85rem; font-weight:600; cursor:pointer;
+      touch-action:manipulation; transition:all .2s;
+    }
+    .btn-back-page:active { transform:scale(.94); border-color:var(--accent); }
+    .page-title {
+      font-family:'Rajdhani',sans-serif; font-size:1.4rem; font-weight:700;
+      color:var(--accent); letter-spacing:2px;
+      text-shadow:0 0 16px var(--accent-glow);
+    }
+    .page-header-right { width:80px; display:flex; justify-content:flex-end; }
+
+    /* ── Bouton sélecteur de jeu ── */
+    .btn-game-pick {
+      background:var(--bg2); border:1.5px solid var(--border);
+      border-radius:12px; padding:10px 20px;
+      font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700;
+      color:var(--text); letter-spacing:.5px;
+      cursor:pointer; touch-action:manipulation;
+      display:flex; align-items:center; transition:all .2s;
+    }
+    .btn-game-pick:active { border-color:var(--accent); }
+
+    /* ── Modal sélecteur de jeu ── */
+    .game-pick-ov {
+      position:fixed; inset:0; z-index:300;
+      background:rgba(0,0,0,.6); backdrop-filter:blur(4px);
+      display:flex; align-items:flex-end; justify-content:center;
+      opacity:0; pointer-events:none; transition:opacity .25s;
+    }
+    .game-pick-ov.open { opacity:1; pointer-events:all; }
+    .game-pick-sheet {
+      width:100%; max-width:520px;
+      background:var(--bg2); border-radius:20px 20px 0 0;
+      padding:16px 16px 32px;
+      transform:translateY(100%); transition:transform .3s cubic-bezier(.34,1.1,.64,1);
+      border-top:1px solid var(--border);
+    }
+    .game-pick-ov.open .game-pick-sheet { transform:translateY(0); }
+    .gp-handle {
+      width:36px; height:4px; border-radius:2px;
+      background:var(--dim2); margin:0 auto 16px;
+    }
+    .gp-title {
+      font-family:'Rajdhani',sans-serif; font-size:.75rem; font-weight:700;
+      color:var(--dim); letter-spacing:2.5px; text-transform:uppercase;
+      text-align:center; margin-bottom:14px;
+    }
+    .gp-grid {
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:8px; margin-bottom:12px;
+    }
+    .gp-option {
+      padding:12px 14px; border-radius:12px;
+      background:var(--bg3); border:1.5px solid var(--border);
+      font-family:'Rajdhani',sans-serif; font-size:.9rem; font-weight:700;
+      color:var(--dim); letter-spacing:.4px;
+      cursor:pointer; touch-action:manipulation; transition:all .15s;
+      text-align:left;
+    }
+    .gp-option:active { transform:scale(.97); }
+    .gp-option.active {
+      background:rgba(232,197,71,.1); border-color:var(--accent); color:var(--accent);
+    }
+    [data-theme="colored"] .gp-option.active {
+      background:rgba(232,160,32,.15); border-color:var(--accent); color:var(--accent);
+    }
+    [data-theme="light"] .gp-option.active {
+      background:rgba(22,23,24,.08); border-color:var(--accent); color:var(--accent);
+    }
+    .gp-option-all {
+      grid-column:1/-1; text-align:center;
+      font-size:1rem; padding:14px;
+    }
+    .btn-settings-game {
+      width:44px; height:44px; border-radius:50%;
+      background:var(--bg3); border:1px solid rgba(255,255,255,.15);
+      color:var(--dim); font-size:1rem;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .2s; touch-action:manipulation; padding:0;
+    }
+    .btn-settings-game:active { transform:scale(.9); border-color:var(--accent); color:var(--accent); }
+    [data-theme="light"] .btn-settings-game { border-color:rgba(22,23,24,.18); }
+    .settings-panel-game {
+      display:none; position:fixed; top:64px; right:14px; z-index:500;
+      background:var(--bg2); border:1px solid var(--border);
+      border-radius:14px; padding:14px 16px; min-width:210px;
+      box-shadow:0 8px 32px rgba(0,0,0,.5);
+      animation:pop .2s cubic-bezier(.34,1.56,.64,1);
+    }
+    [data-theme="light"] .settings-panel-game { box-shadow:0 4px 24px rgba(0,0,0,.12); }
+    .settings-panel-game.open { display:block; }
+    .sg-section-label { font-family:'Rajdhani',sans-serif; font-size:.7rem; font-weight:700; color:var(--dim); letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; }
+    .sg-row { display:flex; align-items:center; gap:10px; padding:8px 0; }
+    .sg-row + .sg-row { border-top:1px solid var(--border); }
+    .sg-row-label { font-family:'Rajdhani',sans-serif; font-size:.95rem; font-weight:700; color:var(--text); flex:1; letter-spacing:.3px; }
+    .sg-toggle { position:relative; width:42px; height:24px; flex-shrink:0; }
+    .sg-toggle input { opacity:0; width:0; height:0; }
+    .sg-slider { position:absolute; inset:0; cursor:pointer; background:var(--bg4); border-radius:24px; border:1px solid rgba(255,255,255,.1); transition:background .2s; }
+    .sg-slider::before { content:''; position:absolute; width:18px; height:18px; left:2px; top:2px; background:#fff; border-radius:50%; transition:transform .2s; }
+    .sg-toggle input:checked + .sg-slider { background:var(--accent); border-color:var(--accent); }
+    .sg-toggle input:checked + .sg-slider::before { transform:translateX(18px); }
+    [data-theme="light"] .sg-slider { background:#DDD; border-color:#CCC; }
+    [data-theme="light"] .sg-slider::before { background:#FFF; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+    .sg-theme-pills { display:flex; gap:6px; width:100%; }
+    .sg-pill { flex:1; padding:7px 4px; border-radius:9px; cursor:pointer; font-family:'Rajdhani',sans-serif; font-size:.78rem; font-weight:700; letter-spacing:.5px; text-align:center; border:1.5px solid var(--border); background:var(--bg3); color:var(--dim); transition:all .18s; touch-action:manipulation; }
+    .sg-pill:active { transform:scale(.94); }
+    .sg-pill.active { background:rgba(232,197,71,.15); border-color:var(--accent); color:var(--accent); }
+    [data-theme="light"] .sg-pill.active { background:rgba(22,23,24,.1); border-color:var(--accent); color:var(--accent); }
+    [data-theme="colored"] .sg-pill.active { background:rgba(232,160,32,.15); border-color:var(--accent); color:var(--accent); }
+
+    /* ── Contenu ── */
+    .page-content {
+      width:100%; max-width:520px;
+      padding:20px 16px;
+      display:flex; flex-direction:column; gap:16px;
+    }
+
+    /* ── Sélecteur de période ── */
+    .period-selector {
+      position:relative; align-self:center;
+    }
+    .btn-period {
+      background:var(--bg2); border:1.5px solid var(--border);
+      border-radius:12px; padding:10px 20px;
+      font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700;
+      color:var(--text); letter-spacing:.5px;
+      cursor:pointer; touch-action:manipulation;
+      display:flex; align-items:center; gap:8px; transition:all .2s;
+    }
+    .btn-period:active { border-color:var(--accent); }
+    .btn-period .arrow { font-size:.7rem; color:var(--dim); transition:transform .2s; }
+    .btn-period.open .arrow { transform:rotate(180deg); }
+    .period-dropdown {
+      display:none; position:absolute; top:calc(100% + 6px); left:50%;
+      transform:translateX(-50%);
+      background:var(--bg2); border:1px solid var(--border);
+      border-radius:12px; overflow:hidden;
+      box-shadow:0 8px 32px rgba(0,0,0,.5);
+      z-index:100; min-width:180px;
+      animation:pop .18s cubic-bezier(.34,1.56,.64,1);
+    }
+    .period-dropdown.open { display:block; }
+    .period-option {
+      padding:12px 20px; font-family:'Rajdhani',sans-serif;
+      font-size:.95rem; font-weight:700; color:var(--dim);
+      letter-spacing:.5px; cursor:pointer; transition:all .15s;
+    }
+    .period-option:hover, .period-option:active { background:var(--bg3); color:var(--text); }
+    .period-option.active { color:var(--accent); }
+    .period-option + .period-option { border-top:1px solid var(--border); }
+
+    @keyframes pop { from{transform:translateX(-50%) scale(.85);opacity:0} to{transform:translateX(-50%) scale(1);opacity:1} }
+
+    /* ── Tableau classement ── */
+    .ranking-card {
+      background:var(--bg2); border:1px solid var(--border);
+      border-radius:16px; overflow:hidden;
+    }
+    .ranking-header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:12px 16px;
+      border-bottom:1px solid var(--border);
+      background:rgba(255,255,255,.02);
+    }
+    [data-theme="light"] .ranking-header { background:rgba(0,0,0,.02); }
+    .ranking-header-title {
+      font-family:'Rajdhani',sans-serif; font-size:.75rem; font-weight:700;
+      color:var(--dim); letter-spacing:2px; text-transform:uppercase;
+    }
+    .ranking-header-wins {
+      font-family:'Rajdhani',sans-serif; font-size:.75rem; font-weight:700;
+      color:var(--dim); letter-spacing:2px; text-transform:uppercase;
+    }
+    .rank-row {
+      display:flex; align-items:center; gap:12px;
+      padding:12px 16px;
+      border-bottom:1px solid var(--border);
+      animation:fadeIn .2s ease-out;
+    }
+    .rank-row:last-child { border-bottom:none; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+    .rank-pos {
+      width:28px; font-family:'Rajdhani',sans-serif;
+      font-size:1.1rem; font-weight:700; text-align:center;
+      flex-shrink:0;
+    }
+    .rank-avatar {
+      width:38px; height:38px; border-radius:50%;
+      background:var(--bg3); border:1.5px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.3rem; flex-shrink:0;
+    }
+    .rank-name {
+      font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700;
+      color:var(--text); flex:1; letter-spacing:.3px;
+    }
+    .rank-wins {
+      font-family:'Rajdhani',sans-serif; font-size:1.2rem; font-weight:700;
+      color:var(--accent); min-width:32px; text-align:right;
+      text-shadow:0 0 12px var(--accent-glow);
+    }
+    .rank-wins-label {
+      font-family:'Exo 2',sans-serif; font-size:.7rem; color:var(--dim);
+      text-align:right;
+    }
+    .rank-wins-col { display:flex; flex-direction:column; align-items:flex-end; }
+
+    /* Médailles top 3 */
+    .rank-row:nth-child(1) .rank-pos { color:#E8C547; text-shadow:0 0 10px rgba(232,197,71,.5); }
+    .rank-row:nth-child(2) .rank-pos { color:#B0B8C8; }
+    .rank-row:nth-child(3) .rank-pos { color:#CD7F32; }
+    .rank-row:nth-child(1) { background:rgba(232,197,71,.04); }
+
+    /* Empty state */
+    .empty-state {
+      text-align:center; padding:40px 20px; color:var(--dim);
+    }
+    .empty-icon { font-size:3rem; margin-bottom:12px; opacity:.35; }
+    .empty-text { font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:600; letter-spacing:.5px; }
+    .empty-sub { font-size:.8rem; margin-top:6px; color:var(--dim2); }
+
+    /* Game selector */
+    .section-label {
+      font-family:'Rajdhani',sans-serif; font-size:.7rem; font-weight:700;
+      color:var(--dim); letter-spacing:2.5px; text-transform:uppercase;
+      padding:0 2px;
+    }
+    @media(prefers-reduced-motion:reduce){
+      .rules-quick-point{animation:none;opacity:1;}
+      .player-row,[class*="rank-row"]{animation:none!important;opacity:1!important;transform:none!important;}
+      .modal-body,.drawer{animation:none!important;transform:none!important;}
+    }
+  </style>
+  <script src="lang.js"></script>
+</head>
+<body>
+
+  <div class="page-header">
+    <button class="btn-back-page" id="btn-back" onclick="location.href='index.html'">← Menu</button>
+    <div class="page-title" id="page-title">CLASSEMENT</div>
+    <div class="page-header-right">
+      <button class="btn-settings-game" id="btn-settings-game" aria-label="Paramètres">⚙️</button>
+    </div>
+  </div>
+
+  <div class="page-content">
+
+    <!-- Sélecteur de jeu (bouton unique) -->
+    <div style="display:flex; justify-content:center;">
+      <button class="btn-game-pick" id="btn-game-pick">
+        <span id="game-pick-label">🎮 Tout</span>
+        <span class="arrow" style="font-size:.7rem;color:var(--dim);margin-left:6px;">▼</span>
+      </button>
+    </div>
+
+    <!-- Sélecteur de période -->
+    <div class="period-selector">
+      <button class="btn-period" id="btn-period">
+        <span id="period-label">Quotidien</span>
+        <span class="arrow">▼</span>
+      </button>
+      <div class="period-dropdown" id="period-dropdown">
+        <div class="period-option active" data-period="daily">Quotidien</div>
+        <div class="period-option" data-period="weekly">Hebdomadaire</div>
+        <div class="period-option" data-period="monthly">Mensuel</div>
+        <div class="period-option" data-period="alltime">All Time</div>
+      </div>
+    </div>
+
+    <!-- Tableau -->
+    <div id="ranking-container"></div>
+
+    <!-- Bouton réinitialiser -->
+    <div style="display:flex; justify-content:center; margin:28px 0 16px;">
+      <button id="btn-reset-stats" onclick="openResetConfirm()" style="
+        background:none; border:1px solid rgba(220,53,69,.35); color:rgba(220,53,69,.7);
+        border-radius:10px; padding:10px 20px; font-family:'Rajdhani',sans-serif;
+        font-size:.85rem; font-weight:700; letter-spacing:.5px; cursor:pointer;
+        touch-action:manipulation; transition:all .2s; display:flex; align-items:center; gap:8px;
+      ">🗑️ <span id="lbl-reset-btn">Réinitialiser les stats</span></button>
+    </div>
+
+  </div>
+
+  <!-- Modal confirmation reset -->
+  <div id="reset-confirm-modal" onclick="if(event.target===this)closeResetConfirm()" style="
+    display:none; position:fixed; inset:0; z-index:800;
+    background:rgba(0,0,0,.85); backdrop-filter:blur(8px);
+    align-items:flex-end; justify-content:center; padding:0;
+  ">
+    <div style="
+      background:var(--bg2); border:1px solid rgba(220,53,69,.3);
+      border-radius:20px 20px 0 0; padding:24px 20px 40px; width:100%; max-width:480px;
+      animation:slideUp .3s cubic-bezier(.34,1.2,.64,1);
+    ">
+      <div style="width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px;"></div>
+      <div id="lbl-reset-title" style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:#E53935;text-align:center;letter-spacing:1px;margin-bottom:8px;">⚠️ RÉINITIALISER ?</div>
+      <div id="lbl-reset-sub" style="font-size:.85rem;color:var(--dim);text-align:center;margin-bottom:24px;line-height:1.5;">Toutes les victoires de tous les joueurs seront remises à zéro. Cette action est irréversible.</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button onclick="confirmReset()" style="
+          background:#E53935; border:none; color:#fff;
+          border-radius:12px; padding:14px; font-family:'Rajdhani',sans-serif;
+          font-size:1rem; font-weight:700; letter-spacing:.5px; cursor:pointer;
+          touch-action:manipulation;
+        "><span id="lbl-reset-confirm">🗑️ Tout réinitialiser</span></button>
+        <button onclick="closeResetConfirm()" style="
+          background:var(--bg3); border:1px solid var(--border); color:var(--dim);
+          border-radius:12px; padding:14px; font-family:'Rajdhani',sans-serif;
+          font-size:1rem; font-weight:700; cursor:pointer; touch-action:manipulation;
+        "><span id="lbl-reset-cancel">Annuler</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal sélecteur de jeu -->
+  <div class="game-pick-ov" id="game-pick-modal" onclick="if(event.target===this)closeGamePicker()">
+    <div class="game-pick-sheet">
+      <div class="gp-handle"></div>
+      <div class="gp-title" id="gp-title">CHOISIR UN JEU</div>
+      <div class="gp-grid" id="gp-grid">
+        <div class="gp-option gp-option-all active" data-game="_total" onclick="selectGame(this)">🎮 Tout</div>
+        <div class="gp-option" data-game="501" onclick="selectGame(this)">🎯 X01 DARTS</div>
+        <div class="gp-option" data-game="cricket" onclick="selectGame(this)">🦗 CRICKET</div>
+        <div class="gp-option" data-game="shanghai" onclick="selectGame(this)">🗼 SHANGHAI</div>
+        <div class="gp-option" data-game="blackjack" onclick="selectGame(this)">🃏 BLACKDART</div>
+        <div class="gp-option" data-game="race500" onclick="selectGame(this)">🏁 RACE 500</div>
+        <div class="gp-option" data-game="territoire" id="gp-territoire" onclick="selectGame(this)">🏰 TERRITOIRE</div>
+        <div class="gp-option" data-game="dartspong" onclick="selectGame(this)">🔴 DARTSPONG</div>
+        <div class="gp-option" data-game="shooter" onclick="selectGame(this)">💥 BATTLE ROYAL</div>
+        <div class="gp-option" data-game="bataille" id="gp-bataille" onclick="selectGame(this)">⚓ BATAILLE NAVALE</div>
+        <div class="gp-option" data-game="horloge" onclick="selectGame(this)">🕐 HORLOGE</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Panel -->
+  <div class="settings-panel-game" id="sg-panel">
+    <div class="sg-section-label">Thème</div>
+    <div class="sg-row" style="padding-top:0;border-top:none;">
+      <div class="sg-theme-pills">
+        <button class="sg-pill" id="sg-pill-dark">🌙 Sombre</button>
+        <button class="sg-pill" id="sg-pill-light">☀️ Clair</button>
+        <button class="sg-pill" id="sg-pill-colored">🎨 Coloré</button>
+      </div>
+    </div>
+    <div class="sg-row">
+      <span>📳</span>
+      <span class="sg-row-label">Vibrations</span>
+      <label class="sg-toggle"><input type="checkbox" id="sg-toggle-vib" checked><span class="sg-slider"></span></label>
+    </div>
+    <div class="sg-row">
+      <span>🔊</span>
+      <span class="sg-row-label">Sons</span>
+      <label class="sg-toggle"><input type="checkbox" id="sg-toggle-snd" checked><span class="sg-slider"></span></label>
+    </div>
+    <div class="sg-row">
+      <span class="sg-row-label">Langue / Language</span>
+      <button id="sg-btn-lang" aria-label="Changer de langue" style="background:none;border:none;cursor:pointer;font-size:1.8rem;line-height:1;padding:2px;border-radius:6px;touch-action:manipulation;transition:transform .15s;">🇫🇷</button>
+    </div>
+  </div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════
+// CONSTANTES
+// ══════════════════════════════════════════════════════════════════════
+const PROFILES_KEY  = 'dartvault_profiles';
+const WINS_KEY      = 'dartvault_wins'; // { "emoji pseudo": { daily:{YYYY-MM-DD:n}, weekly:{YYYY-Www:n}, monthly:{YYYY-MM:n}, total:n } }
+
+const PERIOD_LABELS = {
+  fr: { daily:'Quotidien', weekly:'Hebdomadaire', monthly:'Mensuel', alltime:'All Time' },
+  en: { daily:'Daily', weekly:'Weekly', monthly:'Monthly', alltime:'All Time' }
+};
+
+const PAGE_LABELS = {
+  fr: { title:'CLASSEMENT', back:'← Menu', wins:'Victoires', player:'Joueur', nodata:'Aucune victoire', nodata_sub:'Joue une partie pour apparaître ici !',
+        reset_btn:'Réinitialiser les stats', reset_title:'⚠️ RÉINITIALISER ?',
+        reset_sub:'Toutes les victoires de tous les joueurs seront remises à zéro. Cette action est irréversible.',
+        reset_confirm:'🗑️ Tout réinitialiser', reset_cancel:'Annuler' },
+  en: { title:'RANKINGS', back:'← Menu', wins:'Wins', player:'Player', nodata:'No wins yet', nodata_sub:'Play a game to appear here!',
+        reset_btn:'Reset stats', reset_title:'⚠️ RESET?',
+        reset_sub:'All wins for all players will be reset to zero. This action cannot be undone.',
+        reset_confirm:'🗑️ Reset everything', reset_cancel:'Cancel' }
+};
+
+// ══════════════════════════════════════════════════════════════════════
+// UTILS DATE
+// ══════════════════════════════════════════════════════════════════════
+function todayKey()   { return new Date().toISOString().slice(0,10); } // YYYY-MM-DD
+function weekKey()    {
+  const d = new Date();
+  const day = d.getDay() || 7; // lundi=1
+  d.setDate(d.getDate() - day + 1);
+  const mon = d.toISOString().slice(0,10);
+  return mon; // semaine identifiée par son lundi
+}
+function monthKey()   { return new Date().toISOString().slice(0,7); } // YYYY-MM
+
+// ══════════════════════════════════════════════════════════════════════
+// STORAGE
+// ══════════════════════════════════════════════════════════════════════
+function getProfiles() {
+  try { return JSON.parse(localStorage.getItem(PROFILES_KEY)) || []; } catch(e) { return []; }
+}
+function getWins() {
+  try { return JSON.parse(localStorage.getItem(WINS_KEY)) || {}; } catch(e) { return {}; }
+}
+
+function getActiveProfileNames() {
+  // Retourne les noms complets (emoji + pseudo) des profils existants
+  return new Set(getProfiles().map(p => p.emoji + ' ' + p.name));
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// RENDU
+// ══════════════════════════════════════════════════════════════════════
+let currentPeriod = 'daily';
+let currentGame   = '_total';
+let currentLang   = localStorage.getItem('dartvault_lang') || 'fr';
+
+// Noms affichés par jeu
+const GAME_NAMES = {
+  fr: { _total:'Tout', '501':'X01 DARTS', cricket:'CRICKET', shanghai:'SHANGHAI', blackjack:'BLACKDART', race500:'RACE 500', territoire:'TERRITOIRE', dartspong:'DARTSPONG', shooter:'BATTLE ROYAL', bataille:'BATAILLE NAVALE', horloge:'HORLOGE' },
+  en: { _total:'All',  '501':'X01 DARTS', cricket:'CRICKET', shanghai:'SHANGHAI', blackjack:'BLACKDART', race500:'RACE 500', territoire:'TERRITORY',  dartspong:'DARTSPONG', shooter:'BATTLE ROYAL', bataille:'BATTLESHIP', horloge:'HORLOGE' }
+};
+
+// ── Sélecteur de jeu ─────────────────────────────────────────────────
+const GAMES_LIST = [
+  { key:'_total',    fr:'🎮 Tout',           en:'🎮 All' },
+  { key:'501',       fr:'🎯 X01 DARTS',      en:'🎯 X01 DARTS' },
+  { key:'cricket',   fr:'🦗 CRICKET',        en:'🦗 CRICKET' },
+  { key:'shanghai',  fr:'🗼 SHANGHAI',        en:'🗼 SHANGHAI' },
+  { key:'blackjack', fr:'🃏 BLACKDART',       en:'🃏 BLACKDART' },
+  { key:'race500',   fr:'🏁 RACE 500',        en:'🏁 RACE 500' },
+  { key:'territoire',fr:'🏰 TERRITOIRE',      en:'🏰 TERRITORY' },
+  { key:'dartspong', fr:'🔴 DARTSPONG',       en:'🔴 DARTSPONG' },
+  { key:'shooter',   fr:'💥 BATTLE ROYAL',    en:'💥 BATTLE ROYAL' },
+  { key:'bataille',  fr:'⚓ BATAILLE NAVALE', en:'⚓ BATTLESHIP' },
+  { key:'horloge',   fr:'🕐 HORLOGE',         en:'🕐 HORLOGE' },
+];
+
+function openGamePicker() {
+  document.getElementById('game-pick-modal').classList.add('open');
+}
+function closeGamePicker() {
+  document.getElementById('game-pick-modal').classList.remove('open');
+}
+function selectGame(el) {
+  document.querySelectorAll('.gp-option').forEach(o => o.classList.remove('active'));
+  el.classList.add('active');
+  currentGame = el.dataset.game;
+  const lang = currentLang;
+  const found = GAMES_LIST.find(g => g.key === currentGame);
+  document.getElementById('game-pick-label').textContent = found ? found[lang] : currentGame;
+  closeGamePicker();
+  renderRanking();
+}
+
+document.getElementById('btn-game-pick').addEventListener('click', openGamePicker);
+
+function updateGamePills(lang) {
+  // Mettre à jour les options du modal et le label du bouton
+  GAMES_LIST.forEach(g => {
+    const el = document.querySelector(`.gp-option[data-game="${g.key}"]`);
+    if (el) el.textContent = g[lang] || g.fr;
+  });
+  // Mettre à jour le label du bouton principal
+  const found = GAMES_LIST.find(g => g.key === currentGame);
+  if (found) document.getElementById('game-pick-label').textContent = found[lang] || found.fr;
+  // Titre du modal
+  document.getElementById('gp-title').textContent = lang === 'fr' ? 'CHOISIR UN JEU' : 'CHOOSE A GAME';
+}
+
+function getWinsForPeriod(game, period) {
+  const wins = getWins();
+  const activeProfiles = getActiveProfileNames();
+  const result = {}; // { fullName: count }
+
+  Object.entries(wins).forEach(([fullName, data]) => {
+    // Exclure les profils supprimés
+    if (!activeProfiles.has(fullName)) return;
+    const gameData = data[game];
+    if (!gameData) return;
+
+    let count = 0;
+    if (period === 'alltime') {
+      count = gameData.total || 0;
+    } else if (period === 'daily') {
+      count = (gameData.daily || {})[todayKey()] || 0;
+    } else if (period === 'weekly') {
+      count = (gameData.weekly || {})[weekKey()] || 0;
+    } else if (period === 'monthly') {
+      count = (gameData.monthly || {})[monthKey()] || 0;
+    }
+    if (count > 0) result[fullName] = count;
+  });
+
+  return result;
+}
+
+function renderRanking() {
+  const container = document.getElementById('ranking-container');
+  const winsMap = getWinsForPeriod(currentGame, currentPeriod);
+  const profiles = getProfiles();
+  const labels = PAGE_LABELS[currentLang];
+
+  // Trier par victoires décroissantes
+  const sorted = Object.entries(winsMap).sort((a,b) => b[1] - a[1]);
+
+  if (sorted.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🏆</div>
+        <div class="empty-text">${labels.nodata}</div>
+        <div class="empty-sub">${labels.nodata_sub}</div>
+      </div>`;
+    return;
+  }
+
+  // Trouver l'emoji de chaque joueur depuis les profils
+  const profileMap = {};
+  profiles.forEach(p => { profileMap[p.emoji + ' ' + p.name] = p.emoji; });
+
+  const medals = ['🥇','🥈','🥉'];
+  const rows = sorted.map(([ fullName, wins ], i) => {
+    const emoji = profileMap[fullName] || '👤';
+    // Extraire le pseudo (tout après le premier espace)
+    const pseudo = fullName.includes(' ') ? fullName.slice(fullName.indexOf(' ')+1) : fullName;
+    const pos = medals[i] || `${i+1}`;
+    return `
+      <div class="rank-row">
+        <div class="rank-pos">${pos}</div>
+        <div class="rank-avatar">${emoji}</div>
+        <div class="rank-name">${escHtml(pseudo)}</div>
+        <div class="rank-wins-col">
+          <div class="rank-wins">${wins}</div>
+          <div class="rank-wins-label">${labels.wins}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="ranking-card">
+      <div class="ranking-header">
+        <div class="ranking-header-title">${labels.player}</div>
+        <div class="ranking-header-wins">${labels.wins}</div>
+      </div>
+      ${rows}
+    </div>`;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// PÉRIODE
+// ══════════════════════════════════════════════════════════════════════
+const btnPeriod   = document.getElementById('btn-period');
+const dropdown    = document.getElementById('period-dropdown');
+const periodLabel = document.getElementById('period-label');
+
+btnPeriod.addEventListener('click', e => {
+  e.stopPropagation();
+  btnPeriod.classList.toggle('open');
+  dropdown.classList.toggle('open');
+});
+
+document.addEventListener('click', () => {
+  btnPeriod.classList.remove('open');
+  dropdown.classList.remove('open');
+});
+
+dropdown.querySelectorAll('.period-option').forEach(opt => {
+  opt.addEventListener('click', e => {
+    e.stopPropagation();
+    currentPeriod = opt.dataset.period;
+    dropdown.querySelectorAll('.period-option').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+    periodLabel.textContent = opt.textContent;
+    btnPeriod.classList.remove('open');
+    dropdown.classList.remove('open');
+    renderRanking();
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════════
+// LANGUE
+// ══════════════════════════════════════════════════════════════════════
+function applyPageLang(lang) {
+  currentLang = lang;
+  const L = PAGE_LABELS[lang];
+  const P = PERIOD_LABELS[lang];
+  document.getElementById('page-title').textContent = L.title;
+  document.getElementById('btn-back').textContent = '← ' + (L.back || 'Menu').replace(/^←\s*/,'');
+  // Reset modal labels
+  document.getElementById('lbl-reset-btn').textContent     = L.reset_btn;
+  document.getElementById('lbl-reset-title').textContent   = L.reset_title;
+  document.getElementById('lbl-reset-sub').textContent     = L.reset_sub;
+  document.getElementById('lbl-reset-confirm').textContent = L.reset_confirm;
+  document.getElementById('lbl-reset-cancel').textContent  = L.reset_cancel;
+  // Mettre à jour les options du dropdown
+  dropdown.querySelectorAll('.period-option').forEach(opt => {
+    opt.textContent = P[opt.dataset.period];
+    if (opt.dataset.period === currentPeriod) periodLabel.textContent = P[opt.dataset.period];
+  });
+  updateGamePills(lang);
+  renderRanking();
+}
+
+// ── Reset stats ────────────────────────────────────────────────────────
+function openResetConfirm() {
+  const modal = document.getElementById('reset-confirm-modal');
+  modal.style.display = 'flex';
+}
+function closeResetConfirm() {
+  const modal = document.getElementById('reset-confirm-modal');
+  modal.style.display = 'none';
+}
+function confirmReset() {
+  localStorage.removeItem(WINS_KEY);
+  closeResetConfirm();
+  renderRanking();
+}
+
+const initLang = localStorage.getItem('dartvault_lang') || 'fr';
+applyPageLang(initLang);
+
+// ══════════════════════════════════════════════════════════════════════
+// SETTINGS PANEL
+// ══════════════════════════════════════════════════════════════════════
+(function() {
+  const THEME_KEY = 'dartvault_theme';
+  const VIB_KEY   = 'dartvault_vibration';
+  const SND_KEY   = 'dartvault_sound';
+  const LANG_KEY  = 'dartvault_lang';
+
+  const btnSg   = document.getElementById('btn-settings-game');
+  const sgPanel = document.getElementById('sg-panel');
+
+  btnSg.addEventListener('click', e => { e.stopPropagation(); sgPanel.classList.toggle('open'); if(sgPanel.classList.contains('open')) syncPanel(); });
+  document.addEventListener('click', e => { if(!sgPanel.contains(e.target) && e.target !== btnSg) sgPanel.classList.remove('open'); });
+
+  function syncPanel() {
+    const t = localStorage.getItem(THEME_KEY) || 'dark';
+    ['dark','light','colored'].forEach(k => { document.getElementById('sg-pill-'+k).classList.toggle('active', t===k); });
+    document.getElementById('sg-toggle-vib').checked = localStorage.getItem(VIB_KEY) !== 'off';
+    document.getElementById('sg-toggle-snd').checked = localStorage.getItem(SND_KEY) !== 'off';
+    document.getElementById('sg-btn-lang').textContent = (localStorage.getItem(LANG_KEY)||'fr') === 'fr' ? '🇫🇷' : '🇬🇧';
+  }
+
+  function applyTheme(t) {
+    localStorage.setItem(THEME_KEY, t);
+    document.documentElement.setAttribute('data-theme', t);
+    syncPanel();
+  }
+
+  ['dark','light','colored'].forEach(k => document.getElementById('sg-pill-'+k).addEventListener('click', () => applyTheme(k)));
+
+  const vt = document.getElementById('sg-toggle-vib');
+  vt.checked = localStorage.getItem(VIB_KEY) !== 'off';
+  vt.addEventListener('change', () => localStorage.setItem(VIB_KEY, vt.checked ? 'on' : 'off'));
+
+  const st = document.getElementById('sg-toggle-snd');
+  st.checked = localStorage.getItem(SND_KEY) !== 'off';
+  st.addEventListener('change', () => localStorage.setItem(SND_KEY, st.checked ? 'on' : 'off'));
+
+  document.getElementById('sg-btn-lang').addEventListener('click', () => {
+    const cur = localStorage.getItem(LANG_KEY) || 'fr';
+    const next = cur === 'fr' ? 'en' : 'fr';
+    localStorage.setItem(LANG_KEY, next);
+    applyPageLang(next);
+    syncPanel();
+  });
+
+  syncPanel();
+})();
+</script>
+</body>
+</html>

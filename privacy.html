@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/favicon.ico">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0E0F10">
+  <title>DartVault — Confidentialité</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
+  <script>
+    (function(){
+      var t = localStorage.getItem('dartvault_theme') || 'dark';
+      if(t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <style>
+    :root {
+      --bg:#0A0A0A; --bg2:#141414; --bg3:#1E1E1E;
+      --text:#F0F0F0; --dim:#666; --dim2:#444;
+      --accent:#E8C547; --accent-glow:rgba(232,197,71,.25);
+      --border:rgba(255,255,255,.07);
+    }
+    [data-theme="dark"] {
+      --bg:#0E0F10; --bg2:#161718; --bg3:#1C1E20;
+      --text:#F0F0F0; --dim:#777; --dim2:#555;
+      --accent:#E8E8E8; --accent-glow:rgba(232,232,232,.2);
+      --border:rgba(255,255,255,.07);
+    }
+    [data-theme="light"] {
+      --bg:#F7F0F2; --bg2:#FFFFFF; --bg3:#EDE4E7;
+      --text:#1A0A0E; --dim:#8A6070; --dim2:#C8A0B0;
+      --accent:#2A1018; --accent-glow:rgba(22,23,24,.15);
+      --border:rgba(22,23,24,.10);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+    body {
+      font-family:'Exo 2', sans-serif;
+      background:var(--bg); color:var(--text);
+      min-height:100dvh;
+      display:flex; flex-direction:column; align-items:center;
+      padding:20px 16px 48px;
+      transition: background .3s, color .3s;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      width:100%; max-width:600px;
+      display:flex; align-items:center; gap:12px;
+      margin-bottom:28px;
+    }
+    .btn-back {
+      background:var(--bg3); border:1px solid var(--border);
+      color:var(--dim); border-radius:10px;
+      padding:8px 14px; font-family:'Exo 2', sans-serif;
+      font-size:.85rem; font-weight:600; cursor:pointer;
+      touch-action:manipulation; transition:all .2s;
+      white-space:nowrap;
+    }
+    .btn-back:active { transform:scale(.94); border-color:var(--accent); color:var(--accent); }
+
+    .page-title {
+      font-family:'Rajdhani', sans-serif;
+      font-size:1.6rem; font-weight:700;
+      color:var(--accent); letter-spacing:2px;
+      text-shadow:0 0 20px var(--accent-glow);
+      flex:1; text-align:center;
+    }
+
+    /* ── CONTENU ── */
+    .card {
+      width:100%; max-width:600px;
+      background:var(--bg2); border:1px solid var(--border);
+      border-radius:18px; padding:24px 20px;
+      margin-bottom:16px;
+    }
+
+    .card h2 {
+      font-family:'Rajdhani', sans-serif;
+      font-size:1.15rem; font-weight:700;
+      color:var(--accent); letter-spacing:1px;
+      margin-bottom:10px;
+      display:flex; align-items:center; gap:8px;
+    }
+
+    .card p, .card li {
+      font-size:.88rem; line-height:1.65;
+      color:var(--text); opacity:.85;
+    }
+
+    .card ul {
+      padding-left:18px; margin-top:6px;
+    }
+    .card li { margin-bottom:4px; }
+
+    .badge-ok {
+      display:inline-block;
+      background:rgba(72,199,116,.15);
+      border:1px solid rgba(72,199,116,.35);
+      color:#48c774; border-radius:8px;
+      padding:2px 10px; font-size:.78rem; font-weight:700;
+      letter-spacing:.5px; font-family:'Rajdhani', sans-serif;
+    }
+
+    .divider {
+      width:100%; max-width:600px;
+      height:1px; background:var(--border);
+      margin:4px 0 16px;
+    }
+
+    .footer {
+      color:var(--dim); font-size:.75rem;
+      letter-spacing:1px; margin-top:8px; text-align:center;
+    }
+
+    /* ── LANG TOGGLE ── */
+    .lang-toggle {
+      background:none; border:none; cursor:pointer;
+      font-size:1.6rem; line-height:1; padding:4px;
+      border-radius:6px; touch-action:manipulation;
+      transition:transform .15s;
+    }
+    .lang-toggle:active { transform:scale(.85); }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <button class="btn-back" id="btn-back" onclick="history.back()">← Retour</button>
+    <div class="page-title" id="lbl-title">CONFIDENTIALITÉ</div>
+    <button class="lang-toggle" id="btn-lang" onclick="toggleLang()">🇫🇷</button>
+  </div>
+
+  <!-- Résumé -->
+  <div class="card">
+    <h2><span id="lbl-summary-icon">🛡️</span> <span id="lbl-summary-title">En résumé</span></h2>
+    <p id="lbl-summary-text">
+      DartVault ne collecte aucune donnée personnelle. Tout reste sur ton appareil.
+    </p>
+    <br>
+    <span class="badge-ok" id="lbl-badge">✓ 100% LOCAL</span>
+  </div>
+
+  <!-- Données collectées -->
+  <div class="card">
+    <h2>📦 <span id="lbl-data-title">Données stockées</span></h2>
+    <p id="lbl-data-intro">L'application enregistre uniquement sur ton appareil, via le stockage local (localStorage) :</p>
+    <ul id="lbl-data-list">
+      <li>Noms et statistiques des profils joueurs</li>
+      <li>Préférences de thème (sombre / clair / coloré)</li>
+      <li>Langue choisie (français / anglais)</li>
+      <li>Préférences de vibrations et sons</li>
+    </ul>
+  </div>
+
+  <!-- Pas de collecte -->
+  <div class="card">
+    <h2>🚫 <span id="lbl-nocollect-title">Ce que nous ne faisons pas</span></h2>
+    <ul id="lbl-nocollect-list">
+      <li>Aucun serveur — aucune donnée n'est envoyée en ligne</li>
+      <li>Aucun compte utilisateur requis</li>
+      <li>Aucun cookie de traçage ou analytics</li>
+      <li>Aucune publicité</li>
+      <li>Aucune vente ou partage de données à des tiers</li>
+    </ul>
+  </div>
+
+  <!-- Permissions -->
+  <div class="card">
+    <h2>📱 <span id="lbl-perm-title">Permissions utilisées</span></h2>
+    <ul id="lbl-perm-list">
+      <li><strong>Vibrations</strong> — retour haptique en jeu (désactivable)</li>
+      <li><strong>Audio</strong> — effets sonores en jeu (désactivable)</li>
+      <li><strong>Stockage local</strong> — sauvegarde des profils et préférences</li>
+    </ul>
+  </div>
+
+  <!-- Suppression -->
+  <div class="card">
+    <h2>🗑️ <span id="lbl-delete-title">Supprimer tes données</span></h2>
+    <p id="lbl-delete-text">
+      Toutes tes données sont sur ton appareil. Pour les supprimer, il suffit de vider les données de l'application dans les paramètres de ton navigateur ou de désinstaller l'application.
+    </p>
+  </div>
+
+  <!-- Contact -->
+  <div class="card">
+    <h2>✉️ <span id="lbl-contact-title">Contact</span></h2>
+    <p id="lbl-contact-text">
+      Pour toute question concernant cette politique de confidentialité, tu peux nous contacter à l'adresse suivante :
+    </p>
+    <br>
+    <p><strong>dartvault.app@gmail.com</strong></p>
+  </div>
+
+  <div class="divider"></div>
+  <div class="footer" id="lbl-footer">DartVault © 2026 — <span id="lbl-lastupdate">Dernière mise à jour : janvier 2026</span></div>
+
+<script>
+  // ── LANGUE ──────────────────────────────────────────────────
+  const LANG_KEY = 'dartvault_lang';
+  let currentLang = localStorage.getItem(LANG_KEY) || 'fr';
+
+  const T = {
+    fr: {
+      back:          '← Retour',
+      title:         'CONFIDENTIALITÉ',
+      summary_title: 'En résumé',
+      summary_text:  'DartVault ne collecte aucune donnée personnelle. Tout reste sur ton appareil.',
+      badge:         '✓ 100% LOCAL',
+      data_title:    'Données stockées',
+      data_intro:    "L'application enregistre uniquement sur ton appareil, via le stockage local (localStorage) :",
+      data_list: [
+        'Noms et statistiques des profils joueurs',
+        'Préférences de thème (sombre / clair / coloré)',
+        'Langue choisie (français / anglais)',
+        'Préférences de vibrations et sons',
+      ],
+      nocollect_title: 'Ce que nous ne faisons pas',
+      nocollect_list: [
+        "Aucun serveur — aucune donnée n'est envoyée en ligne",
+        'Aucun compte utilisateur requis',
+        'Aucun cookie de traçage ou analytics',
+        'Aucune publicité',
+        'Aucune vente ou partage de données à des tiers',
+      ],
+      perm_title: 'Permissions utilisées',
+      perm_list: [
+        '<strong>Vibrations</strong> — retour haptique en jeu (désactivable)',
+        '<strong>Audio</strong> — effets sonores en jeu (désactivable)',
+        '<strong>Stockage local</strong> — sauvegarde des profils et préférences',
+      ],
+      delete_title: 'Supprimer tes données',
+      delete_text:  "Toutes tes données sont sur ton appareil. Pour les supprimer, vide les données de l'application dans les paramètres de ton navigateur ou désinstalle l'application.",
+      contact_title: 'Contact',
+      contact_text:  'Pour toute question concernant cette politique de confidentialité :',
+      lastupdate: 'Dernière mise à jour : janvier 2026',
+    },
+    en: {
+      back:          '← Back',
+      title:         'PRIVACY POLICY',
+      summary_title: 'In a nutshell',
+      summary_text:  'DartVault does not collect any personal data. Everything stays on your device.',
+      badge:         '✓ 100% LOCAL',
+      data_title:    'Stored data',
+      data_intro:    'The app saves data only on your device, using local storage (localStorage):',
+      data_list: [
+        'Player profile names and statistics',
+        'Theme preferences (dark / light / colored)',
+        'Chosen language (French / English)',
+        'Vibration and sound preferences',
+      ],
+      nocollect_title: 'What we do not do',
+      nocollect_list: [
+        'No server — no data is ever sent online',
+        'No user account required',
+        'No tracking cookies or analytics',
+        'No advertising',
+        'No sale or sharing of data with third parties',
+      ],
+      perm_title: 'Permissions used',
+      perm_list: [
+        '<strong>Vibration</strong> — haptic feedback during gameplay (can be disabled)',
+        '<strong>Audio</strong> — sound effects during gameplay (can be disabled)',
+        '<strong>Local storage</strong> — saving profiles and preferences',
+      ],
+      delete_title: 'Delete your data',
+      delete_text:  'All your data is on your device. To delete it, clear the app data in your browser settings or uninstall the application.',
+      contact_title: 'Contact',
+      contact_text:  'For any question regarding this privacy policy:',
+      lastupdate: 'Last updated: January 2026',
+    }
+  };
+
+  function applyLang(lang) {
+    currentLang = lang;
+    document.documentElement.lang = lang;
+    const t = T[lang];
+
+    document.getElementById('btn-back').textContent       = t.back;
+    document.getElementById('lbl-title').textContent      = t.title;
+    document.title = 'DartVault — ' + (lang === 'fr' ? 'Confidentialité' : 'Privacy Policy');
+    document.getElementById('lbl-summary-title').textContent = t.summary_title;
+    document.getElementById('lbl-summary-text').textContent  = t.summary_text;
+    document.getElementById('lbl-badge').textContent         = t.badge;
+    document.getElementById('lbl-data-title').textContent    = t.data_title;
+    document.getElementById('lbl-data-intro').textContent    = t.data_intro;
+    document.getElementById('lbl-nocollect-title').textContent = t.nocollect_title;
+    document.getElementById('lbl-delete-title').textContent  = t.delete_title;
+    document.getElementById('lbl-delete-text').textContent   = t.delete_text;
+    document.getElementById('lbl-contact-title').textContent = t.contact_title;
+    document.getElementById('lbl-contact-text').textContent  = t.contact_text;
+    document.getElementById('lbl-perm-title').textContent    = t.perm_title;
+    document.getElementById('lbl-lastupdate').textContent    = t.lastupdate;
+
+    // Listes dynamiques
+    const setList = (id, items) => {
+      const ul = document.getElementById(id);
+      ul.innerHTML = items.map(i => `<li>${i}</li>`).join('');
+    };
+    setList('lbl-data-list',      t.data_list);
+    setList('lbl-nocollect-list', t.nocollect_list);
+    setList('lbl-perm-list',      t.perm_list);
+
+    document.getElementById('btn-lang').textContent = lang === 'fr' ? '🇫🇷' : '🇬🇧';
+  }
+
+  function toggleLang() {
+    const next = currentLang === 'fr' ? 'en' : 'fr';
+    localStorage.setItem(LANG_KEY, next);
+    applyLang(next);
+  }
+
+  // Init
+  applyLang(currentLang);
+</script>
+</body>
+</html>

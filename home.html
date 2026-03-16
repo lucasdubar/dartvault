@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>DartVault — Jeux de fléchettes</title>
+  <meta name="description" content="DartVault — La suite complète de jeux de fléchettes. 501, Cricket, Horloge, Shanghai et plus. Jouez directement dans votre navigateur.">
+  <meta name="theme-color" content="#1A0A0E">
+  <meta property="og:title" content="DartVault — Jeux de fléchettes">
+  <meta property="og:description" content="La suite complète de jeux de fléchettes gratuite. 501, Cricket, Horloge, Shanghai et plus. Jouez entre amis directement dans votre navigateur.">
+  <meta property="og:image" content="https://dartvault.app/icons/logo-hub.png">
+  <meta property="og:url" content="https://dartvault.app/home">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://dartvault.app/home">
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Exo+2:wght@300;400;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #1A0A0E;
+      --bg2:     #2A1018;
+      --bg3:     #3A1A24;
+      --accent:  #E8E8E8;
+      --red:     #C0392B;
+      --red2:    #E74C3C;
+      --text:    #F0F0F0;
+      --dim:     #888;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Exo 2', sans-serif;
+      overflow-x: hidden;
+      min-height: 100dvh;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: .4;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 60px 24px 40px;
+      overflow: hidden;
+    }
+
+    /* Dartboard bg glow */
+    .hero-glow {
+      position: absolute;
+      width: min(700px, 110vw);
+      height: min(700px, 110vw);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(192,57,43,.18) 0%, rgba(192,57,43,.06) 40%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      animation: pulse 4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: .7; }
+      50% { transform: translate(-50%, -50%) scale(1.08); opacity: 1; }
+    }
+
+    /* Rotating rings */
+    .ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(192,57,43,.12);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      animation: spinRing linear infinite;
+    }
+    .ring:nth-child(1) { width: min(500px,90vw); height: min(500px,90vw); animation-duration: 30s; }
+    .ring:nth-child(2) { width: min(650px,110vw); height: min(650px,110vw); animation-duration: 45s; animation-direction: reverse; border-color: rgba(232,232,232,.05); }
+    .ring:nth-child(3) { width: min(820px,140vw); height: min(820px,140vw); animation-duration: 60s; border-color: rgba(192,57,43,.06); }
+
+    @keyframes spinRing {
+      from { transform: translate(-50%, -50%) rotate(0deg); }
+      to   { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    /* Floating darts */
+    .dart-float {
+      position: absolute;
+      font-size: 2rem;
+      opacity: 0;
+      animation: floatDart 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes floatDart {
+      0%   { opacity: 0; transform: translateY(20px) rotate(-45deg); }
+      20%  { opacity: .3; }
+      50%  { opacity: .5; transform: translateY(-10px) rotate(-45deg); }
+      80%  { opacity: .3; }
+      100% { opacity: 0; transform: translateY(20px) rotate(-45deg); }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 600px;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(192,57,43,.2);
+      border: 1px solid rgba(192,57,43,.4);
+      color: #E74C3C;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 100px;
+      margin-bottom: 20px;
+      opacity: 0;
+      animation: fadeUp .6s .2s forwards;
+    }
+
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(4rem, 18vw, 8rem);
+      line-height: .9;
+      letter-spacing: 4px;
+      color: var(--text);
+      opacity: 0;
+      animation: fadeUp .7s .4s forwards;
+    }
+
+    .hero-title span {
+      display: block;
+      background: linear-gradient(135deg, #E74C3C, #C0392B, #922B21);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 30px rgba(231,76,60,.4));
+    }
+
+    .hero-sub {
+      font-family: 'Exo 2', sans-serif;
+      font-size: clamp(.95rem, 3vw, 1.2rem);
+      font-weight: 300;
+      color: var(--dim);
+      margin-top: 16px;
+      line-height: 1.6;
+      opacity: 0;
+      animation: fadeUp .7s .6s forwards;
+    }
+
+    .hero-sub strong {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    /* ── CTA BUTTONS ── */
+    .hero-btns {
+      margin-top: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      align-items: center;
+      opacity: 0;
+      animation: fadeUp .7s .8s forwards;
+    }
+
+    .btn-play {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #C0392B, #922B21);
+      color: #fff;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 18px 48px;
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 0 40px rgba(192,57,43,.5), 0 4px 20px rgba(0,0,0,.4);
+      min-width: 240px;
+      touch-action: manipulation;
+      overflow: hidden;
+    }
+
+    .btn-play::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,.15), transparent);
+      border-radius: inherit;
+    }
+
+    .btn-play::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 40%;
+      height: 200%;
+      background: rgba(255,255,255,.12);
+      transform: skewX(-20deg);
+      animation: shine 3s ease-in-out infinite;
+    }
+
+    @keyframes shine {
+      0%, 70%, 100% { left: -60%; opacity: 0; }
+      30% { left: 130%; opacity: 1; }
+    }
+
+    .btn-play:active { transform: scale(.97); }
+    .btn-play:hover  { transform: translateY(-2px); box-shadow: 0 0 60px rgba(192,57,43,.7), 0 8px 30px rgba(0,0,0,.5); }
+
+    .btn-install {
+      display: none; /* shown via JS */
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.15);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 14px 36px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all .2s;
+      min-width: 240px;
+      touch-action: manipulation;
+    }
+
+    .btn-install.visible { display: inline-flex; }
+    .btn-install:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.3); transform: translateY(-2px); }
+    .btn-install:active { transform: scale(.97); }
+
+    .install-hint {
+      display: none;
+      font-size: .8rem;
+      color: var(--dim);
+      margin-top: 6px;
+      font-family: 'Exo 2', sans-serif;
+    }
+    .install-hint.visible { display: block; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── SCROLL INDICATOR ── */
+    .scroll-hint {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      opacity: 0;
+      animation: fadeUp .6s 1.4s forwards;
+      z-index: 1;
+    }
+
+    .scroll-hint span {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: .7rem;
+      letter-spacing: 2px;
+      color: var(--dim);
+      text-transform: uppercase;
+    }
+
+    .scroll-arrow {
+      width: 20px;
+      height: 20px;
+      border-right: 2px solid var(--dim);
+      border-bottom: 2px solid var(--dim);
+      transform: rotate(45deg);
+      animation: bounce 1.5s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: rotate(45deg) translateY(0); }
+      50%       { transform: rotate(45deg) translateY(5px); }
+    }
+
+    /* ── MODES SECTION ── */
+    .section {
+      position: relative;
+      z-index: 1;
+      padding: 80px 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.2rem, 7vw, 3.5rem);
+      letter-spacing: 3px;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .section-title span { color: #E74C3C; }
+
+    .section-sub {
+      text-align: center;
+      color: var(--dim);
+      font-size: .95rem;
+      margin-bottom: 48px;
+      font-weight: 300;
+    }
+
+    /* ── MODES GRID ── */
+    .modes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(160px, 100%), 1fr));
+      gap: 14px;
+    }
+
+    .mode-card {
+      background: var(--bg2);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 16px;
+      padding: 24px 16px;
+      text-align: center;
+      transition: transform .2s, border-color .2s, box-shadow .2s;
+      cursor: default;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    .mode-card.visible {
+      animation: cardIn .5s forwards;
+    }
+
+    @keyframes cardIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .mode-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(192,57,43,.3);
+      box-shadow: 0 8px 30px rgba(192,57,43,.15);
+    }
+
+    .mode-icon {
+      font-size: 2.2rem;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .mode-name {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .mode-desc {
+      font-size: .78rem;
+      color: var(--dim);
+      line-height: 1.4;
+    }
+
+    /* ── FEATURES ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+      gap: 20px;
+      margin-top: 48px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      background: var(--bg2);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 14px;
+      padding: 20px;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .feature-item.visible {
+      animation: cardIn .5s forwards;
+    }
+
+    .feature-icon {
+      font-size: 1.8rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .feature-text h3 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    .feature-text p {
+      font-size: .82rem;
+      color: var(--dim);
+      line-height: 1.5;
+      font-weight: 300;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #C0392B, transparent);
+      margin: 0 auto 48px;
+    }
+
+    /* ── FOOTER CTA ── */
+    .footer-cta {
+      text-align: center;
+      padding: 80px 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-cta-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2rem, 8vw, 4rem);
+      letter-spacing: 3px;
+      margin-bottom: 8px;
+    }
+
+    .footer-cta-sub {
+      color: var(--dim);
+      font-size: .95rem;
+      margin-bottom: 36px;
+      font-weight: 300;
+    }
+
+    .footer-btns {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 24px;
+      border-top: 1px solid rgba(255,255,255,.06);
+      color: var(--dim);
+      font-size: .8rem;
+      font-family: 'Rajdhani', sans-serif;
+      letter-spacing: 1px;
+    }
+
+    footer a { color: var(--dim); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+
+    /* ── TOAST INSTALL ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--bg3);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 12px;
+      padding: 14px 20px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: .95rem;
+      color: var(--text);
+      z-index: 999;
+      transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+      white-space: nowrap;
+      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    .modes-intro {
+      text-align: center;
+      max-width: 580px;
+      margin: 0 auto 40px;
+      font-size: 1rem;
+      color: var(--dim);
+      font-weight: 300;
+      line-height: 1.7;
+    }
+    .modes-intro strong { color: var(--text); font-weight: 700; }
+
+    /* ── LANG BUTTON ── */
+    .btn-lang {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 100;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 1.4rem;
+      cursor: pointer;
+      transition: all .2s;
+      line-height: 1;
+      touch-action: manipulation;
+    }
+    .btn-lang:hover { background: rgba(255,255,255,.15); transform: scale(1.05); }
+    .btn-lang:active { transform: scale(.95); }
+    @media(prefers-reduced-motion:reduce){
+      *{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── LANG BUTTON ── -->
+<button class="btn-lang" id="btn-lang" onclick="toggleLang()" title="Switch language" aria-label="Changer de langue">🇫🇷</button>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="ring"></div>
+  <div class="ring"></div>
+  <div class="ring"></div>
+  <div class="dart-float" style="top:12%;left:6%;">🎯</div>
+  <div class="dart-float" style="top:70%;left:4%;animation-delay:1.5s;font-size:1.5rem;">🦗</div>
+  <div class="dart-float" style="top:35%;left:3%;animation-delay:3s;font-size:1.3rem;">🏁</div>
+  <div class="dart-float" style="top:55%;left:7%;animation-delay:5s;font-size:1.6rem;">🕐</div>
+  <div class="dart-float" style="top:18%;right:7%;animation-delay:0.8s;font-size:1.5rem;">🗼</div>
+  <div class="dart-float" style="top:45%;right:4%;animation-delay:2.2s;font-size:1.4rem;">🏰</div>
+  <div class="dart-float" style="top:72%;right:6%;animation-delay:4s;font-size:1.6rem;">🔴</div>
+  <div class="dart-float" style="top:28%;right:3%;animation-delay:6s;font-size:1.3rem;">🃏</div>
+  <div class="dart-float" style="top:85%;left:12%;animation-delay:2.8s;font-size:1.4rem;">💥</div>
+  <div class="dart-float" style="top:82%;right:12%;animation-delay:4.5s;font-size:1.5rem;">⚓</div>
+
+  <div class="hero-content">
+    <div class="hero-badge">🎯 Jeux de fléchettes</div>
+    <h1 class="hero-title">
+      Dart<span>Vault</span>
+    </h1>
+    <p class="hero-sub">
+      Du débutant au compétiteur — <strong>DartVault</strong> transforme n'importe quelle cible en terrain de jeu.<br>
+      <span style="opacity:.6;font-size:.9em;">Les classiques comme le 501 ou le Cricket, mais surtout Bataille Navale, BlackJack, Territoire et plein d'autres modes fun !</span>
+    </p>
+
+    <div class="hero-btns">
+      <a href="index.html" class="btn-play">
+        🎯 Jouer maintenant
+      </a>
+      <button class="btn-install" id="btn-install-hero" onclick="triggerInstall()">
+        📲 Installer sur Android
+      </button>
+      <div class="install-hint" id="install-hint-hero">Gratuit · Fonctionne hors-ligne</div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- ── MODES DE JEU ── -->
+<section class="section">
+  <h2 class="section-title">Les <span>modes</span> de jeu</h2>
+  <p class="section-sub">10 jeux disponibles, du classique au plus original</p>
+  <div class="divider"></div>
+
+  <div class="modes-intro" id="modes-intro">
+    <p>Que vous posiez vos premières fléchettes ou que vous cherchiez à pimenter vos soirées entre amis, DartVault propose des jeux adaptés à tous les niveaux. Les règles s'apprennent en 30 secondes, le plaisir dure toute la nuit.</p>
+  </div>
+
+  <div class="modes-grid" id="modes-grid">
+    <div class="mode-card">
+      <span class="mode-icon">🎯</span>
+      <div class="mode-name">501</div>
+      <div class="mode-desc">Le classique. Descendez à zéro avant vos adversaires.</div>
+    </div>
+    <div class="mode-card">
+      <span class="mode-icon">🦗</span>
+      <div class="mode-name">Cricket</div>
+      <div class="mode-desc">Fermez les numéros 15 à 20 et le Bull en premier.</div>
+    </div>
+    <div class="mode-card">
+      <span class="mode-icon">🏁</span>
+      <div class="mode-name">Race</div>
+      <div class="mode-desc">Montez à 500 points le plus vite possible, en mettant des bâtons dans les flèches de vos adversaires.</div>
+    </div>
+    <div class="mode-card">
+      <span class="mode-icon">🕐</span>
+      <div class="mode-name">Horloge</div>
+      <div class="mode-desc">Touchez chaque numéro de 1 à 20 dans l'ordre.</div>
+    </div>
+    <div class="mode-card">
+      <span class="mode-icon">🗼</span>
+      <div class="mode-name">Shanghai</div>
+      <div class="mode-desc">Simple, double et triple du même numéro = victoire !</div>
+    </div>
+    <div class="mode-card">
+      <span class="mode-icon">🏰</span>
+      <div class="mode-name">Territoire</div>
+      <div class="mode-desc">Conquérez la cible et défendez votre territoire.</div>
+    </div>
+    <div class="mode-card">
+      <span class="mode-icon">🔴</span>
+      <div class="mode-name">DartPong</div>
+      <div class="mode-desc">Comme au beerpong — éliminez les zones adverses avant qu'elles ne vous éliminent !</div>
+    </div>
+    <div class="mode-card">
+      <span class="mode-icon">🃏</span>
+      <div class="mode-name">BlackJack</div>
+      <div class="mode-desc">Atteignez le score demandé sans dépasser avec vos fléchettes.</div>
+    </div>
+    <div class="mode-card">
+      <span class="mode-icon">💥</span>
+      <div class="mode-name">BattleRoyal</div>
+      <div class="mode-desc">Éliminez tous vos adversaires — chargez... visez... tirez !</div>
+    </div>
+    <div class="mode-card">
+      <span class="mode-icon">⚓</span>
+      <div class="mode-name">Bataille Navale</div>
+      <div class="mode-desc">Cachez vos bateaux stratégiquement et débusquez ceux des autres !</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURES ── -->
+<section class="section" style="padding-top:0;">
+  <h2 class="section-title">Pourquoi <span>DartVault</span> ?</h2>
+  <p class="section-sub">Conçu pour jouer partout, tout de suite</p>
+  <div class="divider"></div>
+
+  <div class="features-grid" id="features-grid">
+    <div class="feature-item">
+      <div class="feature-icon">📱</div>
+      <div class="feature-text">
+        <h3>Mobile & Tablette</h3>
+        <p>Interface optimisée pour le jeu en conditions réelles, écran dans une main, fléchettes dans l'autre.</p>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">🎉</div>
+      <div class="feature-text">
+        <h3>Pour tout le monde</h3>
+        <p>Débutant, amateur ou compétiteur — DartVault garantit un bon moment en quelques secondes. Pas besoin de connaître les règles, on vous guide.</p>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">👥</div>
+      <div class="feature-text">
+        <h3>Multijoueur local</h3>
+        <p>Jusqu'à 6 joueurs sur le même appareil. Profils, emojis et historique de victoires.</p>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">🏆</div>
+      <div class="feature-text">
+        <h3>Classements</h3>
+        <p>Suivez vos statistiques, victoires et progressions dans le classement global.</p>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">🌙</div>
+      <div class="feature-text">
+        <h3>3 thèmes</h3>
+        <p>Thème sombre, clair ou coloré. L'interface s'adapte à votre ambiance.</p>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">🇫🇷</div>
+      <div class="feature-text">
+        <h3>FR / EN</h3>
+        <p>Interface disponible en français et en anglais, switchable en un clic.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER CTA ── -->
+<div class="footer-cta">
+  <div class="footer-cta-title">Prêt à jouer ?</div>
+  <p class="footer-cta-sub">Lancez une partie en quelques secondes</p>
+  <div class="footer-btns">
+    <a href="index.html" class="btn-play">🎯 Jouer maintenant</a>
+    <button class="btn-install" id="btn-install-footer" onclick="triggerInstall()">
+      📲 Installer sur Android
+    </button>
+    <div class="install-hint" id="install-hint-footer">Gratuit · Fonctionne hors-ligne</div>
+  </div>
+</div>
+
+<footer>
+  <span>DartVault &copy; 2026</span>
+  &nbsp;·&nbsp;
+  <a href="privacy.html">Confidentialité</a>
+</footer>
+
+<div class="toast" id="toast">✅ Installation lancée !</div>
+
+<script>
+  // ── Translations ──
+  const T = {
+    fr: {
+      badge: '🎯 Jeux de fléchettes',
+      hero_sub: 'Du débutant au compétiteur — <strong>DartVault</strong> transforme n\'importe quelle cible en terrain de jeu.<br><span style="opacity:.6;font-size:.9em;">Les classiques comme le 501 ou le Cricket, mais surtout Bataille Navale, BlackJack, Territoire et plein d\'autres modes fun !</span>',
+      btn_play: '🎯 Jouer maintenant',
+      btn_install: '📲 Installer sur Android',
+      install_hint: 'Gratuit · Fonctionne hors-ligne',
+      scroll_hint: 'Découvrir',
+      modes_title: 'Les <span>modes</span> de jeu',
+      modes_sub: '10 jeux disponibles, du classique au plus original',
+      modes_intro: 'Que vous posiez vos premières fléchettes ou que vous cherchiez à pimenter vos soirées entre amis, DartVault propose des jeux adaptés à tous les niveaux. Les règles s\'apprennent en 30 secondes, le plaisir dure toute la nuit.',
+      features_title: 'Pourquoi <span>DartVault</span> ?',
+      features_sub: 'Conçu pour jouer partout, tout de suite',
+      footer_title: 'Prêt à jouer ?',
+      footer_sub: 'Lancez une partie en quelques secondes',
+      modes: [
+        { name:'501', desc:'Le classique. Descendez à zéro avant vos adversaires.' },
+        { name:'Cricket', desc:'Fermez les numéros 15 à 20 et le Bull en premier.' },
+        { name:'Race', desc:'Montez à 500 points le plus vite possible, en mettant des bâtons dans les flèches de vos adversaires.' },
+        { name:'Horloge', desc:'Touchez chaque numéro de 1 à 20 dans l\'ordre.' },
+        { name:'Shanghai', desc:'Simple, double et triple du même numéro = victoire !' },
+        { name:'Territoire', desc:'Conquérez la cible et défendez votre territoire.' },
+        { name:'DartPong', desc:'Comme au beerpong — éliminez les zones adverses avant qu\'elles ne vous éliminent !' },
+        { name:'BlackJack', desc:'Atteignez le score demandé sans dépasser avec vos fléchettes.' },
+        { name:'BattleRoyal', desc:'Éliminez tous vos adversaires — chargez... visez... tirez !' },
+        { name:'Bataille Navale', desc:'Cachez vos bateaux stratégiquement et débusquez ceux des autres !' },
+      ],
+      features: [
+        { icon:'📱', title:'Mobile & Tablette', desc:'Interface optimisée pour le jeu en conditions réelles, écran dans une main, fléchettes dans l\'autre.' },
+        { icon:'🎉', title:'Pour tout le monde', desc:'Débutant, amateur ou compétiteur — DartVault garantit un bon moment en quelques secondes. Pas besoin de connaître les règles, on vous guide.' },
+        { icon:'👥', title:'Multijoueur local', desc:'Jusqu\'à 6 joueurs sur le même appareil. Profils, emojis et historique de victoires.' },
+        { icon:'🏆', title:'Classements', desc:'Suivez vos statistiques, victoires et progressions dans le classement global.' },
+        { icon:'🌙', title:'3 thèmes', desc:'Thème sombre, clair ou coloré. L\'interface s\'adapte à votre ambiance.' },
+        { icon:'🇫🇷', title:'FR / EN', desc:'Interface disponible en français et en anglais, switchable en un clic.' },
+      ],
+    },
+    en: {
+      badge: '🎯 Dart games',
+      hero_sub: 'From beginner to competitor — <strong>DartVault</strong> turns any dartboard into a playground.<br><span style="opacity:.6;font-size:.9em;">Classics like 501 and Cricket, but also Naval Battle, BlackJack, Territory and plenty of other fun modes!</span>',
+      btn_play: '🎯 Play now',
+      btn_install: '📲 Install on Android',
+      install_hint: 'Free · Works offline',
+      scroll_hint: 'Discover',
+      modes_title: 'Game <span>modes</span>',
+      modes_sub: '10 games available, from classic to original',
+      modes_intro: 'Whether you\'re throwing your first darts or looking to spice up your game nights, DartVault has something for every level. Rules learned in 30 seconds, fun that lasts all night.',
+      features_title: 'Why <span>DartVault</span>?',
+      features_sub: 'Built to play anywhere, anytime',
+      footer_title: 'Ready to play?',
+      footer_sub: 'Start a game in seconds',
+      modes: [
+        { name:'501', desc:'The classic. Get down to zero before your opponents.' },
+        { name:'Cricket', desc:'Close numbers 15 to 20 and the Bull first.' },
+        { name:'Race', desc:'Reach 500 points as fast as possible, while putting obstacles in your opponents\' way.' },
+        { name:'Clock', desc:'Hit each number from 1 to 20 in order.' },
+        { name:'Shanghai', desc:'Single, double and triple the same number = instant win!' },
+        { name:'Territory', desc:'Conquer the target and defend your territory.' },
+        { name:'DartPong', desc:'Like beer pong — eliminate opponent zones before they eliminate yours!' },
+        { name:'BlackJack', desc:'Reach the target score without going over with your darts.' },
+        { name:'BattleRoyal', desc:'Eliminate all your opponents — load... aim... fire!' },
+        { name:'Naval Battle', desc:'Hide your ships strategically and hunt down the others!' },
+      ],
+      features: [
+        { icon:'📱', title:'Mobile & Tablet', desc:'Interface optimized for real conditions — screen in one hand, darts in the other.' },
+        { icon:'🎉', title:'For everyone', desc:'Beginner, casual or competitor — DartVault guarantees a great time in seconds. No need to know the rules, we guide you.' },
+        { icon:'👥', title:'Local multiplayer', desc:'Up to 6 players on the same device. Profiles, emojis and win history.' },
+        { icon:'🏆', title:'Leaderboards', desc:'Track your stats, wins and progression in the global rankings.' },
+        { icon:'🌙', title:'3 themes', desc:'Dark, light or colored theme. The interface adapts to your vibe.' },
+        { icon:'🇫🇷', title:'FR / EN', desc:'Interface available in French and English, switchable in one click.' },
+      ],
+    }
+  };
+
+  let currentLang = localStorage.getItem('dartvault_lang') || 'fr';
+
+  function applyLang() {
+    const t = T[currentLang];
+    const isEN = currentLang === 'en';
+
+    // Flag
+    document.getElementById('btn-lang').textContent = isEN ? '🇬🇧' : '🇫🇷';
+
+    // Hero
+    document.querySelector('.hero-badge').textContent = t.badge;
+    document.querySelector('.hero-sub').innerHTML = t.hero_sub;
+    document.querySelectorAll('.btn-play').forEach(b => b.innerHTML = t.btn_play);
+    document.querySelectorAll('.btn-install').forEach(b => b.innerHTML = t.btn_install);
+    document.querySelectorAll('.install-hint').forEach(h => h.textContent = t.install_hint);
+
+    // Sections titles
+    document.querySelector('#modes-grid').closest('.section').querySelector('.section-title').innerHTML = t.modes_title;
+    document.querySelector('#modes-grid').closest('.section').querySelector('.section-sub').textContent = t.modes_sub;
+    document.querySelector('#modes-intro p').textContent = t.modes_intro;
+    document.querySelector('#features-grid').closest('.section').querySelector('.section-title').innerHTML = t.features_title;
+    document.querySelector('#features-grid').closest('.section').querySelector('.section-sub').textContent = t.features_sub;
+
+    // Footer CTA
+    document.querySelector('.footer-cta-title').textContent = t.footer_title;
+    document.querySelector('.footer-cta-sub').textContent = t.footer_sub;
+
+    // Mode cards
+    const cards = document.querySelectorAll('#modes-grid .mode-card');
+    cards.forEach((card, i) => {
+      if (t.modes[i]) {
+        card.querySelector('.mode-name').textContent = t.modes[i].name;
+        card.querySelector('.mode-desc').textContent = t.modes[i].desc;
+      }
+    });
+
+    // Feature items
+    const feats = document.querySelectorAll('#features-grid .feature-item');
+    feats.forEach((feat, i) => {
+      if (t.features[i]) {
+        feat.querySelector('h3').textContent = t.features[i].title;
+        feat.querySelector('p').textContent = t.features[i].desc;
+      }
+    });
+  }
+
+  function toggleLang() {
+    currentLang = currentLang === 'fr' ? 'en' : 'fr';
+    localStorage.setItem('dartvault_lang', currentLang);
+    applyLang();
+  }
+
+  // Apply on load
+  applyLang();
+  let deferredPrompt = null;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    // Show install buttons
+    document.querySelectorAll('.btn-install').forEach(b => b.classList.add('visible'));
+    document.querySelectorAll('.install-hint').forEach(h => h.classList.add('visible'));
+  });
+
+  function triggerInstall() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(choice => {
+      if (choice.outcome === 'accepted') {
+        showToast('✅ DartVault installé !');
+        document.querySelectorAll('.btn-install').forEach(b => b.classList.remove('visible'));
+        document.querySelectorAll('.install-hint').forEach(h => h.classList.remove('visible'));
+      }
+      deferredPrompt = null;
+    });
+  }
+
+  window.addEventListener('appinstalled', () => {
+    showToast('🎯 DartVault installé avec succès !');
+  });
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ── Scroll reveal ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.mode-card, .feature-item').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

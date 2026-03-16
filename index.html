@@ -1,0 +1,2225 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <link rel="stylesheet" href="/fonts/fonts.css">
+  <meta charset="UTF-8">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="DartVault — La suite complète de jeux de fléchettes gratuite. 501, Cricket, Shanghai, Horloge et plus. Jouez entre amis directement dans votre navigateur, même hors-ligne.">
+  <meta name="theme-color" content="#0A0A0A">
+  <title>DartVault</title>
+  <script>
+    // Appliquer le thème AVANT le rendu pour éviter le flash
+    (function(){
+      var t = localStorage.getItem('dartvault_theme') || 'colored';
+      // colored = pas de data-theme (styles natifs), dark/light = data-theme
+      if(t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <style>
+    /* ── DARK / COLORED (défaut) ── */
+    :root {
+      --bg:#0A0A0A; --bg2:#141414; --bg3:#1E1E1E; --bg4:#252525;
+      --text:#F0F0F0; --dim:#666; --dim2:#444;
+      --accent:#E8C547; --accent-glow:rgba(232,197,71,.25);
+      --border:rgba(255,255,255,.07);
+      --card-bg: var(--bg2);
+      --card-border: var(--border);
+      --card-name: var(--accent);
+    }
+
+    /* ── DARK THEME (palette 501) ── */
+    [data-theme="dark"] {
+      --bg:#0E0F10; --bg2:#161718; --bg3:#1C1E20; --bg4:#242628;
+      --text:#F0F0F0; --dim:#777; --dim2:#555;
+      --accent:#E8E8E8; --accent-glow:rgba(232,232,232,.2);
+      --border:rgba(255,255,255,.07);
+      --card-bg: #1A1C1E;
+      --card-border: rgba(255,255,255,.10);
+      --card-name: #E8E8E8;
+    }
+
+    /* ── LIGHT THEME (palette 501 inversée) ── */
+    [data-theme="light"] {
+      --bg:#F7F0F2; --bg2:#FFFFFF; --bg3:#EDE4E7; --bg4:#E2D6DA;
+      --text:#1A0A0E; --dim:#8A6070; --dim2:#C8A0B0;
+      --accent:#2A1018; --accent-glow:rgba(22,23,24,.15);
+      --border:rgba(22,23,24,.10);
+      --card-bg: #FFFFFF;
+      --card-border: rgba(22,23,24,.10);
+      --card-name: #111213;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body {
+      font-family:'Exo 2',sans-serif;
+      background:var(--bg); color:var(--text);
+      min-height:100dvh;
+      display:flex; flex-direction:column; align-items:center;
+      padding:4px 14px 40px; overflow-x:hidden;
+      transition: background .3s, color .3s;
+    }
+    /* ── HEADER FIXE EN HAUT ── */
+    .header-bar {
+      position:fixed; top:0; left:0; right:0; z-index:200;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:8px 14px;
+      padding-top:max(8px, env(safe-area-inset-top));
+      background:var(--bg); border-bottom:1px solid var(--border);
+      animation:fadeDown .3s ease-out;
+    }
+    .header-bar-left  { display:flex; align-items:center; gap:6px; }
+    .header-bar-right { display:flex; align-items:center; gap:8px; }
+
+    /* ── HEADER logo + titre dans le flux ── */
+    .header { text-align:center; margin:0 0 16px; animation:fadeDown .5s ease-out; }
+
+    .header-top {
+      display:flex; align-items:center;
+      justify-content:center; margin-bottom:4px;
+    }
+    .header-top-right { display:none; }
+    .header-top-left  { display:none; }
+    .btn-profiles {
+      background:var(--bg3); border:1px solid var(--border);
+      color:var(--dim); border-radius:10px;
+      padding:6px 10px; font-family:'Exo 2',sans-serif;
+      font-size:.75rem; font-weight:600; cursor:pointer;
+      touch-action:manipulation; transition:all .2s;
+      display:flex; align-items:center; gap:5px; white-space:nowrap;
+    }
+    .btn-profiles:active { transform:scale(.94); border-color:var(--accent); color:var(--accent); }
+    [data-theme="light"] .btn-profiles { border-color:rgba(22,23,24,.15); }
+    .app-logo { width:52px; height:52px; border-radius:0; display:block; background:transparent; }
+    .app-title {
+      font-family:'Rajdhani',sans-serif;
+      font-size:clamp(2rem,8vw,3.2rem); font-weight:700;
+      color:var(--accent); letter-spacing:3px;
+      text-shadow:0 0 24px var(--accent-glow), 0 0 48px var(--accent-glow);
+      margin:8px 0 14px;
+    }
+    /* ── BARRE FILTRES : colonne centrée ── */
+    .filter-action-bar {
+      display:flex; flex-direction:column; gap:10px; align-items:center;
+    }
+    .filter-bar { display:flex; gap:8px; justify-content:center; }
+    .filter-btn {
+      font-family:'Rajdhani',sans-serif; font-size:.95rem; font-weight:700;
+      letter-spacing:1px; padding:0 20px; height:38px; min-height:44px; border-radius:10px;
+      border:1.5px solid var(--border); background:var(--bg3);
+      color:var(--dim); cursor:pointer; transition:all .2s; touch-action:manipulation;
+      display:flex; align-items:center;
+    }
+    .filter-btn:active { transform:scale(.95); }
+    .filter-btn.active { background:rgba(232,197,71,.15); border-color:var(--accent); color:var(--accent); }
+    [data-theme="light"] .filter-btn.active { background:rgba(22,23,24,.08); }
+
+    /* ── GRILLE ── */
+    .games-grid {
+      display:grid; grid-template-columns:repeat(2,1fr);
+      gap:12px; max-width:600px; width:100%;
+      margin-top:20px; animation:fadeUp .5s ease-out .1s both;
+    }
+
+    /* ── CARTES ── */
+    .game-card {
+      background:var(--card-bg); border:1px solid var(--card-border);
+      border-radius:14px; padding:16px 12px 14px;
+      text-decoration:none; color:var(--text);
+      position:relative; overflow:hidden;
+      display:flex; flex-direction:column;
+      transition:border-color .25s, transform .2s, background .3s, box-shadow .25s;
+    }
+    .game-card::after {
+      content:''; position:absolute; inset:0;
+      background:linear-gradient(135deg,transparent 60%,rgba(255,255,255,.025) 100%);
+      pointer-events:none;
+    }
+    .game-card:active { transform:scale(.98); }
+    .game-card.hidden { display:none; }
+
+    /* ── MODE COLORÉ ── */
+    :root .game-card[data-color] {
+      border-color: rgba(255,255,255,.04);
+    }
+    [data-theme="colored"] .game-card[data-color] {
+      background: linear-gradient(145deg, color-mix(in srgb, attr(data-color) 18%, var(--bg2)), var(--bg2));
+      border-color: var(--c-accent, var(--border));
+    }
+
+    /* Cartes colorées via data-color JS */
+    [data-theme="colored"] .game-card { border-width: 1.5px; }
+    [data-theme="colored"] .game-card .game-name { color: var(--c-accent, var(--accent)); }
+    [data-theme="colored"] .game-card .game-icon { filter: drop-shadow(0 4px 12px var(--c-glow, rgba(0,0,0,.4))); }
+
+    /* ── MODE CLAIR ── */
+    [data-theme="light"] .game-card {
+      box-shadow: 0 1px 6px rgba(0,0,0,.08), 0 0 0 1px rgba(0,0,0,.06);
+      border-color: transparent;
+    }
+    [data-theme="light"] .game-card .game-name { color: #1A1A1A; font-weight:700; }
+    [data-theme="light"] .game-card .game-description { color: #555; }
+    [data-theme="light"] .game-card .game-players span { background:#F0F0F3; border-color:#DDD; color:#777; }
+    [data-theme="light"] .info-btn { background:rgba(0,0,0,.05); border-color:rgba(0,0,0,.1); color:#888; }
+
+    .info-btn {
+      position:absolute; top:9px; right:9px;
+      width:22px; height:22px; border-radius:50%;
+      background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12);
+      color:var(--dim); font-size:.7rem; font-weight:700;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; z-index:10; transition:all .2s;
+    }
+    .info-btn:active { transform:scale(.9); }
+    .game-icon {
+      font-size:2.2rem; display:block; margin-bottom:8px;
+      filter:drop-shadow(0 4px 8px rgba(0,0,0,.4)); text-align:center;
+      transition: filter .2s;
+    }
+    .game-name {
+      font-family:'Rajdhani',sans-serif; font-size:1.15rem; font-weight:700;
+      color:var(--accent); letter-spacing:.5px; margin-bottom:5px;
+      text-align:center; line-height:1.2;
+      transition: color .25s;
+    }
+    .game-description { font-size:.75rem; color:var(--dim); line-height:1.45; margin-bottom:8px; flex:1; }
+    .game-players { font-family:'Rajdhani',sans-serif; font-size:.68rem; font-weight:700; color:var(--dim2); letter-spacing:1px; text-transform:uppercase; }
+    .game-players span { background:var(--bg3); border:1px solid var(--dim2); border-radius:5px; padding:2px 7px; }
+
+    .footer { margin-top:40px; color:var(--dim); font-size:.78rem; letter-spacing:1px; animation:fadeUp .5s ease-out .3s both; display:flex; flex-direction:column; align-items:center; gap:6px; }
+    .footer-privacy { color:var(--dim); font-size:.75rem; letter-spacing:.5px; text-decoration:none; border-bottom:1px solid transparent; transition:color .2s, border-color .2s; cursor:pointer; background:none; border-top:none; border-left:none; border-right:none; padding:0; font-family:'Exo 2',sans-serif; }
+    .footer-privacy:active, .footer-privacy:hover { color:var(--accent); border-bottom-color:var(--accent); }
+
+    /* ── BOUTON SOUTENIR ── */
+    .btn-support {
+      display:flex; align-items:center; gap:6px;
+      font-family:'Rajdhani',sans-serif; font-size:.88rem; font-weight:700;
+      letter-spacing:.5px; padding:8px 18px; border-radius:10px;
+      border:1.5px solid rgba(255,179,0,.35);
+      background:rgba(255,179,0,.1);
+      color:#FFB300; cursor:pointer; touch-action:manipulation;
+      transition:all .2s; margin-top:4px;
+    }
+    .btn-support:active { transform:scale(.96); background:rgba(255,179,0,.2); }
+    [data-theme="light"] .btn-support { background:rgba(255,152,0,.08); border-color:rgba(255,152,0,.3); color:#E68A00; }
+
+    /* ── MODAL RÈGLES ── */
+    .mov { display:none; position:fixed; inset:0; z-index:500; background:rgba(0,0,0,.88); backdrop-filter:blur(10px); align-items:center; justify-content:center; padding:16px; }
+    .mov.open { display:flex; }
+    .mod { background:var(--bg2); border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:24px 20px; max-width:400px; width:100%; max-height:88dvh; overflow-y:auto; animation:pop .3s cubic-bezier(.34,1.56,.64,1); }
+    [data-theme="light"] .mod { border-color:rgba(0,0,0,.1); box-shadow:0 8px 40px rgba(0,0,0,.15); }
+    @keyframes pop { from{opacity:0;transform:scale(.8)} to{opacity:1;transform:none} }
+    /* ── Rules modal uniform ── */
+    .rules-section{margin-bottom:16px;}
+    .rules-section:last-child{margin-bottom:0;}
+    .rules-section-title{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid rgba(255,255,255,.07);}
+    .rules-row{display:flex;align-items:baseline;gap:7px;margin-bottom:5px;font-size:.83rem;line-height:1.5;opacity:.88;}
+    .rules-row:last-child{margin-bottom:0;}
+    .rules-arrow{color:var(--accent);flex-shrink:0;font-size:.8rem;}
+    .rules-catch{font-style:italic;font-size:.84rem;opacity:.7;margin-bottom:16px;line-height:1.5;text-align:center;}
+    .rules-game-title{font-family:'Rajdhani',sans-serif;font-size:1.25rem;font-weight:700;color:var(--accent);letter-spacing:2px;text-align:center;margin-bottom:4px;}
+
+    /* ── Rules quick view ── */
+    .rules-quick-header{text-align:center;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.07);}
+    .rules-quick-emoji{display:block;font-size:2rem;margin-bottom:5px;line-height:1;}
+    .rules-quick-title{font-family:'Rajdhani',sans-serif;font-size:1.45rem;font-weight:900;color:var(--accent);letter-spacing:3px;display:block;}
+    .rules-quick-players{display:block;font-size:0.75rem;color:var(--dim);margin-top:3px;}
+    .rules-quick-catch{font-size:0.88rem;font-style:italic;color:var(--accent);opacity:0.7;text-align:center;line-height:1.5;margin-bottom:12px;padding:0 4px;}
+    @keyframes rqp-enter{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .rules-quick-points{display:flex;flex-direction:column;gap:7px;}
+    .rules-quick-point{display:flex;align-items:center;gap:12px;padding:10px 12px;background:rgba(255,255,255,0.04);border-radius:12px;border:1px solid rgba(255,255,255,0.07);opacity:0;animation:rqp-enter 0.35s ease-out forwards;}
+    .rules-quick-point:nth-child(1){animation-delay:0.1s;}
+    .rules-quick-point:nth-child(2){animation-delay:0.38s;}
+    .rules-quick-point:nth-child(3){animation-delay:0.66s;}
+    @media(prefers-reduced-motion:reduce){.rules-quick-point{animation:none;opacity:1;}}
+    .rqp-icon-wrap{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;}
+    .rules-quick-point:nth-child(1) .rqp-icon-wrap{background:rgba(56,189,248,0.15);box-shadow:0 0 0 1px rgba(56,189,248,0.25);}
+    .rules-quick-point:nth-child(2) .rqp-icon-wrap{background:rgba(255,159,67,0.15);box-shadow:0 0 0 1px rgba(255,159,67,0.25);}
+    .rules-quick-point:nth-child(3) .rqp-icon-wrap{background:rgba(40,199,111,0.15);box-shadow:0 0 0 1px rgba(40,199,111,0.25);}
+    .rqp-text{flex:1;min-width:0;}
+    .rqp-title{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;margin-bottom:3px;}
+    .rules-quick-point:nth-child(1) .rqp-title{color:#38BDF8;}
+    .rules-quick-point:nth-child(2) .rqp-title{color:#FF9F43;}
+    .rules-quick-point:nth-child(3) .rqp-title{color:#28C76F;}
+    .rqp-desc{font-size:0.8rem;color:var(--dim);line-height:1.5;}
+    .rules-expand-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:10px;padding:9px 14px;background:transparent;border:1px dashed rgba(255,255,255,0.15);border-radius:10px;color:var(--dim);font-family:'Rajdhani',sans-serif;font-size:0.83rem;font-weight:700;letter-spacing:1px;cursor:pointer;touch-action:manipulation;transition:all 0.2s;}
+    .rules-expand-btn:hover,.rules-expand-btn:active{background:rgba(255,255,255,0.05);color:var(--accent);border-color:rgba(255,255,255,0.3);border-style:solid;}
+    .rules-expand-arrow{transition:transform 0.25s;display:inline-block;font-style:normal;font-size:0.7rem;}
+    .rules-expand-btn.open .rules-expand-arrow{transform:rotate(90deg);}
+    .rules-full-content{overflow:hidden;transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1),opacity 0.3s;max-height:0;opacity:0;}
+    .rules-full-content.open{max-height:700px;opacity:1;}
+    .rules-full-inner{padding-top:16px;border-top:1px solid rgba(255,255,255,0.07);margin-top:2px;}
+    [data-theme="light"] .rules-quick-header{border-bottom-color:rgba(0,0,0,0.08);}
+    [data-theme="light"] .rules-quick-catch{color:#333;}
+    [data-theme="light"] .rules-quick-point{background:rgba(0,0,0,0.03);border-color:rgba(0,0,0,0.1);}
+    [data-theme="light"] .rules-quick-point:nth-child(1) .rqp-icon-wrap{background:rgba(14,120,200,0.1);box-shadow:0 0 0 1px rgba(14,120,200,0.2);}
+    [data-theme="light"] .rules-quick-point:nth-child(2) .rqp-icon-wrap{background:rgba(200,110,0,0.1);box-shadow:0 0 0 1px rgba(200,110,0,0.2);}
+    [data-theme="light"] .rules-quick-point:nth-child(3) .rqp-icon-wrap{background:rgba(20,150,80,0.1);box-shadow:0 0 0 1px rgba(20,150,80,0.2);}
+    [data-theme="light"] .rules-quick-point:nth-child(1) .rqp-title{color:#0e78c8;}
+    [data-theme="light"] .rules-quick-point:nth-child(2) .rqp-title{color:#c86e00;}
+    [data-theme="light"] .rules-quick-point:nth-child(3) .rqp-title{color:#14965a;}
+    [data-theme="light"] .rqp-desc{color:#555;}
+    [data-theme="light"] .rules-expand-btn{border-color:rgba(0,0,0,0.15);color:#666;}
+    [data-theme="light"] .rules-expand-btn:hover,[data-theme="light"] .rules-expand-btn:active{background:rgba(0,0,0,0.04);color:#333;border-color:rgba(0,0,0,0.3);}
+    [data-theme="light"] .rules-full-inner{border-top-color:rgba(0,0,0,0.08);}
+[data-theme="colored"] .rules-quick-header{border-bottom-color:rgba(0,170,255,0.2);}
+[data-theme="colored"] .rules-quick-catch{color:rgba(255,255,255,0.8);opacity:1;}
+[data-theme="colored"] .rules-quick-point{background:rgba(0,170,255,0.07);border-color:rgba(0,170,255,0.2);}
+[data-theme="colored"] .rqp-desc{color:rgba(255,255,255,0.85);}
+[data-theme="colored"] .rules-section-title{color:rgba(255,255,255,0.5);border-bottom-color:rgba(255,255,255,0.1);}
+[data-theme="colored"] .rules-expand-btn{border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);}
+[data-theme="colored"] .rules-expand-btn:hover,[data-theme="colored"] .rules-expand-btn:active{background:rgba(255,255,255,0.08);color:#fff;border-color:rgba(255,255,255,0.4);border-style:solid;}
+[data-theme="colored"] .rules-full-inner{border-top-color:rgba(0,170,255,0.2);}
+    
+    .mod-title { font-family:'Rajdhani',sans-serif; font-size:1.4rem; font-weight:700; color:var(--accent); text-align:center; margin-bottom:14px; letter-spacing:1px; }
+    [data-theme="light"] .mod-title { color: var(--accent); }
+    .mod-body { font-size:.85rem; line-height:1.75; color:var(--text); opacity:.85; }
+    .mod-body p { margin-bottom:8px; }
+    .mod-body strong { color:var(--accent); }
+    [data-theme="light"] .mod-body strong { color: var(--accent); }
+    .mod-players { margin:14px 0; padding:10px 14px; background:var(--bg3); border-radius:10px; font-family:'Rajdhani',sans-serif; font-size:.85rem; font-weight:700; color:var(--dim); letter-spacing:1px; }
+    .bclose { width:100%; margin-top:16px; padding:12px; border-radius:10px; background:var(--bg3); color:var(--text); font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700; cursor:pointer; border:1px solid var(--border); }
+    .bclose:active { transform:scale(.97); }
+
+    /* ── BOUTON INSTALL HEADER ── */
+    .btn-install-header {
+      display:none; align-items:center; gap:7px;
+      font-family:'Rajdhani',sans-serif; font-size:.85rem; font-weight:700;
+      letter-spacing:.5px; padding:7px 14px; border-radius:10px;
+      background:rgba(232,197,71,.12); border:1.5px solid rgba(232,197,71,.4);
+      color:var(--accent); cursor:pointer; touch-action:manipulation;
+      transition:all .2s;
+    }
+    .btn-install-header.visible { display:flex; }
+    .btn-install-header:active { transform:scale(.96); }
+    [data-theme="light"] .btn-install-header { background:rgba(22,23,24,.06); border-color:rgba(22,23,24,.25); color:var(--accent); }
+
+    /* ── BOUTON ALÉATOIRE ── */
+    .btn-random {
+      font-family:'Rajdhani',sans-serif; font-size:.95rem; font-weight:700;
+      letter-spacing:1.5px; padding:0 18px; height:38px; min-height:44px; border-radius:10px;
+      border:1.5px solid rgba(232,197,71,.35);
+      background:rgba(232,197,71,.08);
+      color:var(--accent); cursor:pointer;
+      transition:all .2s; touch-action:manipulation;
+      display:flex; align-items:center; gap:6px; white-space:nowrap;
+    }
+    .btn-random:active { transform:scale(.95); background:rgba(232,197,71,.18); }
+    .btn-random.rolling { animation:spin .4s ease-out; }
+    @keyframes spin { 0%{transform:rotate(0deg) scale(.95)} 50%{transform:rotate(180deg) scale(1.05)} 100%{transform:rotate(360deg) scale(1)} }
+    .game-card.random-pick { animation:popCard .35s cubic-bezier(.34,1.56,.64,1); }
+    .games-grid.solo-mode { grid-template-columns:1fr; max-width:320px; }
+
+    /* ── SETTINGS ── */
+    .btn-settings {
+      width:38px; height:38px; border-radius:50%; flex-shrink:0;
+      background:var(--bg2); border:1px solid var(--border);
+      color:var(--dim); font-size:1.1rem;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .2s; touch-action:manipulation;
+    }
+    .btn-settings:active { transform:scale(.9); border-color:var(--accent); color:var(--accent); }
+    .settings-panel {
+      display:none; position:fixed; top:80px; right:14px; z-index:300;
+      background:var(--bg2); border:1px solid var(--border);
+      border-radius:14px; padding:14px 16px; min-width:210px;
+      box-shadow:0 8px 32px rgba(0,0,0,.5);
+      animation:pop .2s cubic-bezier(.34,1.56,.64,1);
+    }
+    [data-theme="light"] .settings-panel { box-shadow:0 4px 24px rgba(0,0,0,.12); }
+    .settings-panel.open { display:block; }
+    .settings-row {
+      display:flex; align-items:center; gap:10px;
+      padding:8px 0;
+    }
+    .settings-row + .settings-row { border-top:1px solid var(--border); }
+    .settings-row-label {
+      font-family:'Rajdhani',sans-serif; font-size:.95rem; font-weight:700;
+      color:var(--text); flex:1; letter-spacing:.3px;
+    }
+
+    /* Toggle switch */
+    .toggle-switch { position:relative; width:42px; height:24px; flex-shrink:0; }
+    .toggle-switch input { opacity:0; width:0; height:0; }
+    .toggle-slider {
+      position:absolute; inset:0; cursor:pointer;
+      background:var(--bg4); border-radius:24px;
+      border:1px solid rgba(255,255,255,.1);
+      transition:background .2s;
+    }
+    .toggle-slider::before {
+      content:''; position:absolute;
+      width:18px; height:18px; left:2px; top:2px;
+      background:#fff; border-radius:50%;
+      transition:transform .2s;
+    }
+    .toggle-switch input:checked + .toggle-slider { background:var(--accent); border-color:var(--accent); }
+    .toggle-switch input:checked + .toggle-slider::before { transform:translateX(18px); }
+    [data-theme="light"] .toggle-slider { background:#DDD; border-color:#CCC; }
+    [data-theme="light"] .toggle-slider::before { background:#FFF; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+
+    /* ── PILLS THÈME ── */
+    .theme-pills { display:flex; gap:6px; width:100%; }
+    .theme-pill {
+      flex:1; padding:7px 4px; border-radius:9px; cursor:pointer;
+      font-family:'Rajdhani',sans-serif; font-size:.8rem; font-weight:700;
+      letter-spacing:.5px; text-align:center; border:1.5px solid var(--border);
+      background:var(--bg3); color:var(--dim);
+      transition:all .18s; touch-action:manipulation;
+    }
+    .theme-pill:active { transform:scale(.94); }
+    .theme-pill.active {
+      background:rgba(232,197,71,.15); border-color:var(--accent); color:var(--accent);
+    }
+    [data-theme="light"] .theme-pill.active {
+      background:rgba(22,23,24,.1); border-color:var(--accent); color:var(--accent);
+    }
+    .settings-section-label {
+      font-family:'Rajdhani',sans-serif; font-size:.7rem; font-weight:700;
+      color:var(--dim); letter-spacing:2px; text-transform:uppercase;
+      margin-bottom:6px; padding-top:2px;
+    }
+
+
+/* ── Bouton langue (drapeau switch) ── */
+    .lang-flag-btn {
+      background: none; border: none;
+      cursor: pointer; font-size: 1.5rem; line-height: 1;
+      padding: 2px 4px; border-radius: 6px;
+      transition: transform .15s; touch-action: manipulation;
+    }
+    .lang-flag-btn:active { transform: scale(.85); }
+
+        @keyframes fadeDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:none} }
+    @keyframes fadeUp   { from{opacity:0;transform:translateY(20px)}  to{opacity:1;transform:none} }
+    @keyframes popCard  { from{opacity:0;transform:scale(.85) translateY(12px)} to{opacity:1;transform:none} }
+
+    /* ── PAYSAGE MOBILE ── */
+    @media (orientation: landscape) and (max-height: 600px) {
+      body { padding: 4px 14px 20px; }
+      .header { margin: 0 0 10px; }
+      .header-top { margin-bottom:4px; }
+      .app-title { font-size:clamp(1.4rem,4vw,2rem); margin:4px 0 8px; }
+      /* Filtres centrés + aléatoire en dessous */
+      .filter-action-bar { flex-direction:column; gap:6px; align-items:center; }
+      .filter-bar { gap:6px; justify-content:center; }
+      .filter-btn { padding:0 14px; height:34px; font-size:.85rem; }
+      .btn-random { padding:0 14px; height:34px; font-size:.85rem; }
+      .games-grid { grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px; max-width:100%; }
+      .game-card { padding:10px 8px 8px; border-radius:10px; }
+      .game-icon { font-size:1.5rem; margin-bottom:4px; }
+      .game-name { font-size:.9rem; margin-bottom:3px; }
+      .game-description { font-size:.65rem; margin-bottom:5px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+      .game-players { font-size:.6rem; }
+      .game-players span { padding:1px 5px; }
+      .info-btn { width:18px; height:18px; font-size:.6rem; top:6px; right:6px; }
+      .fav-btn  { width:18px; height:18px; font-size:.72rem; top:6px; left:6px; }
+      .footer { display:none; }
+      .games-grid.solo-mode { grid-template-columns:1fr; max-width:280px; margin-left:auto; margin-right:auto; }
+    }
+    @media (orientation: landscape) and (max-height: 600px) and (min-width: 700px) {
+      .games-grid { grid-template-columns:repeat(5,1fr); }
+    }
+
+    /* ── PAYSAGE PC / TABLETTE (largeur > 900px) ── */
+    @media (min-width: 900px) {
+      body { padding: 4px 24px 30px; }
+      .header { margin: 0 0 14px; }
+      .header-top { margin-bottom:6px; }
+      .app-title { font-size:clamp(1.6rem,3vw,2.4rem); }
+      /* Filtres centrés, aléatoire en dessous */
+      .filter-action-bar { flex-direction:column; gap:8px; align-items:center; }
+      .filter-bar { gap:8px; justify-content:center; }
+      .games-grid {
+        display:flex; flex-wrap:wrap; justify-content:center;
+        gap:12px; margin-top:14px; max-width:100%;
+      }
+      .game-card {
+        flex:0 0 calc(25% - 9px);
+        max-width:calc(25% - 9px);
+        padding:14px 12px 12px;
+      }
+      .game-icon { font-size:1.8rem; margin-bottom:6px; }
+      .game-name { font-size:1rem; }
+      .game-description { font-size:.72rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+      .games-grid.solo-mode { max-width:100%; justify-content:center; }
+      .games-grid.solo-mode .game-card { flex:0 0 220px; max-width:220px; }
+    }
+    @media (min-width: 1200px) {
+      .game-card { flex:0 0 calc(20% - 10px); max-width:calc(20% - 10px); }
+      .games-grid.solo-mode .game-card { flex:0 0 260px; max-width:260px; }
+    }
+  
+    /* ── Bouton favori ── */
+    .fav-btn {
+      position:absolute; top:9px; left:9px;
+      width:22px; height:22px; border-radius:50%;
+      background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12);
+      color:var(--dim); font-size:.85rem; font-weight:400;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; z-index:10; transition:all .2s;
+      padding:0; line-height:1;
+    }
+    .fav-btn:active { transform:scale(.9); }
+    .fav-btn.active {
+      color:#F5C400;
+      background:rgba(245,196,0,.15);
+      border-color:rgba(245,196,0,.4);
+      text-shadow: 0 0 8px rgba(245,196,0,.6);
+    }
+    [data-theme="light"] .fav-btn { background:rgba(0,0,0,.05); border-color:rgba(0,0,0,.1); color:#AAA; }
+    [data-theme="light"] .fav-btn.active { color:#D4A000; background:rgba(212,160,0,.1); border-color:rgba(212,160,0,.3); text-shadow:none; }
+
+    /* ── WELCOME POPUP ── */
+    .welcome-overlay {
+      display:none; position:fixed; inset:0; z-index:600;
+      background:rgba(0,0,0,.92); backdrop-filter:blur(18px);
+      align-items:center; justify-content:center; padding:16px;
+    }
+    .welcome-overlay.open { display:flex; }
+
+    .welcome-card {
+      background:linear-gradient(165deg, #1a1520 0%, #0f1923 50%, #131a12 100%);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:24px; padding:28px 22px 24px;
+      max-width:400px; width:100%; text-align:center;
+      max-height:calc(100dvh - 32px); overflow-y:auto;
+      animation:welcomeIn .5s cubic-bezier(.34,1.4,.64,1);
+      position:relative; overflow-x:hidden;
+    }
+    @keyframes welcomeIn {
+      from { opacity:0; transform:scale(.85) translateY(20px); }
+      to   { opacity:1; transform:none; }
+    }
+    /* Glow top */
+    .welcome-card::before {
+      content:''; position:absolute; top:-80px; left:50%; transform:translateX(-50%);
+      width:300px; height:300px; border-radius:50%;
+      background:radial-gradient(circle, rgba(232,197,71,.25) 0%, rgba(99,102,241,.12) 40%, transparent 70%);
+      pointer-events:none;
+    }
+    /* Glow bottom-right */
+    .welcome-card::after {
+      content:''; position:absolute; bottom:-60px; right:-40px;
+      width:200px; height:200px; border-radius:50%;
+      background:radial-gradient(circle, rgba(52,211,153,.15) 0%, transparent 65%);
+      pointer-events:none;
+    }
+
+    .welcome-icon {
+      font-size:2.8rem; margin-bottom:4px; display:block; position:relative;
+      animation:welcomeBounce 1.2s ease-in-out .4s both;
+    }
+    @keyframes welcomeBounce {
+      0%   { transform:scale(0) rotate(-20deg); }
+      50%  { transform:scale(1.15) rotate(5deg); }
+      100% { transform:scale(1) rotate(0); }
+    }
+
+    .welcome-title {
+      font-family:'Rajdhani',sans-serif; font-size:1.45rem; font-weight:700;
+      background:linear-gradient(135deg, #E8C547 30%, #F0A040 100%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      background-clip:text;
+      letter-spacing:2px; margin-bottom:18px;
+      position:relative;
+      filter:drop-shadow(0 0 12px rgba(232,197,71,.4));
+    }
+
+    .welcome-steps {
+      display:flex; flex-direction:column; gap:10px;
+      margin-bottom:20px; text-align:left; position:relative;
+    }
+    .welcome-step {
+      display:flex; flex-direction:column; align-items:center; gap:4px;
+      padding:10px 14px; border-radius:14px;
+      animation:welcomeStepIn .4s ease-out both;
+      position:relative;
+    }
+    /* Step 1 — bleu/violet */
+    .welcome-step:nth-child(1) {
+      background:rgba(99,102,241,.1);
+      border:1px solid rgba(99,102,241,.25);
+      animation-delay:.25s;
+    }
+    .welcome-step:nth-child(1) .welcome-step-title { color:#818CF8; }
+    .welcome-step:nth-child(1) .welcome-step-icon { filter:drop-shadow(0 0 8px rgba(99,102,241,.5)); }
+
+    /* Step 2 — orange/ambre */
+    .welcome-step:nth-child(2) {
+      background:rgba(245,158,11,.1);
+      border:1px solid rgba(245,158,11,.25);
+      animation-delay:.4s;
+    }
+    .welcome-step:nth-child(2) .welcome-step-title { color:#FBBF24; }
+    .welcome-step:nth-child(2) .welcome-step-icon { filter:drop-shadow(0 0 8px rgba(245,158,11,.5)); }
+
+    /* Step 3 — vert/émeraude */
+    .welcome-step:nth-child(3) {
+      background:rgba(52,211,153,.1);
+      border:1px solid rgba(52,211,153,.25);
+      animation-delay:.55s;
+    }
+    .welcome-step:nth-child(3) .welcome-step-title { color:#34D399; }
+    .welcome-step:nth-child(3) .welcome-step-icon { filter:drop-shadow(0 0 8px rgba(52,211,153,.5)); }
+
+    @keyframes welcomeStepIn {
+      from { opacity:0; transform:translateX(-16px); }
+      to   { opacity:1; transform:none; }
+    }
+    .welcome-step-icon {
+      font-size:1.3rem; flex-shrink:0; line-height:1;
+    }
+    .welcome-step-content {
+      display:flex; flex-direction:column; align-items:center; gap:4px;
+      text-align:center;
+    }
+    .welcome-step-title {
+      font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700;
+      letter-spacing:.5px;
+    }
+    .welcome-step-desc {
+      font-size:.78rem; line-height:1.45; color:#E0E0E0; opacity:.75;
+    }
+
+    .welcome-ok {
+      width:100%; padding:13px; border-radius:14px; border:none;
+      background:linear-gradient(135deg, #E8C547 0%, #F0A040 100%);
+      color:#0A0A0A;
+      font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700;
+      letter-spacing:2.5px; cursor:pointer; touch-action:manipulation;
+      transition:all .2s; position:relative;
+      box-shadow:0 4px 24px rgba(232,197,71,.35);
+      animation:welcomeStepIn .4s ease-out .7s both;
+    }
+    .welcome-ok:active { transform:scale(.97); box-shadow:0 2px 12px rgba(232,197,71,.3); }
+
+    .welcome-dismiss {
+      display:flex; align-items:center; justify-content:center; gap:9px;
+      margin-top:14px; position:relative;
+      animation:welcomeStepIn .4s ease-out .85s both;
+    }
+    .welcome-dismiss input[type="checkbox"] {
+      width:18px; height:18px; accent-color:#E8C547;
+      cursor:pointer; flex-shrink:0;
+    }
+    .welcome-dismiss label {
+      font-size:.76rem; color:#888; cursor:pointer;
+      user-select:none; letter-spacing:.3px;
+    }
+
+  @media(prefers-reduced-motion:reduce){
+    *{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important;}
+  }
+</style>
+</head>
+<body>
+
+  <!-- ── WELCOME POPUP ── -->
+  <div class="welcome-overlay" id="welcome-overlay">
+    <div class="welcome-card">
+      <span class="welcome-icon">🎯</span>
+      <div class="welcome-title" data-i18n="welcome_title">Bienvenue sur DartVault !</div>
+      <div class="welcome-steps">
+        <div class="welcome-step">
+          <span class="welcome-step-icon">👤</span>
+          <div class="welcome-step-content">
+            <span class="welcome-step-title" data-i18n="welcome_step1_title">Créez vos profils</span>
+            <span class="welcome-step-desc" data-i18n="welcome_step1_desc">En quelques secondes ajoutez votre profil et celui de vos amis, suivez ensuite les classements pour chaque jeu !</span>
+          </div>
+        </div>
+        <div class="welcome-step">
+          <span class="welcome-step-icon">⚡</span>
+          <div class="welcome-step-content">
+            <span class="welcome-step-title" data-i18n="welcome_step2_title">Lancez des parties rapides</span>
+            <span class="welcome-step-desc" data-i18n="welcome_step2_desc">Chaque jeu est facile à prendre en main, du débutant au confirmé.</span>
+          </div>
+        </div>
+        <div class="welcome-step">
+          <span class="welcome-step-icon">📖</span>
+          <div class="welcome-step-content">
+            <span class="welcome-step-title" data-i18n="welcome_step3_title">Des règles simples</span>
+            <span class="welcome-step-desc" data-i18n="welcome_step3_desc">Accessibles d'un tap sur chaque jeu, laissez-vous guider !</span>
+          </div>
+        </div>
+      </div>
+      <button class="welcome-ok" id="welcome-ok" data-i18n="welcome_ok">C'EST PARTI !</button>
+      <div class="welcome-dismiss">
+        <input type="checkbox" id="welcome-dismiss-cb">
+        <label for="welcome-dismiss-cb" data-i18n="welcome_dismiss">Ne plus afficher ce message</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BARRE FIXE EN HAUT ── -->
+  <div class="header-bar">
+    <div class="header-bar-left">
+      <button class="btn-profiles" onclick="location.href='profil.html'">👤 <span data-i18n="profiles">Profils</span></button>
+      <button class="btn-profiles" aria-label="Profils et classement" onclick="location.href='classement.html'">🏆</button>
+    </div>
+    <div class="header-bar-right">
+      <button class="btn-install-header" id="btn-install-header-top">📲 <span data-i18n="install">Installer</span></button>
+      <button class="btn-settings" id="btn-settings" aria-label="Paramètres">⚙️</button>
+      <button id="btn-lang" aria-label="Changer de langue" onclick="cycleLang()" style="background:none;border:none;cursor:pointer;font-size:1.6rem;line-height:1;padding:2px;border-radius:6px;touch-action:manipulation;transition:transform .15s;">🇫🇷</button>
+    </div>
+  </div>
+
+  <div class="header" style="max-width:600px;width:100%;margin-top:56px;">
+    <!-- Logo centré uniquement -->
+    <div class="header-top">
+      <img src="/icons/logo-hub.png" class="app-logo" alt="DartVault">
+    </div>
+    <div class="app-title">DARTVAULT</div>
+    <!-- Filtres + aléatoire sur la même ligne -->
+    <div class="filter-action-bar">
+      <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all" data-i18n="all">Tout</button>
+        <button class="filter-btn" data-filter="classic" data-i18n="classic">Classique</button>
+        <button class="filter-btn" data-filter="fun" data-i18n="fun">Fun</button>
+      </div>
+      <button class="btn-random" id="btn-random">🎲 <span data-i18n="random">ALÉATOIRE</span></button>
+    </div>
+  </div>
+
+  <div class="games-grid">
+
+    <!-- CLASSIQUE -->
+    <a href="501.html" class="game-card" data-cat="classic" data-key="x01" data-color="#FF2020" data-glow="rgba(255,32,32,.4)">
+      <button class="fav-btn" data-key="x01" onclick="toggleFav(event,'x01')">☆</button>
+      <button class="info-btn" onclick="showRules(event,'x01')">i</button>
+      <span class="game-icon">🎯</span>
+      <div class="game-name">X01 DARTS</div>
+      <div class="game-description" data-i18n="desc_x01">301, 501 ou 701 — Double Out ou Simple Out.</div>
+      <div class="game-players"><span data-i18n="players_x01">👤 1 – 6 joueurs</span></div>
+    </a>
+
+    <a href="cricket.html" class="game-card" data-cat="classic" data-key="cricket" data-color="#00FF4C" data-glow="rgba(0,255,76,.4)">
+      <button class="fav-btn" data-key="cricket" onclick="toggleFav(event,'cricket')">☆</button>
+      <button class="info-btn" onclick="showRules(event,'cricket')">i</button>
+      <span class="game-icon">🦗</span>
+      <div class="game-name">CRICKET</div>
+      <div class="game-description" data-i18n="desc_cricket">Ferme les numéros 15 à 20 et le Bull. Standard, Cut-throat ou No Score ! (2-6 joueurs, 1 en No Score)</div>
+      <div class="game-players"><span data-i18n="players_cricket">👤 2 – 6 joueurs</span></div>
+    </a>
+
+    <a href="shanghai.html" class="game-card" data-cat="classic" data-key="shanghai" data-color="#CC00FF" data-glow="rgba(204,0,255,.4)">
+      <button class="fav-btn" data-key="shanghai" onclick="toggleFav(event,'shanghai')">☆</button>
+      <button class="info-btn" onclick="showRules(event,'shanghai')">i</button>
+      <span class="game-icon">🗼</span>
+      <div class="game-name">SHANGHAI</div>
+      <div class="game-description" data-i18n="desc_shanghai">Max de points manche par manche — ou Shanghai pour gagner instantanément !</div>
+      <div class="game-players"><span data-i18n="players_shanghai">👤 1 – 6 joueurs</span></div>
+    </a>
+
+    <!-- FUN : Bataille, Blackdart, DartPong, Territoire, Shooter, Race -->
+    <a href="bataille.html" class="game-card" data-cat="fun" data-key="bataille" data-color="#00AAFF" data-glow="rgba(0,170,255,.4)">
+      <button class="fav-btn" data-key="bataille" onclick="toggleFav(event,'bataille')">☆</button>
+      <button class="info-btn" onclick="showRules(event,'bataille')">i</button>
+      <span class="game-icon">⚓</span>
+      <div class="game-name" data-i18n="name_bataille">BATAILLE NAVALE</div>
+      <div class="game-description" data-i18n="desc_bataille">Place tes bateaux en secret et coule la flotte adverse à la fléchette !</div>
+      <div class="game-players"><span data-i18n="players_bataille">👥 2 – 6 joueurs</span></div>
+    </a>
+
+    <a href="blackjack.html" class="game-card" data-cat="fun" data-key="blackjack" data-color="#40C060" data-glow="rgba(64,192,96,.4)">
+      <button class="fav-btn" data-key="blackjack" onclick="toggleFav(event,'blackjack')">☆</button>
+      <button class="info-btn" onclick="showRules(event,'blackjack')">i</button>
+      <span class="game-icon">🃏</span>
+      <div class="game-name">BLACKDART</div>
+      <div class="game-description" data-i18n="desc_blackdarts">Approchez-vous du score cible sans le dépasser. Le croupier tentera-t-il le tout ?</div>
+      <div class="game-players"><span data-i18n="players_blackdarts">👥 2 – 6 joueurs</span></div>
+    </a>
+
+    <a href="dartspong.html" class="game-card" data-cat="fun" data-key="dartspong" data-color="#4488FF" data-glow="rgba(68,136,255,.4)">
+      <button class="fav-btn" data-key="dartspong" onclick="toggleFav(event,'dartspong')">☆</button>
+      <button class="info-btn" onclick="showRules(event,'dartspong')">i</button>
+      <span class="game-icon">🔴</span>
+      <div class="game-name">DARTPONG</div>
+      <div class="game-description" data-i18n="desc_dartspong">Éliminez les zones adverses et tentez le Bull — 1 seule chance par partie !</div>
+      <div class="game-players"><span data-i18n="players_dartspong">👥 2 – 6 joueurs</span></div>
+    </a>
+
+    <a href="territoire.html" class="game-card" data-cat="fun" data-key="territoire" data-color="#FF9900" data-glow="rgba(255,153,0,.4)">
+      <button class="fav-btn" data-key="territoire" onclick="toggleFav(event,'territoire')">☆</button>
+      <button class="info-btn" onclick="showRules(event,'territoire')">i</button>
+      <span class="game-icon">🏰</span>
+      <div class="game-name" data-i18n="name_territoire">TERRITOIRE</div>
+      <div class="game-description" data-i18n="desc_territoire">Capturez un maximum de zones avant la fin du temps imparti !</div>
+      <div class="game-players"><span data-i18n="players_territoire">👥 2 – 4 joueurs</span></div>
+    </a>
+
+    <a href="shooter.html" class="game-card" data-cat="fun" data-key="shooter" data-color="#FF0020" data-glow="rgba(255,0,32,.4)">
+      <button class="fav-btn" data-key="shooter" onclick="toggleFav(event,'shooter')">☆</button>
+      <button class="info-btn" onclick="showRules(event,'battleroyal')">i</button>
+      <span class="game-icon">💥</span>
+      <div class="game-name">BATTLE ROYAL</div>
+      <div class="game-description" data-i18n="desc_battleroyal">Éliminez tous vos adversaires, chargez... tirez !</div>
+      <div class="game-players"><span data-i18n="players_battleroyal">👥 2 – 4 joueurs</span></div>
+    </a>
+
+    <a href="race500.html" class="game-card" data-cat="fun" data-key="race500" data-color="#FF6600" data-glow="rgba(255,102,0,.4)">
+      <button class="fav-btn" data-key="race500" onclick="toggleFav(event,'race500')">☆</button>
+      <button class="info-btn" onclick="showRules(event,'race')">i</button>
+      <span class="game-icon">🏁</span>
+      <div class="game-name">RACE</div>
+      <div class="game-description" data-i18n="desc_race">Course vers 300 ou 500 pts — Vole des points en atterrissant sur un adversaire !</div>
+      <div class="game-players"><span data-i18n="players_race">👥 2 – 6 joueurs</span></div>
+    </a>
+
+    <a href="horloge.html" class="game-card" data-cat="classic" data-key="horloge" data-color="#A0B0FF" data-glow="rgba(160,176,255,.4)">
+      <button class="fav-btn" data-key="horloge" onclick="toggleFav(event,'horloge')">☆</button>
+      <button class="info-btn" onclick="showRules(event,'horloge')">i</button>
+      <span class="game-icon">🕐</span>
+      <div class="game-name" data-i18n="name_horloge">HORLOGE</div>
+      <div class="game-description" data-i18n="desc_horloge">Parcours les 20 numéros dans l'ordre puis le Bull. Premier arrivé, premier gagnant !</div>
+      <div class="game-players"><span data-i18n="players_horloge">👤 1 – 6 joueurs</span></div>
+    </a>
+
+  </div>
+
+  <!-- Panel settings -->
+  <div class="settings-panel" id="settings-panel">
+    <div class="settings-section-label" data-i18n="theme">Thème</div>
+    <div class="settings-row" style="padding-top:0;border-top:none;">
+      <div class="theme-pills">
+        <button class="theme-pill" id="pill-dark" data-i18n="theme_dark">🌙 Sombre</button>
+        <button class="theme-pill" id="pill-light" data-i18n="theme_light">☀️ Clair</button>
+        <button class="theme-pill" id="pill-colored" data-i18n="theme_colored">🎨 Coloré</button>
+      </div>
+    </div>
+    <div class="settings-row">
+      <span>📳</span>
+      <span class="settings-row-label" data-i18n="vibrations">Vibrations</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggle-vibration" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="settings-row">
+      <span>🔊</span>
+      <span class="settings-row-label" data-i18n="sounds">Sons</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggle-sound" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="settings-row">
+      <span class="settings-row-label">Langue / Language</span>
+      <button id="sg-btn-lang" aria-label="Changer de langue" onclick="cycleLang()" style="background:none;border:none;cursor:pointer;font-size:1.8rem;line-height:1;padding:2px;border-radius:6px;touch-action:manipulation;transition:transform .15s;">🇫🇷</button>
+    </div>
+
+    <div class="settings-section-label" style="margin-top:10px;">🎯 AUTODARTS</div>
+    <div class="settings-row" style="padding-top:0;border-top:none;">
+      <span>📡</span>
+      <span class="settings-row-label" id="ad-label-connect" data-i18n="ad_connect">Connexion</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggle-autodarts">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div id="ad-config-area" style="display:none;padding:0 6px 8px;">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+        <input type="text" id="ad-ip-input" placeholder="192.168.1.37" style="flex:1;background:var(--bg3);border:1.5px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 10px;color:var(--text);font-family:'Exo 2',monospace;font-size:.82rem;text-align:center;outline:none;">
+        <span id="ad-status-indicator" style="width:12px;height:12px;border-radius:50%;background:#606468;flex-shrink:0;transition:all .3s;"></span>
+      </div>
+      <button id="ad-test-btn" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid rgba(78,203,113,.4);background:rgba(78,203,113,.1);color:var(--ok);font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;touch-action:manipulation;transition:all .15s;" data-i18n="ad_test">Tester la connexion</button>
+      <div id="ad-test-result" style="font-size:.75rem;text-align:center;margin-top:4px;min-height:1.2em;font-weight:600;"></div>
+    </div>
+    <div style="padding:0 6px 4px;">
+      <button id="ad-info-btn" style="background:none;border:none;color:var(--dim);font-size:.78rem;cursor:pointer;touch-action:manipulation;text-decoration:underline;font-family:'Exo 2',sans-serif;padding:0;" data-i18n="ad_info_btn">ℹ️ <span id="ad-info-text">Qu'est-ce qu'Autodarts ?</span></button>
+    </div>
+  </div>
+
+  <!-- Modal Autodarts Info -->
+  <div class="mov" id="ad-info-modal" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="mod" style="max-width:440px;text-align:left;">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--accent);margin-bottom:12px;text-align:center;">🎯 Autodarts</div>
+      <div id="ad-info-body" style="font-size:.85rem;color:var(--text);line-height:1.7;">
+        <p style="margin-bottom:10px;opacity:.85;" id="ad-info-p1">Autodarts est un système de <b>scoring automatique</b> par caméras. Trois caméras USB filment la cible et détectent où chaque fléchette se plante — plus besoin de saisir manuellement !</p>
+        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.9rem;color:var(--accent);margin:12px 0 6px;">📦 <span id="ad-info-h1">Matériel nécessaire</span></div>
+        <p style="margin-bottom:10px;opacity:.85;" id="ad-info-p2">Un mini-PC (ex: HP T630), 3 caméras USB (OV9732), un anneau lumineux (Winmau Plasma), et des supports imprimés 3D. Le tout connecté en Ethernet ou WiFi sur le même réseau que votre téléphone/tablette.</p>
+        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.9rem;color:var(--accent);margin:12px 0 6px;">⚙️ <span id="ad-info-h2">Configuration</span></div>
+        <p style="margin-bottom:6px;opacity:.85;" id="ad-info-p3">1. Installez <b>Autodarts</b> sur votre mini-PC (<a href="https://autodarts.io" target="_blank" style="color:var(--accent);">autodarts.io</a>)</p>
+        <p style="margin-bottom:6px;opacity:.85;" id="ad-info-p4">2. Calibrez les 3 caméras via le Board Manager</p>
+        <p style="margin-bottom:6px;opacity:.85;" id="ad-info-p5">3. Activez Autodarts ici dans les réglages et entrez l'IP de votre mini-PC</p>
+        <p style="margin-bottom:6px;opacity:.85;" id="ad-info-p6">4. <b>Important</b> : acceptez le certificat HTTPS en visitant <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[IP]:3181</code> une fois sur chaque appareil</p>
+        <p style="margin-bottom:10px;opacity:.85;" id="ad-info-p7">5. Cochez 🎯 Autodarts dans les options de chaque jeu — c'est prêt !</p>
+        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.9rem;color:var(--accent);margin:12px 0 6px;">💡 <span id="ad-info-h3">Astuces</span></div>
+        <p style="margin-bottom:6px;opacity:.85;" id="ad-info-p8">• La <b>pastille verte</b> en haut à droite indique la connexion. Tapez dessus pour reset le board si ça bloque.</p>
+        <p style="opacity:.85;" id="ad-info-p9">• La validation nécessaire est forcée en mode Autodarts pour que le retrait des fléchettes déclenche le passage au joueur suivant.</p>
+      </div>
+      <button class="bclose" style="margin-top:16px;width:100%;" onclick="document.getElementById('ad-info-modal').classList.remove('open')" data-i18n="close">Fermer</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    <button class="btn-support" id="btn-support" onclick="document.getElementById('support-modal').classList.add('open')">☕ <span id="btn-support-text">Soutenir DartVault</span></button>
+    <span>DartVault © 2026</span>
+    <div style="display:flex;gap:16px;">
+      <button class="footer-privacy" id="btn-privacy" onclick="window.location.href='/privacy.html'">🔒 Confidentialité</button>
+      <button class="footer-privacy" id="btn-contact" onclick="document.getElementById('contact-modal').classList.add('open')">✉️ Contact</button>
+    </div>
+  </div>
+
+  <!-- Modal Soutenir -->
+  <div class="mov" id="support-modal" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="mod" style="max-width:400px;text-align:center;">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--accent);margin-bottom:6px;">☕ <span id="support-title-text">Soutenir DartVault</span></div>
+      <p style="font-size:.85rem;color:var(--dim);line-height:1.6;margin-bottom:16px;" id="support-desc-text">DartVault est 100% gratuit et sans pub. Si l'appli vous plaît, un petit coup de pouce aide à la maintenir et l'améliorer !</p>
+      <div id="paypal-container-K34UTC75D75NW" style="min-height:50px;"></div>
+      <button class="bclose" onclick="document.getElementById('support-modal').classList.remove('open')" data-i18n="close_rules">Fermer</button>
+    </div>
+  </div>
+
+  <!-- Modal Contact -->
+  <div class="mov" id="contact-modal" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="mod" style="max-width:400px;text-align:left;">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--accent);margin-bottom:14px;text-align:center;">✉️ <span id="contact-title-text">Contact</span></div>
+      <div style="margin-bottom:10px;">
+        <label style="font-size:.78rem;color:var(--dim);font-weight:600;letter-spacing:.5px;" id="contact-label-name">Nom (optionnel)</label>
+        <input type="text" id="contact-name" maxlength="40" style="width:100%;margin-top:4px;padding:10px 12px;border-radius:10px;border:1.5px solid rgba(255,255,255,.1);background:var(--bg3);color:var(--text);font-family:'Exo 2',sans-serif;font-size:.92rem;outline:none;box-sizing:border-box;" placeholder="">
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:.78rem;color:var(--dim);font-weight:600;letter-spacing:.5px;" id="contact-label-msg">Message</label>
+        <textarea id="contact-message" rows="5" maxlength="1000" style="width:100%;margin-top:4px;padding:10px 12px;border-radius:10px;border:1.5px solid rgba(255,255,255,.1);background:var(--bg3);color:var(--text);font-family:'Exo 2',sans-serif;font-size:.92rem;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+      </div>
+      <button id="contact-send" style="width:100%;padding:13px;border-radius:12px;border:none;font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--accent),#888);color:#000;touch-action:manipulation;">Envoyer</button>
+      <div id="contact-status" style="text-align:center;margin-top:10px;font-size:.85rem;font-weight:600;min-height:1.2em;"></div>
+    </div>
+  </div>
+
+  <!-- Modal règles -->
+  <div class="mov" id="m-rules" onclick="closeRules(event)">
+    <div class="mod" style="max-width:400px;max-height:88dvh;overflow-y:auto;text-align:left;">
+      <div id="r-body"></div>
+      <button class="bclose" style="margin-top:16px;width:100%;" onclick="document.getElementById('m-rules').classList.remove('open')" data-i18n="close">Fermer</button>
+    </div>
+  </div>
+
+
+  <script>
+    // ═══════════════════════════════════════════════════════
+    // TRADUCTIONS
+    // ═══════════════════════════════════════════════════════
+    const TRANSLATIONS = {
+      fr: {
+        all: 'Tout', classic: 'Classique', fun: 'Fun', random: 'ALÉATOIRE',
+        install: 'Installer',
+        profiles: 'Profils',
+        theme: 'Thème', theme_dark: '🌙 Sombre', theme_light: '☀️ Clair', theme_colored: '🎨 Coloré',
+        vibrations: 'Vibrations', sounds: 'Sons', language: 'Langue',
+        privacy: '🔒 Confidentialité',
+        contact: '✉️ Contact',
+        contact_title: 'Contact',
+        contact_name: 'Nom (optionnel)',
+        contact_msg: 'Message',
+        contact_send: 'Envoyer',
+        contact_sending: 'Envoi en cours...',
+        contact_ok: '✅ Message envoyé !',
+        contact_err: '❌ Erreur, réessayez.',
+        contact_empty: 'Veuillez écrire un message.',
+        support_btn: '☕ Soutenir DartVault',
+        support_title: 'Soutenir DartVault',
+        support_desc: 'DartVault est 100% gratuit et sans pub. Si l\'appli vous plaît, un petit coup de pouce aide à la maintenir et l\'améliorer !',
+        close: 'Fermer',
+        name_territoire: 'TERRITOIRE', name_bataille: 'BATAILLE NAVALE',
+        desc_x01: '301, 501, 701 — Le grand classique des fléchettes, premier à descendre à zéro gagne la partie !',
+        players_x01: '👤 1 – 6 joueurs',
+        desc_cricket: 'Ferme les numéros 15 à 20 et le Bull. Standard, Cut-throat ou No Score ! (2-6 joueurs, 1 en No Score)',
+        players_cricket: '👤 2 – 6 joueurs',
+        desc_shanghai: 'Max de points manche par manche — ou Shanghai pour gagner instantanément !',
+        players_shanghai: '👤 1 – 6 joueurs',
+        desc_territoire: 'Capturez un maximum de zones avant la fin du temps imparti !',
+        players_territoire: '👥 2 – 4 joueurs',
+        desc_dartspong: "Éliminez les zones adverses et tentez le Bull — 1 seule chance par partie !",
+        players_dartspong: '👥 2 – 6 joueurs',
+        desc_battleroyal: 'Éliminez tous vos adversaires, chargez... tirez !',
+        players_battleroyal: '👥 2 – 4 joueurs',
+        desc_blackdarts: 'Approchez-vous du score cible sans le dépasser. Le croupier tentera-t-il le tout ?',
+        players_blackdarts: '👥 2 – 6 joueurs',
+        desc_race: 'Course vers 300 ou 500 pts — Vole des points en atterrissant sur un adversaire !',
+        players_race: '👥 2 – 6 joueurs',
+        desc_bataille: 'Place tes bateaux en secret et coule la flotte adverse à la fléchette !',
+        players_bataille: '👥 2 – 6 joueurs',
+        name_horloge: 'HORLOGE',
+        desc_horloge: "Parcours les 20 numéros dans l'ordre puis le Bull. Premier arrivé, premier gagnant !",
+        players_horloge: '👤 1 – 6 joueurs',
+        ad_connect: 'Connexion', ad_test: 'Tester la connexion', ad_info_btn: "ℹ️ Qu'est-ce qu'Autodarts ?",
+        ad_info_text: "Qu'est-ce qu'Autodarts ?",
+        ad_connected: 'Connecté', ad_failed: 'Échec — vérifiez l\'IP et le certificat HTTPS',
+        ad_p1: 'Autodarts est un système de <b>scoring automatique</b> par caméras. Trois caméras USB filment la cible et détectent où chaque fléchette se plante — plus besoin de saisir manuellement !',
+        ad_h1: 'Matériel nécessaire', ad_p2: 'Un mini-PC (ex: HP T630), 3 caméras USB (OV9732), un anneau lumineux (Winmau Plasma), et des supports imprimés 3D. Le tout connecté en Ethernet ou WiFi sur le même réseau que votre téléphone/tablette.',
+        ad_h2: 'Configuration',
+        ad_p3: '1. Installez <b>Autodarts</b> sur votre mini-PC', ad_p4: '2. Calibrez les 3 caméras via le Board Manager',
+        ad_p5: '3. Activez Autodarts ici dans les réglages et entrez l\'IP de votre mini-PC',
+        ad_p6: '4. <b>Important</b> : acceptez le certificat HTTPS en visitant <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[IP]:3181</code> une fois sur chaque appareil',
+        ad_p7: '5. Cochez 🎯 Autodarts dans les options de chaque jeu — c\'est prêt !',
+        ad_h3: 'Astuces', ad_p8: '• La <b>pastille verte</b> en haut à droite indique la connexion. Tapez dessus pour reset le board si ça bloque.',
+        ad_p9: '• La validation nécessaire est forcée en mode Autodarts pour que le retrait des fléchettes déclenche le passage au joueur suivant.',
+        rules: {
+          x01: { icon:'🎯', title:'X01 DARTS', players:'👤 1 – 6 joueurs',
+            catch: 'Chaque fléchette compte.\nDescends à zéro avant tout le monde.',
+            points: [
+              { icon:'🎯', title:'Descends à zéro', desc:'Pars de 501 (ou 301/701) et réduis ton score fléchette après fléchette — exactement 0 pour gagner.' },
+              { icon:'💥', title:'Évite le bust', desc:'Descendre sous zéro annule tout le tour — garde la tête froide et calcule !' },
+              { icon:'🔵', title:'Fin en double', desc:'En Double Out, la dernière fléchette doit obligatoirement toucher un double. Vise juste !' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Déroulement</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 fléchettes par tour</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Saisie du score total du tour ou fléchette par fléchette</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Tout score descendant sous zéro est annulé (bust)</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Victoire</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Premier joueur à atteindre exactement zéro gagne la manche</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>En format Sets, il faut remporter le nombre de sets défini</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚡ Coup spécial</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Double Out</strong> : la dernière fléchette doit toucher un double</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>D.In / D.Out</strong> : entrée ET sortie obligatoires sur un double</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Mode</strong> : 301 · 501 · 701</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Fin de partie</strong> : Double Out · Simple Out · D.In / D.Out</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Format</strong> : Manches libres ou Sets (3 manches/set)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Validation</strong> : confirmation manuelle avant de valider</span></div>
+            </div>` },
+          cricket: { icon:'🦗', title:'CRICKET', players:'👤 2 – 6 joueurs',
+            catch: 'Ferme les cases, marque les points.\nEt laisse les autres derrière.',
+            points: [
+              { icon:'🎯', title:'Zones à fermer', desc:'15 à 20 et le Bull — touchez chaque numéro 3 fois pour le "fermer".' },
+              { icon:'✖️', title:'Marquez des points', desc:'Une fois fermé, chaque touche supplémentaire rapporte des points — jusqu\'à ce que l\'adversaire ferme aussi.' },
+              { icon:'🏆', title:'Gagnez la partie', desc:'Fermez tous les numéros avec le plus de points (Standard) ou le moins (Cut-throat) !' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Déroulement</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 fléchettes par tour sur les numéros 15–20 et Bull</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>/ = 1 marque · X = 2 marques · ⊗ = fermé (3 marques)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Simple = ×1 · Double = ×2 · Triple = ×3 marques</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Une fois fermé, chaque marque supplémentaire rapporte des points tant que les adversaires n'ont pas fermé ce numéro</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Victoire</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Standard</strong> : fermer tous les numéros avec le plus de points</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Cut-throat</strong> : tes points vont aux adversaires — le moins de points gagne !</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>No Score</strong> : premier à fermer tous les numéros gagne, sans points</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Mode</strong> : Standard · Cut-throat · No Score</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Zones aléatoires</strong> : numéros actifs tirés au sort</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Format</strong> : Manches libres ou Sets (3 manches/set)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Validation</strong> : confirmation manuelle avant de valider</span></div>
+            </div>` },
+          shanghai: { icon:'🗼', title:'SHANGHAI', players:'👤 1 – 6 joueurs',
+            catch: 'Un chiffre, trois façons de le toucher.\nUn seul coup suffit pour tout emporter.',
+            points: [
+              { icon:'🔢', title:'Un numéro par manche', desc:'Chaque tour impose un numéro cible — seules les fléchettes dans ce numéro comptent !' },
+              { icon:'📈', title:'Multipliez les points', desc:'Simple = ×1, Double = ×2, Triple = ×3 — visez les triples pour maximiser !' },
+              { icon:'⚡', title:'Le Shanghai', desc:'Touchez Simple + Double + Triple du même numéro en un tour → victoire instantanée !' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Déroulement</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 fléchettes par tour</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Chaque manche a une cible imposée (1, 2, 3… selon le nombre de secteurs)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Simple = ×1 · Double = ×2 · Triple = ×3 points sur la cible</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Fléchettes hors cible = 0 point</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Victoire</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Le joueur avec le plus de points à la dernière manche gagne.</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚡ Shanghai</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Toucher Simple + Double + Triple du même numéro dans le même tour = victoire instantanée !</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Mode</strong> : Standard (1, 2, 3…) · Aléatoire</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Secteurs</strong> : 7 · 10 · 15 · 20 manches</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Validation</strong> : confirmation manuelle avant de valider</span></div>
+            </div>` },
+          territoire: { icon:'🏰', title:'TERRITOIRE', players:'👥 2 – 4 joueurs',
+            catch: 'Conquérez, défendez, dominez.\nLa cible est un champ de bataille.',
+            points: [
+              { icon:'🏳️', title:'Capturez des zones', desc:'Visez la cible pour conquérir des zones neutres ou neutraliser les zones ennemies.' },
+              { icon:'🛡️', title:'Posez des boucliers', desc:'Un Triple sur votre zone place un bouclier — les adversaires devront le briser d\'abord.' },
+              { icon:'👑', title:'Dominez la cible', desc:'Contrôlez le plus de zones à la fin, ou capturez tout pour une victoire immédiate !' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Déroulement</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 fléchettes par joueur par tour</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Simple / Double → capture zone neutre ou neutralise zone ennemie</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Triple → capture directe d'une zone ennemie sans bouclier, ou capture une zone vierge + pose un bouclier</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Triple sur votre zone → ajoute un 🛡️ bouclier</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🛡️ Bouclier</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Un Simple/Double brise le bouclier sans capturer la zone</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Un Triple brise le bouclier ET neutralise la zone</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🎯 Bull</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Bull (25) → neutralise 2 zones ennemies aléatoires</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Bull's Eye (50) → capture une zone ennemie aléatoire + bouclier</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Zones</strong> : 5 · 7 · 10</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Difficulté</strong> : Facile · Normal</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Mode</strong> : Solo (2-3 joueurs) · Équipe (2-4 joueurs)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Manches</strong> : 5 · 7 · 10</span></div>
+            </div>` },
+          dartspong: { icon:'🔴', title:'DARTPONG', players:'👥 2 – 6 joueurs',
+            catch: 'Comme au beerpong — vise les zones adverses.\nSi tu te sens, annonce le Bull !',
+            points: [
+              { icon:'🔴', title:'Chaque équipe a ses zones', desc:'Défendez les vôtres, visez celles de l\'adversaire — chaque touche élimine une zone.' },
+              { icon:'📢', title:'Le coup du Bull', desc:'Annoncez-le AVANT de tirer — réussi, il élimine 2 zones ennemies d\'un coup !' },
+              { icon:'⚡', title:'Streak x3', desc:'Éliminez 3 zones d\'affilée = jouez un tour bonus complet !' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Déroulement</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 fléchettes par tour</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Chaque joueur/équipe défend ses zones sur la cible</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Toucher une zone adverse l'élimine selon la difficulté</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🎯 Le Bull</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Tir spécial utilisable <strong>1 seule fois par partie</strong></span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Doit être <strong>annoncé avant de tirer</strong></span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Réussi</strong> (Bull 25 ou Bull's Eye 50) → élimine 2 zones adverses</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Raté</strong> → le coup est nul, la fléchette est perdue</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Zones</strong> : nombre de zones par équipe</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Difficulté</strong> : Facile · Normal</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Mode</strong> : Solo (2-6 joueurs) · Équipe (2-6 joueurs)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Mode Soirée</strong> : règles festives pour pimenter la partie</span></div>
+            </div>` },
+          battleroyal: { icon:'💥', title:'BATTLE ROYAL', players:'👥 2 – 4 joueurs',
+            catch: 'Chaque joueur défend ses zones.\nChargez, visez, éliminez !',
+            points: [
+              { icon:'🎯', title:'Défendez et chargez', desc:'Tirez sur vos propres zones pour recharger des balles — avant d\'attaquer l\'ennemi.' },
+              { icon:'💣', title:'Attaquez les adversaires', desc:'Coûte 1 balle — infligez des dégâts : Simple (-1), Double (-2) ou Triple (-3 HP).' },
+              { icon:'💀', title:'Dernier debout', desc:'Réduisez un joueur à 0 HP pour l\'éliminer. Dernier survivant ou dernière équipe debout gagne !' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Déroulement</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Chaque joueur possède 1 ou 2 zones sur la cible (selon la difficulté) et des HP</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Tirer sa propre zone = recharger des balles (Simple +1, Double +2, Triple +3)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Tirer la zone d'un ennemi coûte 1 balle et inflige des dégâts (Simple -1, Double -2, Triple -3 HP)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Tirer sans balles ou sur une zone neutre = raté</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🎯 Bull</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Bull vert (25) → +2 HP pour soi ou révive un allié éliminé</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Bull rouge (50) → invulnérabilité pour 1 tour — ou effet Bull vert</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Points de vie</strong> : 3 · 5 · 10 HP de départ</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Difficulté</strong> : Facile (2 zones + Last Stand) · Difficile (1 zone)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Mode</strong> : Solo (2-4 joueurs) · Équipe 2v2</span></div>
+            </div>` },
+          blackjack: { icon:'🃏', title:'BLACKDART', players:'👥 2 – 6 joueurs',
+            catch: 'Vise le score parfait.\nNi trop peu, ni trop.',
+            points: [
+              { icon:'🃏', title:'Atteins la cible', desc:'Le score cible du tour est tiré au sort — additionne tes fléchettes pour l\'atteindre exactement.' },
+              { icon:'💥', title:'Gare au bust', desc:'Dépasser la cible = score 0 pour ce tour — calcule bien ton coup !' },
+              { icon:'💰', title:'Gagne de l\'argent', desc:'Score parfait → +2€, meilleur que le croupier → +1€. Le plus riche à la fin gagne !' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Déroulement</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 fléchettes ou moins par tour, on additionne les points</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Le score cible est tiré aléatoirement dans la fourchette Min/Max</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Dépasser la cible → score = 0 pour ce tour (bust)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Le croupier joue contre tous les autres joueurs</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Gains</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Score parfait (= cible) → +2€</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Meilleur que le croupier → +1€ · Moins bon → -1€</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Si le croupier est parfait → tous les autres perdent 2€</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Le joueur avec le plus d'argent à la fin des manches gagne</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Manches</strong> : nombre de tours joués</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Score Min / Max</strong> : fourchette du score cible aléatoire</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Croupier</strong> : désigné manuellement ou tiré au sort</span></div>
+            </div>` },
+          race: { icon:'🏁', title:'RACE', players:'👥 2 – 6 joueurs',
+            catch: 'Montez, volez, arrivez premier.\nAttention aux collisions !',
+            points: [
+              { icon:'🏃', title:'Montez vers l\'objectif', desc:'Lancez 3 fléchettes et additionnez vos points pour grimper vers la cible (300 ou 500).' },
+              { icon:'💫', title:'Volez les points', desc:'Atterrissez exactement sur le score d\'un adversaire — et volez-lui des points !' },
+              { icon:'💥', title:'Évitez le bust', desc:'Dépasser la cible annule tout le tour — restez en dessous et gardez la tête froide !' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Déroulement</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 fléchettes par tour, on additionne les points</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Simple = ×1 · Double = ×2 · Triple = ×3 · Bull = 25 (pas de triple)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Dépasser la cible = Bust — le tour est annulé, on revient au score de début de tour</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🥊 Vol de points</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Si tu atterris exactement sur le score d'un adversaire → tu lui voles des points</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Le vol peut enchaîner en cascade si le nouveau score touche encore un adversaire</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Si le vol te ferait dépasser la cible → tour annulé (bust)</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Victoire</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Premier joueur à atteindre exactement le score cible gagne.</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Score cible</strong> : 300 · 500</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Points volés</strong> : nombre de points volés lors d'un vol (25 · 50 · 75)</span></div>
+            </div>` },
+          bataille: { icon:'⚓', title:'BATAILLE NAVALE', players:'👥 2 – 6 joueurs',
+            catch: 'Cache tes bateaux. Trouve ceux de l\'ennemi.\nCoule-les avant lui.',
+            points: [
+              { icon:'🗺️', title:'Placement secret', desc:'Chaque équipe cache ses bateaux sur la cible — l\'adversaire ne voit rien.' },
+              { icon:'🎯', title:'Tir à l\'aveugle', desc:'À tour de rôle, lancez vos fléchettes pour localiser la flotte ennemie.' },
+              { icon:'💥', title:'Coulez la flotte', desc:'Touchez les 3 cases d\'un bateau pour le couler. Premier à tout couler gagne !' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Déroulement</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Chaque équipe place secrètement ses bateaux sur la cible</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Les équipes tirent à tour de rôle pour trouver les bateaux adverses</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Double / Simple ext. → anneau extérieur · Triple / Simple int. → anneau intérieur</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Bull (25) → 2 cases aléatoires · Bull's Eye (50) → 3 cases aléatoires</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🚢 Bateaux</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Chaque bateau occupe 3 cases adjacentes sur la cible</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>2 bateaux : 1 ext. + 1 libre · 3 bateaux : 2 ext. + 1 libre · 4 bateaux : 2 ext. + 2 libres</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bateaux</strong> : 2 · 3 · 4 bateaux par équipe</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Mode</strong> : Solo (1v1) · Équipe (2-6 joueurs)</span></div>
+            </div>` },
+          horloge: { icon:'🕐', title:'HORLOGE', players:'👤 1 – 6 joueurs',
+            catch: 'Le temps tourne, les numéros défilent.\nSuis le rythme ou prends du retard.',
+            points: [
+              { icon:'🕐', title:'Suis la séquence', desc:'Valide chaque numéro dans l\'ordre (1→20, 20→1 ou aléatoire) avant tes adversaires.' },
+              { icon:'🎯', title:'Double et Triple', desc:'Double = 2 hits, Triple = 3 hits — avancez plus vite sur la séquence !' },
+              { icon:'🔄', title:'Bonus Rejouer', desc:'3 fléchettes dans la bonne cible le même tour = jouez le tour de nouveau !' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Déroulement</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 fléchettes par tour</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Simple, Double ou Triple valident la cible en cours (mode 1 hit)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>En mode multi-hits : Double = +2 hits, Triple = +3 hits</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>En mode Saute (1 hit) : Double = avance de 2, Triple = avance de 3</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Victoire</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Premier joueur à compléter toute la séquence gagne instantanément.</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bonus Rejouer</strong> : 3 fléchettes dans la bonne cible au même tour = rejouer le tour !</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Ordre</strong> : 1→20 · 20→1 · Aléatoire</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bull</strong> : Aucun · Bull (25) · Bull + Bull's Eye (50)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Tirs par numéro</strong> : 1 hit · 2 hits · 3 hits</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Validation</strong> : confirmation manuelle avant de passer</span></div>
+            </div>` }
+        }
+      },
+      en: {
+        all: 'All', classic: 'Classic', fun: 'Fun', random: 'RANDOM',
+        install: 'Install',
+        profiles: 'Profiles',
+        theme: 'Theme', theme_dark: '🌙 Dark', theme_light: '☀️ Light', theme_colored: '🎨 Coloured',
+        vibrations: 'Vibrations', sounds: 'Sounds', language: 'Language',
+        privacy: '🔒 Privacy Policy',
+        contact: '✉️ Contact',
+        contact_title: 'Contact',
+        contact_name: 'Name (optional)',
+        contact_msg: 'Message',
+        contact_send: 'Send',
+        contact_sending: 'Sending...',
+        contact_ok: '✅ Message sent!',
+        contact_err: '❌ Error, try again.',
+        contact_empty: 'Please write a message.',
+        support_btn: '☕ Support DartVault',
+        support_title: 'Support DartVault',
+        support_desc: 'DartVault is 100% free and ad-free. If you enjoy the app, a small contribution helps keep it alive and improving!',
+        close: 'Close',
+        name_territoire: 'TERRITORY', name_bataille: 'BATTLESHIP',
+        desc_x01: '301, 501, 701 — The ultimate darts classic, first to reach zero wins!',
+        players_x01: '👤 1 – 6 players',
+        desc_cricket: 'Close numbers 15 to 20 and the Bull. Standard, Cut-throat or No Score! (2-6 players, 1 in No Score)',
+        players_cricket: '👤 2 – 6 players',
+        desc_shanghai: 'Max points each round — or hit Shanghai to win instantly!',
+        players_shanghai: '👤 1 – 6 players',
+        desc_territoire: 'Capture as many zones as possible before time runs out!',
+        players_territoire: '👥 2 – 4 players',
+        desc_dartspong: 'Eliminate opponent zones and try the Bull — 1 chance per game!',
+        players_dartspong: '👥 2 – 6 players',
+        desc_battleroyal: 'Eliminate all your opponents — load up... fire!',
+        players_battleroyal: '👥 2 – 4 players',
+        desc_blackdarts: 'Get as close to the target score as possible without going over. Will the dealer risk it?',
+        players_blackdarts: '👥 2 – 6 players',
+        desc_race: 'Race to 300 or 500 pts — steal points by landing on an opponent!',
+        players_race: '👥 2 – 6 players',
+        desc_bataille: 'Place your ships in secret and sink the enemy fleet with darts!',
+        players_bataille: '👥 2 – 6 players',
+        name_horloge: 'HORLOGE',
+        desc_horloge: 'Hit all numbers 1–20 in order, then the Bull. First to finish wins!',
+        players_horloge: '👤 1 – 6 players',
+        ad_connect: 'Connection', ad_test: 'Test connection', ad_info_btn: 'ℹ️ What is Autodarts?',
+        ad_info_text: 'What is Autodarts?',
+        ad_connected: 'Connected', ad_failed: 'Failed — check IP and HTTPS certificate',
+        ad_p1: 'Autodarts is an <b>automatic scoring</b> system using cameras. Three USB cameras film the board and detect where each dart lands — no more manual input!',
+        ad_h1: 'Required hardware', ad_p2: 'A mini-PC (e.g. HP T630), 3 USB cameras (OV9732), a ring light (Winmau Plasma), and 3D-printed mounts. Everything connected via Ethernet or WiFi on the same network as your phone/tablet.',
+        ad_h2: 'Setup',
+        ad_p3: '1. Install <b>Autodarts</b> on your mini-PC', ad_p4: '2. Calibrate the 3 cameras via the Board Manager',
+        ad_p5: '3. Enable Autodarts here in settings and enter your mini-PC IP address',
+        ad_p6: '4. <b>Important</b>: accept the HTTPS certificate by visiting <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[IP]:3181</code> once on each device',
+        ad_p7: '5. Check 🎯 Autodarts in each game\'s options — you\'re all set!',
+        ad_h3: 'Tips', ad_p8: '• The <b>green dot</b> in the top-right shows connection status. Tap it to reset the board if it gets stuck.',
+        ad_p9: '• Validation is forced in Autodarts mode so that removing darts triggers the next player automatically.',
+        rules: {
+          x01: { icon:'🎯', title:'X01 DARTS', players:'👤 1 – 6 players',
+            catch: 'Every dart counts.\nGet down to zero before everyone else.',
+            points: [
+              { icon:'🎯', title:'Get to zero', desc:'Start at 501 (or 301/701) and reduce your score dart by dart — exactly 0 to win.' },
+              { icon:'💥', title:'Avoid the bust', desc:'Going below zero cancels the whole turn — stay sharp and calculate!' },
+              { icon:'🔵', title:'Finish on a double', desc:'In Double Out, your last dart must hit a double. Make it count!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 How to play</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 darts per turn</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Enter total score or dart by dart</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Any score going below zero is cancelled (bust)</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Victory</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>First player to reach exactly zero wins the leg</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>In Sets format, win the required number of sets</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚡ Special shot</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Double Out</strong>: last dart must hit a double</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>D.In / D.Out</strong>: must enter AND finish on a double</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variants</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Mode</strong>: 301 · 501 · 701</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Finish</strong>: Double Out · Simple Out · D.In / D.Out</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Format</strong>: Free legs or Sets (3 legs/set)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Validation</strong>: manual confirmation before scoring</span></div>
+            </div>` },
+          cricket: { icon:'🦗', title:'CRICKET', players:'👤 2 – 6 players',
+            catch: 'Close the numbers, score the points.\nLeave the rest behind.',
+            points: [
+              { icon:'🎯', title:'Zones to close', desc:'15 to 20 and Bull — hit each number 3 times to "close" it.' },
+              { icon:'✖️', title:'Score points', desc:'Once closed, extra hits score points until opponents close that number too.' },
+              { icon:'🏆', title:'Win the game', desc:'Close all numbers with the most points (Standard) or fewest (Cut-throat)!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 How to play</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 darts per turn on numbers 15–20 and Bull</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>/ = 1 mark · X = 2 marks · ⊗ = closed (3 marks)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Single = ×1 · Double = ×2 · Triple = ×3 marks</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Once closed, extra marks score points until opponents close that number too</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Victory</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Standard</strong>: close all numbers with the most points</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Cut-throat</strong>: your points go to opponents — fewest points wins!</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>No Score</strong>: first to close all numbers wins, no points</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variants</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Mode</strong>: Standard · Cut-throat · No Score</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Random zones</strong>: active numbers drawn randomly</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Format</strong>: Free legs or Sets (3 legs/set)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Validation</strong>: manual confirmation before scoring</span></div>
+            </div>` },
+          shanghai: { icon:'🗼', title:'SHANGHAI', players:'👤 1 – 6 players',
+            catch: 'One number, three ways to hit it.\nOne shot to take it all.',
+            points: [
+              { icon:'🔢', title:'One number per round', desc:'Each turn has a target number — only darts hitting that number score!' },
+              { icon:'📈', title:'Multiply your points', desc:'Single = ×1, Double = ×2, Triple = ×3 — aim for the triples to maximize!' },
+              { icon:'⚡', title:'The Shanghai', desc:'Hit Single + Double + Triple on the same number in one turn → instant win!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 How to play</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 darts per turn</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Each round has an imposed target (1, 2, 3… based on sector count)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Single = ×1 · Double = ×2 · Triple = ×3 points on the target</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Darts off-target = 0 points</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Victory</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Player with the most points at the last round wins.</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚡ Shanghai</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Hit Single + Double + Triple on the same number in one turn = instant win!</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variants</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Mode</strong>: Standard (1, 2, 3…) · Random</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Sectors</strong>: 7 · 10 · 15 · 20 rounds</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Validation</strong>: manual confirmation before scoring</span></div>
+            </div>` },
+          territoire: { icon:'🏰', title:'TERRITORY', players:'👥 2 – 4 players',
+            catch: 'Conquer, defend, dominate.\nThe board is a battlefield.',
+            points: [
+              { icon:'🏳️', title:'Capture zones', desc:'Hit the board to conquer neutral zones or neutralise enemy territory.' },
+              { icon:'🛡️', title:'Place shields', desc:'A Triple on your zone plants a shield — opponents must break it first.' },
+              { icon:'👑', title:'Dominate the board', desc:'Control the most zones at the end, or capture all for an instant win!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 How to play</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 darts per player per turn</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Single / Double → capture neutral zone or neutralise enemy zone</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Triple → direct capture of an unshielded enemy zone, or capture a virgin zone + place a shield</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Triple on your zone → adds a 🛡️ shield</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🛡️ Shield</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Single/Double breaks the shield without capturing the zone</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Triple breaks the shield AND neutralises the zone</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🎯 Bull</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Bull (25) → neutralises 2 random enemy zones</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Bull's Eye (50) → captures a random enemy zone + shield</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variants</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Zones</strong>: 5 · 7 · 10</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Difficulty</strong>: Easy · Normal</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Mode</strong>: Solo (2-3 players) · Team (2-4 players)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Rounds</strong>: 5 · 7 · 10</span></div>
+            </div>` },
+          dartspong: { icon:'🔴', title:'DARTPONG', players:'👥 2 – 6 players',
+            catch: 'Like beer pong — aim at their zones.\nIf you feel it, call the Bull!',
+            points: [
+              { icon:'🔴', title:'Each team has zones', desc:'Defend yours, aim at theirs — each hit eliminates one zone.' },
+              { icon:'📢', title:'The Bull call', desc:'Announce it BEFORE you throw — a hit eliminates 2 enemy zones at once!' },
+              { icon:'⚡', title:'Streak x3', desc:'Eliminate 3 zones in a row = play a full bonus turn!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 How to play</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 darts per turn</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Each player/team defends their zones on the board</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Hitting an opponent zone eliminates it based on difficulty</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🎯 The Bull</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Special shot usable <strong>once per game</strong></span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Must be <strong>called before throwing</strong></span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Hit</strong> (Bull 25 or Bull's Eye 50) → eliminates 2 opponent zones</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Miss</strong> → shot is void, dart is wasted</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variants</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Zones</strong>: zones per team</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Difficulty</strong>: Easy · Normal</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Mode</strong>: Solo (2-6 players) · Team (2-6 players)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Party Mode</strong>: festive rules to spice up the game</span></div>
+            </div>` },
+          battleroyal: { icon:'💥', title:'BATTLE ROYAL', players:'👥 2 – 4 players',
+            catch: 'Every player owns zones.\nLoad up, aim, eliminate!',
+            points: [
+              { icon:'🎯', title:'Defend and reload', desc:'Hit your own zones to earn ammo bullets — before attacking the enemy.' },
+              { icon:'💣', title:'Attack opponents', desc:'Costs 1 bullet — deal damage: Single (-1), Double (-2) or Triple (-3 HP).' },
+              { icon:'💀', title:'Last one standing', desc:'Drop a player to 0 HP to eliminate them. Last survivor or last team standing wins!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 How to play</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Each player owns 1 or 2 zones on the board (based on difficulty) and has HP</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Hit your own zone = reload ammo (Single +1, Double +2, Triple +3)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Hit an enemy zone = costs 1 bullet, deals damage (Single -1, Double -2, Triple -3 HP)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Shooting with no bullets or hitting a neutral zone = miss</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🎯 Bull</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Green Bull (25) → +2 HP for yourself or revive an eliminated ally</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Red Bull (50) → invulnerability for 1 turn — or Green Bull effect</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variants</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>HP</strong>: 3 · 5 · 10 starting hit points</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Difficulty</strong>: Easy (2 zones + Last Stand) · Hard (1 zone)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Mode</strong>: Solo (2-4 players) · Team 2v2</span></div>
+            </div>` },
+          blackjack: { icon:'🃏', title:'BLACKDART', players:'👥 2 – 6 players',
+            catch: 'Aim for the perfect score.\nNot too low, not too high.',
+            points: [
+              { icon:'🃏', title:'Hit the target', desc:'The round\'s target score is drawn randomly — add up your darts to hit it exactly.' },
+              { icon:'💥', title:'Beware the bust', desc:'Exceed the target = 0 for the round — plan your throw carefully!' },
+              { icon:'💰', title:'Win money', desc:'Perfect score → +2€, beat the dealer → +1€. Most money at the end wins!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 How to play</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 darts or fewer per turn, add up the points</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Target score is drawn randomly within the Min/Max range</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Exceeding the target → score = 0 for that round (bust)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>The dealer plays against all other players</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Earnings</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Perfect score (= target) → +2€</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Better than dealer → +1€ · Worse → -1€</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>If dealer is perfect → all others lose 2€</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Player with the most money at the end of all rounds wins</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variants</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Rounds</strong>: number of turns played</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Score Min / Max</strong>: range for the random target</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Dealer</strong>: chosen manually or drawn randomly</span></div>
+            </div>` },
+          race: { icon:'🏁', title:'RACE', players:'👥 2 – 6 players',
+            catch: 'Climb fast, steal points,\nreach the line first!',
+            points: [
+              { icon:'🏃', title:'Climb to the target', desc:'Throw 3 darts and add up points to climb toward the target (300 or 500).' },
+              { icon:'💫', title:'Steal points', desc:'Land exactly on an opponent\'s score — and steal their points!' },
+              { icon:'💥', title:'Avoid the bust', desc:'Going over the target cancels your whole turn — stay below and keep focused!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 How to play</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 darts per turn, add up the points</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Single = ×1 · Double = ×2 · Triple = ×3 · Bull = 25 (no triple)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Going over the target = Bust — turn is cancelled, score resets to start-of-turn value</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🥊 Score steal</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Land exactly on an opponent's score → steal points from them</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Steals can chain in cascade if the new score lands on another opponent</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>If a steal would push you past the target → turn is cancelled (bust)</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Victory</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>First player to land exactly on the target score wins.</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variants</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Target score</strong>: 300 · 500</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Stolen points</strong>: points stolen on a steal (25 · 50 · 75)</span></div>
+            </div>` },
+          bataille: { icon:'⚓', title:'BATTLESHIP', players:'👥 2 – 6 players',
+            catch: 'Hide your ships. Hunt down the enemy.\nSink them before they sink you.',
+            points: [
+              { icon:'🗺️', title:'Secret placement', desc:'Each team hides their ships on the board — the opponent sees nothing.' },
+              { icon:'🎯', title:'Blind fire', desc:'Take turns throwing darts to locate the enemy fleet.' },
+              { icon:'💥', title:'Sink the fleet', desc:'Hit all 3 squares of a ship to sink it. First to sink everything wins!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 How to play</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Each team secretly places their ships on the board</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Teams take turns firing to find enemy ships</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Double / Single outer → outer ring · Triple / Single inner → inner ring</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Bull (25) → 2 random squares · Bull's Eye (50) → 3 random squares</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🚢 Ships</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Each ship covers 3 adjacent squares on the board</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>2 ships: 1 outer + 1 free · 3 ships: 2 outer + 1 free · 4 ships: 2 outer + 2 free</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variants</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Ships</strong>: 2 · 3 · 4 ships per team</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Mode</strong>: Solo (1v1) · Team (2-6 players)</span></div>
+            </div>` },
+          horloge: { icon:'🕐', title:'HORLOGE', players:'👤 1 – 6 players',
+            catch: 'The clock is ticking.\nHit the numbers in order or fall behind.',
+            points: [
+              { icon:'🕐', title:'Follow the sequence', desc:'Validate each number in order (1→20, 20→1 or random) before your opponents.' },
+              { icon:'🎯', title:'Double and Triple', desc:'Double = 2 hits, Triple = 3 hits — advance faster through the sequence!' },
+              { icon:'🔄', title:'Replay bonus', desc:'3 darts on the right target in one turn = play the turn again!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 How to play</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 darts per turn</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Single, Double or Triple all validate the current target (1-hit mode)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Multi-hit mode: Double = +2 hits, Triple = +3 hits</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Skip mode (1 hit): Double = advance 2, Triple = advance 3</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Victory</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>First player to complete the full sequence wins instantly.</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variants</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Replay bonus</strong>: 3 darts on the right target in one turn = play again!</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Order</strong>: 1→20 · 20→1 · Random</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bull</strong>: None · Bull (25) · Bull + Bull's Eye (50)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Hits per number</strong>: 1 hit · 2 hits · 3 hits</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Validation</strong>: manual confirmation before passing</span></div>
+            </div>` }
+        }
+      }
+    };
+
+    // ═══════════════════════════════════════════════════════
+    // LANGUE
+    // ═══════════════════════════════════════════════════════
+    const LANG_KEY = 'dartvault_lang';
+    let currentLang = localStorage.getItem(LANG_KEY) || 'fr';
+
+    function applyLang(lang) {
+      currentLang = lang;
+      localStorage.setItem(LANG_KEY, lang);
+      document.documentElement.lang = lang;
+      const T = TRANSLATIONS[lang];
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (T[key] !== undefined) el.textContent = T[key];
+      });
+      const flagBtn = document.getElementById('btn-lang');
+      if(flagBtn) flagBtn.textContent = lang === 'fr' ? '🇫🇷' : '🇬🇧';
+      const sgFlagBtn = document.getElementById('sg-btn-lang');
+      if(sgFlagBtn) sgFlagBtn.textContent = lang === 'fr' ? '🇫🇷' : '🇬🇧';
+      const privacyBtn = document.getElementById('btn-privacy');
+      if(privacyBtn) privacyBtn.textContent = T.privacy;
+      const contactBtn = document.getElementById('btn-contact');
+      if(contactBtn) contactBtn.textContent = T.contact;
+      const ctTitle = document.getElementById('contact-title-text');
+      if(ctTitle) ctTitle.textContent = T.contact_title;
+      const ctName = document.getElementById('contact-label-name');
+      if(ctName) ctName.textContent = T.contact_name;
+      const ctMsg = document.getElementById('contact-label-msg');
+      if(ctMsg) ctMsg.textContent = T.contact_msg;
+      const ctSend = document.getElementById('contact-send');
+      if(ctSend) ctSend.textContent = T.contact_send;
+      const spBtn = document.getElementById('btn-support-text');
+      if(spBtn) spBtn.textContent = T.support_btn.replace('☕ ','');
+      const spTitle = document.getElementById('support-title-text');
+      if(spTitle) spTitle.textContent = T.support_title;
+      const spDesc = document.getElementById('support-desc-text');
+      if(spDesc) spDesc.textContent = T.support_desc;
+    }
+
+    function cycleLang() {
+      applyLang(currentLang === 'fr' ? 'en' : 'fr');
+      vib(12);
+      playSound('tap');
+    }
+
+        // ── THÈME ──────────────────────────────────────────────────────────
+    const THEME_KEY = 'dartvault_theme';
+    const GAMES_COLORS = {}; // déjà dans data-color
+
+    function applyTheme(t) {
+      document.documentElement.setAttribute('data-theme', t);
+      localStorage.setItem(THEME_KEY, t);
+
+      // Pills actives
+      ['colored','dark','light'].forEach(id => {
+        document.getElementById('pill-' + id).classList.toggle('active', id === t);
+      });
+
+      // Cartes colorées
+      const cards = document.querySelectorAll('.game-card[data-color]');
+      cards.forEach(card => {
+        const col = card.dataset.color;
+        const glow = card.dataset.glow;
+        if (t === 'colored') {
+          const r = parseInt(col.slice(1,3),16);
+          const g = parseInt(col.slice(3,5),16);
+          const b = parseInt(col.slice(5,7),16);
+          card.style.background = `linear-gradient(145deg, rgba(${r},${g},${b},.18) 0%, rgba(${r},${g},${b},.06) 100%)`;
+          card.style.borderColor = `rgba(${r},${g},${b},.5)`;
+          card.style.boxShadow = `0 0 18px rgba(${r},${g},${b},.12)`;
+          card.querySelector('.game-name').style.color = col;
+          card.querySelector('.game-icon').style.filter = `drop-shadow(0 4px 12px ${glow})`;
+        } else {
+          card.style.background = '';
+          card.style.borderColor = '';
+          card.style.boxShadow = '';
+          card.querySelector('.game-name').style.color = '';
+          card.querySelector('.game-icon').style.filter = '';
+        }
+      });
+    }
+
+    // Init au chargement
+    const savedTheme = localStorage.getItem(THEME_KEY) || 'colored';
+    applyTheme(savedTheme);
+
+    // Listeners pills
+    ['colored','dark','light'].forEach(t => {
+      document.getElementById('pill-' + t).addEventListener('click', () => applyTheme(t));
+    });
+
+    // ── FILTRES ────────────────────────────────────────────────────────
+    const cards = document.querySelectorAll('.game-card');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const grid = document.querySelector('.games-grid');
+    let randomMode = false;
+
+    function applyFilter(f) {
+      randomMode = false;
+      grid.classList.remove('solo-mode');
+      cards.forEach(card => {
+        card.classList.remove('hidden', 'random-pick');
+        card.classList.toggle('hidden', f !== 'all' && card.dataset.cat !== f);
+      });
+    }
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        applyFilter(btn.dataset.filter);
+      });
+    });
+
+
+    // ── FAVORIS ────────────────────────────────────────────────────────
+    const FAV_KEY = 'dartvault_favorites';
+
+    function getFavs() {
+      try { return JSON.parse(localStorage.getItem(FAV_KEY)) || []; }
+      catch(e) { return []; }
+    }
+    function saveFavs(arr) {
+      localStorage.setItem(FAV_KEY, JSON.stringify(arr));
+    }
+
+    function toggleFav(e, key) {
+      e.preventDefault(); e.stopPropagation();
+      let favs = getFavs();
+      const idx = favs.indexOf(key);
+      if (idx === -1) favs.push(key);
+      else favs.splice(idx, 1);
+      saveFavs(favs);
+      renderFavBtns();
+      reorderCards();
+      vib(12);
+    }
+
+    function renderFavBtns() {
+      const favs = getFavs();
+      document.querySelectorAll('.fav-btn').forEach(btn => {
+        const k = btn.dataset.key;
+        const isFav = favs.includes(k);
+        btn.textContent = isFav ? '★' : '☆';
+        btn.classList.toggle('active', isFav);
+      });
+    }
+
+    // Mémoriser l'ordre original des cartes au chargement
+    const originalCardOrder = [...document.querySelector('.games-grid').querySelectorAll('.game-card')]
+      .map(c => c.dataset.key);
+
+    function reorderCards() {
+      const favs = getFavs();
+      const grid = document.querySelector('.games-grid');
+      const cardMap = {};
+      grid.querySelectorAll('.game-card').forEach(c => { cardMap[c.dataset.key] = c; });
+      // Favoris d'abord (dans l'ordre où ils ont été ajoutés), puis le reste dans l'ordre original
+      const favCards = favs.map(k => cardMap[k]).filter(Boolean);
+      const restCards = originalCardOrder.filter(k => !favs.includes(k)).map(k => cardMap[k]).filter(Boolean);
+      [...favCards, ...restCards].forEach(c => grid.appendChild(c));
+    }
+
+    // Init au chargement
+    renderFavBtns();
+    reorderCards();
+
+    // ── ALÉATOIRE ──────────────────────────────────────────────────────
+    document.getElementById('btn-random').addEventListener('click', () => {
+      const btn = document.getElementById('btn-random');
+      const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+      const eligible = [...cards].filter(c => activeFilter === 'all' || c.dataset.cat === activeFilter);
+      if (eligible.length === 0) return;
+      const pick = eligible[Math.floor(Math.random() * eligible.length)];
+      btn.classList.remove('rolling'); void btn.offsetWidth; btn.classList.add('rolling');
+      setTimeout(() => btn.classList.remove('rolling'), 400);
+      randomMode = true;
+      grid.classList.add('solo-mode');
+      cards.forEach(card => {
+        card.classList.remove('random-pick');
+        card.classList.toggle('hidden', card !== pick);
+      });
+      pick.classList.add('random-pick');
+    });
+
+    // ── RÈGLES ─────────────────────────────────────────────────────────
+    // ── RÈGLES ─────────────────────────────────────────────────────────
+    function showRules(e, key) {
+      e.preventDefault(); e.stopPropagation();
+      const lang = currentLang;
+      const T = TRANSLATIONS[lang];
+      const r = T.rules[key]; if (!r) return;
+
+      const pointsHTML = r.points.map(p =>
+        `<div class="rules-quick-point">
+          <div class="rqp-icon-wrap">${p.icon}</div>
+          <div class="rqp-text">
+            <div class="rqp-title">${p.title}</div>
+            <div class="rqp-desc">${p.desc}</div>
+          </div>
+        </div>`
+      ).join('');
+
+      const expandLbl = lang === 'fr' ? 'Règles complètes' : 'Full rules';
+      const catchLines = r.catch.split('\n').join('<br>');
+
+      document.getElementById('r-body').innerHTML = `
+        <div class="rules-quick-header">
+          <span class="rules-quick-emoji">${r.icon}</span>
+          <span class="rules-quick-title">${r.title}</span>
+          <span class="rules-quick-players">${r.players}</span>
+        </div>
+        <p class="rules-quick-catch">${catchLines}</p>
+        <div class="rules-quick-points">${pointsHTML}</div>
+        <button class="rules-expand-btn" id="btn-rules-expand-idx">
+          <span class="rules-expand-arrow">▶</span> ${expandLbl}
+        </button>
+        <div class="rules-full-content" id="rules-full-content-idx">
+          <div class="rules-full-inner">${r.full}</div>
+        </div>`;
+
+      document.getElementById('btn-rules-expand-idx').addEventListener('click', function() {
+        const full = document.getElementById('rules-full-content-idx');
+        const isOpen = full.classList.toggle('open');
+        this.classList.toggle('open', isOpen);
+      });
+
+      document.getElementById('m-rules').classList.add('open');
+    }
+    function closeRules(e) {
+      if (e.target === document.getElementById('m-rules'))
+        document.getElementById('m-rules').classList.remove('open');
+    }
+
+    // ── SETTINGS PANEL ────────────────────────────────────────────────
+    const btnSettings = document.getElementById('btn-settings');
+    const settingsPanel = document.getElementById('settings-panel');
+    btnSettings.addEventListener('click', e => {
+      e.stopPropagation();
+      settingsPanel.classList.toggle('open');
+    });
+    document.addEventListener('click', e => {
+      if (!settingsPanel.contains(e.target) && e.target !== btnSettings)
+        settingsPanel.classList.remove('open');
+    });
+
+    // ── VIBRATIONS ────────────────────────────────────────────────────
+    const vibToggle = document.getElementById('toggle-vibration');
+    const VIBRATION_KEY = 'dartvault_vibration';
+    vibToggle.checked = localStorage.getItem(VIBRATION_KEY) !== 'off';
+    vibToggle.addEventListener('change', () => {
+      localStorage.setItem(VIBRATION_KEY, vibToggle.checked ? 'on' : 'off');
+    });
+
+    function vib(pattern) {
+      if (localStorage.getItem(VIBRATION_KEY) !== 'off' && navigator.vibrate)
+        navigator.vibrate(pattern);
+    }
+
+    // ── SONS ──────────────────────────────────────────────────────────
+    const sndToggle = document.getElementById('toggle-sound');
+    const SOUND_KEY = 'dartvault_sound';
+    sndToggle.checked = localStorage.getItem(SOUND_KEY) !== 'off';
+    sndToggle.addEventListener('change', () => {
+      localStorage.setItem(SOUND_KEY, sndToggle.checked ? 'on' : 'off');
+    });
+
+    // Générateur de sons via Web Audio API
+    let _audioCtx = null;
+    function getAudioCtx() {
+      if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      return _audioCtx;
+    }
+
+    function playSound(type) {
+      if (localStorage.getItem(SOUND_KEY) === 'off') return;
+      try {
+        const ctx = getAudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        if (type === 'tap') {
+          // Clic léger : tick court et net
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.06);
+          gain.gain.setValueAtTime(0.18, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.07);
+          osc.start(ctx.currentTime);
+          osc.stop(ctx.currentTime + 0.07);
+        } else if (type === 'select') {
+          // Sélection filtre : clic plus rond
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(660, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(330, ctx.currentTime + 0.1);
+          gain.gain.setValueAtTime(0.15, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+          osc.start(ctx.currentTime);
+          osc.stop(ctx.currentTime + 0.1);
+        } else if (type === 'launch') {
+          // Lancement jeu : petit swoosh montant
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(440, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.12);
+          gain.gain.setValueAtTime(0.2, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+          osc.start(ctx.currentTime);
+          osc.stop(ctx.currentTime + 0.15);
+        } else if (type === 'random') {
+          // Aléatoire : deux notes rapides
+          const osc2 = ctx.createOscillator();
+          const gain2 = ctx.createGain();
+          osc2.connect(gain2);
+          gain2.connect(ctx.destination);
+          osc.type = 'sine';
+          osc.frequency.value = 660;
+          gain.gain.setValueAtTime(0.15, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+          osc.start(ctx.currentTime);
+          osc.stop(ctx.currentTime + 0.08);
+          osc2.type = 'sine';
+          osc2.frequency.value = 880;
+          gain2.gain.setValueAtTime(0.0, ctx.currentTime + 0.06);
+          gain2.gain.setValueAtTime(0.18, ctx.currentTime + 0.08);
+          gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+          osc2.start(ctx.currentTime + 0.06);
+          osc2.stop(ctx.currentTime + 0.18);
+        }
+      } catch(e) {}
+    }
+
+    // ── FEEDBACK sur tous les boutons du Hub ──────────────────────────
+
+    // Cartes jeux → vibration courte + son launch
+    cards.forEach(card => {
+      card.addEventListener('click', e => {
+        if (e.target.classList.contains('info-btn')) return; // bouton info géré séparément
+        vib(25);
+        playSound('launch');
+      });
+    });
+
+    // Filtres (Tout / Classique / Fun)
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        vib(15);
+        playSound('select');
+      });
+    });
+
+    // Bouton Aléatoire
+    document.getElementById('btn-random').addEventListener('click', () => {
+      vib([20, 40, 20]);
+      playSound('random');
+    });
+
+    // Bouton info (i) sur les cartes
+    document.querySelectorAll('.info-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        vib(12);
+        playSound('tap');
+      });
+    });
+
+    // Pills thème
+    document.querySelectorAll('.theme-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        vib(12);
+        playSound('tap');
+      });
+    });
+
+    // Toggles settings
+    document.querySelectorAll('.toggle-switch input').forEach(toggle => {
+      toggle.addEventListener('change', () => {
+        vib(10);
+        playSound('tap');
+      });
+    });
+
+    // Initialiser la langue (doit être après vib et playSound)
+    // applyLang appelé en fin de script
+
+    // ── PWA INSTALL ───────────────────────────────────────────────────
+    let deferredPrompt = null;
+    const btnHeader   = document.getElementById('btn-install-header-top');
+    const isStandalone = () =>
+      window.matchMedia('(display-mode: standalone)').matches ||
+      window.navigator.standalone === true;
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+
+    function showInstallUI() {
+      if (isStandalone()) return;
+      btnHeader.classList.add('visible');
+    }
+
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      deferredPrompt = e;
+      showInstallUI();
+    });
+
+    btnHeader.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        if (outcome === 'accepted') btnHeader.classList.remove('visible');
+      } else if (isIOS) {
+        alert('Pour installer DartVault :\n\n1. Appuie sur le bouton Partager ⬆️\n2. Sélectionne "Sur l\'écran d\'accueil"\n3. Appuie sur "Ajouter"');
+      }
+    });
+
+    // iOS : bouton visible d'emblée
+    if (isIOS && !isStandalone()) showInstallUI();
+
+    // ── INIT LANGUE ────────────────────────────────────────────────────
+    applyLang(currentLang);
+
+    // ── WELCOME POPUP ─────────────────────────────────────────────────
+    (function() {
+      const overlay = document.getElementById('welcome-overlay');
+      const okBtn   = document.getElementById('welcome-ok');
+      const cb      = document.getElementById('welcome-dismiss-cb');
+      // Ne plus jamais afficher si coché
+      if (localStorage.getItem('dartvault_welcome_dismissed') === '1') return;
+      // Afficher une seule fois par session (pas à chaque retour au menu)
+      if (sessionStorage.getItem('dartvault_welcome_shown') === '1') return;
+      sessionStorage.setItem('dartvault_welcome_shown', '1');
+      overlay.classList.add('open');
+      okBtn.addEventListener('click', function() {
+        if (cb.checked) localStorage.setItem('dartvault_welcome_dismissed', '1');
+        overlay.classList.remove('open');
+        if (typeof vib === 'function') vib(12);
+        if (typeof playSound === 'function') playSound('tap');
+      });
+    })();
+
+    // ── SERVICE WORKER ────────────────────────────────────────────────
+    if ('serviceWorker' in navigator && !location.hostname.includes('claudeusercontent')) {
+      // Désinstaller tous les anciens SW puis réenregistrer
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        const old = regs.filter(r => !r.active || !r.active.scriptURL.includes('sw.js'));
+        return Promise.all(old.map(r => r.unregister()));
+      }).then(() => {
+        return navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' });
+      }).then(reg => {
+        // Forcer la vérification de mise à jour immédiate
+        reg.update();
+        // Si un nouveau SW attend, l'activer immédiatement
+        reg.addEventListener('updatefound', () => {
+          const newSW = reg.installing;
+          if (!newSW) return;
+          newSW.addEventListener('statechange', () => {
+            if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+              // Nouveau SW prêt — recharger la page pour l'utiliser
+              navigator.serviceWorker.addEventListener('controllerchange', () => {
+                window.location.reload();
+              });
+              newSW.postMessage({ type: 'SKIP_WAITING' });
+            }
+          });
+        });
+      }).catch(() => {});
+    }
+  </script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+(function(){
+  emailjs.init('I8QVUAndwC9GzgQ2C');
+  const btn = document.getElementById('contact-send');
+  const status = document.getElementById('contact-status');
+  btn.addEventListener('click', function() {
+    const msg = document.getElementById('contact-message').value.trim();
+    const lang = localStorage.getItem('dartvault_lang') || 'fr';
+    const T = lang === 'fr' ? {sending:'Envoi en cours...',ok:'✅ Message envoyé !',err:'❌ Erreur, réessayez.',empty:'Veuillez écrire un message.'} : {sending:'Sending...',ok:'✅ Message sent!',err:'❌ Error, try again.',empty:'Please write a message.'};
+    if (!msg) { status.textContent = T.empty; status.style.color = 'var(--warn)'; return; }
+    btn.disabled = true;
+    status.textContent = T.sending;
+    status.style.color = 'var(--dim)';
+    emailjs.send('service_s9c5fgn', 'template_ghhj6hg', {
+      name: document.getElementById('contact-name').value.trim() || 'Anonyme',
+      time: new Date().toLocaleString(),
+      message: msg
+    }).then(function() {
+      status.textContent = T.ok;
+      status.style.color = 'var(--ok)';
+      document.getElementById('contact-message').value = '';
+      document.getElementById('contact-name').value = '';
+      btn.disabled = false;
+      setTimeout(() => { document.getElementById('contact-modal').classList.remove('open'); status.textContent = ''; }, 2000);
+    }, function() {
+      status.textContent = T.err;
+      status.style.color = 'var(--danger)';
+      btn.disabled = false;
+    });
+  });
+})();
+
+// ═══════════════════════════════════════════════════════
+// AUTODARTS CONFIG (Hub)
+// ═══════════════════════════════════════════════════════
+(function() {
+  const AD_IP_KEY = 'dartvault_autodarts_ip';
+  const AD_ENABLED_KEY = 'dartvault_autodarts_enabled';
+  const DEFAULT_IP = '192.168.1.37';
+
+  const toggle = document.getElementById('toggle-autodarts');
+  const configArea = document.getElementById('ad-config-area');
+  const ipInput = document.getElementById('ad-ip-input');
+  const testBtn = document.getElementById('ad-test-btn');
+  const testResult = document.getElementById('ad-test-result');
+  const indicator = document.getElementById('ad-status-indicator');
+  const infoBtn = document.getElementById('ad-info-btn');
+
+  // Restore state
+  ipInput.value = localStorage.getItem(AD_IP_KEY) || DEFAULT_IP;
+  if (localStorage.getItem(AD_ENABLED_KEY) === '1') {
+    toggle.checked = true;
+    configArea.style.display = '';
+  }
+
+  toggle.addEventListener('change', function() {
+    configArea.style.display = this.checked ? '' : 'none';
+    localStorage.setItem(AD_ENABLED_KEY, this.checked ? '1' : '0');
+    if (this.checked) {
+      var ip = ipInput.value.trim() || DEFAULT_IP;
+      localStorage.setItem(AD_IP_KEY, ip);
+      ipInput.value = ip;
+      autoTest();
+    } else {
+      indicator.style.background = '#606468';
+      indicator.style.boxShadow = 'none';
+      testResult.textContent = '';
+    }
+  });
+
+  ipInput.addEventListener('change', function() {
+    var ip = this.value.trim();
+    if (ip) localStorage.setItem(AD_IP_KEY, ip);
+  });
+
+  function autoTest() {
+    var ip = ipInput.value.trim() || DEFAULT_IP;
+    localStorage.setItem(AD_IP_KEY, ip);
+    testResult.textContent = '⏳';
+    testResult.style.color = 'var(--dim)';
+    indicator.style.background = '#FF9F43';
+    indicator.style.boxShadow = '0 0 8px rgba(255,159,67,.5)';
+
+    var proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    var port = window.location.protocol === 'https:' ? 3181 : 3180;
+    var url = proto + '://' + ip + ':' + port + '/api/events';
+    var ws;
+    var timeout;
+
+    try { ws = new WebSocket(url); } catch(e) {
+      fail();
+      return;
+    }
+
+    timeout = setTimeout(function() {
+      try { ws.close(); } catch(e) {}
+      fail();
+    }, 4000);
+
+    ws.onopen = function() {
+      clearTimeout(timeout);
+      indicator.style.background = '#28C76F';
+      indicator.style.boxShadow = '0 0 8px rgba(40,199,111,.6)';
+      testResult.innerHTML = '✅ <span id="ad-test-ok">' + (getLang() === 'fr' ? 'Connecté' : getLang() === 'es' ? 'Conectado' : 'Connected') + '</span>';
+      testResult.style.color = 'var(--ok)';
+      setTimeout(function() { try { ws.close(); } catch(e) {} }, 500);
+    };
+
+    ws.onerror = function() {
+      clearTimeout(timeout);
+      fail();
+    };
+
+    function fail() {
+      indicator.style.background = '#DC3545';
+      indicator.style.boxShadow = '0 0 6px rgba(220,53,69,.4)';
+      var isFR = getLang() === 'fr';
+      var isES = getLang() === 'es';
+      testResult.innerHTML = '❌ <span id="ad-test-fail">' + (isFR ? 'Échec — vérifiez l\'IP et le certificat HTTPS' : isES ? 'Fallo — verifique la IP y el certificado HTTPS' : 'Failed — check IP and HTTPS certificate') + '</span>';
+      testResult.style.color = 'var(--danger)';
+    }
+  }
+
+  testBtn.addEventListener('click', autoTest);
+
+  // Info modal
+  infoBtn.addEventListener('click', function() {
+    document.getElementById('ad-info-modal').classList.add('open');
+  });
+
+  function getLang() {
+    return localStorage.getItem('dartvault_lang') || 'fr';
+  }
+
+  // Update Autodarts info modal on language change
+  function updateAdTexts() {
+    var lang = getLang();
+    // Use the parent scope TRANSLATIONS if available
+    if (typeof TRANSLATIONS === 'undefined') return;
+    var T = TRANSLATIONS[lang] || TRANSLATIONS['fr'];
+    if (!T) return;
+    // Settings panel
+    var el;
+    el = document.getElementById('ad-label-connect'); if (el && T.ad_connect) el.textContent = T.ad_connect;
+    el = document.getElementById('ad-test-btn'); if (el && T.ad_test) el.textContent = T.ad_test;
+    el = document.getElementById('ad-info-text'); if (el && T.ad_info_text) el.textContent = T.ad_info_text;
+    // Modal content
+    el = document.getElementById('ad-info-p1'); if (el && T.ad_p1) el.innerHTML = T.ad_p1;
+    el = document.getElementById('ad-info-h1'); if (el && T.ad_h1) el.textContent = T.ad_h1;
+    el = document.getElementById('ad-info-p2'); if (el && T.ad_p2) el.innerHTML = T.ad_p2;
+    el = document.getElementById('ad-info-h2'); if (el && T.ad_h2) el.textContent = T.ad_h2;
+    el = document.getElementById('ad-info-p3'); if (el && T.ad_p3) el.innerHTML = T.ad_p3;
+    el = document.getElementById('ad-info-p4'); if (el && T.ad_p4) el.innerHTML = T.ad_p4;
+    el = document.getElementById('ad-info-p5'); if (el && T.ad_p5) el.innerHTML = T.ad_p5;
+    el = document.getElementById('ad-info-p6'); if (el && T.ad_p6) el.innerHTML = T.ad_p6;
+    el = document.getElementById('ad-info-p7'); if (el && T.ad_p7) el.innerHTML = T.ad_p7;
+    el = document.getElementById('ad-info-h3'); if (el && T.ad_h3) el.textContent = T.ad_h3;
+    el = document.getElementById('ad-info-p8'); if (el && T.ad_p8) el.innerHTML = T.ad_p8;
+    el = document.getElementById('ad-info-p9'); if (el && T.ad_p9) el.innerHTML = T.ad_p9;
+  }
+
+  // Observe language changes
+  var _adLangObs = new MutationObserver(function() { updateAdTexts(); });
+  var _adLangBtn = document.getElementById('sg-btn-lang');
+  if (_adLangBtn) _adLangObs.observe(_adLangBtn, { childList: true, characterData: true, subtree: true });
+  updateAdTexts();
+})();
+</script>
+<script src="https://www.paypal.com/sdk/js?client-id=BAAAohnqJWwyyCIhTs3FjsSGbd45HTMn_kneUgGvApRWa2BpsLKLJkbcmO-J69HKTx3TK49Ze5i6vVyu7U&components=hosted-buttons&disable-funding=venmo&currency=EUR"></script>
+<script>
+  // Charger le bouton PayPal uniquement quand le modal s'ouvre
+  (function() {
+    var loaded = false;
+    var observer = new MutationObserver(function() {
+      var modal = document.getElementById('support-modal');
+      if (modal && modal.classList.contains('open') && !loaded) {
+        loaded = true;
+        if (window.paypal && paypal.HostedButtons) {
+          paypal.HostedButtons({ hostedButtonId: 'K34UTC75D75NW' }).render('#paypal-container-K34UTC75D75NW');
+        }
+      }
+    });
+    var modal = document.getElementById('support-modal');
+    if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
+  })();
+</script>
+</body>
+</html>
