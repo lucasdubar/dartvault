@@ -1758,7 +1758,7 @@
       document.querySelectorAll('[data-i18n-html]').forEach(function (el) {
         var key = el.dataset.i18nHtml;
         var val = window.DV_LANG.t(key);
-        if (val !== undefined) el.innerHTML = val;
+        if (val !== undefined) el.textContent = val;
       });
       // Placeholder inputs
       document.querySelectorAll('[data-i18n-ph]').forEach(function (el) {

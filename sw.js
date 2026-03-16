@@ -29,6 +29,8 @@ const PRECACHE = [
   '/classement.html',
   '/privacy.html',
   '/theme.css',
+  '/shared.css',
+  '/shared-utils.js',
   '/lang.js',
   '/manifest.json',
   '/icons/favicon.ico',

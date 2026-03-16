@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
   <link rel="stylesheet" href="/fonts/fonts.css">
+  <link rel="stylesheet" href="shared.css">
 <script>
 (function(){
   var t=localStorage.getItem('dartvault_theme')||'dark';
@@ -172,13 +173,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
 .history-list { overflow-y:auto; flex:1; }
 .history-entry { padding:6px 8px; border-radius:7px; margin-bottom:4px; font-size:.85rem; font-weight:500; background:rgba(255,34,51,.03); border-left:3px solid; }
 
-/* Modals */
-.modal-ov { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,.88); backdrop-filter:blur(6px); z-index:1000; align-items:center; justify-content:center; padding:20px; }
-.modal-ov.open { display:flex; }
-.modal { background:var(--bg2); border:1px solid rgba(255,255,255,.1); border-radius:16px; padding:24px; max-width:400px; width:100%; max-height:80dvh; overflow-y:auto; animation:popIn .3s cubic-bezier(.34,1.56,.64,1); }
-@keyframes popIn{from{opacity:0;transform:scale(.75)}to{opacity:1;transform:none}}
-.modal-title { font-family:'Rajdhani',sans-serif; font-size:1.5rem; font-weight:700; color:var(--accent); margin-bottom:16px; text-align:center; letter-spacing:1px; }
-.modal-sub { font-family:'Exo 2',sans-serif; font-size:0.9rem; color:var(--text); opacity:.75; margin-bottom:24px; white-space:pre-line; }
+/* Modals — base styles now in shared.css */
 .rank-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;margin-bottom:6px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-left:3px solid;}
 .rank-medal{font-size:1.3rem;width:28px;flex-shrink:0;}
 .rank-name{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;flex:1;margin-left:6px;}
@@ -186,16 +181,10 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
 .rank-legs{font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:900;}
 .rank-avg{font-size:.7rem;color:var(--dim);}
 .rank-status{font-size:.75rem;color:var(--dim);}
-.modal-btns { display:flex; flex-direction:column; gap:10px; }
-.btn-modal { width:100%; padding:12px; border-radius:10px; font-family:'Rajdhani',sans-serif; font-size:1.05rem; font-weight:700; cursor:pointer; letter-spacing:.5px; transition:all 0.2s; border:1.5px solid; }
 .btn-choice { width:100%; padding:14px; border-radius:10px; font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; cursor:pointer; letter-spacing:.5px; transition:all 0.2s; border:1.5px solid rgba(255,34,51,.4); margin-top:8px; background:rgba(255,34,51,.08); color:var(--accent); }
 .btn-choice:active { background:rgba(255,34,51,.25); transform:scale(0.98); box-shadow:0 0 12px rgba(255,34,51,.4); }
-.btn-gold { background:var(--accent); color:#000; }
-.btn-gold:active { transform:scale(0.96); }
 .btn-back { background:var(--bg3); color:var(--text); border:1px solid rgba(255,255,255,.08); }
 .btn-back:active { transform:scale(0.96); }
-.btn-gray { background:var(--bg3); color:var(--text); border:1px solid rgba(255,255,255,.08); }
-.btn-gray:active { transform:scale(0.96); }
 .hidden { display:none !important; }
 /* ══════════════════════════════════════════════
    GLOWS HARMONISÉS — palette 501
@@ -3265,22 +3254,7 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     window.addEventListener('DOMContentLoaded', initLang);
   </script>
 
-<script>
-(function(){
-  function fixViewport(){
-    // Force recalc : on Android le navigateur peut garder une ancienne hauteur
-    document.documentElement.style.setProperty('--real-vh', window.innerHeight + 'px');
-    document.body.style.height = window.innerHeight + 'px';
-    document.body.style.maxHeight = window.innerHeight + 'px';
-  }
-  fixViewport();
-  window.addEventListener('resize', fixViewport);
-  screen.orientation && screen.orientation.addEventListener('change', function(){
-    setTimeout(fixViewport, 100);
-    setTimeout(fixViewport, 300);
-  });
-})();
-</script>
+<script src="shared-utils.js"></script>
 <!-- Settings Panel in-game -->
 <div class="settings-panel-game" id="sg-panel">
   <div class="sg-section-label" data-i18n="theme">Thème</div>
