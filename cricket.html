@@ -139,24 +139,23 @@ body {
 .num-row.closed-all .num-label { color: #444; }
 @media (orientation:portrait) {
   .num-label { display: none !important; }
-  .mark-symbol { font-size: clamp(1.4rem, 7vw, 2.8rem) !important; }
-  .mark-symbol.done { font-size: clamp(1.4rem, 7vw, 2.8rem) !important; }
-  .hit-btns { align-self: stretch; }
-  .btn-hit { flex: 1; display: flex; align-items: center; justify-content: center; padding: 0 6px; }
+  .mark-symbol { width: clamp(22px, 8vw, 48px) !important; height: clamp(22px, 8vw, 48px) !important; }
+  .hit-btns { flex-shrink: 0; align-self: stretch; align-items: stretch; }
+  .btn-hit { align-self: stretch; display: flex; align-items: center; justify-content: center; padding: 3px 8px; }
 }
 
 .marks-area { display: flex; flex: 1; gap: 2px; justify-content: center; align-items: stretch; align-self: stretch; }
-.player-mark-cell { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; min-width: 0; border-radius: 4px; padding: 0 2px; }
+.player-mark-cell { flex: 1; display: flex; align-items: center; justify-content: center; min-width: 0; border-radius: 4px; padding: 0; }
 .player-mark-cell.col-even { background: rgba(255,255,255,.04); }
 .player-mark-cell.col-odd  { background: rgba(255,255,255,.09); }
 .mark-symbol {
-  font-family: 'Rajdhani', sans-serif; font-size: clamp(1rem, 4vmin, 2.2rem); font-weight: 700;
-  line-height: 1; flex: 1; transition: all 0.2s;
   display: flex; align-items: center; justify-content: center;
-  min-height: 0; overflow: hidden;
+  width: clamp(18px, 5vmin, 40px); height: clamp(18px, 5vmin, 40px);
+  transition: all 0.2s;
 }
-.mark-symbol.open { text-shadow: 0 0 8px currentColor; }
-.mark-symbol.done { font-size: clamp(1rem, 4vmin, 2.2rem); text-shadow: 0 0 12px currentColor, 0 0 24px currentColor; opacity: 1; line-height: 1; }
+.mark-symbol svg { width: 100%; height: 100%; }
+.mark-symbol.open svg { filter: drop-shadow(0 0 4px currentColor); }
+.mark-symbol.done svg { filter: drop-shadow(0 0 2px currentColor); }
 .player-name-mini {
   font-family: 'Rajdhani', sans-serif; font-size: 0.65rem; font-weight: 600;
   opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
@@ -899,10 +898,8 @@ body {
   .player-mark-cell{padding:0 4px;gap:0;}
   .num-label{font-size:1.5rem;min-width:58px;}
 
-  /* Marques : centrées, contenues dans la cellule */
-  .player-mark-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;}
-  .mark-symbol{font-size:clamp(1.2rem, 4vmin, 3rem)!important;min-height:0;}
-  .mark-symbol.done{font-size:clamp(1.2rem, 4vmin, 3rem)!important;}
+  /* Marques : taille tablette */
+  .mark-symbol{width:clamp(28px, 5vmin, 52px)!important;height:clamp(28px, 5vmin, 52px)!important;}
 
   /* Noms + scores dans l'en-tête (override inline styles JS) */
   .num-row:first-child .player-mark-cell > div:first-child{font-size:1.2rem!important;}
@@ -1054,8 +1051,8 @@ body {
 [data-theme="light"] .dart-slot:not(.active){box-shadow:none!important;}
 [data-theme="dark"] .sh-card.current{box-shadow:0 0 16px rgba(232,232,232,.1)!important;}
 [data-theme="light"] .sh-card.current{box-shadow:0 0 8px rgba(22,23,24,.08)!important;}
-[data-theme="dark"] .mark-symbol.done{text-shadow:0 0 8px currentColor,0 0 16px currentColor!important;}
-[data-theme="light"] .mark-symbol.done{text-shadow:0 0 8px currentColor,0 0 16px currentColor!important;}
+[data-theme="dark"] .mark-symbol.done svg{filter:drop-shadow(0 0 2px currentColor)!important;}
+[data-theme="light"] .mark-symbol.done svg{filter:drop-shadow(0 0 2px currentColor)!important;}
 </style>
   <script src="lang.js"></script>
 </head>
@@ -1887,7 +1884,12 @@ function showEnd(winnerIdx) {
 // ════════════════════════════════════════════════
 // RENDU
 // ════════════════════════════════════════════════
-function markSym(m) { return m <= 0 ? '' : m === 1 ? '/' : m === 2 ? 'X' : '⊗'; }
+function markSvg(m) {
+  if (m <= 0) return '';
+  if (m === 1) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="6" y1="18" x2="18" y2="6"/></svg>';
+  if (m === 2) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>';
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>';
+}
 
 function legAbbr() {
   var v = DV_LANG.t('ckt_leg_abbr');
@@ -2105,7 +2107,7 @@ function renderGrid() {
         const sym = document.createElement('div');
         sym.className = 'mark-symbol ' + (mk >= 3 ? 'done' : mk > 0 ? 'open' : '');
         sym.style.color = p.color;
-        sym.textContent = markSym(mk);
+        sym.innerHTML = markSvg(mk);
         cell.appendChild(sym);
         return cell;
       };
@@ -2123,7 +2125,7 @@ function renderGrid() {
         const sym = document.createElement('div');
         sym.className = 'mark-symbol ' + (mk >= 3 ? 'done' : mk > 0 ? 'open' : '');
         sym.style.color = p.color;
-        sym.textContent = markSym(mk);
+        sym.innerHTML = markSvg(mk);
         cell.appendChild(sym);
         return cell;
       };
