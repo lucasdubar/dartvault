@@ -1253,11 +1253,11 @@ function wiggleValBtn(){const btn=document.getElementById('btn-val');if(!btn)ret
 function feedbackUndo()    { haptic('light');   playTick(330, 0.06, 0.12); }
 function feedbackValidate(){ haptic('success'); playTick(660, 0.08, 0.18); setTimeout(()=>playTick(880,0.06,0.12),80); }
 // ── Sons canvas DartsPong ────────────────────────────────────────
-// Zone éliminée — impact sec + bref éclat
+// Zone éliminée — pop satisfaisant
 function feedbackHit() {
-  haptic('impact');
-  _playNote(180, 0,    0.08, 0.20, 'sawtooth');
-  _playNote(90,  0.04, 0.10, 0.18, 'sine');
+  haptic('success');
+  _playNote(580, 0,    0.06, 0.16, 'sine');
+  _playNote(780, 0.06, 0.08, 0.14, 'sine');
 }
 // Hors jeu (OUT) — même son que feedbackBust
 function feedbackMiss() { feedbackBust(); }
@@ -1531,7 +1531,8 @@ function startGame() {
   const il = document.getElementById('hist-inline-list');
   if(il) il.innerHTML = '';
   G.playerStats = {};
-  G.players.forEach(p => G.playerStats[p.name] = 0);
+  G.playerDarts = {};
+  G.players.forEach(p => { G.playerStats[p.name] = 0; G.playerDarts[p.name] = 0; });
   G.gameStarted = true;
   G.requireValidate = document.getElementById('chk-validate') ? document.getElementById('chk-validate').checked : false;
 
@@ -2026,7 +2027,7 @@ function confirmZoneHit(idx) {
   G.turnDarts.push({ label: slotLabel, type: 'hit' });
   feedbackHit();
   addHist(`${em} ${cur.name} élimine ${tl[sector.type]} ${sector.number}`, col);
-  if(sectors.length===0){ victory(G.currentIdx); return; }
+  if(sectors.length===0){ G.playerDarts[cur.name]++; victory(G.currentIdx); return; }
   if(G.streak===3){
     feedbackPoint();
     const spEl1 = document.getElementById('streak-player');
@@ -2035,7 +2036,7 @@ function confirmZoneHit(idx) {
     openModal('streak-modal');
     return;
   }
-  G.dartsThrown++;
+  G.playerDarts[cur.name]++; G.dartsThrown++;
   updateDisplay();
   autoNextIfNeeded();
 }
@@ -2063,7 +2064,7 @@ function onBull() {
       showShotToastDp(DV_LANG.t('dp_bull_used'), '#6B7299');
       saveState();
       G.turnDarts.push({ label: '✗', type: 'out' });
-      G.dartsThrown++;
+      G.playerDarts[cur.name]++; G.dartsThrown++;
       updateDisplay();
       autoNextIfNeeded();
     } else {
@@ -2093,7 +2094,7 @@ document.getElementById('bull-oui').addEventListener('click',()=>{
     showShotToastDp(DV_LANG.t('dp_bull_used'), '#6B7299');
     saveState();
     G.turnDarts.push({ label: '✗', type: 'out' });
-    G.dartsThrown++;
+    G.playerDarts[cur.name]++; G.dartsThrown++;
     updateDisplay();
     autoNextIfNeeded();
     return;
@@ -2115,10 +2116,10 @@ document.getElementById('bull-oui').addEventListener('click',()=>{
       addHist((cur.fromProfile?'':cur.emoji+' ')+`${cur.name} ${DV_LANG.t('dp_hist_bull_sacr').replace('{n}',s.number).replace('{type}',s.type)}`, cur.color);
     });
   }
-  if(sectors.length===0){ victory(G.currentIdx); return; }
+  if(sectors.length===0){ G.playerDarts[cur.name]++; victory(G.currentIdx); return; }
   G.streak++;
   G.turnDarts.push({ label: '🎯BULL', type: 'bull' });
-  G.dartsThrown++;
+  G.playerDarts[cur.name]++; G.dartsThrown++;
   if(G.streak===3){
     const spEl2 = document.getElementById('streak-player');
     if(spEl2){ spEl2.textContent = `${cur.emoji} ${cur.name}`; spEl2.style.color = cur.color||'var(--accent)'; }
@@ -2145,7 +2146,7 @@ document.getElementById('bull-non').addEventListener('click',()=>{
   const cur=G.players[G.currentIdx];
   G.bullUsed.add(G.currentTeam); // Marquer comme utilisé (même si raté)
   G.turnDarts.push({ label: '✗', type: 'out' });
-  G.dartsThrown++; G.streak=0;
+  G.playerDarts[cur.name]++; G.dartsThrown++; G.streak=0;
   addHist(`${cur.emoji} ${cur.name} ${DV_LANG.t('dp_bull_missed')}`,'#6B7299');
   updateDisplay();
   autoNextIfNeeded();
@@ -2187,7 +2188,7 @@ function onOut(sectorLabel) {
         showShotToastDp('🎭 Gage accepté', '#FF9F43');
         addHist(`${cur.emoji} ${cur.name} ${DV_LANG.t('dp_hist_gage')}`,'#FF9F43');
         G.turnDarts.push({ label: 'GAGE', type: 'gage' });
-        G.streak=0; G.dartsThrown++;
+        G.streak=0; G.playerDarts[cur.name]++; G.dartsThrown++;
         updateDisplay();
         autoNextIfNeeded();
       },
@@ -2198,7 +2199,7 @@ function onOut(sectorLabel) {
         addHist(`${cur.emoji} ${cur.name} → OUT (${DV_LANG.t('dp_dart_lost')} ⏭️)`,'#6B7299');
         G.turnDarts.push({ label: slotLabel, type: 'out' });
         G.turnDarts.push({ label: '⏭️', type: 'out' });
-        G.streak=0; G.dartsThrown += 2; // consomme 2 fléchettes
+        G.streak=0; G.playerDarts[cur.name]+=2; G.dartsThrown += 2; // consomme 2 fléchettes
         updateDisplay();
         autoNextIfNeeded();
       }
@@ -2211,7 +2212,7 @@ function onOut(sectorLabel) {
   showShotToastDp('❌ OUT', '#DC3545');
   addHist(`${cur.emoji} ${cur.name} → OUT`,'#6B7299');
   G.turnDarts.push({ label: slotLabel, type: 'out' });
-  G.streak=0; G.dartsThrown++;
+  G.streak=0; G.playerDarts[cur.name]++; G.dartsThrown++;
   updateDisplay();
   autoNextIfNeeded();
 }
@@ -2267,7 +2268,7 @@ function victory(winnerIdxOrTeam) {
       sC: last.sC.map(s=>({...s})),
       playerSectors: last.playerSectors ? last.playerSectors.map(arr=>arr.map(x=>({...x}))) : null,
       bull: new Set(last.bull),
-      stats: {...last.stats},
+      stats: {...last.stats}, pDarts: last.pDarts ? {...last.pDarts} : {...G.playerDarts},
       actionHistory: G.actionHistory.slice(0,-1).map(s => ({
         ...s,
         sA: s.sA ? s.sA.map(x=>({...x})) : [],
@@ -2342,7 +2343,34 @@ function victory(winnerIdxOrTeam) {
     }
   }
   _recordWins(G._finalWinnerNames);
+
+  // ── Cumulative game stats ──
+  (function() {
+    var STATS_KEY = 'dartvault_game_stats';
+    var gstats; try { gstats = JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch(e) { gstats = {}; }
+    G.players.forEach(function(p) {
+      if (!p.fromProfile && !profilePlayers.has(p.name)) return;
+      var key = p.name;
+      if (!gstats[key]) gstats[key] = {};
+      if (!gstats[key]['dartspong']) gstats[key]['dartspong'] = { zonesEliminated:0, totalDarts:0, games:0 };
+      var s = gstats[key]['dartspong'];
+      s.zonesEliminated += (G.playerStats[p.name] || 0);
+      s.totalDarts += (G.playerDarts[p.name] || 0);
+      s.games++;
+    });
+    localStorage.setItem(STATS_KEY, JSON.stringify(gstats));
+  })();
+
   showEnd(`🏆 VICTOIRE !`, rankingHtml, winnerCol);
+  // TTS victoire
+  if (G.gameMode === 'duel') {
+    speak(winnerName + ' ' + (DV_LANG.get()==='en'?'wins the game':'remporte la partie'), 1200);
+  } else {
+    var _teamId = winnerIdxOrTeam;
+    var _teamLabel = DV_LANG.get()==='en' ? (_teamId==='A'?'Blue team':'Yellow team') : (_teamId==='A'?'Équipe bleue':'Équipe jaune');
+    var _members = (_teamId==='A'?G.teamA:_teamId==='B'?G.teamB:G.teamC)||[];
+    speak(_teamLabel + ' ' + (DV_LANG.get()==='en'?'wins the game':'remporte la partie') + ', ' + _members.join(' ' + (DV_LANG.get()==='en'?'and':'et') + ' '), 1200);
+  }
 }
 
 // ── UNDO ─────────────────────────────────────────────
@@ -2354,7 +2382,7 @@ function saveState() {
     sC:[...G.sectorsC.map(s=>({...s}))],
     playerSectors: G.gameMode==='duel' ? G.players.map(p=>p.sectors.map(s=>({...s}))) : null,
     bull:new Set(G.bullUsed),
-    stats:{...G.playerStats},
+    stats:{...G.playerStats}, pDarts:{...G.playerDarts},
     turnDarts:[...(G.turnDarts||[])],
     histLen: G.history.length, // Mémoriser le nombre d'entrées avant l'action
   });
@@ -2370,7 +2398,7 @@ document.getElementById('btn-undo').addEventListener('click',()=>{
   if(G.gameMode==='duel' && s.playerSectors) {
     G.players.forEach((p,i) => { if(s.playerSectors[i]) p.sectors = s.playerSectors[i]; });
   }
-  G.playerStats=s.stats;
+  G.playerStats=s.stats; if(s.pDarts) G.playerDarts=s.pDarts;
   // Retirer exactement les entrées ajoutées par cette action (bull en retire 2, autres 1)
   const toRemove = G.history.length - (s.histLen !== undefined ? s.histLen : G.history.length - 1);
   if(toRemove > 0) G.history.splice(0, toRemove);
@@ -2457,7 +2485,7 @@ document.getElementById('btn-end-close').addEventListener('click',()=>{
     if(G.gameMode==='duel' && s.playerSectors) {
       G.players.forEach((p,i) => { if(s.playerSectors[i]) p.sectors = s.playerSectors[i]; });
     }
-    G.bullUsed=s.bull; G.playerStats=s.stats;
+    G.bullUsed=s.bull; G.playerStats=s.stats; if(s.pDarts) G.playerDarts=s.pDarts;
     G.actionHistory=s.actionHistory;
     G.history=s.history;
     // Refresh hist inline
@@ -2574,17 +2602,17 @@ document.getElementById('zones-legend-modal').addEventListener('click',e=>{if(e.
 const _RULES_DATA = {
   fr: {
     icon: '🔴', title: 'DartPong',
-    catch: 'Comme au beerpong — vise les zones adverses.\nSi tu te sens, annonce le Bull !',
+    catch: 'Comme au beerpong — élimine les zones 1 par 1.\nSi tu te sens, annonce le Bull !',
     points: [
-      { icon: '🔴', title: 'Chaque équipe a ses zones', desc: 'Défendez les vôtres, visez celles de l\'adversaire — chaque touche élimine une zone.' },
+      { icon: '🔴', title: 'Éliminez chaque zone', desc: 'Éliminez chaque zone visible — chaque touche élimine une zone.' },
       { icon: '📢', title: 'Le coup du Bull', desc: 'Annoncez-le AVANT de tirer — réussi, il élimine 2 zones ennemies d\'un coup !' },
       { icon: '⚡', title: 'Streak x3', desc: 'Éliminez 3 zones d\'affilée = jouez un tour bonus complet !' }
     ],
     full: `<div class="rules-section">
               <div class="rules-section-title">🎲 Déroulement</div>
               <div class="rules-row"><span class="rules-arrow">→</span><span>3 fléchettes par tour</span></div>
-            <div class="rules-row"><span class="rules-arrow">→</span><span>Chaque joueur/équipe défend ses zones sur la cible</span></div>
-            <div class="rules-row"><span class="rules-arrow">→</span><span>Toucher une zone adverse l'élimine selon la difficulté</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Chaque joueur doit éliminer toutes ses zones pour gagner</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Toucher une zone l'élimine selon la difficulté</span></div>
             </div>
             <div class="rules-section">
               <div class="rules-section-title">🎯 Le Bull</div>
@@ -2603,17 +2631,17 @@ const _RULES_DATA = {
   },
   en: {
     icon: '🔴', title: 'DartPong',
-    catch: 'Like beer pong — aim at their zones.\nIf you feel it, call the Bull!',
+    catch: 'Like beer pong — eliminate zones one by one.\nIf you feel it, call the Bull!',
     points: [
-      { icon: '🔴', title: 'Each team has zones', desc: 'Defend yours, aim at theirs — each hit eliminates one zone.' },
+      { icon: '🔴', title: 'Eliminate each zone', desc: 'Eliminate every visible zone — each hit removes one zone.' },
       { icon: '📢', title: 'The Bull call', desc: 'Announce it BEFORE you throw — a hit eliminates 2 enemy zones at once!' },
       { icon: '⚡', title: 'Streak x3', desc: 'Eliminate 3 zones in a row = play a full bonus turn!' }
     ],
     full: `<div class="rules-section">
               <div class="rules-section-title">🎲 How to play</div>
               <div class="rules-row"><span class="rules-arrow">→</span><span>3 darts per turn</span></div>
-            <div class="rules-row"><span class="rules-arrow">→</span><span>Each player/team defends their zones on the board</span></div>
-            <div class="rules-row"><span class="rules-arrow">→</span><span>Hitting an opponent zone eliminates it based on difficulty</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Each player must eliminate all their zones to win</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Hitting a zone eliminates it based on difficulty</span></div>
             </div>
             <div class="rules-section">
               <div class="rules-section-title">🎯 The Bull</div>
@@ -2702,6 +2730,7 @@ document.getElementById('btn-val').addEventListener('click', onValidate);
 // ── VALIDER : complète les fléchettes restantes en OUT et passe au joueur suivant ──
 function onValidate() {
   if(!G.gameStarted) return;
+  feedbackValidate();
   if(G.dartsThrown >= 3) { nextPlayer(); return; }
   // Compléter les fléchettes manquantes en OUT
   const cur = G.players[G.currentIdx];
@@ -2711,7 +2740,7 @@ function onValidate() {
     addHist(`${cur.emoji} ${cur.name} → OUT`,'#6B7299');
     G.turnDarts.push({ label: '✗', type: 'out' });
     G.streak = 0;
-    G.dartsThrown++;
+    G.playerDarts[cur.name]++; G.dartsThrown++;
   }
   updateDisplay();
   nextPlayer();
@@ -2838,6 +2867,14 @@ window.addEventListener('beforeinstallprompt', e => {
     </label>
   </div>
   <div class="sg-row">
+    <span>🗣️</span>
+    <span class="sg-row-label" data-i18n="announcer">Annonceur</span>
+    <label class="sg-toggle">
+      <input type="checkbox" id="sg-toggle-tts" checked>
+      <span class="sg-slider"></span>
+    </label>
+  </div>
+  <div class="sg-row">
     <span class="sg-row-label">Langue / Language</span>
     <button id="sg-btn-lang" style="background:none;border:none;cursor:pointer;font-size:1.8rem;line-height:1;padding:2px;border-radius:6px;touch-action:manipulation;transition:transform .15s;" aria-label="Changer de langue">🇫🇷</button>
   </div>
@@ -2878,6 +2915,8 @@ window.addEventListener('beforeinstallprompt', e => {
     if (vt) vt.checked = localStorage.getItem(VIB_KEY) !== 'off';
     const st = document.getElementById('sg-toggle-snd');
     if (st) st.checked = localStorage.getItem(SND_KEY) !== 'off';
+    const tt = document.getElementById('sg-toggle-tts');
+    if (tt) tt.checked = localStorage.getItem('dartvault_tts') !== 'off';
     // Lang flag
     const lang = localStorage.getItem(LANG_KEY) || 'fr';
     const lb = document.getElementById('sg-btn-lang');
@@ -2912,6 +2951,11 @@ window.addEventListener('beforeinstallprompt', e => {
   const sndTog = document.getElementById('sg-toggle-snd');
   if (sndTog) sndTog.addEventListener('change', () => {
     localStorage.setItem(SND_KEY, sndTog.checked ? 'on' : 'off');
+  });
+
+  const ttsTog = document.getElementById('sg-toggle-tts');
+  if (ttsTog) ttsTog.addEventListener('change', () => {
+    localStorage.setItem('dartvault_tts', ttsTog.checked ? 'on' : 'off');
   });
 
   const langBtn = document.getElementById('sg-btn-lang');

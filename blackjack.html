@@ -1301,6 +1301,8 @@ function haptic(type='light'){
   else if(type==='success')navigator.vibrate([12,40,25]);
   else if(type==='bust')navigator.vibrate([30,20,30]);
 }
+
+
 function playTick(freq=520,dur=0.04,vol=0.15){
   if(!_ac||localStorage.getItem('dartvault_sound')==='off')return;
   try{
@@ -1634,7 +1636,7 @@ function dHit(n) {
   dRefreshMult();
 
   if (bust) {
-    feedbackOver();
+    feedbackOver();speak(DV_LANG.get()==='en'?'Bust':'Dépasse');
     if (!B.requireValidate) {
       dartState.autoNextTimer = setTimeout(() => { dartState.autoNextTimer = null; dCommit(total); }, 400);
     } else {
@@ -1650,7 +1652,7 @@ function dHit(n) {
       const p = G.order[G.currentIdx];
       document.getElementById('blackjack-player').textContent = p.name + ' atteint ' + B.targetScore + ' !';
       openModal('blackjack-modal');
-    } else feedbackValidate();
+    } else { feedbackValidate(); speak(String(total)); }
     if (!B.requireValidate) {
       dartState.autoNextTimer = setTimeout(() => { dartState.autoNextTimer = null; dCommit(total); }, 300);
     } else {
@@ -1708,7 +1710,8 @@ document.getElementById('pad-dart').addEventListener('click', e => {
       const p = G.order[G.currentIdx];
       document.getElementById('blackjack-player').textContent = p.name + ' atteint ' + B.targetScore + ' !';
       openModal('blackjack-modal');
-    }
+    } else if (total > B.targetScore) { speak(DV_LANG.get()==='en'?'Bust':'Dépasse'); }
+    else { speak(String(total)); }
     dCommit(total);
     return;
   }
@@ -1763,6 +1766,7 @@ function buildGameScreen() {
   B.targetScore = Math.floor(Math.random() * (B.targetMax - B.targetMin + 1)) + B.targetMin;
   document.getElementById('target-num').textContent = B.targetScore;
   document.getElementById('round-label').textContent = DV_LANG.t('bj_round_lbl2').replace('{r}', B.currentRound).replace('{t}', B.totalRounds);
+  speak((DV_LANG.get()==='en'?'Blackdart of the round':'Blackdarte de la manche')+' : '+B.targetScore, 500);
 
   // Ordre : non-dealers d'abord, croupier en dernier
   G.order = [
@@ -1902,13 +1906,13 @@ document.querySelector('.numpad-bottom-row').addEventListener('click', e => {
   if (key.id === 'nkey-validate') {
     if (key.classList.contains('disabled')) return;
     const val = parseInt(G.inputStr);
-    if (val > B.targetScore) feedbackOver();
+    if (val > B.targetScore) { feedbackOver(); speak(DV_LANG.get()==='en'?'Bust':'Dépasse'); }
     else if (val === B.targetScore) {
       feedbackBlackjack();
       const p = G.order[G.currentIdx];
       document.getElementById('blackjack-player').textContent = p.name + ' atteint ' + B.targetScore + ' !';
       openModal('blackjack-modal');
-    } else feedbackValidate();
+    } else { feedbackValidate(); speak(String(val)); }
     G.order[G.currentIdx].roundScore = val;
     G.currentIdx++;
     if (G.currentIdx >= G.order.length) {
@@ -2022,6 +2026,28 @@ function showFinalResults() {
   const _winners = sorted.filter(p => p.money === _best);
   B._finalWinnerNames = B.players.length > 1 ? _winners.filter(p => p.fromProfile).map(p => p.name) : [];
   _recordWins(B._finalWinnerNames);
+  // ── Save cumulative game stats ──
+  (function() {
+    var STATS_KEY = 'dartvault_game_stats';
+    var stats; try { stats = JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch(e) { stats = {}; }
+    B.players.forEach(function(p) {
+      if (!p.fromProfile) return;
+      var key = p.name;
+      if (!stats[key]) stats[key] = {};
+      if (!stats[key]['blackjack']) stats[key]['blackjack'] = { moneyDelta:0, blackdarts:0, games:0 };
+      var s = stats[key]['blackjack'];
+      s.moneyDelta += (p.money - 10);
+      // Count blackdarts from roundsLog (perfect score = rawScore === target)
+      var bd = 0;
+      B.roundsLog.forEach(function(r) {
+        var pr = r.results.find(function(x) { return x.name === p.name; });
+        if (pr && !pr.isDeal && pr.rawScore === r.target) bd++;
+      });
+      s.blackdarts += bd;
+      s.games++;
+    });
+    localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+  })();
   const medals = ['🥇','🥈','🥉'];
   document.getElementById('end-title').textContent = '🏆 ' + DV_LANG.t('bj_end_title');
   document.getElementById('end-title').style.color = '#FFD700';
@@ -2044,6 +2070,7 @@ function showFinalResults() {
     </div>`;
   }).join('');
   openModal('end-modal');
+  speak(winner.name+' '+(DV_LANG.get()==='en'?'wins the game':'remporte la partie'),1200);
 }
 
 // ── RANKING ──────────────────────────────────────────
@@ -2400,6 +2427,14 @@ window.addEventListener('resize',adjustPlayersPadding);
     </label>
   </div>
   <div class="sg-row">
+    <span>🗣️</span>
+    <span class="sg-row-label" data-i18n="announcer">Annonceur</span>
+    <label class="sg-toggle">
+      <input type="checkbox" id="sg-toggle-tts" checked>
+      <span class="sg-slider"></span>
+    </label>
+  </div>
+  <div class="sg-row">
     <span class="sg-row-label">Langue / Language</span>
     <button id="sg-btn-lang" aria-label="Changer de langue" style="background:none;border:none;cursor:pointer;font-size:1.8rem;line-height:1;padding:2px;border-radius:6px;touch-action:manipulation;transition:transform .15s;">🇫🇷</button>
   </div>
@@ -2440,6 +2475,8 @@ window.addEventListener('resize',adjustPlayersPadding);
     if (vt) vt.checked = localStorage.getItem(VIB_KEY) !== 'off';
     const st = document.getElementById('sg-toggle-snd');
     if (st) st.checked = localStorage.getItem(SND_KEY) !== 'off';
+    const tt = document.getElementById('sg-toggle-tts');
+    if (tt) tt.checked = localStorage.getItem('dartvault_tts') !== 'off';
     // Lang flag
     const lang = localStorage.getItem(LANG_KEY) || 'fr';
     const lb = document.getElementById('sg-btn-lang');
@@ -2474,6 +2511,11 @@ window.addEventListener('resize',adjustPlayersPadding);
   const sndTog = document.getElementById('sg-toggle-snd');
   if (sndTog) sndTog.addEventListener('change', () => {
     localStorage.setItem(SND_KEY, sndTog.checked ? 'on' : 'off');
+  });
+
+  const ttsTog = document.getElementById('sg-toggle-tts');
+  if (ttsTog) ttsTog.addEventListener('change', () => {
+    localStorage.setItem('dartvault_tts', ttsTog.checked ? 'on' : 'off');
   });
 
   const langBtn = document.getElementById('sg-btn-lang');

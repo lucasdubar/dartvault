@@ -280,6 +280,14 @@
       text-align:right;
     }
     .rank-wins-col { display:flex; flex-direction:column; align-items:flex-end; }
+    .rank-stats {
+      display:flex; gap:10px; align-items:center; flex-shrink:0;
+      font-family:'Rajdhani',sans-serif; font-size:.78rem; font-weight:600;
+      color:var(--dim);
+    }
+    .rank-stats span { white-space:nowrap; }
+    .rank-stat-val { color:var(--text); font-weight:700; }
+    .rank-games { font-size:.85rem; color:var(--dim); font-weight:600; }
 
     /* Médailles top 3 */
     .rank-row:nth-child(1) .rank-pos { color:#E8C547; text-shadow:0 0 10px rgba(232,197,71,.5); }
@@ -430,6 +438,11 @@
       <label class="sg-toggle"><input type="checkbox" id="sg-toggle-snd" checked><span class="sg-slider"></span></label>
     </div>
     <div class="sg-row">
+      <span>🗣️</span>
+      <span class="sg-row-label" data-i18n="announcer">Annonceur</span>
+      <label class="sg-toggle"><input type="checkbox" id="sg-toggle-tts" checked><span class="sg-slider"></span></label>
+    </div>
+    <div class="sg-row">
       <span class="sg-row-label">Langue / Language</span>
       <button id="sg-btn-lang" aria-label="Changer de langue" style="background:none;border:none;cursor:pointer;font-size:1.8rem;line-height:1;padding:2px;border-radius:6px;touch-action:manipulation;transition:transform .15s;">🇫🇷</button>
     </div>
@@ -568,9 +581,18 @@ function getWinsForPeriod(game, period) {
       count = (gameData.monthly || {})[monthKey()] || 0;
     }
     if (count > 0) result[fullName] = count;
+    else if (game !== '_total') {
+      // Inclure joueurs avec parties mais sans victoire pour la période
+      const gs = getGameStats();
+      if (gs[fullName] && gs[fullName][game] && gs[fullName][game].games > 0) result[fullName] = 0;
+    }
   });
 
   return result;
+}
+
+function getGameStats() {
+  try { return JSON.parse(localStorage.getItem('dartvault_game_stats')) || {}; } catch(e) { return {}; }
 }
 
 function renderRanking() {
@@ -578,6 +600,18 @@ function renderRanking() {
   const winsMap = getWinsForPeriod(currentGame, currentPeriod);
   const profiles = getProfiles();
   const labels = PAGE_LABELS[currentLang];
+  const gameStats = getGameStats();
+
+  // Ajouter les joueurs avec des parties mais sans victoire
+  if (currentGame !== '_total') {
+    const activeProfiles = getActiveProfileNames();
+    Object.entries(gameStats).forEach(([fullName, gs]) => {
+      if (!activeProfiles.has(fullName)) return;
+      if (gs[currentGame] && gs[currentGame].games > 0 && !(fullName in winsMap)) {
+        winsMap[fullName] = 0;
+      }
+    });
+  }
 
   // Trier par victoires décroissantes
   const sorted = Object.entries(winsMap).sort((a,b) => b[1] - a[1]);
@@ -599,17 +633,107 @@ function renderRanking() {
   const medals = ['🥇','🥈','🥉'];
   const rows = sorted.map(([ fullName, wins ], i) => {
     const emoji = profileMap[fullName] || '👤';
-    // Extraire le pseudo (tout après le premier espace)
     const pseudo = fullName.includes(' ') ? fullName.slice(fullName.indexOf(' ')+1) : fullName;
     const pos = medals[i] || `${i+1}`;
+
+    // Stats spécifiques au jeu
+    const ps = gameStats[fullName] || {};
+    let statsHtml = '';
+    let gamesPlayed = 0;
+
+    if (currentGame === '501' && ps['501']) {
+      const s = ps['501'];
+      gamesPlayed = s.games || 0;
+      const avg = s.totalThrows > 0 ? (s.totalScore / s.totalThrows).toFixed(1) : '0.0';
+      statsHtml = `<div class="rank-stats">
+        <span>${currentLang==='fr'?'Moy':'Avg'} : <span class="rank-stat-val">${avg}</span></span>
+        <span>${currentLang==='fr'?'Flé':'Drt'} : <span class="rank-stat-val">${s.totalDarts}</span></span>
+      </div>`;
+    } else if (currentGame === 'territoire' && ps['territoire']) {
+      const s = ps['territoire'];
+      gamesPlayed = s.games || 0;
+      statsHtml = `<div class="rank-stats">
+        <span>✓<span class="rank-stat-val">${s.captures}</span></span>
+        <span>🛡️<span class="rank-stat-val">${s.shields}</span></span>
+        <span>✗<span class="rank-stat-val">${s.neutralized}</span></span>
+      </div>`;
+    } else if (currentGame === 'cricket' && ps['cricket']) {
+      const s = ps['cricket'];
+      gamesPlayed = s.games || 0;
+      statsHtml = `<div class="rank-stats">
+        <span>${currentLang==='fr'?'Zones':'Zones'} : <span class="rank-stat-val">${s.closedZones}</span></span>
+        <span>${currentLang==='fr'?'Flé':'Drt'} : <span class="rank-stat-val">${s.totalDarts}</span></span>
+      </div>`;
+    } else if (currentGame === 'shanghai' && ps['shanghai']) {
+      const s = ps['shanghai'];
+      gamesPlayed = s.games || 0;
+      const pct = s.totalDarts > 0 ? Math.round(s.zonesHit / s.totalDarts * 100) : 0;
+      statsHtml = `<div class="rank-stats">
+        <span>🎯 <span class="rank-stat-val">${pct}%</span></span>
+        <span>🗼 <span class="rank-stat-val">${s.shanghais}</span></span>
+      </div>`;
+    } else if (currentGame === 'blackjack' && ps['blackjack']) {
+      const s = ps['blackjack'];
+      gamesPlayed = s.games || 0;
+      const avgMoney = gamesPlayed > 0 ? (s.moneyDelta / gamesPlayed).toFixed(1) : '0.0';
+      const sign = parseFloat(avgMoney) >= 0 ? '+' : '';
+      const moneyColor = parseFloat(avgMoney) >= 0 ? '#4CAF50' : '#F44336';
+      statsHtml = `<div class="rank-stats">
+        <span style="color:${moneyColor}">💰 <span class="rank-stat-val">${sign}${avgMoney}€</span></span>
+        <span>🃏 <span class="rank-stat-val">${s.blackdarts}</span></span>
+      </div>`;
+    } else if (currentGame === 'race500' && ps['race500']) {
+      const s = ps['race500'];
+      gamesPlayed = s.games || 0;
+      statsHtml = `<div class="rank-stats">
+        <span style="color:#4CAF50">+<span class="rank-stat-val">${s.pointsStolen}</span></span>
+        <span style="color:#F44336">-<span class="rank-stat-val">${s.pointsLost}</span></span>
+      </div>`;
+    } else if (currentGame === 'horloge' && ps['horloge']) {
+      const s = ps['horloge'];
+      gamesPlayed = s.games || 0;
+      const pct = s.totalDarts > 0 ? Math.round(s.zonesHit / s.totalDarts * 100) : 0;
+      statsHtml = `<div class="rank-stats">
+        <span>🎯 <span class="rank-stat-val">${pct}%</span></span>
+        <span>${currentLang==='fr'?'Flé':'Drt'} : <span class="rank-stat-val">${s.totalDarts}</span></span>
+      </div>`;
+    } else if (currentGame === 'dartspong' && ps['dartspong']) {
+      const s = ps['dartspong'];
+      gamesPlayed = s.games || 0;
+      const pct = s.totalDarts > 0 ? Math.round(s.zonesEliminated / s.totalDarts * 100) : 0;
+      statsHtml = `<div class="rank-stats">
+        <span>🎯 <span class="rank-stat-val">${pct}%</span></span>
+        <span>${currentLang==='fr'?'Flé':'Drt'} : <span class="rank-stat-val">${s.totalDarts}</span></span>
+      </div>`;
+    } else if (currentGame === 'shooter' && ps['shooter']) {
+      const s = ps['shooter'];
+      gamesPlayed = s.games || 0;
+      statsHtml = `<div class="rank-stats">
+        <span>❤️<span class="rank-stat-val">${s.hpDealt}</span></span>
+        <span>🔫<span class="rank-stat-val">${s.bulletsGained}</span></span>
+        <span>💚<span class="rank-stat-val">${s.hpHealed}</span></span>
+      </div>`;
+    } else if (currentGame === 'bataille' && ps['bataille']) {
+      const s = ps['bataille'];
+      gamesPlayed = s.games || 0;
+      const pct = s.totalShots > 0 ? Math.round(s.hits / s.totalShots * 100) : 0;
+      statsHtml = `<div class="rank-stats">
+        <span>💥<span class="rank-stat-val">${s.hits}</span></span>
+        <span>💧<span class="rank-stat-val">${s.totalShots - s.hits}</span></span>
+        <span>🎯 <span class="rank-stat-val">${pct}%</span></span>
+      </div>`;
+    }
+
+    const gamesStr = gamesPlayed > 0 ? `<span class="rank-games">/${gamesPlayed}</span>` : '';
+
     return `
       <div class="rank-row">
         <div class="rank-pos">${pos}</div>
         <div class="rank-avatar">${emoji}</div>
         <div class="rank-name">${escHtml(pseudo)}</div>
+        ${statsHtml}
         <div class="rank-wins-col">
-          <div class="rank-wins">${wins}</div>
-          <div class="rank-wins-label">${labels.wins}</div>
+          <div class="rank-wins">${wins}${gamesStr}</div>
         </div>
       </div>`;
   }).join('');
@@ -694,6 +818,7 @@ function closeResetConfirm() {
 }
 function confirmReset() {
   localStorage.removeItem(WINS_KEY);
+  localStorage.removeItem('dartvault_game_stats');
   closeResetConfirm();
   renderRanking();
 }
@@ -721,6 +846,7 @@ applyPageLang(initLang);
     ['dark','light','colored'].forEach(k => { document.getElementById('sg-pill-'+k).classList.toggle('active', t===k); });
     document.getElementById('sg-toggle-vib').checked = localStorage.getItem(VIB_KEY) !== 'off';
     document.getElementById('sg-toggle-snd').checked = localStorage.getItem(SND_KEY) !== 'off';
+    document.getElementById('sg-toggle-tts').checked = localStorage.getItem('dartvault_tts') !== 'off';
     document.getElementById('sg-btn-lang').textContent = (localStorage.getItem(LANG_KEY)||'fr') === 'fr' ? '🇫🇷' : '🇬🇧';
   }
 
@@ -739,6 +865,10 @@ applyPageLang(initLang);
   const st = document.getElementById('sg-toggle-snd');
   st.checked = localStorage.getItem(SND_KEY) !== 'off';
   st.addEventListener('change', () => localStorage.setItem(SND_KEY, st.checked ? 'on' : 'off'));
+
+  const tts = document.getElementById('sg-toggle-tts');
+  tts.checked = localStorage.getItem('dartvault_tts') !== 'off';
+  tts.addEventListener('change', () => localStorage.setItem('dartvault_tts', tts.checked ? 'on' : 'off'));
 
   document.getElementById('sg-btn-lang').addEventListener('click', () => {
     const cur = localStorage.getItem(LANG_KEY) || 'fr';

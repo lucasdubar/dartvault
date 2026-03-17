@@ -1701,6 +1701,8 @@ function startGame() {
   state.historyEntries = [];
   const il = document.getElementById('hist-inline-list');
   if (il) il.innerHTML = '';
+  state.playerStats = {};
+  state.players.forEach(p => { state.playerStats[p.name] = { captures: 0, shields: 0, neutralized: 0, misses: 0, team: p.team }; });
   state.gameStarted = true;
   state.requireValidate = document.getElementById('chk-validate') ? document.getElementById('chk-validate').checked : false;
 
@@ -2269,6 +2271,7 @@ function handleShot(number, multiplier, zoneType) {
   if (zoneType === 'bull_outer') {
     const enemyZones = Object.entries(state.territories).filter(([k, t]) => enemyTeams.includes(t.owner));
     const toNeutralize = shuffle(enemyZones).slice(0, Math.min(2, enemyZones.length));
+    var _ps = state.playerStats[cur.name];
     if (toNeutralize.length > 0) {
       const msgs = [];
       toNeutralize.forEach(([k, t]) => {
@@ -2276,6 +2279,7 @@ function handleShot(number, multiplier, zoneType) {
           if (enemyZones.length === 1) { t.owner = null; t.shield = false; msgs.push(`${zoneLabel(k,t)} 🛡️→neutre`); }
           else { t.shield = false; msgs.push(`${zoneLabel(k,t)} perd 🛡️`); }
         } else { t.owner = null; t.shield = false; msgs.push(`${zoneLabel(k,t)} →neutre`); }
+        if(_ps)_ps.neutralized++;
       });
       addHistory(`${emoji} ${cur.name} 💚 ${msgs.join(', ')}`, col); feedbackBull();
       state.lastShot = { bull: 'outer', affected: toNeutralize.map(([k, t]) => ({ tKey: k, num: t.number, ring: t.ring })) };
@@ -2297,9 +2301,11 @@ function handleShot(number, multiplier, zoneType) {
       const neutral = Object.entries(state.territories).filter(([k, t]) => !t.owner);
       target = neutral.length ? neutral[Math.floor(Math.random() * neutral.length)] : null;
     }
+    var _ps2 = state.playerStats[cur.name];
     if (target) {
       state.territories[target[0]].owner = currentTeam;
       state.territories[target[0]].shield = true;
+      if(_ps2){_ps2.captures++;_ps2.shields++;}
       addHistory(`${emoji} ${cur.name} ${DV_LANG.t('dp_hist_capture_h').replace('{zone}', zoneLabel(target[0], target[1]))}`, col); feedbackShield();
       state.lastShot = { bull: 'inner', affected: [{ tKey: target[0], num: target[1].number, ring: target[1].ring }] };
     } else {
@@ -2354,22 +2360,23 @@ function handleShot(number, multiplier, zoneType) {
   const zp = (multiplier === 3 ? 'T' : multiplier === 2 ? 'D' : '') + number;
   const ms = multiplier === 3 ? 'triple' : multiplier === 2 ? 'double' : 'simple';
 
+  var _ps = state.playerStats[cur.name];
   if (!oldOwner) {
     // Zone neutre
-    if (isSpecial) { t.owner = currentTeam; t.shield = true; addHistory(`${emoji} ${cur.name} ${ms} → ${label} ${DV_LANG.t('ter_hist_captured_shield')}`, col); feedbackShield(); state.turnDarts.push({ label: `${zp} 🛡️`, type: 'hit' }); }
-    else { t.owner = currentTeam; t.shield = false; addHistory(`${emoji} ${cur.name} ${ms} → ${label} ${DV_LANG.t('ter_hist_captured')}`, col); feedbackCapture(); state.turnDarts.push({ label: `${zp} ✓`, type: 'hit' }); }
+    if (isSpecial) { t.owner = currentTeam; t.shield = true; if(_ps){_ps.captures++;_ps.shields++;} addHistory(`${emoji} ${cur.name} ${ms} → ${label} ${DV_LANG.t('ter_hist_captured_shield')}`, col); feedbackShield(); state.turnDarts.push({ label: `${zp} 🛡️`, type: 'hit' }); }
+    else { t.owner = currentTeam; t.shield = false; if(_ps)_ps.captures++; addHistory(`${emoji} ${cur.name} ${ms} → ${label} ${DV_LANG.t('ter_hist_captured')}`, col); feedbackCapture(); state.turnDarts.push({ label: `${zp} ✓`, type: 'hit' }); }
   } else if (oldOwner === currentTeam) {
     // Zone alliée
-    if (isSpecial && !t.shield) { t.shield = true; addHistory(`${emoji} ${cur.name} ${ms} → ${label} ${DV_LANG.t('ter_hist_shield_added')}`, col); feedbackShield(); state.turnDarts.push({ label: `${zp} 🛡️`, type: 'hit' }); }
-    else { addHistory(`${emoji} ${cur.name} → ${label} ${DV_LANG.t('ter_hist_allied')}`, col); feedbackMiss(); state.turnDarts.push({ label: `${zp} —`, type: 'out' }); }
+    if (isSpecial && !t.shield) { t.shield = true; if(_ps)_ps.shields++; addHistory(`${emoji} ${cur.name} ${ms} → ${label} ${DV_LANG.t('ter_hist_shield_added')}`, col); feedbackShield(); state.turnDarts.push({ label: `${zp} 🛡️`, type: 'hit' }); }
+    else { if(_ps)_ps.misses++; addHistory(`${emoji} ${cur.name} → ${label} ${DV_LANG.t('ter_hist_allied')}`, col); feedbackMiss(); state.turnDarts.push({ label: `${zp} —`, type: 'out' }); }
   } else {
     // Zone ennemie
     if (t.shield) {
-      if (isSpecial) { t.owner = null; t.shield = false; addHistory(`${emoji} ${cur.name} ${ms} → ${label} ${DV_LANG.t('ter_hist_shield_neutral')}`, col); feedbackNeutralize(); state.turnDarts.push({ label: `${zp} 🛡️✗`, type: 'hit' }); }
-      else { t.shield = false; addHistory(`${emoji} ${cur.name} ${ms} → ${label} ${DV_LANG.t('ter_hist_shield_broken')}`, col); feedbackNeutralize(); state.turnDarts.push({ label: `${zp} 🛡️`, type: 'hit' }); }
+      if (isSpecial) { t.owner = null; t.shield = false; if(_ps)_ps.neutralized++; addHistory(`${emoji} ${cur.name} ${ms} → ${label} ${DV_LANG.t('ter_hist_shield_neutral')}`, col); feedbackNeutralize(); state.turnDarts.push({ label: `${zp} 🛡️✗`, type: 'hit' }); }
+      else { t.shield = false; if(_ps)_ps.neutralized++; addHistory(`${emoji} ${cur.name} ${ms} → ${label} ${DV_LANG.t('ter_hist_shield_broken')}`, col); feedbackNeutralize(); state.turnDarts.push({ label: `${zp} 🛡️`, type: 'hit' }); }
     } else {
-      if (isSpecial) { t.owner = currentTeam; addHistory(`${emoji} ${cur.name} ${ms} → ${label} ${DV_LANG.t('ter_hist_direct')}`, col); feedbackCapture(); state.turnDarts.push({ label: `${zp} ✓`, type: 'hit' }); }
-      else { t.owner = null; t.shield = false; addHistory(`${emoji} ${cur.name} ${ms} → ${label} ${DV_LANG.t('ter_hist_neutral')}`, col); feedbackNeutralize(); state.turnDarts.push({ label: `${zp} ✗`, type: 'out' }); }
+      if (isSpecial) { t.owner = currentTeam; if(_ps)_ps.captures++; addHistory(`${emoji} ${cur.name} ${ms} → ${label} ${DV_LANG.t('ter_hist_direct')}`, col); feedbackCapture(); state.turnDarts.push({ label: `${zp} ✓`, type: 'hit' }); }
+      else { t.owner = null; t.shield = false; if(_ps)_ps.neutralized++; addHistory(`${emoji} ${cur.name} ${ms} → ${label} ${DV_LANG.t('ter_hist_neutral')}`, col); feedbackNeutralize(); state.turnDarts.push({ label: `${zp} ✗`, type: 'out' }); }
     }
   }
 
@@ -2406,6 +2413,7 @@ function autoNextIfNeeded() {
 
 function onValidate() {
   if (!state.gameStarted) return;
+  feedbackValidate();
   if (state.dartsThrown >= 3) { nextPlayer(); return; }
   // Compléter les fléchettes manquantes en OUT
   const remaining = 3 - state.dartsThrown;
@@ -2507,6 +2515,15 @@ function showEnd(team, byDomination, cA, cB) {
     sub = `${cA2}🔵 / ${cB2}🔴 / ${cC2}🟡`;
   }
   showEndMessage(`🏆 ${DV_LANG.t('ter_victory')}`, `${names[team]}\n${sub}`, col);
+  // TTS victoire
+  if (state.gameMode === 'solo') {
+    var _players = (team==='A'?state.teamA:team==='B'?state.teamB:state.teamC);
+    speak(_players[0] + ' ' + (DV_LANG.get()==='en'?'wins the game':'remporte la partie'), 1200);
+  } else {
+    var _tLabel = DV_LANG.get()==='en' ? (team==='A'?'Blue team':'Red team') : (team==='A'?'Équipe bleue':'Équipe rouge');
+    var _members = (team==='A'?state.teamA:state.teamB).join(' ' + (DV_LANG.get()==='en'?'and':'et') + ' ');
+    speak(_tLabel + ' ' + (DV_LANG.get()==='en'?'wins the game':'remporte la partie') + ', ' + _members, 1200);
+  }
 }
 
 function showEndMessage(title, sub, col) {
@@ -2520,8 +2537,48 @@ function showEndMessage(title, sub, col) {
   }
   document.getElementById('end-title').textContent = title;
   document.getElementById('end-title').style.color = col;
-  document.getElementById('end-sub').textContent = sub;
+  // Stats individuelles
+  var statsHTML = '';
+  if (state.playerStats) {
+    var allStats = Object.entries(state.playerStats);
+    if (allStats.length > 0) {
+      statsHTML = '<div style="margin-top:12px;border-top:1px solid rgba(255,255,255,0.08);padding-top:10px;">' +
+        '<div style="font-family:Rajdhani,sans-serif;font-size:0.75rem;font-weight:700;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">📊 Stats</div>' +
+        allStats.map(function(e) {
+          var name = e[0], s = e[1];
+          var tc = TEAM_COLORS[s.team];
+          return '<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--bg3);border-radius:8px;margin-bottom:5px;border-left:3px solid ' + tc + '">' +
+            '<span style="font-family:Rajdhani,sans-serif;font-size:0.9rem;font-weight:700;color:' + tc + ';flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + name + '</span>' +
+            '<span style="font-size:0.8rem;color:#4CAF50;font-weight:700;white-space:nowrap;">✓' + s.captures + '</span>' +
+            '<span style="font-size:0.8rem;color:#9B59B6;font-weight:700;white-space:nowrap;">🛡️' + s.shields + '</span>' +
+            '<span style="font-size:0.8rem;color:#F44336;font-weight:700;white-space:nowrap;">✗' + s.neutralized + '</span>' +
+          '</div>';
+        }).join('') + '</div>';
+    }
+  }
+  document.getElementById('end-sub').innerHTML = sub.replace(/\n/g,'<br>') + statsHTML;
   document.getElementById('end-modal').classList.add('open');
+
+  // ── Sauvegarder stats cumulées pour classement ──
+  if (state.playerStats) {
+    var STATS_KEY = 'dartvault_game_stats';
+    var gstats; try { gstats = JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch(e) { gstats = {}; }
+    state.players.forEach(function(p) {
+      if (!profilePlayers.has(p.name)) return;
+      var key = p.name;
+      if (!gstats[key]) gstats[key] = {};
+      if (!gstats[key]['territoire']) gstats[key]['territoire'] = { captures:0, shields:0, neutralized:0, games:0 };
+      var gs = gstats[key]['territoire'];
+      var ps = state.playerStats[p.name];
+      if (ps) {
+        gs.captures += ps.captures;
+        gs.shields += ps.shields;
+        gs.neutralized += ps.neutralized;
+      }
+      gs.games++;
+    });
+    localStorage.setItem(STATS_KEY, JSON.stringify(gstats));
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -3018,6 +3075,14 @@ renderTeams();
     </label>
   </div>
   <div class="sg-row">
+    <span>🗣️</span>
+    <span class="sg-row-label" data-i18n="announcer">Annonceur</span>
+    <label class="sg-toggle">
+      <input type="checkbox" id="sg-toggle-tts" checked>
+      <span class="sg-slider"></span>
+    </label>
+  </div>
+  <div class="sg-row">
     <span class="sg-row-label">Langue / Language</span>
     <button id="sg-btn-lang" aria-label="Changer de langue" style="background:none;border:none;cursor:pointer;font-size:1.8rem;line-height:1;padding:2px;border-radius:6px;touch-action:manipulation;transition:transform .15s;">🇫🇷</button>
   </div>
@@ -3058,6 +3123,8 @@ renderTeams();
     if (vt) vt.checked = localStorage.getItem(VIB_KEY) !== 'off';
     const st = document.getElementById('sg-toggle-snd');
     if (st) st.checked = localStorage.getItem(SND_KEY) !== 'off';
+    const tt = document.getElementById('sg-toggle-tts');
+    if (tt) tt.checked = localStorage.getItem('dartvault_tts') !== 'off';
     // Lang flag
     const lang = localStorage.getItem(LANG_KEY) || 'fr';
     const lb = document.getElementById('sg-btn-lang');
@@ -3092,6 +3159,11 @@ renderTeams();
   const sndTog = document.getElementById('sg-toggle-snd');
   if (sndTog) sndTog.addEventListener('change', () => {
     localStorage.setItem(SND_KEY, sndTog.checked ? 'on' : 'off');
+  });
+
+  const ttsTog = document.getElementById('sg-toggle-tts');
+  if (ttsTog) ttsTog.addEventListener('change', () => {
+    localStorage.setItem('dartvault_tts', ttsTog.checked ? 'on' : 'off');
   });
 
   const langBtn = document.getElementById('sg-btn-lang');

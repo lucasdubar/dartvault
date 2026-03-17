@@ -2786,6 +2786,7 @@ function autoNextIfNeeded() {
 
 function onValidate() {
   if(!state.gameStarted) return;
+  feedbackValidate();
   if(state.dartsThrown >= 3) { nextPlayer(); return; }
   // Compléter les fléchettes manquantes en OUT
   const cur = state.players[state.currentPlayerIndex];
@@ -2841,6 +2842,23 @@ function showVictory(winner) {
     }
   }
   _recordWins(state._finalWinnerNames);
+  // ── Cumulative game stats ──
+  (function() {
+    var STATS_KEY = 'dartvault_game_stats';
+    var stats; try { stats = JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch(e) { stats = {}; }
+    state.players.forEach(function(p) {
+      if (!p.fromProfile) return;
+      var key = p.name;
+      if (!stats[key]) stats[key] = {};
+      if (!stats[key].shooter) stats[key].shooter = { hpDealt:0, bulletsGained:0, hpHealed:0, games:0 };
+      var s = stats[key].shooter;
+      s.hpDealt += p.stats.hpDealt || 0;
+      s.bulletsGained += p.stats.bulletsGained || 0;
+      s.hpHealed += p.stats.hpHealed || 0;
+      s.games += 1;
+    });
+    localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+  })();
   document.getElementById('end-title').textContent = '🏆 VICTOIRE !';
 
   const medals = ['🏆','🥈','🥉'];
@@ -2869,6 +2887,18 @@ function showVictory(winner) {
 
   document.getElementById('end-sub').innerHTML = rankHTML;
   document.getElementById('end-modal').classList.add('open');
+  // TTS victoire
+  const alive = state.players.filter(p => !p.eliminated);
+  if (alive.length > 0) {
+    const winTeam = alive[0].team;
+    if (winTeam) {
+      var _tLabel = DV_LANG.get()==='en' ? (winTeam==='A'?'Blue team':'Yellow team') : (winTeam==='A'?'Équipe bleue':'Équipe jaune');
+      var _members = state.players.filter(p => p.team === winTeam).map(p => p.name).join(' ' + (DV_LANG.get()==='en'?'and':'et') + ' ');
+      speak(_tLabel + ' ' + (DV_LANG.get()==='en'?'wins the game':'remporte la partie') + ', ' + _members, 1200);
+    } else {
+      speak(alive[0].name + ' ' + (DV_LANG.get()==='en'?'wins the game':'remporte la partie'), 1200);
+    }
+  }
 }
 
 // Sons UI : config pills + boutons bas alignés sur le 501
@@ -3282,6 +3312,14 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     </label>
   </div>
   <div class="sg-row">
+    <span>🗣️</span>
+    <span class="sg-row-label" data-i18n="announcer">Annonceur</span>
+    <label class="sg-toggle">
+      <input type="checkbox" id="sg-toggle-tts" checked>
+      <span class="sg-slider"></span>
+    </label>
+  </div>
+  <div class="sg-row">
     <span class="sg-row-label">Langue / Language</span>
     <button id="sg-btn-lang" aria-label="Changer de langue" style="background:none;border:none;cursor:pointer;font-size:1.8rem;line-height:1;padding:2px;border-radius:6px;touch-action:manipulation;transition:transform .15s;">🇫🇷</button>
   </div>
@@ -3322,6 +3360,8 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     if (vt) vt.checked = localStorage.getItem(VIB_KEY) !== 'off';
     const st = document.getElementById('sg-toggle-snd');
     if (st) st.checked = localStorage.getItem(SND_KEY) !== 'off';
+    const tt = document.getElementById('sg-toggle-tts');
+    if (tt) tt.checked = localStorage.getItem('dartvault_tts') !== 'off';
     // Lang flag
     const lang = localStorage.getItem(LANG_KEY) || 'fr';
     const lb = document.getElementById('sg-btn-lang');
@@ -3356,6 +3396,11 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
   const sndTog = document.getElementById('sg-toggle-snd');
   if (sndTog) sndTog.addEventListener('change', () => {
     localStorage.setItem(SND_KEY, sndTog.checked ? 'on' : 'off');
+  });
+
+  const ttsTog = document.getElementById('sg-toggle-tts');
+  if (ttsTog) ttsTog.addEventListener('change', () => {
+    localStorage.setItem('dartvault_tts', ttsTog.checked ? 'on' : 'off');
   });
 
   const langBtn = document.getElementById('sg-btn-lang');

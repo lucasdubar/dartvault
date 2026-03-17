@@ -1173,6 +1173,8 @@ function haptic(type='light'){
   else if(type==='success')navigator.vibrate([12,40,25]);
   else if(type==='bust')navigator.vibrate([30,20,30]);
 }
+
+
 function playTick(freq=520,dur=0.04,vol=0.15){
   if(!_ac)return;
   if(localStorage.getItem('dartvault_sound')==='off')return;
@@ -1379,7 +1381,7 @@ function hit(n){
 
   if(ns>G.tgt){
     // Bust : seule cette fléchette est annulée, les précédentes comptent
-    feedbackBust();
+    feedbackBust();speak(DV_LANG.get()==='en'?'Bust':'Dépasse');
     G.d=3; // tour terminé
     G.log.push({who:p.n,color:p.c,turn:G.turn,label:mult_label,pts:0,from:p.s,to:p.s,bust:true});
     renderHistInline();
@@ -1409,6 +1411,7 @@ function hit(n){
         p.stolen+=G.stealAmt;
         o.lost+=actualSteal;
         feedbackSteal();
+        speak((DV_LANG.get()==='en'?'Steals ':'Vole ')+actualSteal+(DV_LANG.get()==='en'?' points from ':' points à ')+o.n);
         G.log.push({who:p.n,color:p.c,turn:G.turn,label:DV_LANG.t('rc_steal_lbl'),pts:G.stealAmt,from:scoreBeforeSteal,to:p.s,steal:o.n,bust:false});
     renderHistInline();
         T(DV_LANG.t('rc_steal_toast').replace('{p}',p.n).replace('{pts}',G.stealAmt).replace('{o}',o.n));
@@ -1435,10 +1438,11 @@ function hit(n){
   }
   draw(G.i);
   if(G.d>=3){
+    // TTS : score du tour
+    speak(String(p.s - G.ts));
     if(!G.requireValidate){
       G._autoNextTimer = setTimeout(()=>{ G._autoNextTimer=null; nxt(); },250);
     }
-    // si requireValidate : le bouton VALIDER est nécessaire pour passer
   }
 }
 
@@ -1446,6 +1450,18 @@ function nxt(){
   G.d=0;G.i=(G.i+1)%G.pl.length;
   if(G.i===0)G.turn++;
   G.ts=cp().s;draw();renderTurnDarts();
+  // TTS : annonce début de tour
+  if(G.on){
+    var _p=cp(),_rem=G.tgt-_p.s;
+    var _ahead=G.pl.filter(function(o,j){return j!==G.i&&o.s>_p.s;}).sort(function(a,b){return a.s-b.s;});
+    if(_rem<=170){
+      speak(_p.n+', Finish '+_rem,2000);
+    } else if(!_ahead.length&&_p.s>0){
+      speak(_p.n+', '+(DV_LANG.get()==='en'?'leading':'en tête'),2000);
+    } else if(_ahead.length){
+      speak(_ahead[0].n+' '+(DV_LANG.get()==='en'?'ahead':'devant')+', '+(_ahead[0].s-_p.s),2000);
+    }
+  }
 }
 
 
@@ -1454,6 +1470,22 @@ function showWin(w){
   // Victoires classement
   G._finalWinnerNames = G.pl.length > 1 && (w.fromProfile || profilePlayers.has(w.n)) ? [w.n] : [];
   _recordWins(G._finalWinnerNames);
+  // ── Save cumulative game stats ──
+  (function() {
+    var STATS_KEY = 'dartvault_game_stats';
+    var stats; try { stats = JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch(e) { stats = {}; }
+    G.pl.forEach(function(p) {
+      if (!p.fromProfile) return;
+      var key = p.n;
+      if (!stats[key]) stats[key] = {};
+      if (!stats[key]['race500']) stats[key]['race500'] = { pointsStolen:0, pointsLost:0, games:0 };
+      var s = stats[key]['race500'];
+      s.pointsStolen += (p.stolen || 0);
+      s.pointsLost += (p.lost || 0);
+      s.games++;
+    });
+    localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+  })();
   const sr=[...G.pl].sort((a,b)=>b.s-a.s);
   document.getElementById('etitle').textContent='🏁 '+w.n+' '+DV_LANG.t('rc_wins');
   document.getElementById('etitle').style.color=w.c;
@@ -1477,6 +1509,7 @@ function showWin(w){
     </div>`;
   }).join('');
   document.getElementById('end-modal').classList.add('open');
+  speak(w.n+' '+(DV_LANG.get()==='en'?'wins the game':'remporte la partie'),1200);
 }
 
 document.getElementById('bout').addEventListener('click', () => {
@@ -1507,6 +1540,10 @@ document.getElementById('bval').addEventListener('click', () => {
     G.h.push({i:G.i,sc:G.pl.map(pl=>pl.s),d:G.d,turn:G.turn,ts:G.ts,m:M,stolen:G.pl.map(pl=>pl.stolen),lost:G.pl.map(pl=>pl.lost),logLen:G.log.length});
     G.log.push({who:p.n,color:p.c,turn:G.turn,label:'— No score',pts:0,from:p.s,to:p.s,bust:false,noScore:true});
     renderHistInline();
+    speak(DV_LANG.get()==='en'?'Zero':'Zéro');
+  } else if(G.d < 3) {
+    // TTS : score du tour (validation anticipée)
+    speak(String(cp().s - G.ts));
   }
   nxt();
 });
@@ -1854,6 +1891,14 @@ window.addEventListener('resize',adjustSlistPadding);
     </label>
   </div>
   <div class="sg-row">
+    <span>🗣️</span>
+    <span class="sg-row-label" data-i18n="announcer">Annonceur</span>
+    <label class="sg-toggle">
+      <input type="checkbox" id="sg-toggle-tts" checked>
+      <span class="sg-slider"></span>
+    </label>
+  </div>
+  <div class="sg-row">
     <span class="sg-row-label">Langue / Language</span>
     <button id="sg-btn-lang" aria-label="Changer de langue" style="background:none;border:none;cursor:pointer;font-size:1.8rem;line-height:1;padding:2px;border-radius:6px;touch-action:manipulation;transition:transform .15s;">🇫🇷</button>
   </div>
@@ -1894,6 +1939,8 @@ window.addEventListener('resize',adjustSlistPadding);
     if (vt) vt.checked = localStorage.getItem(VIB_KEY) !== 'off';
     const st = document.getElementById('sg-toggle-snd');
     if (st) st.checked = localStorage.getItem(SND_KEY) !== 'off';
+    const tt = document.getElementById('sg-toggle-tts');
+    if (tt) tt.checked = localStorage.getItem('dartvault_tts') !== 'off';
     // Lang flag
     const lang = localStorage.getItem(LANG_KEY) || 'fr';
     const lb = document.getElementById('sg-btn-lang');
@@ -1928,6 +1975,11 @@ window.addEventListener('resize',adjustSlistPadding);
   const sndTog = document.getElementById('sg-toggle-snd');
   if (sndTog) sndTog.addEventListener('change', () => {
     localStorage.setItem(SND_KEY, sndTog.checked ? 'on' : 'off');
+  });
+
+  const ttsTog = document.getElementById('sg-toggle-tts');
+  if (ttsTog) ttsTog.addEventListener('change', () => {
+    localStorage.setItem('dartvault_tts', ttsTog.checked ? 'on' : 'off');
   });
 
   const langBtn = document.getElementById('sg-btn-lang');

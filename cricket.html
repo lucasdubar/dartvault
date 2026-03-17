@@ -1577,8 +1577,11 @@ function handleHit(num, mult) {
 
     // Feedback : fermeture = son spécial, sinon tick normal
     const curMarksAfter = G.players[G.currentIdx].marks[num];
-    if (curMarksBefore < 3 && curMarksAfter >= 3) feedbackClose();
-    else feedbackHit();
+    if (curMarksBefore < 3 && curMarksAfter >= 3) {
+      feedbackClose();
+      var closedLabel = NUM_LABELS[num] || String(num);
+      speak(closedLabel + ', ' + (DV_LANG.get() === 'en' ? 'closed' : 'fermé'));
+    } else feedbackHit();
 
     // White Horse ?
     if (checkWhiteHorse()) {
@@ -1777,6 +1780,25 @@ function showFinalEnd() {
   G._finalWinnerNames = G.players.length > 1 ? _winners.filter(p => p.fromProfile).map(p => p.name) : [];
   _recordWins(G._finalWinnerNames);
 
+  // ── Cumulative game stats ──
+  (function() {
+    var STATS_KEY = 'dartvault_game_stats';
+    var stats; try { stats = JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch(e) { stats = {}; }
+    G.players.forEach(function(p) {
+      if (!p.fromProfile) return;
+      var key = p.name;
+      if (!stats[key]) stats[key] = {};
+      if (!stats[key]['cricket']) stats[key]['cricket'] = { closedZones:0, totalDarts:0, games:0 };
+      var s = stats[key]['cricket'];
+      var closed = 0;
+      CRICKET_NUMS.forEach(function(n) { if (p.marks[n] >= 3) closed++; });
+      s.closedZones += closed;
+      s.totalDarts += (p.totalDarts || 0);
+      s.games++;
+    });
+    localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+  })();
+
   const sorted = [...G.players].sort((a, b) => {
     // Tri principal : legs ou sets (desc)
     const aWins = G.setsToWin > 0 ? (a.sets||0) : (a.legs||0);
@@ -1806,6 +1828,9 @@ function showFinalEnd() {
   document.getElementById('btn-rematch').textContent = DV_LANG.t('rematch');
   document.getElementById('btn-end-close').textContent = '↩ ' + DV_LANG.t('cancel');
   document.getElementById('end-modal').classList.add('open');
+  // TTS victoire après le jingle
+  var winnerName = sorted[0] ? sorted[0].name : '';
+  speak(winnerName + ' ' + (DV_LANG.get() === 'en' ? 'wins the game' : 'remporte la partie'), 1200);
 }
 
 // Ancien showEnd redirige vers la logique correcte
@@ -2657,6 +2682,14 @@ history.pushState(null, '', window.location.href);
     </label>
   </div>
   <div class="sg-row">
+    <span>🗣️</span>
+    <span class="sg-row-label" data-i18n="announcer">Annonceur</span>
+    <label class="sg-toggle">
+      <input type="checkbox" id="sg-toggle-tts" checked>
+      <span class="sg-slider"></span>
+    </label>
+  </div>
+  <div class="sg-row">
     <span class="sg-row-label">Langue / Language</span>
     <button id="sg-btn-lang" style="background:none;border:none;cursor:pointer;font-size:1.8rem;line-height:1;padding:2px;border-radius:6px;touch-action:manipulation;transition:transform .15s;">🇫🇷</button>
   </div>
@@ -2697,6 +2730,8 @@ history.pushState(null, '', window.location.href);
     if (vt) vt.checked = localStorage.getItem(VIB_KEY) !== 'off';
     const st = document.getElementById('sg-toggle-snd');
     if (st) st.checked = localStorage.getItem(SND_KEY) !== 'off';
+    const tt = document.getElementById('sg-toggle-tts');
+    if (tt) tt.checked = localStorage.getItem('dartvault_tts') !== 'off';
     // Lang flag
     const lang = localStorage.getItem(LANG_KEY) || 'fr';
     const lb = document.getElementById('sg-btn-lang');
@@ -2733,6 +2768,11 @@ history.pushState(null, '', window.location.href);
   if (sndTog) sndTog.addEventListener('change', () => {
     localStorage.setItem(SND_KEY, sndTog.checked ? 'on' : 'off');
     _soundEnabled = sndTog.checked;
+  });
+
+  const ttsTog = document.getElementById('sg-toggle-tts');
+  if (ttsTog) ttsTog.addEventListener('change', () => {
+    localStorage.setItem('dartvault_tts', ttsTog.checked ? 'on' : 'off');
   });
 
   const langBtn = document.getElementById('sg-btn-lang');

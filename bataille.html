@@ -2508,6 +2508,22 @@ function showEnd() {
   const _winTeam = teams[winner] || [];
   G._finalWinnerNames = _winTeam.filter(n => profilePlayers.has(n));
   _recordWins(G._finalWinnerNames);
+  // ── Cumulative game stats ──
+  (function() {
+    var STATS_KEY = 'dartvault_game_stats';
+    var stats; try { stats = JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch(e) { stats = {}; }
+    Object.values(G.playerStats).forEach(function(ps) {
+      var fullName = ps.name;
+      if (!profilePlayers.has(fullName)) return;
+      if (!stats[fullName]) stats[fullName] = {};
+      if (!stats[fullName].bataille) stats[fullName].bataille = { hits:0, totalShots:0, games:0 };
+      var s = stats[fullName].bataille;
+      s.hits += ps.hits || 0;
+      s.totalShots += (ps.hits || 0) + (ps.misses || 0);
+      s.games += 1;
+    });
+    localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+  })();
   const loser  = winner === 'A' ? 'B' : 'A';
 
   const winnerName = winner === 'A' ? DV_LANG.t('bt_blue_team') : DV_LANG.t('bt_yellow_team');
@@ -2544,6 +2560,10 @@ function showEnd() {
 
   document.getElementById('podium-list').innerHTML = podiumHTML + statsHTML;
   document.getElementById('end-modal').classList.add('open');
+  // TTS victoire
+  var _ttsLabel = DV_LANG.get()==='en' ? (winner==='A'?'Blue team':'Yellow team') : (winner==='A'?'Équipe bleue':'Équipe jaune');
+  var _ttsMembers = (teams[winner]||[]).join(' ' + (DV_LANG.get()==='en'?'and':'et') + ' ');
+  speak(_ttsLabel + ' ' + (DV_LANG.get()==='en'?'wins the game':'remporte la partie') + ', ' + _ttsMembers, 1200);
 }
 
 // ════════════════════════════════════════════════
@@ -2981,6 +3001,14 @@ history.pushState(null,'',window.location.href);
     </label>
   </div>
   <div class="sg-row">
+    <span>🗣️</span>
+    <span class="sg-row-label" data-i18n="announcer">Annonceur</span>
+    <label class="sg-toggle">
+      <input type="checkbox" id="sg-toggle-tts" checked>
+      <span class="sg-slider"></span>
+    </label>
+  </div>
+  <div class="sg-row">
     <span class="sg-row-label">Langue / Language</span>
     <button id="sg-btn-lang" aria-label="Changer de langue" style="background:none;border:none;cursor:pointer;font-size:1.8rem;line-height:1;padding:2px;border-radius:6px;touch-action:manipulation;transition:transform .15s;">🇫🇷</button>
   </div>
@@ -3021,6 +3049,8 @@ history.pushState(null,'',window.location.href);
     if (vt) vt.checked = localStorage.getItem(VIB_KEY) !== 'off';
     const st = document.getElementById('sg-toggle-snd');
     if (st) st.checked = localStorage.getItem(SND_KEY) !== 'off';
+    const tt = document.getElementById('sg-toggle-tts');
+    if (tt) tt.checked = localStorage.getItem('dartvault_tts') !== 'off';
     // Lang flag
     const lang = localStorage.getItem(LANG_KEY) || 'fr';
     const lb = document.getElementById('sg-btn-lang');
@@ -3055,6 +3085,11 @@ history.pushState(null,'',window.location.href);
   const sndTog = document.getElementById('sg-toggle-snd');
   if (sndTog) sndTog.addEventListener('change', () => {
     localStorage.setItem(SND_KEY, sndTog.checked ? 'on' : 'off');
+  });
+
+  const ttsTog = document.getElementById('sg-toggle-tts');
+  if (ttsTog) ttsTog.addEventListener('change', () => {
+    localStorage.setItem('dartvault_tts', ttsTog.checked ? 'on' : 'off');
   });
 
   const langBtn = document.getElementById('sg-btn-lang');

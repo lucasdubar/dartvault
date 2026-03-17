@@ -475,6 +475,14 @@
     </label>
   </div>
   <div class="sg-row">
+    <span>🗣️</span>
+    <span class="sg-row-label" data-i18n="announcer">Annonceur</span>
+    <label class="sg-toggle">
+      <input type="checkbox" id="sg-toggle-tts" checked>
+      <span class="sg-slider"></span>
+    </label>
+  </div>
+  <div class="sg-row">
     <span class="sg-row-label">Langue / Language</span>
     <button id="sg-btn-lang" aria-label="Changer de langue" style="background:none;border:none;cursor:pointer;font-size:1.8rem;line-height:1;padding:2px;border-radius:6px;touch-action:manipulation;transition:transform .15s;">🇫🇷</button>
   </div>
@@ -511,6 +519,8 @@
     if (vt) vt.checked = localStorage.getItem(VIB_KEY) !== 'off';
     const st = document.getElementById('sg-toggle-snd');
     if (st) st.checked = localStorage.getItem(SND_KEY) !== 'off';
+    const tt = document.getElementById('sg-toggle-tts');
+    if (tt) tt.checked = localStorage.getItem('dartvault_tts') !== 'off';
     const lang = localStorage.getItem(LANG_KEY) || 'fr';
     const lb = document.getElementById('sg-btn-lang');
     if (lb) lb.textContent = lang === 'fr' ? '🇫🇷' : '🇬🇧';
@@ -543,6 +553,11 @@
   if (sndTog) {
     sndTog.checked = localStorage.getItem(SND_KEY) !== 'off';
     sndTog.addEventListener('change', () => localStorage.setItem(SND_KEY, sndTog.checked ? 'on' : 'off'));
+  }
+  const ttsTog = document.getElementById('sg-toggle-tts');
+  if (ttsTog) {
+    ttsTog.checked = localStorage.getItem('dartvault_tts') !== 'off';
+    ttsTog.addEventListener('change', () => localStorage.setItem('dartvault_tts', ttsTog.checked ? 'on' : 'off'));
   }
 
   const langBtn = document.getElementById('sg-btn-lang');

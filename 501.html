@@ -800,6 +800,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
 /* pc-progress (barre de progression) */
 [data-theme="dark"] .pc-progress{background:rgba(255,255,255,.08)!important;}
 [data-theme="light"] .pc-progress{background:rgba(22,23,24,.1)!important;}
+[data-theme="light"] .pc-avg,[data-theme="light"] .pc-bottom{color:#333!important;}
 
 /* players-list-wrap scrollbar */
 [data-theme="dark"] .players-list-wrap::-webkit-scrollbar-thumb{background:rgba(232,232,232,.15)!important;}
@@ -1385,6 +1386,8 @@ const _ac = window.AudioContext || window.webkitAudioContext
 let _soundEnabled = localStorage.getItem('dartvault_sound') !== 'off';
 let _vibrationEnabled = localStorage.getItem('dartvault_vibration') !== 'off';
 
+let _ttsLastFinish = -1; // évite de répéter le finish au même score
+
 function haptic(type = 'light') {
   if (!_vibrationEnabled) return;
   if (!navigator.vibrate) return;
@@ -1857,8 +1860,15 @@ function updateDisplay(flashIdx) {
   if (route && finishScore > 0) {
     fb.style.display = 'block';
     document.getElementById('finish-route').textContent = route;
+    // TTS finish uniquement au début du tour (pas après chaque fléchette)
+    var isStartOfTurn = G.inputMode === 'darts' ? dartState.darts.length === 0 : true;
+    if (isStartOfTurn && dartsLeft === 3 && _ttsLastFinish !== finishScore) {
+      _ttsLastFinish = finishScore;
+      speak(p.name + ', Finish ' + finishScore, 2500);
+    }
   } else {
     fb.style.display = 'none';
+    if (dartsLeft === 3) _ttsLastFinish = -1;
   }
 
   // Input display
@@ -2315,6 +2325,7 @@ function dHit(n) {
       p.score = snapBeforeTurn.scores[G.currentIdx];
     }
     feedbackBust();
+    speak(DV_LANG.get() === 'en' ? 'Bust' : 'Dépasse');
     showToast(DV_LANG.t('x01_bust_toast'));
     // Comptabiliser 3 fléchettes même en cas de bust (les non-lancées comptent comme OUT)
     p.dartsThrown += (3 - dartState.dartIdx);
@@ -2347,8 +2358,13 @@ function dHit(n) {
   // 3 fléchettes ou OUT explicite : tour terminé
   if (dartState.dartIdx === 3 || n === 0) {
     // Enregistrer le tour dans throws
-    p.throws.push({ score: dartState.darts.reduce((s,d)=>s+d.pts,0), remaining: p.score, darts: dartState.darts.map(d => ({...d})) });
-    if (dartState.darts.reduce((s,d)=>s+d.pts,0) === 180) feedback180();
+    var turnTotal = dartState.darts.reduce((s,d)=>s+d.pts,0);
+    p.throws.push({ score: turnTotal, remaining: p.score, darts: dartState.darts.map(d => ({...d})) });
+    if (dartState.dartIdx === 3) {
+      if (turnTotal === 0) speak(DV_LANG.get() === 'en' ? 'Zero' : 'Zéro');
+      else speak(String(turnTotal));
+    }
+    if (turnTotal === 180) feedback180();
     if (G.trackDoubles && G.doubleOut) {
       const snapBefore = G.history[G.history.length - 1];
       const scoreStart = snapBefore ? snapBefore.scores[G.currentIdx] : p.score + dartState.darts.reduce((s,d)=>s+d.pts,0);
@@ -2416,6 +2432,7 @@ function dValidateEarly() {
     });
     p.throws.push({ score: 0, remaining: p.score, darts: [], noScore: true });
     p.dartsThrown += 3;
+    speak(DV_LANG.get() === 'en' ? 'Zero' : 'Zéro');
     _dNextPlayer();
     return;
   }
@@ -2436,6 +2453,12 @@ function dValidateEarly() {
     lastThrow.darts.every((d, i) => d.n === dartState.darts[i].n && d.mult === dartState.darts[i].mult);
   if (!alreadyRecorded) {
     p.throws.push({ score: dartState.darts.reduce((s,d)=>s+d.pts,0), remaining: p.score, darts: dartState.darts.map(d=>({...d})) });
+  }
+  // TTS : annoncer le score seulement si validation anticipée (< 3 fléchettes saisies)
+  if (dartsBeforeFill < 3) {
+    var earlyTotal = dartState.darts.reduce((s,d)=>s+d.pts,0);
+    if (earlyTotal === 0) speak(DV_LANG.get() === 'en' ? 'Zero' : 'Zéro');
+    else speak(String(earlyTotal));
   }
   // Double tracking : vérifier si le joueur a pu tenter un double pendant ce tour
   if (G.trackDoubles && G.doubleOut) {
@@ -2587,6 +2610,7 @@ function commitScore(p, val, remaining, actualBust, scoreAtTurnStart) {
     pushTimelineDarts(p, p.throws[p.throws.length-1]);
     p.dartsThrown += 3;
     feedbackBust();
+    speak(DV_LANG.get() === 'en' ? 'Bust' : 'Dépasse');
     showToast(DV_LANG.t('x01_bust_toast'));
     inputStr = '';
     if (couldAttemptDouble) {
@@ -2603,6 +2627,8 @@ function commitScore(p, val, remaining, actualBust, scoreAtTurnStart) {
   pushTimelineDarts(p, p.throws[p.throws.length-1]);
   p.dartsThrown += 3;
   inputStr = '';
+  if (val === 0) speak(DV_LANG.get() === 'en' ? 'Zero' : 'Zéro');
+  else speak(String(val));
   if (val === 180) feedback180();
 
   if (couldAttemptDouble) {
@@ -2646,6 +2672,7 @@ function showDoutModal(scoreAtTurnStart, isCheckout = false) {
 
 function nextPlayer(flashIdx) {
   G.currentIdx = (G.currentIdx + 1) % G.players.length;
+  _ttsLastFinish = -1;
   if (G.inputMode === 'darts') dartReset();
   updateDisplay(flashIdx);
 }
@@ -2803,6 +2830,7 @@ function showFinalResult(winner) {
   });
   document.getElementById('end-title').textContent = '🏆 ' + winner.name + ' ' + DV_LANG.t('x01_wins_match');
   document.getElementById('end-title').style.color = winner.color;
+  speak(winner.name + ' ' + (DV_LANG.get() === 'en' ? 'wins the game' : 'remporte la partie'), 1200);
   const medals = ['🏆','🥈','🥉'];
   document.getElementById('end-ranking').innerHTML = sorted.map((p, i) => {
     const totalThrows = p.allThrows.length;
@@ -2827,6 +2855,25 @@ function showFinalResult(winner) {
   document.getElementById('btn-end-close').textContent = '↩ ' + DV_LANG.t('cancel');
   document.getElementById('end-modal').classList.add('open');
   G._pendingNextLeg = false;
+
+  // ── Sauvegarder stats cumulées pour classement ──
+  (function() {
+    var STATS_KEY = 'dartvault_game_stats';
+    var stats; try { stats = JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch(e) { stats = {}; }
+    G.players.forEach(function(p) {
+      if (!p.fromProfile) return;
+      var key = p.name;
+      if (!stats[key]) stats[key] = {};
+      if (!stats[key]['501']) stats[key]['501'] = { totalScore:0, totalThrows:0, totalDarts:0, games:0 };
+      var s = stats[key]['501'];
+      var throws = p.allThrows || [];
+      s.totalScore += throws.reduce(function(sum,t){ return sum + t.score; }, 0);
+      s.totalThrows += throws.length;
+      s.totalDarts += p.allDartsThrown || 0;
+      s.games++;
+    });
+    localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+  })();
 }
 
 // ── STATS MODAL ──────────────────────────────────────────────────────
@@ -3459,6 +3506,14 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     </label>
   </div>
   <div class="sg-row">
+    <span>🗣️</span>
+    <span class="sg-row-label" data-i18n="announcer">Annonceur</span>
+    <label class="sg-toggle">
+      <input type="checkbox" id="sg-toggle-tts" checked>
+      <span class="sg-slider"></span>
+    </label>
+  </div>
+  <div class="sg-row">
     <span class="sg-row-label">Langue / Language</span>
     <button id="sg-btn-lang" style="background:none;border:none;cursor:pointer;font-size:1.8rem;line-height:1;padding:2px;border-radius:6px;touch-action:manipulation;transition:transform .15s;">🇫🇷</button>
   </div>
@@ -3499,6 +3554,8 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     if (vt) vt.checked = localStorage.getItem(VIB_KEY) !== 'off';
     const st = document.getElementById('sg-toggle-snd');
     if (st) st.checked = localStorage.getItem(SND_KEY) !== 'off';
+    const tt = document.getElementById('sg-toggle-tts');
+    if (tt) tt.checked = localStorage.getItem('dartvault_tts') !== 'off';
     // Lang flag
     const lang = localStorage.getItem(LANG_KEY) || 'fr';
     const lb = document.getElementById('sg-btn-lang');
@@ -3535,6 +3592,11 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
   if (sndTog) sndTog.addEventListener('change', () => {
     localStorage.setItem(SND_KEY, sndTog.checked ? 'on' : 'off');
     _soundEnabled = sndTog.checked;
+  });
+
+  const ttsTog = document.getElementById('sg-toggle-tts');
+  if (ttsTog) ttsTog.addEventListener('change', () => {
+    localStorage.setItem('dartvault_tts', ttsTog.checked ? 'on' : 'off');
   });
 
   const langBtn = document.getElementById('sg-btn-lang');

@@ -713,7 +713,7 @@
       <button class="info-btn" onclick="showRules(event,'dartspong')">i</button>
       <span class="game-icon">🔴</span>
       <div class="game-name">DARTPONG</div>
-      <div class="game-description" data-i18n="desc_dartspong">Éliminez les zones adverses et tentez le Bull — 1 seule chance par partie !</div>
+      <div class="game-description" data-i18n="desc_dartspong">Éliminez toutes vos zones et tentez le Bull — 1 seule chance par partie !</div>
       <div class="game-players"><span data-i18n="players_dartspong">👥 2 – 6 joueurs</span></div>
     </a>
 
@@ -778,6 +778,14 @@
       <span class="settings-row-label" data-i18n="sounds">Sons</span>
       <label class="toggle-switch">
         <input type="checkbox" id="toggle-sound" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="settings-row">
+      <span>🗣️</span>
+      <span class="settings-row-label" data-i18n="announcer">Annonceur</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggle-tts" checked>
         <span class="toggle-slider"></span>
       </label>
     </div>
@@ -887,7 +895,7 @@
         install: 'Installer',
         profiles: 'Profils',
         theme: 'Thème', theme_dark: '🌙 Sombre', theme_light: '☀️ Clair', theme_colored: '🎨 Coloré',
-        vibrations: 'Vibrations', sounds: 'Sons', language: 'Langue',
+        vibrations: 'Vibrations', sounds: 'Sons', announcer: 'Annonceur', language: 'Langue',
         privacy: '🔒 Confidentialité',
         contact: '✉️ Contact',
         contact_title: 'Contact',
@@ -911,7 +919,7 @@
         players_shanghai: '👤 1 – 6 joueurs',
         desc_territoire: 'Capturez un maximum de zones avant la fin du temps imparti !',
         players_territoire: '👥 2 – 4 joueurs',
-        desc_dartspong: "Éliminez les zones adverses et tentez le Bull — 1 seule chance par partie !",
+        desc_dartspong: "Éliminez toutes vos zones et tentez le Bull — 1 seule chance par partie !",
         players_dartspong: '👥 2 – 6 joueurs',
         desc_battleroyal: 'Éliminez tous vos adversaires, chargez... tirez !',
         players_battleroyal: '👥 2 – 4 joueurs',
@@ -1054,17 +1062,17 @@
             <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Manches</strong> : 5 · 7 · 10</span></div>
             </div>` },
           dartspong: { icon:'🔴', title:'DARTPONG', players:'👥 2 – 6 joueurs',
-            catch: 'Comme au beerpong — vise les zones adverses.\nSi tu te sens, annonce le Bull !',
+            catch: 'Comme au beerpong — élimine les zones 1 par 1.\nSi tu te sens, annonce le Bull !',
             points: [
-              { icon:'🔴', title:'Chaque équipe a ses zones', desc:'Défendez les vôtres, visez celles de l\'adversaire — chaque touche élimine une zone.' },
+              { icon:'🔴', title:'Éliminez chaque zone', desc:'Éliminez chaque zone visible — chaque touche élimine une zone.' },
               { icon:'📢', title:'Le coup du Bull', desc:'Annoncez-le AVANT de tirer — réussi, il élimine 2 zones ennemies d\'un coup !' },
               { icon:'⚡', title:'Streak x3', desc:'Éliminez 3 zones d\'affilée = jouez un tour bonus complet !' }
             ],
             full: `<div class="rules-section">
               <div class="rules-section-title">🎲 Déroulement</div>
               <div class="rules-row"><span class="rules-arrow">→</span><span>3 fléchettes par tour</span></div>
-            <div class="rules-row"><span class="rules-arrow">→</span><span>Chaque joueur/équipe défend ses zones sur la cible</span></div>
-            <div class="rules-row"><span class="rules-arrow">→</span><span>Toucher une zone adverse l'élimine selon la difficulté</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Chaque joueur doit éliminer toutes ses zones pour gagner</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Toucher une zone l'élimine selon la difficulté</span></div>
             </div>
             <div class="rules-section">
               <div class="rules-section-title">🎯 Le Bull</div>
@@ -1217,7 +1225,7 @@
         install: 'Install',
         profiles: 'Profiles',
         theme: 'Theme', theme_dark: '🌙 Dark', theme_light: '☀️ Light', theme_colored: '🎨 Coloured',
-        vibrations: 'Vibrations', sounds: 'Sounds', language: 'Language',
+        vibrations: 'Vibrations', sounds: 'Sounds', announcer: 'Announcer', language: 'Language',
         privacy: '🔒 Privacy Policy',
         contact: '✉️ Contact',
         contact_title: 'Contact',
@@ -1241,7 +1249,7 @@
         players_shanghai: '👤 1 – 6 players',
         desc_territoire: 'Capture as many zones as possible before time runs out!',
         players_territoire: '👥 2 – 4 players',
-        desc_dartspong: 'Eliminate opponent zones and try the Bull — 1 chance per game!',
+        desc_dartspong: 'Eliminate all your zones and try the Bull — 1 chance per game!',
         players_dartspong: '👥 2 – 6 players',
         desc_battleroyal: 'Eliminate all your opponents — load up... fire!',
         players_battleroyal: '👥 2 – 4 players',
@@ -1384,17 +1392,17 @@
             <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Rounds</strong>: 5 · 7 · 10</span></div>
             </div>` },
           dartspong: { icon:'🔴', title:'DARTPONG', players:'👥 2 – 6 players',
-            catch: 'Like beer pong — aim at their zones.\nIf you feel it, call the Bull!',
+            catch: 'Like beer pong — eliminate zones one by one.\nIf you feel it, call the Bull!',
             points: [
-              { icon:'🔴', title:'Each team has zones', desc:'Defend yours, aim at theirs — each hit eliminates one zone.' },
+              { icon:'🔴', title:'Eliminate each zone', desc:'Eliminate every visible zone — each hit removes one zone.' },
               { icon:'📢', title:'The Bull call', desc:'Announce it BEFORE you throw — a hit eliminates 2 enemy zones at once!' },
               { icon:'⚡', title:'Streak x3', desc:'Eliminate 3 zones in a row = play a full bonus turn!' }
             ],
             full: `<div class="rules-section">
               <div class="rules-section-title">🎲 How to play</div>
               <div class="rules-row"><span class="rules-arrow">→</span><span>3 darts per turn</span></div>
-            <div class="rules-row"><span class="rules-arrow">→</span><span>Each player/team defends their zones on the board</span></div>
-            <div class="rules-row"><span class="rules-arrow">→</span><span>Hitting an opponent zone eliminates it based on difficulty</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Each player must eliminate all their zones to win</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Hitting a zone eliminates it based on difficulty</span></div>
             </div>
             <div class="rules-section">
               <div class="rules-section-title">🎯 The Bull</div>
@@ -1809,6 +1817,13 @@
     sndToggle.checked = localStorage.getItem(SOUND_KEY) !== 'off';
     sndToggle.addEventListener('change', () => {
       localStorage.setItem(SOUND_KEY, sndToggle.checked ? 'on' : 'off');
+    });
+
+    // ── ANNONCEUR (TTS) ──
+    const ttsToggle = document.getElementById('toggle-tts');
+    ttsToggle.checked = localStorage.getItem('dartvault_tts') !== 'off';
+    ttsToggle.addEventListener('change', () => {
+      localStorage.setItem('dartvault_tts', ttsToggle.checked ? 'on' : 'off');
     });
 
     // Générateur de sons via Web Audio API

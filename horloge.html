@@ -751,6 +751,9 @@ document.getElementById('btn-start').addEventListener('click',()=>{
   G.replayHits=0;G.turnDarts=[];
   G.gameStarted=true;G._finalWinnerNames=[];
   feedbackStart();showScreen('game');updateButtonLabels();renderGame();updateDarts();renderTurnDarts();
+  // TTS : annonce premier joueur + zone
+  var _fp=G.players[0];var _ft=currentTarget(_fp);
+  if(_ft)speak(_fp.name+', Zone '+_ft.label,500);
 });
 
 // ── Logique cibles ────────────────────────────────────────────────
@@ -843,6 +846,7 @@ function handleHit(type){
     p.totalDarts++;if(validated)p.totalHits++;
     G.dartsThrown++;renderGame();
     if(G.dartsThrown>=3){
+      _ttsTurnScore();
       // Vérifier tour bonus AVANT validation/passage
       if(G.bonusReplay&&G.replayHits>=3){
         G.history.unshift({msg:`🔁 ${p.name} ${DV_LANG.t('cl_replay_msg')}`,color:p.color});
@@ -869,17 +873,26 @@ function handleOut(){
     p.totalDarts++;
     G.dartsThrown++;feedbackOut();renderGame();
     if(G.dartsThrown>=3){
+      _ttsTurnScore();
       if(G.requireValidate){G._waitingValidate=true;updateDarts();wiggleValBtn();}
       else nextPlayer();
     } else updateDarts();
   }finally{_actionLock=false;}
 }
 
+function _ttsTurnScore(){
+  var hits=G.turnDarts.filter(function(d){return d.color!=='var(--danger)';}).length;
+  speak(String(hits));
+}
 function nextPlayer(){
   const _np=G.players[G.currentIdx];if(_np)_np.lastTurnDarts=[...G.turnDarts];
   G.dartsThrown=0;G._waitingValidate=false;G.replayHits=0;G.turnDarts=[];
   G.currentIdx=(G.currentIdx+1)%G.players.length;
   renderGame();updateDarts();switchBullBar();renderTurnDarts();
+  // TTS : annonce joueur + zone
+  var _cp=G.players[G.currentIdx];
+  var _ct=currentTarget(_cp);
+  if(_ct&&G.gameStarted)speak(_cp.name+', Zone '+_ct.label, 2000);
 }
 
 function undoAction(){
@@ -1213,7 +1226,25 @@ function showEnd(title,sub,color){
       </div>
     </div>`;
   }).join('');
+  // ── Cumulative game stats ──
+  (function() {
+    var STATS_KEY = 'dartvault_game_stats';
+    var gstats; try { gstats = JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch(e) { gstats = {}; }
+    G.players.forEach(function(p) {
+      if (!p.fromProfile) return;
+      var key = p.name;
+      if (!gstats[key]) gstats[key] = {};
+      if (!gstats[key]['horloge']) gstats[key]['horloge'] = { zonesHit:0, totalDarts:0, games:0 };
+      var s = gstats[key]['horloge'];
+      s.zonesHit += (p.totalHits || 0);
+      s.totalDarts += (p.totalDarts || 0);
+      s.games++;
+    });
+    localStorage.setItem(STATS_KEY, JSON.stringify(gstats));
+  })();
+
   document.getElementById('end-modal').classList.add('open');
+  speak(sorted[0].name+' '+(DV_LANG.get()==='en'?'wins the game':'remporte la partie'),1200);
 }
 
 function applyGameLang(){
@@ -1246,6 +1277,7 @@ document.getElementById('btn-bull').addEventListener('click',()=>{feedbackKey();
 document.getElementById('btn-bulleye').addEventListener('click',()=>{feedbackKey();handleBull('bulleye');});
 function handleValidate(){
   if(_actionLock||!G.gameStarted)return;
+  feedbackValidate();
   if(G._waitingValidate){
     // Si replay actif et 3 réussites atteintes : tour bonus au lieu de passer
     if(G.bonusReplay&&G.replayHits>=3){
@@ -1270,6 +1302,7 @@ function handleValidate(){
     G.dartsThrown++;
   }
   renderGame();updateDarts();renderTurnDarts();
+  _ttsTurnScore();
   // Vérifier bonus replay avant de passer
   if(G.bonusReplay&&G.replayHits>=3){
     G.history.unshift({msg:`🔁 ${p.name} ${DV_LANG.t('cl_replay_msg')}`,color:p.color});
@@ -1528,6 +1561,7 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
   </div>
   <div class="sg-row"><span>📳</span><span class="sg-row-label">Vibrations</span><label class="sg-toggle"><input type="checkbox" id="sg-toggle-vib" checked><span class="sg-slider"></span></label></div>
   <div class="sg-row"><span>🔊</span><span class="sg-row-label">Sons</span><label class="sg-toggle"><input type="checkbox" id="sg-toggle-snd" checked><span class="sg-slider"></span></label></div>
+  <div class="sg-row"><span>🗣️</span><span class="sg-row-label" data-i18n="announcer">Annonceur</span><label class="sg-toggle"><input type="checkbox" id="sg-toggle-tts" checked><span class="sg-slider"></span></label></div>
   <div class="sg-row"><span class="sg-row-label">Langue / Language</span><button id="sg-btn-lang" style="background:none;border:none;cursor:pointer;font-size:1.8rem;line-height:1;padding:2px;border-radius:6px;touch-action:manipulation;" aria-label="Changer de langue">🇫🇷</button></div>
 </div>
 <script>
@@ -1542,12 +1576,14 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     ['dark','light','colored'].forEach(k=>{const el=document.getElementById('sg-pill-'+k);if(el)el.classList.toggle('active',t===k);});
     const vt=document.getElementById('sg-toggle-vib');if(vt)vt.checked=localStorage.getItem(VK)!=='off';
     const st=document.getElementById('sg-toggle-snd');if(st)st.checked=localStorage.getItem(SK)!=='off';
+    const tt=document.getElementById('sg-toggle-tts');if(tt)tt.checked=localStorage.getItem('dartvault_tts')!=='off';
     const lb=document.getElementById('sg-btn-lang');if(lb)lb.textContent=(localStorage.getItem(LK)||'fr')==='fr'?'🇫🇷':'🇬🇧';
   }
   function at(t){localStorage.setItem(TK,t);document.documentElement.setAttribute('data-theme',t);sync();}
   ['dark','light','colored'].forEach(k=>{const el=document.getElementById('sg-pill-'+k);if(el)el.addEventListener('click',()=>at(k));});
   const vt=document.getElementById('sg-toggle-vib');if(vt)vt.addEventListener('change',()=>localStorage.setItem(VK,vt.checked?'on':'off'));
   const st=document.getElementById('sg-toggle-snd');if(st)st.addEventListener('change',()=>localStorage.setItem(SK,st.checked?'on':'off'));
+  const tts=document.getElementById('sg-toggle-tts');if(tts)tts.addEventListener('change',()=>localStorage.setItem('dartvault_tts',tts.checked?'on':'off'));
   const lb=document.getElementById('sg-btn-lang');if(lb)lb.addEventListener('click',()=>{const c=localStorage.getItem(LK)||'fr';localStorage.setItem(LK,c==='fr'?'en':'fr');applyGameLang();sync();});
   sync();
 })();

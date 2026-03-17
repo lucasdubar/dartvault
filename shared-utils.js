@@ -16,6 +16,22 @@
   }
 })();
 
+// ── TTS (Text-to-Speech) ──
+function speak(text, delay) {
+  if (localStorage.getItem('dartvault_tts') === 'off') return;
+  if (!window.speechSynthesis) return;
+  setTimeout(function(){
+    window.speechSynthesis.cancel();
+    var clean = text.replace(/[\u{1F000}-\u{1FFFF}|\u{2600}-\u{27BF}|\u{FE00}-\u{FE0F}|\u{1F900}-\u{1F9FF}|\u{200D}|\u{20E3}|\u{E0020}-\u{E007F}|\u{2702}-\u{27B0}|\u{1FA00}-\u{1FA6F}|\u{1FA70}-\u{1FAFF}|\u{2B50}|\u{23CF}|\u{23E9}-\u{23F3}|\u{231A}-\u{231B}]/gu, '').replace(/\s+/g,' ').trim();
+    var u = new SpeechSynthesisUtterance(clean);
+    u.lang = (window.DV_LANG && DV_LANG.get() === 'en') ? 'en-US' : 'fr-FR';
+    u.rate = 1.2;
+    u.pitch = 0.8;
+    u.volume = 1;
+    window.speechSynthesis.speak(u);
+  }, delay || 0);
+}
+
 // ── Viewport fix (Android height recalc) ──
 function fixViewport(){
   document.documentElement.style.setProperty('--real-vh', window.innerHeight + 'px');
