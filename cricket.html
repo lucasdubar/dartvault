@@ -19,6 +19,17 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>DartVault — Cricket</title>
 <meta name="description" content="DartVault — Jouez au Cricket, le jeu de fléchettes stratégique. Fermez les numéros et marquez des points contre vos adversaires.">
+<link rel="canonical" href="https://dartvault.app/cricket">
+<meta property="og:title" content="DartVault — Cricket">
+<meta property="og:description" content="Le Cricket aux fléchettes sur DartVault. Fermez vos zones et marquez des points !">
+<meta property="og:image" content="https://dartvault.app/icons/logo-hub.png">
+<meta property="og:url" content="https://dartvault.app/cricket">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DartVault">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="DartVault — Cricket">
+<meta name="twitter:description" content="Le Cricket aux fléchettes sur DartVault. Fermez vos zones et marquez des points !">
+<meta name="twitter:image" content="https://dartvault.app/icons/logo-hub.png">
 <style>
 
 
@@ -985,6 +996,7 @@ body {
 [data-theme="light"] .mark-symbol.done svg{filter:drop-shadow(0 0 2px currentColor)!important;}
 </style>
   <script src="lang.js"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Cricket","url":"https://dartvault.app/cricket","description":"Le Cricket aux fléchettes sur DartVault. Fermez vos zones et marquez des points !","isPartOf":{"@type":"WebSite","name":"DartVault","url":"https://dartvault.app"}}</script>
 </head>
 <body>
 <script>
@@ -2313,10 +2325,11 @@ document.getElementById('btn-out').addEventListener('click',  handleOut);
 document.getElementById('btn-undo').addEventListener('click', handleUndo);
 
 // Bouton Valider : compléter le tour avec des Out
-document.getElementById('btn-val').addEventListener('click', () => { feedbackClose(); handleValidate(); });
+document.getElementById('btn-val').addEventListener('click', () => { handleValidate(); });
 
 function handleValidate() {
   if (!G.started) return;
+  feedbackClose();
   if (G._waitingValidate) {
     // Tour déjà terminé (3 fléchettes + requireValidate), passer au joueur suivant
     advanceToNextPlayer();

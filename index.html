@@ -8,7 +8,7 @@
   <link rel="icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="description" content="DartVault — La suite complète de jeux de fléchettes gratuite. 501, Cricket, Shanghai, Horloge et plus. Jouez entre amis directement dans votre navigateur, même hors-ligne.">
+  <meta name="description" content="DartVault — Jouez aux fléchettes entre amis ! 10 jeux gratuits dont le 501, Cricket et Shanghai. Compatible Autodarts. Aucune inscription, jouez directement dans votre navigateur.">
   <meta name="theme-color" content="#0A0A0A">
   <title>DartVault — Jeux de fléchettes gratuits en ligne</title>
   <meta property="og:title" content="DartVault — Jeux de fléchettes gratuits">
@@ -36,6 +36,26 @@
     "image": "https://dartvault.app/icons/logo-hub.png",
     "author": { "@type": "Person", "name": "Lucas Dubar" },
     "inLanguage": ["fr", "en"]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "DartVault",
+    "url": "https://dartvault.app",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://dartvault.app/home"
+    },
+    "hasPart": [
+      {"@type": "WebPage", "name": "501 Darts", "url": "https://dartvault.app/501"},
+      {"@type": "WebPage", "name": "Cricket", "url": "https://dartvault.app/cricket"},
+      {"@type": "WebPage", "name": "Shanghai", "url": "https://dartvault.app/shanghai"},
+      {"@type": "WebPage", "name": "Race 500", "url": "https://dartvault.app/race500"},
+      {"@type": "WebPage", "name": "Classement", "url": "https://dartvault.app/classement"},
+      {"@type": "WebPage", "name": "Blog", "url": "https://dartvault.app/blog"}
+    ]
   }
   </script>
   <script>
@@ -842,8 +862,12 @@
     <button class="btn-support" id="btn-support" onclick="document.getElementById('support-modal').classList.add('open')">☕ <span id="btn-support-text">Soutenir DartVault</span></button>
     <span>DartVault © 2026</span>
     <div style="display:flex;gap:16px;">
-      <button class="footer-privacy" id="btn-privacy" onclick="window.location.href='/privacy.html'">🔒 Confidentialité</button>
+      <button class="footer-privacy" id="btn-privacy" onclick="window.location.href='/privacy.html'">🔒 <span data-i18n="privacy">Confidentialité</span></button>
       <button class="footer-privacy" id="btn-contact" onclick="document.getElementById('contact-modal').classList.add('open')">✉️ Contact</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+      <span id="app-version" style="font-size:.7rem;color:var(--dim2);letter-spacing:.5px;"></span>
+      <button id="btn-check-update" style="font-size:.65rem;color:var(--text);opacity:.5;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:3px 8px;cursor:pointer;font-family:'Exo 2',sans-serif;letter-spacing:.3px;touch-action:manipulation;transition:color .2s,border-color .2s,opacity .2s;" data-i18n="check_update">Vérifier les mises à jour</button>
     </div>
   </div>
 
@@ -2026,6 +2050,87 @@
         });
       }).catch(() => {});
     }
+
+    // ── DISPLAY VERSION DATE ──
+    function _askVersion() {
+      if (!('serviceWorker' in navigator)) return;
+      navigator.serviceWorker.addEventListener('message', function(e) {
+        if (e.data && e.data.type === 'VERSION') {
+          var el = document.getElementById('app-version');
+          if (el) el.textContent = '🕐 ' + e.data.date;
+        }
+      });
+      if (navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({ type: 'GET_VERSION' });
+      }
+      navigator.serviceWorker.ready.then(function(reg) {
+        if (reg.active) reg.active.postMessage({ type: 'GET_VERSION' });
+      });
+    }
+    _askVersion();
+    // Retry after a short delay in case SW wasn't ready
+    setTimeout(function() {
+      _askVersion();
+      // Fallback if SW never responds (local dev)
+      setTimeout(function() {
+        var el = document.getElementById('app-version');
+        if (el && !el.textContent) el.textContent = 'v2.2';
+      }, 2000);
+    }, 2000);
+
+    // ── CHECK UPDATE BUTTON ──
+    document.getElementById('btn-check-update').addEventListener('click', function() {
+      var btn = this;
+      var lang = localStorage.getItem('dartvault_lang') || 'fr';
+      btn.textContent = lang === 'fr' ? '⏳ Vérification...' : '⏳ Checking...';
+      btn.style.pointerEvents = 'none';
+
+      if (!('serviceWorker' in navigator)) {
+        btn.textContent = lang === 'fr' ? '✅ À jour' : '✅ Up to date';
+        btn.style.color = '#4CAF50'; btn.style.opacity = '1';
+        setTimeout(function() { btn.textContent = lang === 'fr' ? 'Vérifier les mises à jour' : 'Check for updates'; btn.style.color = 'var(--text)'; btn.style.opacity = '.5'; btn.style.pointerEvents = ''; }, 2500);
+        return;
+      }
+
+      navigator.serviceWorker.getRegistration().then(function(reg) {
+        if (!reg) {
+          btn.textContent = lang === 'fr' ? '✅ À jour' : '✅ Up to date';
+          btn.style.color = '#4CAF50'; btn.style.opacity = '1';
+          setTimeout(function() { btn.textContent = lang === 'fr' ? 'Vérifier les mises à jour' : 'Check for updates'; btn.style.color = 'var(--text)'; btn.style.opacity = '.5'; btn.style.pointerEvents = ''; }, 2500);
+          return;
+        }
+        reg.update().then(function() {
+          // Check if a new SW was found
+          if (reg.waiting) {
+            btn.textContent = lang === 'fr' ? '🔄 Mise à jour...' : '🔄 Updating...';
+            btn.style.color = '#FF9800'; btn.style.opacity = '1';
+            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            navigator.serviceWorker.addEventListener('controllerchange', function() {
+              window.location.reload();
+            });
+          } else if (reg.installing) {
+            btn.textContent = lang === 'fr' ? '🔄 Installation...' : '🔄 Installing...';
+            btn.style.color = '#FF9800'; btn.style.opacity = '1';
+            reg.installing.addEventListener('statechange', function() {
+              if (this.state === 'installed') {
+                this.postMessage({ type: 'SKIP_WAITING' });
+                navigator.serviceWorker.addEventListener('controllerchange', function() {
+                  window.location.reload();
+                });
+              }
+            });
+          } else {
+            btn.textContent = lang === 'fr' ? '✅ À jour' : '✅ Up to date';
+            btn.style.color = '#4CAF50'; btn.style.opacity = '1';
+            setTimeout(function() { btn.textContent = lang === 'fr' ? 'Vérifier les mises à jour' : 'Check for updates'; btn.style.color = 'var(--text)'; btn.style.opacity = '.5'; btn.style.pointerEvents = ''; }, 2500);
+          }
+        });
+      }).catch(function() {
+        btn.textContent = lang === 'fr' ? '❌ Erreur' : '❌ Error';
+        btn.style.color = '#F44336'; btn.style.opacity = '1';
+        setTimeout(function() { btn.textContent = lang === 'fr' ? 'Vérifier les mises à jour' : 'Check for updates'; btn.style.color = 'var(--text)'; btn.style.opacity = '.5'; btn.style.pointerEvents = ''; }, 2500);
+      });
+    });
   </script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>

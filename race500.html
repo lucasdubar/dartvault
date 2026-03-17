@@ -19,6 +19,17 @@
 <meta name="theme-color" content="#0E0F10">
 <title>DartVault — Race 500</title>
 <meta name="description" content="DartVault — Jouez à Race 500, la course aux points aux fléchettes. Le premier à atteindre 500 points remporte la victoire.">
+<link rel="canonical" href="https://dartvault.app/race500">
+<meta property="og:title" content="DartVault — Race 500">
+<meta property="og:description" content="Race 500 sur DartVault. Montez vers la cible, volez les points adverses !">
+<meta property="og:image" content="https://dartvault.app/icons/logo-hub.png">
+<meta property="og:url" content="https://dartvault.app/race500">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DartVault">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="DartVault — Race 500">
+<meta name="twitter:description" content="Race 500 sur DartVault. Montez vers la cible, volez les points adverses !">
+<meta name="twitter:image" content="https://dartvault.app/icons/logo-hub.png">
 <style>
 
 :root{--bg:#0E0F10;--bg2:#161718;--bg3:#1C1E20;--bg4:#242628;--accent:#E8E8E8;--ok:#28C76F;--warn:#FF9F43;--danger:#DC3545;--text:#F0F0F0;--dim:#606468;}
@@ -941,6 +952,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
 }
 </style>
   <script src="lang.js"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Race 500","url":"https://dartvault.app/race500","description":"Race 500 sur DartVault. Montez vers la cible, volez les points adverses !","isPartOf":{"@type":"WebSite","name":"DartVault","url":"https://dartvault.app"}}</script>
 </head>
 <body>
 
@@ -1089,7 +1101,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
 <div class="mov" id="m-bust">
   <div class="mod" style="max-width:300px;">
     <div class="mod-title" style="color:var(--danger);" data-i18n="rc_bust_title">💥 BUST !</div>
-    <div class="mod-sub" id="msub" data-i18n="rc_bust_sub">Tour annulé.</div>
+    <div class="mod-sub" id="msub" data-i18n="rc_bust_sub">Fléchette annulée.</div>
     <div class="mod-btns">
       <button class="bmod bgr" id="bbok">OK</button>
     </div>
@@ -1366,7 +1378,8 @@ function sM(m){
 document.getElementById('ngrid').onclick = e => {
   const b = e.target.closest('.nb'); if (b) { feedbackKey(); hit(parseInt(b.dataset.n)); }
 };
-document.getElementById('bbok').onclick = () => { document.getElementById('m-bust').classList.remove('open'); setTimeout(nxt, 80); };
+function closeBust(){ document.getElementById('m-bust').classList.remove('open'); if(G._bustTimer){clearTimeout(G._bustTimer);G._bustTimer=null;} if(!G.requireValidate) setTimeout(nxt, 80); else wiggleValBtn(); }
+document.getElementById('bbok').onclick = closeBust;
 function hit(n){
   if(!G.on)return;
   if(G.d>=3){ if(G.requireValidate){T(DV_LANG.t('press_validate'));wiggleValBtn();} return; }
@@ -1389,6 +1402,7 @@ function hit(n){
     document.getElementById('msub').textContent=mult_label+' → '+p.n+' '+DV_LANG.t('rc_exceeds')+' '+G.tgt+' !';
     draw();
     document.getElementById('m-bust').classList.add('open');
+    G._bustTimer=setTimeout(function(){ if(document.getElementById('m-bust').classList.contains('open')) closeBust(); },2000);
     return;
   }
 
@@ -1398,6 +1412,7 @@ function hit(n){
     renderTurnDarts();
 
   // Vol cascade : tant qu'on atterrit sur le score d'un adversaire
+  var _stolenBefore = p.stolen;
   let stolen=true;
   while(stolen){
     stolen=false;
@@ -1425,11 +1440,26 @@ function hit(n){
           document.getElementById('msub').textContent=p.n+' '+DV_LANG.t('rc_exceeds_steal')+' '+G.tgt+' !\n'+o.n+' -'+actualSteal+' pts.';
           draw();
           document.getElementById('m-bust').classList.add('open');
+          G._bustTimer=setTimeout(function(){ if(document.getElementById('m-bust').classList.contains('open')) closeBust(); },2000);
           return;
         }
       }
     });
     if(document.getElementById('m-bust').classList.contains('open'))return;
+  }
+  // TTS : après vol, annoncer nouvelle situation
+  if(p.stolen > _stolenBefore) {
+    var _rem2 = G.tgt - p.s;
+    var _ahead2 = G.pl.filter(function(o,j){return j!==G.i&&o.s>p.s;}).sort(function(a,b){return a.s-b.s;});
+    var _msg = '';
+    if(_rem2 <= 170) _msg = 'Finish ' + _rem2;
+    if(_ahead2.length) {
+      var _aheadMsg = _ahead2[0].n + ' ' + (DV_LANG.get()==='en'?'ahead':'devant') + ', ' + (_ahead2[0].s - p.s);
+      _msg = _msg ? _msg + ', ' + _aheadMsg : (DV_LANG.get()==='en'?'New target ':'Nouvelle cible ') + _aheadMsg;
+    } else if(!_msg && p.s > 0) {
+      _msg = DV_LANG.get()==='en'?'Leading':'En tête';
+    }
+    if(_msg) speak(_msg, 1500);
   }
 
   if(p.s===G.tgt){
@@ -1592,19 +1622,19 @@ const _RULES_DATA = {
     points: [
       { icon: '🏃', title: 'Montez vers l\'objectif', desc: 'Lancez 3 fléchettes et additionnez vos points pour grimper vers la cible (300 ou 500).' },
       { icon: '💫', title: 'Volez les points', desc: 'Atterrissez exactement sur le score d\'un adversaire — et volez-lui des points !' },
-      { icon: '💥', title: 'Évitez le bust', desc: 'Dépasser la cible annule tout le tour — restez en dessous et gardez la tête froide !' }
+      { icon: '💥', title: 'Évitez le bust', desc: 'Dépasser la cible annule la dernière fléchette — restez en dessous et gardez la tête froide !' }
     ],
     full: `<div class="rules-section">
               <div class="rules-section-title">🎲 Déroulement</div>
               <div class="rules-row"><span class="rules-arrow">→</span><span>3 fléchettes par tour, on additionne les points</span></div>
             <div class="rules-row"><span class="rules-arrow">→</span><span>Simple = ×1 · Double = ×2 · Triple = ×3 · Bull = 25 (pas de triple)</span></div>
-            <div class="rules-row"><span class="rules-arrow">→</span><span>Dépasser la cible = Bust — le tour est annulé, on revient au score de début de tour</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Dépasser la cible = Bust — seule la fléchette qui dépasse est annulée, les précédentes comptent</span></div>
             </div>
             <div class="rules-section">
               <div class="rules-section-title">🥊 Vol de points</div>
               <div class="rules-row"><span class="rules-arrow">→</span><span>Si tu atterris exactement sur le score d'un adversaire → tu lui voles des points</span></div>
             <div class="rules-row"><span class="rules-arrow">→</span><span>Le vol peut enchaîner en cascade si le nouveau score touche encore un adversaire</span></div>
-            <div class="rules-row"><span class="rules-arrow">→</span><span>Si le vol te ferait dépasser la cible → tour annulé (bust)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Si le vol te ferait dépasser la cible → le vol est annulé (bust)</span></div>
             </div>
             <div class="rules-section">
               <div class="rules-section-title">🏆 Victoire</div>
@@ -1622,19 +1652,19 @@ const _RULES_DATA = {
     points: [
       { icon: '🏃', title: 'Climb to the target', desc: 'Throw 3 darts and add up points to climb toward the target (300 or 500).' },
       { icon: '💫', title: 'Steal points', desc: 'Land exactly on an opponent\'s score — and steal their points!' },
-      { icon: '💥', title: 'Avoid the bust', desc: 'Going over the target cancels your whole turn — stay below and keep focused!' }
+      { icon: '💥', title: 'Avoid the bust', desc: 'Going over the target cancels the last dart — stay below and keep focused!' }
     ],
     full: `<div class="rules-section">
               <div class="rules-section-title">🎲 How to play</div>
               <div class="rules-row"><span class="rules-arrow">→</span><span>3 darts per turn, add up the points</span></div>
             <div class="rules-row"><span class="rules-arrow">→</span><span>Single = ×1 · Double = ×2 · Triple = ×3 · Bull = 25 (no triple)</span></div>
-            <div class="rules-row"><span class="rules-arrow">→</span><span>Going over the target = Bust — turn is cancelled, score resets to start-of-turn value</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Going over the target = Bust — only the dart that exceeds is cancelled, previous ones count</span></div>
             </div>
             <div class="rules-section">
               <div class="rules-section-title">🥊 Score steal</div>
               <div class="rules-row"><span class="rules-arrow">→</span><span>Land exactly on an opponent's score → steal points from them</span></div>
             <div class="rules-row"><span class="rules-arrow">→</span><span>Steals can chain in cascade if the new score lands on another opponent</span></div>
-            <div class="rules-row"><span class="rules-arrow">→</span><span>If a steal would push you past the target → turn is cancelled (bust)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>If a steal would push you past the target → the steal is cancelled (bust)</span></div>
             </div>
             <div class="rules-section">
               <div class="rules-section-title">🏆 Victory</div>

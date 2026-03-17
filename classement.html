@@ -8,7 +8,20 @@
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#0A0A0A">
-  <title>DartVault — Classement</title>  <script>
+  <title>DartVault — Classement</title>
+  <meta name="description" content="Classement et statistiques de tous vos jeux de fléchettes sur DartVault.">
+  <link rel="canonical" href="https://dartvault.app/classement">
+  <meta property="og:title" content="DartVault — Classement">
+  <meta property="og:description" content="Classement et statistiques de tous vos jeux de fléchettes sur DartVault.">
+  <meta property="og:image" content="https://dartvault.app/icons/logo-hub.png">
+  <meta property="og:url" content="https://dartvault.app/classement">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="DartVault">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="DartVault — Classement">
+  <meta name="twitter:description" content="Classement et statistiques de tous vos jeux de fléchettes sur DartVault.">
+  <meta name="twitter:image" content="https://dartvault.app/icons/logo-hub.png">
+  <script>
     (function(){
       var t = localStorage.getItem('dartvault_theme') || 'dark';
       if(t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
@@ -316,6 +329,7 @@
     }
   </style>
   <script src="lang.js"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Classement","url":"https://dartvault.app/classement","description":"Classement et statistiques de tous vos jeux de fléchettes sur DartVault.","isPartOf":{"@type":"WebSite","name":"DartVault","url":"https://dartvault.app"}}</script>
 </head>
 <body>
 
@@ -514,7 +528,7 @@ const GAME_NAMES = {
 
 // ── Sélecteur de jeu ─────────────────────────────────────────────────
 const GAMES_LIST = [
-  { key:'_total',    fr:'🎮 Tout',           en:'🎮 All' },
+  { key:'_total',    fr:'🏆 Tout',           en:'🏆 All' },
   { key:'501',       fr:'🎯 X01 DARTS',      en:'🎯 X01 DARTS' },
   { key:'cricket',   fr:'🦗 CRICKET',        en:'🦗 CRICKET' },
   { key:'shanghai',  fr:'🗼 SHANGHAI',        en:'🗼 SHANGHAI' },
@@ -645,9 +659,11 @@ function renderRanking() {
       const s = ps['501'];
       gamesPlayed = s.games || 0;
       const avg = s.totalThrows > 0 ? (s.totalScore / s.totalThrows).toFixed(1) : '0.0';
+      const dblHtml = s.doubleAttempts > 0 ? `<span>D% <span class="rank-stat-val">${Math.round(s.doubleHits/s.doubleAttempts*100)}%</span></span>` : '';
       statsHtml = `<div class="rank-stats">
         <span>${currentLang==='fr'?'Moy':'Avg'} : <span class="rank-stat-val">${avg}</span></span>
         <span>${currentLang==='fr'?'Flé':'Drt'} : <span class="rank-stat-val">${s.totalDarts}</span></span>
+        ${dblHtml}
       </div>`;
     } else if (currentGame === 'territoire' && ps['territoire']) {
       const s = ps['territoire'];
@@ -724,6 +740,10 @@ function renderRanking() {
       </div>`;
     }
 
+    // Pour "Tout", compter le total de parties tous jeux confondus
+    if (currentGame === '_total' && ps) {
+      Object.values(ps).forEach(function(g) { if (g.games) gamesPlayed += g.games; });
+    }
     const gamesStr = gamesPlayed > 0 ? `<span class="rank-games">/${gamesPlayed}</span>` : '';
 
     return `

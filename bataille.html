@@ -20,7 +20,19 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>DartVault — Bataille Navale</title>
-<meta name="description" content="DartVault — Jouez à la Bataille Navale version fléchettes. Placez vos bateaux et coulez la flotte adverse sur la cible."><style>
+<meta name="description" content="DartVault — Jouez à la Bataille Navale version fléchettes. Placez vos bateaux et coulez la flotte adverse sur la cible.">
+<link rel="canonical" href="https://dartvault.app/bataille">
+<meta property="og:title" content="DartVault — Bataille Navale">
+<meta property="og:description" content="Bataille Navale sur DartVault. Coulez la flotte adverse aux fléchettes !">
+<meta property="og:image" content="https://dartvault.app/icons/logo-hub.png">
+<meta property="og:url" content="https://dartvault.app/bataille">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DartVault">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="DartVault — Bataille Navale">
+<meta name="twitter:description" content="Bataille Navale sur DartVault. Coulez la flotte adverse aux fléchettes !">
+<meta name="twitter:image" content="https://dartvault.app/icons/logo-hub.png">
+<style>
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 :root {
   --bg:#0E0F10; --bg2:#161718; --bg3:#1C1E20;
@@ -1052,6 +1064,7 @@ body { font-family:'Exo 2',sans-serif; background:var(--bg); color:var(--text); 
 [data-theme="dark"] .btn-modal-no,[data-theme="light"] .btn-modal-no{background:rgba(220,53,69,.18)!important;border:1.5px solid rgba(220,53,69,.6)!important;color:#dc3545!important;box-shadow:none!important;}
 </style>
   <script src="lang.js"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Bataille Navale","url":"https://dartvault.app/bataille","description":"Bataille Navale sur DartVault. Coulez la flotte adverse aux fléchettes !","isPartOf":{"@type":"WebSite","name":"DartVault","url":"https://dartvault.app"}}</script>
 </head>
 <body>
 
@@ -1509,6 +1522,13 @@ function feedbackHit() {
   _playNote(120, 0,    0.10, 0.25, 'sawtooth');
   _playNote(80,  0.05, 0.12, 0.20, 'sine');
   _playNote(240, 0.02, 0.06, 0.12, 'square');
+}
+// Bull — son distinctif aigu + vibration
+function feedbackBull() {
+  haptic('success');
+  _playNote(660, 0, 0.08, 0.22, 'sine');
+  _playNote(880, 0.06, 0.08, 0.18, 'sine');
+  _playNote(1100, 0.12, 0.10, 0.20, 'sine');
 }
 // Coulé — explosion grave en 4 notes + vibration death
 function feedbackSunk() {
@@ -2306,6 +2326,7 @@ function executeBull(val) {
   // Slot fléchette
   G.turnDarts.push({ label: label, type: 'hit' });
 
+  feedbackBull();
   showToast(`${label} → ${picks.length} cases`, TEAM_COLOR[atk]);
 
   G.dartsLeft--;

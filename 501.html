@@ -20,6 +20,17 @@
 <meta name="apple-mobile-web-app-title" content="501 Darts">
 <title>DartVault — 501 Darts</title>
 <meta name="description" content="DartVault — Jouez au 501, le jeu de fléchettes classique. Comptez vos points automatiquement et jouez entre amis.">
+<link rel="canonical" href="https://dartvault.app/501">
+<meta property="og:title" content="DartVault — 501 Darts">
+<meta property="og:description" content="Jouez au 501 entre amis avec DartVault. Comptage automatique, suivi des doubles, compatible Autodarts.">
+<meta property="og:image" content="https://dartvault.app/icons/logo-hub.png">
+<meta property="og:url" content="https://dartvault.app/501">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DartVault">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="DartVault — 501 Darts">
+<meta name="twitter:description" content="Jouez au 501 entre amis avec DartVault. Comptage automatique, suivi des doubles, compatible Autodarts.">
+<meta name="twitter:image" content="https://dartvault.app/icons/logo-hub.png">
 <style>
 
 
@@ -1066,6 +1077,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
 }
 </style>
 <script src="lang.js"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"501 Darts","url":"https://dartvault.app/501","description":"Jouez au 501 entre amis avec DartVault. Comptage automatique, suivi des doubles, compatible Autodarts.","isPartOf":{"@type":"WebSite","name":"DartVault","url":"https://dartvault.app"}}</script>
 <body>
 
 <div class="header">
@@ -2864,12 +2876,16 @@ function showFinalResult(winner) {
       if (!p.fromProfile) return;
       var key = p.name;
       if (!stats[key]) stats[key] = {};
-      if (!stats[key]['501']) stats[key]['501'] = { totalScore:0, totalThrows:0, totalDarts:0, games:0 };
+      if (!stats[key]['501']) stats[key]['501'] = { totalScore:0, totalThrows:0, totalDarts:0, games:0, doubleAttempts:0, doubleHits:0 };
       var s = stats[key]['501'];
       var throws = p.allThrows || [];
       s.totalScore += throws.reduce(function(sum,t){ return sum + t.score; }, 0);
       s.totalThrows += throws.length;
       s.totalDarts += p.allDartsThrown || 0;
+      if (G.trackDoubles) {
+        s.doubleAttempts += p.allDoubleAttempts || 0;
+        s.doubleHits += p.allDoubleHits || 0;
+      }
       s.games++;
     });
     localStorage.setItem(STATS_KEY, JSON.stringify(stats));
@@ -4086,6 +4102,12 @@ function escPP(s) {
     if (typeof dartState === 'undefined') return;
     // Si aucune fléchette n'a été lancée, ignorer le takeout
     if (dartState.dartIdx === 0) return;
+    // Si le tour est déjà terminé (bust ou checkout), ignorer le takeout
+    var p = G.players[G.currentIdx];
+    if (p && p.throws.length > 0) {
+      var lastT = p.throws[p.throws.length - 1];
+      if (lastT.bust) return; // bust déjà traité, ne pas re-annoncer
+    }
 
     // Utiliser dValidateEarly qui gère correctement :
     // - Auto-complétion des fléchettes manquantes en OUT

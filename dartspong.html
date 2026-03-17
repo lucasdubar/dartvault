@@ -19,7 +19,19 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>DartVault — DartPong</title>
-<meta name="description" content="DartVault — Jouez au DartPong, le beer pong version fléchettes. Éliminez les verres adverses en touchant les bonnes zones."><style>
+<meta name="description" content="DartVault — Jouez au DartPong, le beer pong version fléchettes. Éliminez les verres adverses en touchant les bonnes zones.">
+<link rel="canonical" href="https://dartvault.app/dartspong">
+<meta property="og:title" content="DartVault — DartPong">
+<meta property="og:description" content="DartPong sur DartVault. Éliminez toutes vos zones pour gagner !">
+<meta property="og:image" content="https://dartvault.app/icons/logo-hub.png">
+<meta property="og:url" content="https://dartvault.app/dartspong">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DartVault">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="DartVault — DartPong">
+<meta name="twitter:description" content="DartPong sur DartVault. Éliminez toutes vos zones pour gagner !">
+<meta name="twitter:image" content="https://dartvault.app/icons/logo-hub.png">
+<style>
 :root{--bg:#0E0F10;--bg2:#161718;--bg3:#1C1E20;--bg4:#242628;--accent:#E8E8E8;--ok:#28C76F;--warn:#FF9F43;--danger:#DC3545;--text:#F0F0F0;--dim:#606468;--a:#3B6EE8;--b:#D4A017;--c:#C934C9;--blue2:#1A4FCC;}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;overflow:hidden;height:var(--real-vh,100dvh);display:flex;flex-direction:column;}
@@ -893,6 +905,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;overf
 [data-theme="light"] .mark-symbol.done{text-shadow:none!important;}
 </style>
   <script src="lang.js"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"DartPong","url":"https://dartvault.app/dartspong","description":"DartPong sur DartVault. Éliminez toutes vos zones pour gagner !","isPartOf":{"@type":"WebSite","name":"DartVault","url":"https://dartvault.app"}}</script>
 </head>
 <body>
 <div class="header">
@@ -2034,6 +2047,7 @@ function confirmZoneHit(idx) {
     if(spEl1){ spEl1.textContent = `${em} ${cur.name}`; spEl1.style.color = cur.color||'var(--accent)'; }
     feedbackBigFish();
     openModal('streak-modal');
+    G._streakTimer=setTimeout(function(){ if(document.getElementById('streak-modal').classList.contains('open')) closeStreakPopup(); },2000);
     return;
   }
   G.playerDarts[cur.name]++; G.dartsThrown++;
@@ -2041,13 +2055,15 @@ function confirmZoneHit(idx) {
   autoNextIfNeeded();
 }
 
-document.getElementById('streak-ok').addEventListener('click',()=>{
+function closeStreakPopup(){
+  if(G._streakTimer){clearTimeout(G._streakTimer);G._streakTimer=null;}
   closeModal('streak-modal');
   G.dartsThrown=0; G.streak=0;
-  G.turnDarts=[];   // Libérer les slots fléchettes pour le tour rejoué
-  G.lastShot=null;  // Effacer le clignotement
+  G.turnDarts=[];
+  G.lastShot=null;
   updateDisplay();
-});
+}
+document.getElementById('streak-ok').addEventListener('click', closeStreakPopup);
 
 // ── BULL ─────────────────────────────────────────────
 function onBull() {
@@ -2125,6 +2141,7 @@ document.getElementById('bull-oui').addEventListener('click',()=>{
     if(spEl2){ spEl2.textContent = `${cur.emoji} ${cur.name}`; spEl2.style.color = cur.color||'var(--accent)'; }
     feedbackBigFish();
     openModal('streak-modal');
+    G._streakTimer=setTimeout(function(){ if(document.getElementById('streak-modal').classList.contains('open')) closeStreakPopup(); },2000);
     return;
   }
   updateDisplay();
@@ -3246,6 +3263,13 @@ window.addEventListener('beforeinstallprompt', e => {
   function handleTakeout() {
     if (typeof G === 'undefined' || !G.gameStarted) return;
     if (dartCount === 0) return;
+    // Si le popup streak est ouvert, le fermer (le tour bonus commencera avec les prochaines fléchettes)
+    var streakModal = document.getElementById('streak-modal');
+    if (streakModal && streakModal.classList.contains('open')) {
+      if (typeof closeStreakPopup === 'function') closeStreakPopup();
+      dartCount = 0;
+      return;
+    }
     if (typeof onValidate === 'function') setTimeout(function() { onValidate(); }, 300);
     dartCount = 0;
   }

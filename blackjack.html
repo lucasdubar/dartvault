@@ -21,6 +21,17 @@
 <meta name="apple-mobile-web-app-title" content="BlackDarts">
 <title>DartVault — BlackDarts</title>
 <meta name="description" content="DartVault — Jouez au BlackDarts, le blackjack version fléchettes. Approchez-vous de 21 sans dépasser.">
+<link rel="canonical" href="https://dartvault.app/blackjack">
+<meta property="og:title" content="DartVault — BlackDart">
+<meta property="og:description" content="BlackDart sur DartVault. Atteignez le score cible sans le dépasser !">
+<meta property="og:image" content="https://dartvault.app/icons/logo-hub.png">
+<meta property="og:url" content="https://dartvault.app/blackjack">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DartVault">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="DartVault — BlackDart">
+<meta name="twitter:description" content="BlackDart sur DartVault. Atteignez le score cible sans le dépasser !">
+<meta name="twitter:image" content="https://dartvault.app/icons/logo-hub.png">
 <style>
 
 :root{--bg:#0E0F10;--bg2:#161718;--bg3:#1C1E20;--bg4:#242628;--accent:#E8E8E8;--ok:#28C76F;--warn:#FF9F43;--danger:#DC3545;--text:#F0F0F0;--dim:#606468;--green:#0B6623;--green2:#064020;--gold:#FFD700;--red:#8B0000;}
@@ -997,6 +1008,7 @@ input[type=number]{-moz-appearance:textfield;}
 [data-theme="light"] .cur-dealer-badge{background:var(--danger)!important;}
 </style>
   <script src="lang.js"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"BlackDart","url":"https://dartvault.app/blackjack","description":"BlackDart sur DartVault. Atteignez le score cible sans le dépasser !","isPartOf":{"@type":"WebSite","name":"DartVault","url":"https://dartvault.app"}}</script>
 </head>
 <body>
 <div class="header">
@@ -1652,6 +1664,7 @@ function dHit(n) {
       const p = G.order[G.currentIdx];
       document.getElementById('blackjack-player').textContent = p.name + ' atteint ' + B.targetScore + ' !';
       openModal('blackjack-modal');
+      B._bjTimer=setTimeout(function(){ if(document.getElementById('blackjack-modal').classList.contains('open')) closeModal('blackjack-modal'); B._bjTimer=null; },2000);
     } else { feedbackValidate(); speak(String(total)); }
     if (!B.requireValidate) {
       dartState.autoNextTimer = setTimeout(() => { dartState.autoNextTimer = null; dCommit(total); }, 300);
@@ -1710,6 +1723,7 @@ document.getElementById('pad-dart').addEventListener('click', e => {
       const p = G.order[G.currentIdx];
       document.getElementById('blackjack-player').textContent = p.name + ' atteint ' + B.targetScore + ' !';
       openModal('blackjack-modal');
+      B._bjTimer=setTimeout(function(){ if(document.getElementById('blackjack-modal').classList.contains('open')) closeModal('blackjack-modal'); B._bjTimer=null; },2000);
     } else if (total > B.targetScore) { speak(DV_LANG.get()==='en'?'Bust':'Dépasse'); }
     else { speak(String(total)); }
     dCommit(total);
@@ -1912,6 +1926,7 @@ document.querySelector('.numpad-bottom-row').addEventListener('click', e => {
       const p = G.order[G.currentIdx];
       document.getElementById('blackjack-player').textContent = p.name + ' atteint ' + B.targetScore + ' !';
       openModal('blackjack-modal');
+      B._bjTimer=setTimeout(function(){ if(document.getElementById('blackjack-modal').classList.contains('open')) closeModal('blackjack-modal'); B._bjTimer=null; },2000);
     } else { feedbackValidate(); speak(String(val)); }
     G.order[G.currentIdx].roundScore = val;
     G.currentIdx++;
@@ -2310,7 +2325,7 @@ document.getElementById('rules-hide-check').addEventListener('change', function(
 if (localStorage.getItem(_RULES_KEY) !== 'off') {
   _openRules();
 }
-document.getElementById('btn-blackjack-close').addEventListener('click', () => closeModal('blackjack-modal'));
+document.getElementById('btn-blackjack-close').addEventListener('click', () => { if(B._bjTimer){clearTimeout(B._bjTimer);B._bjTimer=null;} closeModal('blackjack-modal'); });
 
 function openModal(id){ document.getElementById(id).classList.add('open'); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
@@ -2571,7 +2586,7 @@ window.addEventListener('resize',adjustPlayersPadding);
     else btn.classList.remove('disabled');
   }
 
-  function toggleProfileRow(row, emoji, name) {
+  window.toggleProfileRow = function(row, emoji, name) {
     const max = getMaxPlayers();
     const key = emoji + '||' + name;
     const idx = window._ppSelectionOrder.findIndex(o => o.key === key);
@@ -2819,10 +2834,14 @@ window.addEventListener('resize',adjustPlayersPadding);
         dHit(0);
       }
     }
-    // Forcer commit si pas d'autoNext et pas de validation manuelle requise
-    if (typeof dartState !== 'undefined' && !dartState.autoNextTimer && dartState.dartIdx >= 3) {
+    // Toujours commit au takeout (retrait fléchettes = validation)
+    if (typeof dartState !== 'undefined' && dartState.dartIdx >= 3) {
+      if (dartState.autoNextTimer) { clearTimeout(dartState.autoNextTimer); dartState.autoNextTimer = null; }
       var total = dartState.darts.reduce(function(s, d) { return s + d.pts; }, 0);
-      if (!B.requireValidate && typeof dCommit === 'function') setTimeout(function() { dCommit(total); }, 200);
+      // Fermer le popup blackdart s'il est ouvert
+      var bjModal = document.getElementById('blackjack-modal');
+      if (bjModal && bjModal.classList.contains('open')) closeModal('blackjack-modal');
+      if (typeof dCommit === 'function') setTimeout(function() { dCommit(total); }, 200);
     }
     dartCount = 0;
   }

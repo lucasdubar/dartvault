@@ -8,7 +8,8 @@
 //  pour forcer le rechargement complet sur tous les appareils.
 // ═══════════════════════════════════════════════════════════
 
-const CACHE_VERSION = '2.1'; // ← incrémenter à chaque déploiement
+const CACHE_VERSION = '2.2'; // ← incrémenter à chaque déploiement
+const CACHE_DATE = '2026-03-17 23:30'; // ← mettre à jour à chaque déploiement
 const CACHE = 'dartvault-v' + CACHE_VERSION;
 
 const PRECACHE = [
@@ -28,6 +29,8 @@ const PRECACHE = [
   '/profil.html',
   '/classement.html',
   '/privacy.html',
+  '/blog.html',
+  '/robots.txt',
   '/theme.css',
   '/shared.css',
   '/shared-utils.js',
@@ -100,9 +103,12 @@ self.addEventListener('fetch', e => {
   );
 });
 
-// ── MESSAGE : SKIP_WAITING pour activation immédiate ────────
+// ── MESSAGE : SKIP_WAITING + GET_VERSION ────────
 self.addEventListener('message', e => {
   if (e.data && e.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
+  }
+  if (e.data && e.data.type === 'GET_VERSION') {
+    e.source.postMessage({ type: 'VERSION', version: CACHE_VERSION, date: CACHE_DATE });
   }
 });

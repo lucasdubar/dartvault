@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>DartVault — Jeux de fléchettes</title>
-  <meta name="description" content="DartVault — La suite complète de jeux de fléchettes. 501, Cricket, Horloge, Shanghai et plus. Jouez directement dans votre navigateur.">
+  <title>DartVault — 10 jeux de fléchettes gratuits | 501, Cricket</title>
+  <meta name="description" content="DartVault — 10 jeux de fléchettes gratuits entre amis. 501, Cricket, Shanghai et plus. Compatible Autodarts. Jouez sans inscription.">
   <meta name="theme-color" content="#1A0A0E">
-  <meta property="og:title" content="DartVault — Jeux de fléchettes">
-  <meta property="og:description" content="La suite complète de jeux de fléchettes gratuite. 501, Cricket, Horloge, Shanghai et plus. Jouez entre amis directement dans votre navigateur.">
+  <meta property="og:title" content="DartVault — 10 jeux de fléchettes gratuits | 501, Cricket">
+  <meta property="og:description" content="DartVault — 10 jeux de fléchettes gratuits entre amis. 501, Cricket, Shanghai et plus. Compatible Autodarts. Jouez sans inscription.">
   <meta property="og:image" content="https://dartvault.app/icons/logo-hub.png">
   <meta property="og:url" content="https://dartvault.app/home">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="DartVault">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="DartVault — Jeux de fléchettes">
-  <meta name="twitter:description" content="La suite complète de jeux de fléchettes gratuite. Jouez entre amis directement dans votre navigateur.">
+  <meta name="twitter:title" content="DartVault — 10 jeux de fléchettes gratuits | 501, Cricket">
+  <meta name="twitter:description" content="DartVault — 10 jeux de fléchettes gratuits entre amis. 501, Cricket, Shanghai et plus. Compatible Autodarts. Jouez sans inscription.">
   <meta name="twitter:image" content="https://dartvault.app/icons/logo-hub.png">
   <link rel="canonical" href="https://dartvault.app/home">
   <script type="application/ld+json">
@@ -30,6 +30,26 @@
     "image": "https://dartvault.app/icons/logo-hub.png",
     "author": { "@type": "Person", "name": "Lucas Dubar" },
     "inLanguage": ["fr", "en"]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "DartVault",
+    "url": "https://dartvault.app",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://dartvault.app/home"
+    },
+    "hasPart": [
+      {"@type": "WebPage", "name": "501 Darts", "url": "https://dartvault.app/501"},
+      {"@type": "WebPage", "name": "Cricket", "url": "https://dartvault.app/cricket"},
+      {"@type": "WebPage", "name": "Shanghai", "url": "https://dartvault.app/shanghai"},
+      {"@type": "WebPage", "name": "Race 500", "url": "https://dartvault.app/race500"},
+      {"@type": "WebPage", "name": "Classement", "url": "https://dartvault.app/classement"},
+      {"@type": "WebPage", "name": "Blog", "url": "https://dartvault.app/blog"}
+    ]
   }
   </script>
   <link rel="manifest" href="manifest.json">
@@ -367,76 +387,155 @@
 
     /* ── MODES GRID ── */
     .modes-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(min(160px, 100%), 1fr));
-      gap: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
     }
+    .modes-grid .mode-card {
+      flex: 0 0 calc(16.666% - 14px);
+      min-width: 140px;
+    }
+    @media (max-width: 1000px) { .modes-grid .mode-card { flex: 0 0 calc(20% - 14px); } }
+    @media (max-width: 800px) { .modes-grid .mode-card { flex: 0 0 calc(33.333% - 12px); } }
+    @media (max-width: 520px) { .modes-grid .mode-card { flex: 0 0 calc(50% - 8px); } }
 
     .mode-card {
-      background: var(--bg2);
-      border: 1px solid rgba(255,255,255,.07);
-      border-radius: 16px;
-      padding: 24px 16px;
-      text-align: center;
-      transition: transform .2s, border-color .2s, box-shadow .2s;
-      cursor: default;
+      perspective: 800px;
+      cursor: pointer;
       opacity: 0;
       transform: translateY(30px);
     }
+    .mode-card.visible { animation: cardIn .5s forwards; }
+    @keyframes cardIn { to { opacity:1; transform:translateY(0); } }
 
-    .mode-card.visible {
-      animation: cardIn .5s forwards;
+    .mode-card-inner {
+      position: relative;
+      min-height: 180px;
+      border-radius: 18px;
+      transition: transform .5s cubic-bezier(.4,.2,.2,1), box-shadow .3s;
+      transform-style: preserve-3d;
+    }
+    .mode-card:hover .mode-card-inner { box-shadow: 0 8px 32px var(--mc, rgba(192,57,43,.25)); }
+    .mode-card.flipped .mode-card-inner { transform: rotateY(180deg); }
+
+    .mode-front, .mode-back {
+      position: absolute; inset: 0;
+      border-radius: 18px;
+      backface-visibility: hidden;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 20px 14px; text-align: center;
     }
 
-    @keyframes cardIn {
-      to { opacity: 1; transform: translateY(0); }
+    .mode-front {
+      background: linear-gradient(160deg, var(--mc1, #1a1a2e) 0%, var(--mc2, #16213e) 100%);
+      border: 1px solid var(--mc-border, rgba(255,255,255,.08));
+    }
+    .mode-front::before {
+      content: ''; position: absolute; inset: 0; border-radius: 18px;
+      background: radial-gradient(circle at 30% 20%, var(--mc-glow, rgba(192,57,43,.15)) 0%, transparent 60%);
+      pointer-events: none;
     }
 
-    .mode-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(192,57,43,.3);
-      box-shadow: 0 8px 30px rgba(192,57,43,.15);
+    .mode-back {
+      background: linear-gradient(160deg, var(--mc2, #16213e) 0%, var(--mc1, #1a1a2e) 100%);
+      border: 1.5px solid var(--mc-border, rgba(255,255,255,.15));
+      transform: rotateY(180deg);
+      gap: 6px;
+    }
+    .mode-back::before {
+      content: ''; position: absolute; inset: 0; border-radius: 18px;
+      background: radial-gradient(circle at 70% 80%, var(--mc-glow, rgba(192,57,43,.2)) 0%, transparent 60%);
+      pointer-events: none;
     }
 
-    .mode-icon {
-      font-size: 2.2rem;
-      margin-bottom: 10px;
-      display: block;
-    }
+    .mode-card.flipped .mode-card-inner { box-shadow: 0 0 24px var(--mc-glow, rgba(192,57,43,.3)); }
+
+    .mode-icon { font-size: 2.4rem; margin-bottom: 8px; display: block; filter: drop-shadow(0 2px 8px rgba(0,0,0,.4)); position:relative; z-index:1; }
 
     .mode-name {
       font-family: 'Rajdhani', sans-serif;
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-      color: var(--text);
-      margin-bottom: 4px;
+      font-size: 1.05rem; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--mc-text, #F0F0F0);
+      position: relative; z-index: 1;
     }
 
     .mode-desc {
-      font-size: .78rem;
-      color: var(--dim);
-      line-height: 1.4;
+      font-size: .75rem; color: var(--dim); line-height: 1.4;
+      position: relative; z-index: 1;
     }
+
+    .mode-hint {
+      font-size: .65rem; color: rgba(255,255,255,.25); margin-top: 8px;
+      letter-spacing: .5px; position: relative; z-index: 1;
+      transition: opacity .3s;
+    }
+    .mode-card:hover .mode-hint { opacity: 1; color: rgba(255,255,255,.45); }
+    .mode-card.flipped .mode-hint { opacity: 0; }
+
+    .mode-rules {
+      font-size: .78rem; color: rgba(255,255,255,.7); line-height: 1.5;
+      max-width: 95%; position: relative; z-index: 1;
+    }
+
+    .mode-play-btn {
+      display: inline-block; padding: 10px 24px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--mc-btn1, #C0392B), var(--mc-btn2, #E74C3C));
+      color: #fff; font-family: 'Rajdhani', sans-serif;
+      font-size: .9rem; font-weight: 700; text-decoration: none;
+      letter-spacing: 1.5px; margin-top: 6px;
+      box-shadow: 0 4px 16px var(--mc-glow, rgba(192,57,43,.4));
+      transition: transform .15s, box-shadow .15s;
+      position: relative; z-index: 1;
+    }
+    .mode-play-btn:hover { transform: scale(1.06); box-shadow: 0 6px 24px var(--mc-glow, rgba(192,57,43,.5)); }
+
+    /* Per-game colors */
+    .mode-card[data-game="0"] { --mc1:#1a0a0e; --mc2:#2a1018; --mc-glow:rgba(192,57,43,.2); --mc-border:rgba(192,57,43,.2); --mc-text:#E8A0A0; --mc-btn1:#C0392B; --mc-btn2:#E74C3C; --mc:rgba(192,57,43,.25); }
+    .mode-card[data-game="1"] { --mc1:#0a1a0e; --mc2:#102a14; --mc-glow:rgba(76,175,80,.2); --mc-border:rgba(76,175,80,.2); --mc-text:#A0E8A4; --mc-btn1:#388E3C; --mc-btn2:#4CAF50; --mc:rgba(76,175,80,.25); }
+    .mode-card[data-game="2"] { --mc1:#1a1a0a; --mc2:#2a2a10; --mc-glow:rgba(255,193,7,.2); --mc-border:rgba(255,193,7,.2); --mc-text:#E8D8A0; --mc-btn1:#F9A825; --mc-btn2:#FFC107; --mc:rgba(255,193,7,.25); }
+    .mode-card[data-game="3"] { --mc1:#0a1018; --mc2:#101828; --mc-glow:rgba(33,150,243,.2); --mc-border:rgba(33,150,243,.2); --mc-text:#A0C8E8; --mc-btn1:#1976D2; --mc-btn2:#2196F3; --mc:rgba(33,150,243,.25); }
+    .mode-card[data-game="4"] { --mc1:#1a0a1a; --mc2:#2a102a; --mc-glow:rgba(156,39,176,.2); --mc-border:rgba(156,39,176,.2); --mc-text:#D0A0E8; --mc-btn1:#7B1FA2; --mc-btn2:#9C27B0; --mc:rgba(156,39,176,.25); }
+    .mode-card[data-game="5"] { --mc1:#1a100a; --mc2:#2a1a10; --mc-glow:rgba(255,87,34,.2); --mc-border:rgba(255,87,34,.2); --mc-text:#E8B8A0; --mc-btn1:#E64A19; --mc-btn2:#FF5722; --mc:rgba(255,87,34,.25); }
+    .mode-card[data-game="6"] { --mc1:#1a0a14; --mc2:#2a1020; --mc-glow:rgba(233,30,99,.2); --mc-border:rgba(233,30,99,.2); --mc-text:#E8A0C0; --mc-btn1:#C2185B; --mc-btn2:#E91E63; --mc:rgba(233,30,99,.25); }
+    .mode-card[data-game="7"] { --mc1:#0a1a1a; --mc2:#102a2a; --mc-glow:rgba(0,150,136,.2); --mc-border:rgba(0,150,136,.2); --mc-text:#A0E8E0; --mc-btn1:#00796B; --mc-btn2:#009688; --mc:rgba(0,150,136,.25); }
+    .mode-card[data-game="8"] { --mc1:#1a0a0a; --mc2:#2a0e0e; --mc-glow:rgba(244,67,54,.2); --mc-border:rgba(244,67,54,.2); --mc-text:#E8A0A0; --mc-btn1:#D32F2F; --mc-btn2:#F44336; --mc:rgba(244,67,54,.25); }
+    .mode-card[data-game="9"] { --mc1:#0a0e1a; --mc2:#10182a; --mc-glow:rgba(63,81,181,.2); --mc-border:rgba(63,81,181,.2); --mc-text:#A0A8E8; --mc-btn1:#303F9F; --mc-btn2:#3F51B5; --mc:rgba(63,81,181,.25); }
 
     /* ── FEATURES ── */
     .features-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
-      gap: 20px;
+      gap: 18px;
       margin-top: 48px;
     }
 
     .feature-item {
       display: flex;
       align-items: flex-start;
-      gap: 14px;
-      background: var(--bg2);
+      gap: 16px;
+      background: linear-gradient(145deg, rgba(255,255,255,.03) 0%, rgba(255,255,255,.01) 100%);
       border: 1px solid rgba(255,255,255,.06);
-      border-radius: 14px;
-      padding: 20px;
+      border-radius: 16px;
+      padding: 22px 20px;
       opacity: 0;
       transform: translateY(20px);
+      transition: border-color .3s, box-shadow .3s, transform .3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-item::before {
+      content: ''; position: absolute; top: -30px; left: -30px;
+      width: 80px; height: 80px; border-radius: 50%;
+      background: var(--fi-glow, rgba(192,57,43,.08));
+      filter: blur(25px); pointer-events: none;
+    }
+    .feature-item:hover {
+      border-color: var(--fi-border, rgba(255,255,255,.12));
+      box-shadow: 0 8px 28px var(--fi-glow, rgba(192,57,43,.1));
+      transform: translateY(-3px);
     }
 
     .feature-item.visible {
@@ -444,25 +543,39 @@
     }
 
     .feature-icon {
-      font-size: 1.8rem;
+      font-size: 2rem;
       flex-shrink: 0;
-      margin-top: 2px;
+      width: 48px; height: 48px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--fi-icon-bg, rgba(255,255,255,.04));
+      border: 1px solid var(--fi-border, rgba(255,255,255,.08));
+      border-radius: 14px;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,.3));
     }
 
     .feature-text h3 {
       font-family: 'Rajdhani', sans-serif;
       font-size: 1rem;
       font-weight: 700;
-      letter-spacing: 1px;
-      margin-bottom: 4px;
+      letter-spacing: 1.2px;
+      margin-bottom: 6px;
+      color: var(--fi-title, var(--text));
     }
 
     .feature-text p {
       font-size: .82rem;
       color: var(--dim);
-      line-height: 1.5;
+      line-height: 1.55;
       font-weight: 300;
     }
+
+    /* Per-feature colors */
+    .feature-item:nth-child(1) { --fi-glow:rgba(33,150,243,.12); --fi-border:rgba(33,150,243,.15); --fi-icon-bg:rgba(33,150,243,.08); --fi-title:#90CAF9; }
+    .feature-item:nth-child(2) { --fi-glow:rgba(255,193,7,.12); --fi-border:rgba(255,193,7,.15); --fi-icon-bg:rgba(255,193,7,.08); --fi-title:#FFE082; }
+    .feature-item:nth-child(3) { --fi-glow:rgba(76,175,80,.12); --fi-border:rgba(76,175,80,.15); --fi-icon-bg:rgba(76,175,80,.08); --fi-title:#A5D6A7; }
+    .feature-item:nth-child(4) { --fi-glow:rgba(255,87,34,.12); --fi-border:rgba(255,87,34,.15); --fi-icon-bg:rgba(255,87,34,.08); --fi-title:#FFAB91; }
+    .feature-item:nth-child(5) { --fi-glow:rgba(156,39,176,.12); --fi-border:rgba(156,39,176,.15); --fi-icon-bg:rgba(156,39,176,.08); --fi-title:#CE93D8; }
+    .feature-item:nth-child(6) { --fi-glow:rgba(192,57,43,.12); --fi-border:rgba(192,57,43,.15); --fi-icon-bg:rgba(192,57,43,.08); --fi-title:#EF9A9A; }
 
     /* ── DIVIDER ── */
     .divider {
@@ -601,7 +714,7 @@
     </h1>
     <p class="hero-sub">
       Du débutant au compétiteur — <strong>DartVault</strong> transforme n'importe quelle cible en terrain de jeu.<br>
-      <span style="opacity:.6;font-size:.9em;">Les classiques comme le 501 ou le Cricket, mais surtout Bataille Navale, BlackJack, Territoire et plein d'autres modes fun !</span>
+      <span style="opacity:.6;font-size:.9em;">Les classiques comme le 501 ou le Cricket, mais surtout Bataille Navale, BlackDart, Territoire et plein d'autres modes fun !</span>
     </p>
 
     <div class="hero-btns">
@@ -630,58 +743,7 @@
     <p>Que vous posiez vos premières fléchettes ou que vous cherchiez à pimenter vos soirées entre amis, DartVault propose des jeux adaptés à tous les niveaux. Les règles s'apprennent en 30 secondes, le plaisir dure toute la nuit.</p>
   </div>
 
-  <div class="modes-grid" id="modes-grid">
-    <div class="mode-card">
-      <span class="mode-icon">🎯</span>
-      <div class="mode-name">501</div>
-      <div class="mode-desc">Le classique. Descendez à zéro avant vos adversaires.</div>
-    </div>
-    <div class="mode-card">
-      <span class="mode-icon">🦗</span>
-      <div class="mode-name">Cricket</div>
-      <div class="mode-desc">Fermez les numéros 15 à 20 et le Bull en premier.</div>
-    </div>
-    <div class="mode-card">
-      <span class="mode-icon">🏁</span>
-      <div class="mode-name">Race</div>
-      <div class="mode-desc">Montez à 500 points le plus vite possible, en mettant des bâtons dans les flèches de vos adversaires.</div>
-    </div>
-    <div class="mode-card">
-      <span class="mode-icon">🕐</span>
-      <div class="mode-name">Horloge</div>
-      <div class="mode-desc">Touchez chaque numéro de 1 à 20 dans l'ordre.</div>
-    </div>
-    <div class="mode-card">
-      <span class="mode-icon">🗼</span>
-      <div class="mode-name">Shanghai</div>
-      <div class="mode-desc">Simple, double et triple du même numéro = victoire !</div>
-    </div>
-    <div class="mode-card">
-      <span class="mode-icon">🏰</span>
-      <div class="mode-name">Territoire</div>
-      <div class="mode-desc">Conquérez la cible et défendez votre territoire.</div>
-    </div>
-    <div class="mode-card">
-      <span class="mode-icon">🔴</span>
-      <div class="mode-name">DartPong</div>
-      <div class="mode-desc">Comme au beerpong — éliminez les zones adverses avant qu'elles ne vous éliminent !</div>
-    </div>
-    <div class="mode-card">
-      <span class="mode-icon">🃏</span>
-      <div class="mode-name">BlackJack</div>
-      <div class="mode-desc">Atteignez le score demandé sans dépasser avec vos fléchettes.</div>
-    </div>
-    <div class="mode-card">
-      <span class="mode-icon">💥</span>
-      <div class="mode-name">BattleRoyal</div>
-      <div class="mode-desc">Éliminez tous vos adversaires — chargez... visez... tirez !</div>
-    </div>
-    <div class="mode-card">
-      <span class="mode-icon">⚓</span>
-      <div class="mode-name">Bataille Navale</div>
-      <div class="mode-desc">Cachez vos bateaux stratégiquement et débusquez ceux des autres !</div>
-    </div>
-  </div>
+  <div class="modes-grid" id="modes-grid"></div>
 </section>
 
 <!-- ── FEATURES ── -->
@@ -694,7 +756,7 @@
     <div class="feature-item">
       <div class="feature-icon">📱</div>
       <div class="feature-text">
-        <h3>Mobile & Tablette</h3>
+        <h3>Mobile · Tablette · Navigateur</h3>
         <p>Interface optimisée pour le jeu en conditions réelles, écran dans une main, fléchettes dans l'autre.</p>
       </div>
     </div>
@@ -727,10 +789,10 @@
       </div>
     </div>
     <div class="feature-item">
-      <div class="feature-icon">🇫🇷</div>
+      <div class="feature-icon">🎯</div>
       <div class="feature-text">
-        <h3>FR / EN</h3>
-        <p>Interface disponible en français et en anglais, switchable en un clic.</p>
+        <h3>Compatible Autodarts</h3>
+        <p>Connectez votre cible Autodarts et DartVault détecte vos scores automatiquement. Concentrez-vous sur votre jeu !</p>
       </div>
     </div>
   </div>
@@ -762,7 +824,7 @@
   const T = {
     fr: {
       badge: '🎯 Jeux de fléchettes',
-      hero_sub: 'Du débutant au compétiteur — <strong>DartVault</strong> transforme n\'importe quelle cible en terrain de jeu.<br><span style="opacity:.6;font-size:.9em;">Les classiques comme le 501 ou le Cricket, mais surtout Bataille Navale, BlackJack, Territoire et plein d\'autres modes fun !</span>',
+      hero_sub: 'Du débutant au compétiteur — <strong>DartVault</strong> transforme n\'importe quelle cible en terrain de jeu.<br><span style="opacity:.6;font-size:.9em;">Les classiques comme le 501 ou le Cricket, mais surtout Bataille Navale, BlackDart, Territoire et plein d\'autres modes fun !</span>',
       btn_play: '🎯 Jouer maintenant',
       btn_install: '📲 Installer sur Android',
       install_hint: 'Gratuit · Fonctionne hors-ligne',
@@ -775,29 +837,29 @@
       footer_title: 'Prêt à jouer ?',
       footer_sub: 'Lancez une partie en quelques secondes',
       modes: [
-        { name:'501', desc:'Le classique. Descendez à zéro avant vos adversaires.' },
-        { name:'Cricket', desc:'Fermez les numéros 15 à 20 et le Bull en premier.' },
-        { name:'Race', desc:'Montez à 500 points le plus vite possible, en mettant des bâtons dans les flèches de vos adversaires.' },
-        { name:'Horloge', desc:'Touchez chaque numéro de 1 à 20 dans l\'ordre.' },
-        { name:'Shanghai', desc:'Simple, double et triple du même numéro = victoire !' },
-        { name:'Territoire', desc:'Conquérez la cible et défendez votre territoire.' },
-        { name:'DartPong', desc:'Comme au beerpong — éliminez les zones adverses avant qu\'elles ne vous éliminent !' },
-        { name:'BlackJack', desc:'Atteignez le score demandé sans dépasser avec vos fléchettes.' },
-        { name:'BattleRoyal', desc:'Éliminez tous vos adversaires — chargez... visez... tirez !' },
-        { name:'Bataille Navale', desc:'Cachez vos bateaux stratégiquement et débusquez ceux des autres !' },
+        { name:'501', desc:'Le classique. Descendez à zéro avant vos adversaires.', rules:'3 fléchettes par tour. Soustrayez vos points de 501. Premier à zéro gagne !', url:'501.html' },
+        { name:'Cricket', desc:'Fermez les numéros 15 à 20 et le Bull en premier.', rules:'Touchez 3 fois chaque zone (15-20 + Bull) pour la fermer. Le plus de points gagne !', url:'cricket.html' },
+        { name:'Race', desc:'Montez à 500 points le plus vite possible, en mettant des bâtons dans les flèches de vos adversaires.', rules:'Additionnez vos scores pour atteindre la cible. Atterrissez sur un adversaire pour voler ses points !', url:'race500.html' },
+        { name:'Horloge', desc:'Touchez chaque numéro de 1 à 20 dans l\'ordre.', rules:'Visez dans l\'ordre : 1, 2, 3... jusqu\'à 20. Premier à finir la séquence gagne !', url:'horloge.html' },
+        { name:'Shanghai', desc:'Simple, double et triple du même numéro = victoire !', rules:'Chaque manche cible un numéro. Touchez simple + double + triple du même = Shanghai instant !', url:'shanghai.html' },
+        { name:'Territoire', desc:'Conquérez la cible et défendez votre territoire.', rules:'Capturez des zones neutres ou ennemies. Triple = capture avec bouclier. Bull = pouvoir spécial !', url:'territoire.html' },
+        { name:'DartPong', desc:'Éliminez chaque zone visible — chaque touche élimine une zone.', rules:'Touchez vos zones pour les éliminer. 3 éliminations d\'affilée = tour bonus !', url:'dartspong.html' },
+        { name:'BlackDart', desc:'Atteignez le score demandé sans dépasser avec vos fléchettes.', rules:'Un score cible par manche. Atteignez-le pile pour un BlackDart ! Dépassez et vous perdez tout.', url:'blackjack.html' },
+        { name:'BattleRoyal', desc:'Éliminez tous vos adversaires — chargez... visez... tirez !', rules:'Chaque zone donne des balles ou inflige des dégâts. Dernier joueur debout gagne !', url:'shooter.html' },
+        { name:'Bataille Navale', desc:'Cachez vos bateaux stratégiquement et débusquez ceux des autres !', rules:'Placez vos navires sur la cible. Visez pour toucher les bateaux adverses. Coulez toute la flotte !', url:'bataille.html' },
       ],
       features: [
-        { icon:'📱', title:'Mobile & Tablette', desc:'Interface optimisée pour le jeu en conditions réelles, écran dans une main, fléchettes dans l\'autre.' },
+        { icon:'📱', title:'Mobile · Tablette · Navigateur', desc:'Interface optimisée pour le jeu en conditions réelles, écran dans une main, fléchettes dans l\'autre.' },
         { icon:'🎉', title:'Pour tout le monde', desc:'Débutant, amateur ou compétiteur — DartVault garantit un bon moment en quelques secondes. Pas besoin de connaître les règles, on vous guide.' },
         { icon:'👥', title:'Multijoueur local', desc:'Jusqu\'à 6 joueurs sur le même appareil. Profils, emojis et historique de victoires.' },
         { icon:'🏆', title:'Classements', desc:'Suivez vos statistiques, victoires et progressions dans le classement global.' },
         { icon:'🌙', title:'3 thèmes', desc:'Thème sombre, clair ou coloré. L\'interface s\'adapte à votre ambiance.' },
-        { icon:'🇫🇷', title:'FR / EN', desc:'Interface disponible en français et en anglais, switchable en un clic.' },
+        { icon:'🎯', title:'Compatible Autodarts', desc:'Connectez votre cible Autodarts et DartVault détecte vos scores automatiquement. Concentrez-vous sur votre jeu !' },
       ],
     },
     en: {
       badge: '🎯 Dart games',
-      hero_sub: 'From beginner to competitor — <strong>DartVault</strong> turns any dartboard into a playground.<br><span style="opacity:.6;font-size:.9em;">Classics like 501 and Cricket, but also Naval Battle, BlackJack, Territory and plenty of other fun modes!</span>',
+      hero_sub: 'From beginner to competitor — <strong>DartVault</strong> turns any dartboard into a playground.<br><span style="opacity:.6;font-size:.9em;">Classics like 501 and Cricket, but also Naval Battle, BlackDart, Territory and plenty of other fun modes!</span>',
       btn_play: '🎯 Play now',
       btn_install: '📲 Install on Android',
       install_hint: 'Free · Works offline',
@@ -810,24 +872,24 @@
       footer_title: 'Ready to play?',
       footer_sub: 'Start a game in seconds',
       modes: [
-        { name:'501', desc:'The classic. Get down to zero before your opponents.' },
-        { name:'Cricket', desc:'Close numbers 15 to 20 and the Bull first.' },
-        { name:'Race', desc:'Reach 500 points as fast as possible, while putting obstacles in your opponents\' way.' },
-        { name:'Clock', desc:'Hit each number from 1 to 20 in order.' },
-        { name:'Shanghai', desc:'Single, double and triple the same number = instant win!' },
-        { name:'Territory', desc:'Conquer the target and defend your territory.' },
-        { name:'DartPong', desc:'Like beer pong — eliminate opponent zones before they eliminate yours!' },
-        { name:'BlackJack', desc:'Reach the target score without going over with your darts.' },
-        { name:'BattleRoyal', desc:'Eliminate all your opponents — load... aim... fire!' },
-        { name:'Naval Battle', desc:'Hide your ships strategically and hunt down the others!' },
+        { name:'501', desc:'The classic. Get down to zero before your opponents.', rules:'3 darts per turn. Subtract your points from 501. First to zero wins!', url:'501.html' },
+        { name:'Cricket', desc:'Close numbers 15 to 20 and the Bull first.', rules:'Hit each zone (15-20 + Bull) 3 times to close it. Most points wins!', url:'cricket.html' },
+        { name:'Race', desc:'Reach 500 points as fast as possible, while putting obstacles in your opponents\' way.', rules:'Add up scores to reach the target. Land on an opponent to steal their points!', url:'race500.html' },
+        { name:'Clock', desc:'Hit each number from 1 to 20 in order.', rules:'Aim in order: 1, 2, 3... to 20. First to finish the sequence wins!', url:'horloge.html' },
+        { name:'Shanghai', desc:'Single, double and triple the same number = instant win!', rules:'Each round targets one number. Hit single + double + triple = instant Shanghai!', url:'shanghai.html' },
+        { name:'Territory', desc:'Conquer the target and defend your territory.', rules:'Capture neutral or enemy zones. Triple = capture with shield. Bull = special power!', url:'territoire.html' },
+        { name:'DartPong', desc:'Eliminate each visible zone — every hit removes one.', rules:'Hit your zones to eliminate them. 3 in a row = bonus turn!', url:'dartspong.html' },
+        { name:'BlackDart', desc:'Reach the target score without going over with your darts.', rules:'One target score per round. Hit it exactly for a BlackDart! Go over and lose it all.', url:'blackjack.html' },
+        { name:'BattleRoyal', desc:'Eliminate all your opponents — load... aim... fire!', rules:'Each zone gives bullets or deals damage. Last player standing wins!', url:'shooter.html' },
+        { name:'Naval Battle', desc:'Hide your ships strategically and hunt down the others!', rules:'Place ships on the target. Aim to hit enemy ships. Sink the entire fleet!', url:'bataille.html' },
       ],
       features: [
-        { icon:'📱', title:'Mobile & Tablet', desc:'Interface optimized for real conditions — screen in one hand, darts in the other.' },
+        { icon:'📱', title:'Mobile · Tablet · Browser', desc:'Interface optimized for real conditions — screen in one hand, darts in the other.' },
         { icon:'🎉', title:'For everyone', desc:'Beginner, casual or competitor — DartVault guarantees a great time in seconds. No need to know the rules, we guide you.' },
         { icon:'👥', title:'Local multiplayer', desc:'Up to 6 players on the same device. Profiles, emojis and win history.' },
         { icon:'🏆', title:'Leaderboards', desc:'Track your stats, wins and progression in the global rankings.' },
         { icon:'🌙', title:'3 themes', desc:'Dark, light or colored theme. The interface adapts to your vibe.' },
-        { icon:'🇫🇷', title:'FR / EN', desc:'Interface available in French and English, switchable in one click.' },
+        { icon:'🎯', title:'Autodarts Compatible', desc:'Connect your Autodarts board and DartVault detects your scores automatically. Focus on your game!' },
       ],
     }
   };
@@ -859,13 +921,35 @@
     document.querySelector('.footer-cta-title').textContent = t.footer_title;
     document.querySelector('.footer-cta-sub').textContent = t.footer_sub;
 
-    // Mode cards
-    const cards = document.querySelectorAll('#modes-grid .mode-card');
-    cards.forEach((card, i) => {
-      if (t.modes[i]) {
-        card.querySelector('.mode-name').textContent = t.modes[i].name;
-        card.querySelector('.mode-desc').textContent = t.modes[i].desc;
-      }
+    // Mode cards — rebuild
+    const icons = ['🎯','🦗','🏁','🕐','🗼','🏰','🔴','🃏','💥','⚓'];
+    const grid = document.getElementById('modes-grid');
+    grid.innerHTML = t.modes.map((m, i) =>
+      `<div class="mode-card visible" data-game="${i}" data-url="${m.url}" role="button" aria-label="${m.name} — ${isEN ? 'click for rules' : 'cliquez pour les règles'}">
+        <div class="mode-card-inner">
+          <div class="mode-front">
+            <span class="mode-icon">${icons[i]}</span>
+            <div class="mode-name">${m.name}</div>
+            <div class="mode-desc">${m.desc}</div>
+            <div class="mode-hint">${isEN ? 'Tap for rules' : 'Cliquez pour les règles'}</div>
+          </div>
+          <div class="mode-back">
+            <span class="mode-icon" style="margin-bottom:2px;font-size:1.8rem">${icons[i]}</span>
+            <div class="mode-name" style="font-size:.95rem">${m.name}</div>
+            <div class="mode-rules">${m.rules}</div>
+            <a href="${m.url}" class="mode-play-btn">${isEN ? '🎯 Play' : '🎯 Jouer'}</a>
+          </div>
+        </div>
+      </div>`
+    ).join('');
+    // Click handlers
+    grid.querySelectorAll('.mode-card').forEach(card => {
+      card.addEventListener('click', function(e) {
+        if (e.target.closest('.mode-play-btn')) return;
+        const wasFlipped = card.classList.contains('flipped');
+        grid.querySelectorAll('.mode-card.flipped').forEach(c => c.classList.remove('flipped'));
+        if (!wasFlipped) card.classList.add('flipped');
+      });
     });
 
     // Feature items
