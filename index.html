@@ -8,11 +8,11 @@
   <link rel="icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="description" content="DartVault — Jouez aux fléchettes entre amis ! 10 jeux gratuits dont le 501, Cricket et Shanghai. Compatible Autodarts. Aucune inscription, jouez directement dans votre navigateur.">
+  <meta name="description" content="DartVault — 501, Cricket mais aussi Bataille Navale, BlackDart, Territoire, Battle Royal et 6 autres jeux de fléchettes gratuits entre amis. Sans inscription.">
   <meta name="theme-color" content="#0A0A0A">
   <title>DartVault — Jeux de fléchettes gratuits en ligne</title>
   <meta property="og:title" content="DartVault — Jeux de fléchettes gratuits">
-  <meta property="og:description" content="La suite complète de jeux de fléchettes gratuite. 501, Cricket, Shanghai, Horloge et plus. Jouez entre amis directement dans votre navigateur.">
+  <meta property="og:description" content="DartVault — 501, Cricket mais aussi Bataille Navale, BlackDart, Territoire, Battle Royal et 6 autres jeux de fléchettes gratuits entre amis. Sans inscription.">
   <meta property="og:image" content="https://dartvault.app/icons/logo-hub.png">
   <meta property="og:url" content="https://dartvault.app/">
   <meta property="og:type" content="website">
@@ -28,7 +28,7 @@
     "@type": "WebApplication",
     "name": "DartVault",
     "url": "https://dartvault.app",
-    "description": "DartVault est une suite complète de jeux de fléchettes gratuite. 501, Cricket, Shanghai, Horloge, BlackDart et plus. Jouez entre amis directement dans votre navigateur.",
+    "description": "DartVault — 501, Cricket mais aussi Bataille Navale, BlackDart, Territoire, Battle Royal et 6 autres jeux de fléchettes gratuits entre amis. Sans inscription.",
     "applicationCategory": "GameApplication",
     "operatingSystem": "Any",
     "browserRequirements": "Requires JavaScript",
@@ -412,7 +412,7 @@
       .game-players span { padding:1px 5px; }
       .info-btn { width:18px; height:18px; font-size:.6rem; top:6px; right:6px; }
       .fav-btn  { width:18px; height:18px; font-size:.72rem; top:6px; left:6px; }
-      .footer { display:none; }
+      .footer { margin-top:12px; gap:4px; font-size:.7rem; }
       .games-grid.solo-mode { grid-template-columns:1fr; max-width:280px; margin-left:auto; margin-right:auto; }
     }
     @media (orientation: landscape) and (max-height: 600px) and (min-width: 700px) {
@@ -2074,7 +2074,7 @@
       // Fallback if SW never responds (local dev)
       setTimeout(function() {
         var el = document.getElementById('app-version');
-        if (el && !el.textContent) el.textContent = 'v2.2';
+        if (el && !el.textContent) el.textContent = 'v2.3';
       }, 2000);
     }, 2000);
 
