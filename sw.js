@@ -8,8 +8,8 @@
 //  pour forcer le rechargement complet sur tous les appareils.
 // ═══════════════════════════════════════════════════════════
 
-const CACHE_VERSION = '2.3'; // ← incrémenter à chaque déploiement
-const CACHE_DATE = '17/03/2026 17:07'; // ← mettre à jour à chaque déploiement (heure FR)
+const CACHE_VERSION = '2.4'; // ← incrémenter à chaque déploiement
+const CACHE_DATE = '18/03/2026 00:48'; // ← mettre à jour à chaque déploiement (heure FR)
 const CACHE = 'dartvault-v' + CACHE_VERSION;
 
 const PRECACHE = [

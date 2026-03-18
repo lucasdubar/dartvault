@@ -324,38 +324,42 @@
     /* ── SCROLL INDICATOR ── */
     .scroll-hint {
       position: absolute;
-      bottom: 28px;
-      left: 50%;
-      transform: translateX(-50%);
+      bottom: 24px;
+      left: 0; right: 0;
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
+      justify-content: center;
       align-items: center;
-      gap: 6px;
+      gap: 14px;
       opacity: 0;
       animation: fadeUp .6s 1.4s forwards;
       z-index: 1;
+      cursor: pointer;
     }
 
-    .scroll-hint span {
-      font-family: 'Rajdhani', sans-serif;
-      font-size: .7rem;
-      letter-spacing: 2px;
-      color: var(--dim);
-      text-transform: uppercase;
+    .scroll-arrow-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      animation: scrollBounce 1.6s ease-in-out infinite;
     }
+    .scroll-arrow-wrap:nth-child(2) { animation-delay: .22s; }
+    .scroll-arrow-wrap:nth-child(3) { animation-delay: .44s; }
 
     .scroll-arrow {
-      width: 20px;
-      height: 20px;
-      border-right: 2px solid var(--dim);
-      border-bottom: 2px solid var(--dim);
+      width: 14px;
+      height: 14px;
+      border-right: 2px solid rgba(255,255,255,.7);
+      border-bottom: 2px solid rgba(255,255,255,.7);
       transform: rotate(45deg);
-      animation: bounce 1.5s ease-in-out infinite;
     }
+    .scroll-arrow:nth-child(2) { margin-top: -7px; opacity: .5; }
+    .scroll-arrow:nth-child(3) { margin-top: -7px; opacity: .2; }
 
-    @keyframes bounce {
-      0%, 100% { transform: rotate(45deg) translateY(0); }
-      50%       { transform: rotate(45deg) translateY(5px); }
+    @keyframes scrollBounce {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(8px); }
     }
 
     /* ── MODES SECTION ── */
@@ -467,13 +471,19 @@
       position: relative; z-index: 1;
     }
 
-    .mode-hint {
-      font-size: .65rem; color: rgba(255,255,255,.25); margin-top: 8px;
-      letter-spacing: .5px; position: relative; z-index: 1;
-      transition: opacity .3s;
+    .mode-flip-arrow {
+      position: absolute; bottom: 10px; right: 10px; z-index: 2;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.13);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .7rem; color: rgba(255,255,255,.25);
+      transition: all .3s; line-height: 1;
     }
-    .mode-card:hover .mode-hint { opacity: 1; color: rgba(255,255,255,.45); }
-    .mode-card.flipped .mode-hint { opacity: 0; }
+    .mode-card:hover .mode-flip-arrow {
+      background: rgba(255,255,255,.15); border-color: rgba(255,255,255,.3);
+      color: rgba(255,255,255,.55); transform: rotate(20deg) scale(1.1);
+    }
+    .mode-card.flipped .mode-flip-arrow { opacity: 0; }
 
     .mode-rules {
       font-size: .78rem; color: rgba(255,255,255,.7); line-height: 1.5;
@@ -728,8 +738,22 @@
     </div>
   </div>
 
-  <div class="scroll-hint">
-    <div class="scroll-arrow"></div>
+  <div class="scroll-hint" onclick="document.querySelector('.section').scrollIntoView({behavior:'smooth'})">
+    <div class="scroll-arrow-wrap">
+      <div class="scroll-arrow"></div>
+      <div class="scroll-arrow"></div>
+      <div class="scroll-arrow"></div>
+    </div>
+    <div class="scroll-arrow-wrap">
+      <div class="scroll-arrow"></div>
+      <div class="scroll-arrow"></div>
+      <div class="scroll-arrow"></div>
+    </div>
+    <div class="scroll-arrow-wrap">
+      <div class="scroll-arrow"></div>
+      <div class="scroll-arrow"></div>
+      <div class="scroll-arrow"></div>
+    </div>
   </div>
 </section>
 
@@ -931,7 +955,7 @@
             <span class="mode-icon">${icons[i]}</span>
             <div class="mode-name">${m.name}</div>
             <div class="mode-desc">${m.desc}</div>
-            <div class="mode-hint">${isEN ? 'Tap for rules' : 'Cliquez pour les règles'}</div>
+            <div class="mode-flip-arrow">↻</div>
           </div>
           <div class="mode-back">
             <span class="mode-icon" style="margin-bottom:2px;font-size:1.8rem">${icons[i]}</span>
