@@ -2069,7 +2069,8 @@ function showFinalResults() {
   document.getElementById('end-sub').textContent = winner.name + ' ' + DV_LANG.t('bj_wins_with') + ' ' + winner.money + '€ !';
   const rankDiv = document.getElementById('end-ranking');
   rankDiv.innerHTML = sorted.map((p, i) => {
-    const medal = medals[i] || `${i+1}.`;
+    const _rank = sorted.filter(q => q.money > p.money).length + 1;
+    const medal = medals[_rank - 1] || `${_rank}.`;
     const totalRounds = B.roundsLog.length;
     const playerRounds = B.roundsLog.map(r => r.results.find(x => x.name === p.name));
     const wins = playerRounds.filter(r => r && !r.isDeal && r.change > 0).length;
@@ -2085,6 +2086,11 @@ function showFinalResults() {
     </div>`;
   }).join('');
   openModal('end-modal');
+  if (window.TournamentBridge) {
+    const _g=[];let _gi=0;
+    while(_gi<sorted.length){let _gj=_gi+1;while(_gj<sorted.length&&sorted[_gj].money===sorted[_gi].money)_gj++;const _gs=sorted.slice(_gi,_gj).map(p=>p.name);_g.push(_gs.length===1?_gs[0]:_gs);_gi=_gj;}
+    TournamentBridge.onGameEnd(_g);
+  }
   speak(winner.name+' '+(DV_LANG.get()==='en'?'wins the game':'remporte la partie'),1200);
 }
 
@@ -2889,5 +2895,8 @@ window.addEventListener('resize',adjustPlayersPadding);
   });
 })();
 </script>
+<script src="tournament-config.js"></script>
+<script src="tournament.js"></script>
+<script src="tournament-bridge.js"></script>
 </body>
 </html>

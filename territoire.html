@@ -2499,6 +2499,7 @@ function endGame() {
     const maxScore = Math.max(cA, cB, cC);
     const winners = scores.filter(s => s[1] === maxScore);
     if (winners.length > 1) {
+      if (window.TournamentBridge) TournamentBridge.onGameEnd([]);
       showEndMessage('🤝 ' + DV_LANG.t('ter_draw'), `${cA}🔵 / ${cB}🔴 / ${cC}🟡`, '#C8860A');
     } else {
       showEnd(winners[0][0], false);
@@ -2506,7 +2507,7 @@ function endGame() {
   } else {
     if (cA > cB) showEnd('A', false, cA, cB);
     else if (cB > cA) showEnd('B', false, cA, cB);
-    else showEndMessage('🤝 ' + DV_LANG.t('ter_draw'), `${cA} - ${cB}`, '#C8860A');
+    else { if (window.TournamentBridge) TournamentBridge.onGameEnd([[], []]); showEndMessage('🤝 ' + DV_LANG.t('ter_draw'), `${cA} - ${cB}`, '#C8860A'); }
   }
 }
 
@@ -2525,6 +2526,19 @@ function showEnd(team, byDomination, cA, cB) {
     const cB2 = Object.values(state.territories).filter(t => t.owner === 'B').length;
     const cC2 = Object.values(state.territories).filter(t => t.owner === 'C').length;
     sub = `${cA2}🔵 / ${cB2}🔴 / ${cC2}🟡`;
+  }
+  if (window.TournamentBridge) {
+    if (state.gameMode === 'equipe') {
+      const _winArr = team === 'A' ? state.teamA : state.teamB;
+      const _losArr = team === 'A' ? state.teamB : state.teamA;
+      TournamentBridge.onGameEnd([_winArr, _losArr]);
+    } else {
+      const _counts = { A: 0, B: 0, C: 0 };
+      Object.values(state.territories).forEach(t => { if (_counts[t.owner] !== undefined) _counts[t.owner]++; });
+      const _teams = ['A', 'B', 'C'].filter(t => (t === 'A' ? state.teamA : t === 'B' ? state.teamB : state.teamC).length > 0);
+      _teams.sort((a, b) => _counts[b] - _counts[a]);
+      TournamentBridge.onGameEnd(_teams.map(t => (t === 'A' ? state.teamA[0] : t === 'B' ? state.teamB[0] : state.teamC[0])));
+    }
   }
   showEndMessage(`🏆 ${DV_LANG.t('ter_victory')}`, `${names[team]}\n${sub}`, col);
   // TTS victoire
@@ -3516,5 +3530,8 @@ renderTeams();
   });
 })();
 </script>
+<script src="tournament-config.js"></script>
+<script src="tournament.js"></script>
+<script src="tournament-bridge.js"></script>
 </body>
 </html>

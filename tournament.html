@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Tournoi — DartVault</title>
+  <link rel="icon" href="favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0A0A0F;
+      --surface:  #141420;
+      --surface2: #1C1C2E;
+      --border:   rgba(255,255,255,.08);
+      --text:     #E0E0E0;
+      --dim:      rgba(255,255,255,.4);
+      --gold:     #E8C547;
+      --gold2:    #F0A040;
+    }
+
+    html, body {
+      min-height: 100dvh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ── Sections ── */
+    .section { display: none; min-height: 100dvh; flex-direction: column; }
+    .section.active { display: flex; }
+
+    /* ── Header ── */
+    .t-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+      position: sticky; top: 0; z-index: 10;
+      flex-shrink: 0;
+    }
+    .t-back {
+      width: 36px; height: 36px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--text); font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
+    }
+    .t-header-title {
+      font-size: 1rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase; color: var(--gold);
+    }
+    .t-progress { margin-left: auto; font-size: .78rem; color: var(--dim); letter-spacing: 1px; }
+
+    /* ── Scroll & footer ── */
+    .t-scroll {
+      flex: 1; overflow-y: auto; padding: 16px 18px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .t-footer {
+      padding: 14px 18px; border-top: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 10px; flex-shrink: 0;
+    }
+
+    /* ── Label ── */
+    .t-label {
+      font-size: .7rem; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--dim); margin-bottom: 8px;
+    }
+
+    /* ── Card ── */
+    .t-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 14px;
+    }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      width: 100%; padding: 14px; border-radius: 14px; border: none;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
+      color: #0A0A0A; font-family: 'Rajdhani', sans-serif;
+      font-size: 1.05rem; font-weight: 800; letter-spacing: 2.5px;
+      cursor: pointer; touch-action: manipulation; transition: all .2s;
+      box-shadow: 0 4px 20px rgba(232,197,71,.35);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(232,197,71,.45); }
+    .btn-primary:active { transform: scale(.97); }
+    .btn-primary:disabled { opacity: .35; pointer-events: none; }
+    .btn-secondary {
+      width: 100%; padding: 12px; border-radius: 14px;
+      border: 1px solid var(--border); background: var(--surface2);
+      color: var(--text); font-family: 'Rajdhani', sans-serif;
+      font-size: .95rem; font-weight: 600; letter-spacing: 1.5px;
+      cursor: pointer; touch-action: manipulation; transition: all .2s;
+    }
+    .btn-secondary:hover { border-color: rgba(255,255,255,.2); }
+    .btn-danger {
+      width: 100%; padding: 12px; border-radius: 14px;
+      border: 1px solid rgba(244,67,54,.3); background: rgba(244,67,54,.08);
+      color: #F44336; font-family: 'Rajdhani', sans-serif;
+      font-size: .95rem; font-weight: 600; letter-spacing: 1.5px;
+      cursor: pointer; touch-action: manipulation; transition: all .2s;
+    }
+
+    /* ── Option pills ── */
+    .opt-group { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    .opt-pill {
+      padding: 8px 16px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--surface2);
+      color: var(--dim); font-family: 'Rajdhani', sans-serif;
+      font-size: .88rem; font-weight: 600; letter-spacing: 1px;
+      cursor: pointer; transition: all .15s; user-select: none;
+    }
+    .opt-pill.active {
+      background: rgba(232,197,71,.12); border-color: rgba(232,197,71,.4); color: var(--gold);
+    }
+
+    /* ── Player list ── */
+    .t-player-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 11px;
+      background: var(--surface2); border: 1px solid var(--border);
+      margin-bottom: 7px;
+    }
+    .t-player-row:last-child { margin-bottom: 0; }
+    .t-player-name { flex: 1; font-size: .95rem; font-weight: 700; color: var(--text); letter-spacing: .3px; }
+    .t-player-remove {
+      width: 28px; height: 28px; border-radius: 8px; border: none;
+      background: rgba(244,67,54,.1); color: #F44336;
+      font-size: .75rem; cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+    .t-player-remove:active { background: rgba(244,67,54,.22); }
+    .btn-add-players {
+      width: 100%; padding: 11px; border-radius: 11px; border: none;
+      background: rgba(232,197,71,.08); border: 1.5px dashed rgba(232,197,71,.3);
+      color: var(--gold); font-family: 'Rajdhani', sans-serif;
+      font-size: .95rem; font-weight: 700; letter-spacing: 1px;
+      cursor: pointer; touch-action: manipulation; transition: all .18s;
+      margin-top: 8px;
+    }
+    .btn-add-players:active { background: rgba(232,197,71,.15); }
+    .btn-add-players:disabled { opacity: .35; pointer-events: none; }
+    .sel-count { font-size: .74rem; color: var(--dim); text-align: center; margin-top: 8px; }
+
+    /* ── Profile picker (same as classic games) ── */
+    .profile-picker-ov {
+      display: none; position: fixed; inset: 0; z-index: 600;
+      background: rgba(0,0,0,.75); backdrop-filter: blur(6px);
+      align-items: flex-end; justify-content: center;
+    }
+    .profile-picker-ov.open { display: flex; }
+    .profile-picker-sheet {
+      width: 100%; max-width: 480px;
+      background: var(--surface); border-radius: 20px 20px 0 0;
+      border: 1px solid var(--border); border-bottom: none;
+      padding: 18px 16px 32px;
+      animation: ppSlideUp .28s cubic-bezier(.34,1.2,.64,1);
+    }
+    @keyframes ppSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .pp-handle { width: 40px; height: 4px; border-radius: 2px; background: var(--border); margin: 0 auto 14px; }
+    .pp-title {
+      font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 700;
+      color: var(--gold); text-align: center; letter-spacing: 1.5px; margin-bottom: 14px;
+    }
+    .pp-list { display: flex; flex-direction: column; gap: 8px; max-height: 50vh; overflow-y: auto; margin-bottom: 14px; }
+    .pp-profile-row {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 11px 14px;
+      cursor: pointer; touch-action: manipulation; transition: all .18s;
+    }
+    .pp-profile-row.checked { border-color: var(--gold); background: rgba(232,197,71,.10); }
+    .pp-profile-row.disabled { opacity: .35; pointer-events: none; }
+    .pp-check {
+      width: 22px; height: 22px; border-radius: 6px; flex-shrink: 0;
+      border: 2px solid var(--dim); background: transparent;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .18s; font-size: .75rem; color: transparent; margin-left: auto;
+    }
+    .pp-profile-row.checked .pp-check { border-color: var(--gold); background: var(--gold); color: #000; }
+    .pp-avatar { font-size: 1.6rem; line-height: 1; }
+    .pp-name { font-family: 'Rajdhani', sans-serif; font-size: 1.05rem; font-weight: 700; color: var(--text); flex: 1; }
+    .pp-empty { text-align: center; padding: 24px 0; color: var(--dim); font-family: 'Rajdhani', sans-serif; font-size: .95rem; }
+    .pp-manual { display: flex; gap: 8px; margin-bottom: 10px; }
+    .pp-manual-input {
+      flex: 1; padding: 10px 12px; background: var(--surface2);
+      border: 1.5px solid var(--border); border-radius: 12px;
+      color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 600;
+      outline: none; transition: border-color .2s;
+    }
+    .pp-manual-input:focus { border-color: var(--gold); }
+    .pp-manual-input::placeholder { color: var(--dim); opacity: .7; }
+    .pp-btn-add-manual {
+      padding: 10px 14px; background: var(--gold); border: none; border-radius: 12px;
+      color: #000; font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 900;
+      cursor: pointer; touch-action: manipulation; flex-shrink: 0;
+    }
+    .pp-footer { display: flex; gap: 10px; }
+    .pp-btn-cancel {
+      flex: 1; padding: 11px; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 12px; color: var(--dim); font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem; font-weight: 700; cursor: pointer;
+    }
+    .pp-btn-confirm {
+      flex: 2; padding: 11px; background: rgba(40,199,111,.15); border: 1.5px solid rgba(40,199,111,.4);
+      border-radius: 12px; color: #28C76F; font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem; font-weight: 700; cursor: pointer; letter-spacing: .5px;
+    }
+    .pp-btn-confirm.disabled { opacity: .35; pointer-events: none; }
+    .pp-btn-manage {
+      flex: 1; padding: 11px; background: rgba(232,197,71,.08); border: 1.5px solid rgba(232,197,71,.25);
+      border-radius: 12px; color: var(--gold); font-family: 'Rajdhani', sans-serif;
+      font-size: .9rem; font-weight: 700; cursor: pointer;
+    }
+
+    /* ── Nb games ── */
+    .nb-row { display: flex; align-items: center; gap: 16px; justify-content: center; }
+    .nb-btn {
+      width: 40px; height: 40px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--surface2);
+      color: var(--text); font-size: 1.2rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .15s;
+    }
+    .nb-btn:hover { border-color: rgba(232,197,71,.4); color: var(--gold); }
+    .nb-val { font-size: 2.2rem; font-weight: 800; color: var(--gold); min-width: 36px; text-align: center; }
+
+    /* ── Game grid ── */
+    .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+    .game-tile {
+      padding: 14px 8px; border-radius: 12px;
+      border: 1.5px solid var(--border); background: var(--surface2);
+      text-align: center; cursor: pointer; transition: all .18s; user-select: none;
+    }
+    .game-tile .tile-icon  { font-size: 1.7rem; display: block; margin-bottom: 5px; }
+    .game-tile .tile-name  { font-size: .8rem; font-weight: 700; color: var(--dim); letter-spacing: .5px; }
+    .game-tile .tile-badge { font-size: .62rem; margin-top: 3px; padding: 2px 6px; border-radius: 6px; background: rgba(52,211,153,.12); color: #34D399; display: inline-block; }
+    .game-tile .tile-num   { display: none; width: 18px; height: 18px; border-radius: 50%; background: var(--gold); color: #0A0A0A; font-size: .65rem; font-weight: 800; align-items: center; justify-content: center; margin: 4px auto 0; }
+    .game-tile.selected { border-color: var(--gc, rgba(232,197,71,.5)); background: color-mix(in srgb, var(--gc, rgba(232,197,71)) 10%, var(--surface2)); }
+    .game-tile.selected .tile-name { color: var(--text); }
+    .game-tile.selected .tile-num  { display: flex; }
+
+    /* ── Autodarts IP row ── */
+    .ip-row { margin-top: 12px; display: none; }
+    .ip-input {
+      width: 100%; padding: 9px 12px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--surface2);
+      color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: .88rem; outline: none;
+      margin-top: 6px;
+    }
+
+    /* ════════════════════════════════════════════════
+       SLOT MACHINE (full-screen overlay)
+    ════════════════════════════════════════════════ */
+    #s-slot {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(5,8,20,.98); backdrop-filter: blur(20px);
+      display: none;
+      align-items: center; justify-content: center; flex-direction: column; gap: 24px;
+    }
+    #s-slot.active { display: flex; }
+
+    .slot-lbl { font-size: .78rem; letter-spacing: 3px; text-transform: uppercase; color: var(--dim); }
+    .slot-machine {
+      width: min(300px, 88vw); height: 90px;
+      border-radius: 18px; border: 2px solid rgba(232,197,71,.25);
+      background: var(--surface);
+      box-shadow: 0 0 40px rgba(232,197,71,.12), inset 0 0 24px rgba(0,0,0,.5);
+      display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;
+    }
+    .slot-display {
+      font-size: 1.35rem; font-weight: 800; letter-spacing: 1.5px;
+      color: var(--text); text-align: center; padding: 0 16px;
+      transition: color .3s;
+    }
+    .slot-display.revealing { color: var(--gold); text-shadow: 0 0 16px rgba(232,197,71,.5); }
+    .slot-vignette {
+      position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(to bottom, rgba(5,8,20,.75) 0%, transparent 30%, transparent 70%, rgba(5,8,20,.75) 100%);
+    }
+    .slot-reveal {
+      display: none; flex-direction: column; align-items: center; gap: 10px;
+      animation: fadeUp .5s ease-out;
+    }
+    .slot-reveal.visible { display: flex; }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:none; } }
+    .slot-reveal-icon { font-size: 3.5rem; }
+    .slot-reveal-name { font-size: 1.7rem; font-weight: 800; letter-spacing: 3px; }
+    .slot-reveal-btn {
+      margin-top: 6px; padding: 12px 32px; border-radius: 12px; border: none;
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      color: #0A0A0A; font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem; font-weight: 800; letter-spacing: 2px; cursor: pointer;
+      animation: fadeUp .4s .35s ease-out both;
+    }
+
+    /* ════════════════════════════════════════════════
+       TEAM REVEAL
+    ════════════════════════════════════════════════ */
+    #s-team-reveal {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(5,8,20,.98); backdrop-filter: blur(20px);
+      display: none; flex-direction: column;
+    }
+    #s-team-reveal.active { display: flex; }
+
+    .tr-arena {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 20px; padding: 16px 24px;
+    }
+    .tr-status {
+      font-size: .78rem; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--dim); min-height: 16px; text-align: center;
+    }
+    .tr-slots {
+      display: flex; align-items: flex-start; gap: 14px; width: 100%; justify-content: center;
+    }
+    .tr-team-col { flex: 1; max-width: 148px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .tr-team-tag {
+      font-family: 'Rajdhani', sans-serif; font-size: .65rem; font-weight: 800;
+      letter-spacing: 2px; padding: 3px 12px; border-radius: 20px; white-space: nowrap;
+    }
+    .tr-slot-box {
+      width: 100%; min-height: 62px;
+      background: var(--surface); border: 2px solid rgba(255,255,255,.1);
+      border-radius: 14px; padding: 10px 10px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+      font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 800;
+      text-align: center; transition: border-color .4s, background .4s, box-shadow .4s;
+      overflow: hidden; position: relative;
+    }
+    .tr-slot-box::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(to bottom, rgba(5,8,20,.65) 0%, transparent 28%, transparent 72%, rgba(5,8,20,.65) 100%);
+    }
+    .tr-slot-box.spinning { border-color: rgba(232,197,71,.25); color: var(--dim); font-size: .95rem; }
+    .tr-slot-box.done-a {
+      border-color: #38BDF8; background: rgba(56,189,248,.07);
+      box-shadow: 0 0 20px rgba(56,189,248,.2); color: #38BDF8;
+      animation: fadeUp .4s ease-out;
+    }
+    .tr-slot-box.done-b {
+      border-color: #F59E0B; background: rgba(245,158,11,.07);
+      box-shadow: 0 0 20px rgba(245,158,11,.2); color: #F59E0B;
+      animation: fadeUp .4s ease-out;
+    }
+    .tr-player-row {
+      font-size: .9rem; font-weight: 700; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+      position: relative; z-index: 1;
+    }
+    .tr-vs-col { display: flex; align-items: center; padding-top: 30px; flex-shrink: 0; }
+    .tr-vs-icon { font-size: 1.3rem; font-weight: 900; color: var(--dim); font-family: 'Rajdhani', sans-serif; }
+
+    /* ════════════════════════════════════════════════
+       CROUPIER REVEAL
+    ════════════════════════════════════════════════ */
+    #s-croupier {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(5,8,20,.98); backdrop-filter: blur(20px);
+      display: none; flex-direction: column;
+    }
+    #s-croupier.active { display: flex; }
+
+    .cr-arena {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 24px; padding: 16px 24px;
+    }
+    .cr-title {
+      font-size: 1rem; font-weight: 800; letter-spacing: 4px;
+      text-transform: uppercase; color: var(--gold);
+      text-shadow: 0 0 20px rgba(232,197,71,.4);
+    }
+    .cr-status {
+      font-size: .78rem; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--dim); min-height: 16px; text-align: center;
+    }
+    .cr-slot-box {
+      width: 220px; min-height: 72px;
+      background: var(--surface); border: 2px solid rgba(232,197,71,.25);
+      border-radius: 16px; padding: 14px 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 800;
+      text-align: center; transition: border-color .4s, background .4s, box-shadow .4s;
+      overflow: hidden; position: relative; color: var(--dim);
+    }
+    .cr-slot-box::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(to bottom, rgba(5,8,20,.65) 0%, transparent 28%, transparent 72%, rgba(5,8,20,.65) 100%);
+    }
+    .cr-slot-box.cr-done {
+      border-color: var(--gold); background: rgba(232,197,71,.07);
+      box-shadow: 0 0 28px rgba(232,197,71,.3); color: var(--gold);
+      animation: fadeUp .4s ease-out;
+    }
+    .cr-icon { font-size: 2.4rem; margin-bottom: 4px; }
+
+    /* ════════════════════════════════════════════════
+       PREGAME / BETWEEN — shared game hero
+    ════════════════════════════════════════════════ */
+    .game-hero {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 20px 0 12px;
+    }
+    .hero-icon { font-size: 3rem; }
+    .hero-name { font-size: 1.5rem; font-weight: 800; letter-spacing: 3px; }
+    .hero-sub  { font-size: .72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--dim); }
+
+    .config-pills { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .config-pill {
+      padding: 6px 14px; border-radius: 20px;
+      border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04);
+      font-size: .82rem; color: var(--text); letter-spacing: .5px;
+    }
+
+    .teams-row { display: flex; gap: 10px; }
+    .team-card {
+      flex: 1; padding: 12px; border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.1); background: var(--surface2); text-align: center;
+    }
+    .team-card:first-child { border-color: rgba(99,102,241,.3); }
+    .team-card:last-child  { border-color: rgba(248,113,113,.3); }
+    .team-title { font-size: .68rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 7px; }
+    .team-card:first-child .team-title { color: #818CF8; }
+    .team-card:last-child  .team-title { color: #F87171; }
+    .team-player { font-size: .88rem; font-weight: 600; color: var(--text); padding: 2px 0; }
+
+    /* ════════════════════════════════════════════════
+       LEADERBOARD
+    ════════════════════════════════════════════════ */
+    .lb { display: flex; flex-direction: column; gap: 7px; }
+    .lb-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-radius: 12px;
+      background: var(--surface2); border: 1px solid var(--border);
+    }
+    .lb-row.r1 { border-color: rgba(232,197,71,.3); background: rgba(232,197,71,.05); }
+    .lb-row.r2 { border-color: rgba(192,192,192,.25); }
+    .lb-row.r3 { border-color: rgba(205,127,50,.25); }
+    .lb-rank   { font-size: 1.1rem; width: 22px; text-align: center; flex-shrink: 0; }
+    .lb-name   { flex: 1; font-size: .95rem; font-weight: 700; letter-spacing: .5px; }
+    .lb-bar-wrap { width: 70px; height: 5px; border-radius: 3px; background: rgba(255,255,255,.07); overflow: hidden; }
+    .lb-bar    { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--gold), var(--gold2)); transition: width .8s ease-out; }
+    .lb-pts    { font-size: .95rem; font-weight: 800; color: var(--gold); min-width: 40px; text-align: right; }
+
+    /* ════════════════════════════════════════════════
+       PODIUM
+    ════════════════════════════════════════════════ */
+    .podium-wrap { display: flex; align-items: flex-end; justify-content: center; gap: 6px; padding: 16px 0 0; }
+    .podium-col  { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .podium-avatar { font-size: 1.6rem; }
+    .podium-pname  { font-size: .85rem; font-weight: 700; letter-spacing: .5px; text-align: center; max-width: 90px; }
+    .podium-ppts   { font-size: .76rem; color: var(--dim); }
+    .podium-block  { width: 88px; border-radius: 10px 10px 0 0; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+    /* 2nd/1st/3rd display order */
+    .pc-2nd .podium-block { height: 65px;  background: rgba(192,192,192,.1);  border: 1px solid rgba(192,192,192,.25); }
+    .pc-1st .podium-block { height: 100px; background: rgba(232,197,71,.12);  border: 1px solid rgba(232,197,71,.35); }
+    .pc-3rd .podium-block { height: 45px;  background: rgba(205,127,50,.1);   border: 1px solid rgba(205,127,50,.25); }
+
+    .podium-full { display: flex; flex-direction: column; gap: 7px; }
+    .pf-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; background: var(--surface2); border: 1px solid var(--border); }
+    .pf-rank { font-size: 1.1rem; width: 26px; text-align: center; flex-shrink: 0; }
+    .pf-name { flex: 1; font-size: .95rem; font-weight: 700; }
+    .pf-pts  { font-size: .95rem; font-weight: 800; color: var(--gold); }
+
+    /* ════════════════════════════════════════════════
+       QUIT OVERLAY
+    ════════════════════════════════════════════════ */
+    #quit-overlay {
+      display: none; position: fixed; inset: 0; z-index: 300;
+      background: rgba(0,0,0,.92); backdrop-filter: blur(14px);
+      align-items: center; justify-content: center; padding: 24px;
+    }
+    #quit-overlay.open { display: flex; }
+    .quit-card {
+      background: var(--surface); border: 1px solid rgba(244,67,54,.3);
+      border-radius: 20px; padding: 24px 20px;
+      max-width: 360px; width: 100%; text-align: center;
+    }
+    .quit-title { font-size: 1.15rem; font-weight: 700; letter-spacing: 1.5px; color: #F44336; margin-bottom: 8px; }
+    .quit-desc  { font-size: .84rem; color: var(--dim); line-height: 1.5; margin-bottom: 20px; }
+    .quit-actions { display: flex; flex-direction: column; gap: 10px; }
+
+    /* ── Between slot (inline) ── */
+    .bt-slot {
+      width: 100%; height: 72px; border-radius: 14px;
+      border: 1.5px solid rgba(232,197,71,.2); background: var(--surface);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .bt-slot-display { font-size: 1.1rem; font-weight: 800; color: var(--text); letter-spacing: 1px; transition: color .3s; }
+    .bt-slot-display.revealing { color: var(--gold); }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     SECTION: SETUP
+══════════════════════════════════════════════ -->
+<div id="s-setup" class="section active">
+  <div class="t-header">
+    <button class="t-back" onclick="location.href='index.html'">←</button>
+    <span class="t-header-title">🏆 Nouveau tournoi</span>
+  </div>
+
+  <div class="t-scroll">
+
+    <!-- JOUEURS -->
+    <div>
+      <div class="t-label">Joueurs (2 – 6)</div>
+      <div class="t-card">
+        <div id="t-players-list"></div>
+        <button class="btn-add-players" id="btn-add-players" onclick="openProfilePicker()">＋ Ajouter des joueurs</button>
+        <div class="sel-count" id="sel-count">0 / 6 joueurs</div>
+      </div>
+    </div>
+
+    <!-- NOMBRE DE JEUX -->
+    <div>
+      <div class="t-label">Nombre de jeux</div>
+      <div class="t-card" style="text-align:center; padding:18px;">
+        <div class="nb-row">
+          <button class="nb-btn" onclick="changeNb(-1)">−</button>
+          <span class="nb-val" id="nb-val">3</span>
+          <button class="nb-btn" onclick="changeNb(+1)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIFFICULTÉ -->
+    <div>
+      <div class="t-label">Difficulté</div>
+      <div class="t-card">
+        <div class="opt-group">
+          <div class="opt-pill active" data-grp="diff" data-val="easy"   onclick="pickOpt(this)">Facile</div>
+          <div class="opt-pill"        data-grp="diff" data-val="normal" onclick="pickOpt(this)">Normal</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SAISIE -->
+    <div>
+      <div class="t-label">Mode de saisie</div>
+      <div class="t-card">
+        <div class="opt-group">
+          <div class="opt-pill active" data-grp="input" data-val="total"     onclick="pickInput(this)">🔢 Total</div>
+          <div class="opt-pill"        data-grp="input" data-val="darts"     onclick="pickInput(this)">🎯 Par fléchettes</div>
+          <div class="opt-pill"        data-grp="input" data-val="autodarts" onclick="pickInput(this)">🔗 Autodarts</div>
+        </div>
+        <div class="ip-row" id="ip-row">
+          <div class="t-label" style="margin-bottom:4px;">Adresse IP Autodarts</div>
+          <input class="ip-input" id="ip-input" type="text" value="192.168.1.37">
+        </div>
+      </div>
+    </div>
+
+    <!-- SÉLECTION JEUX -->
+    <div>
+      <div class="t-label">Sélection des jeux</div>
+      <div class="t-card">
+        <div class="opt-group" style="margin-bottom:14px;">
+          <div class="opt-pill active" data-grp="sel" data-val="random" onclick="pickSelMode(this)">🎲 Aléatoire</div>
+          <div class="opt-pill"        data-grp="sel" data-val="manual" onclick="pickSelMode(this)">Manuel</div>
+        </div>
+        <div id="game-grid-wrap" style="display:none;">
+          <div class="t-label" id="grid-label">Choisissez vos jeux</div>
+          <div class="game-grid" id="game-grid"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /t-scroll -->
+
+  <div class="t-footer">
+    <button class="btn-primary" id="btn-launch" onclick="launchTournament()" disabled>LANCER LE TOURNOI</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SECTION: SLOT MACHINE (overlay)
+══════════════════════════════════════════════ -->
+<div id="s-slot" class="section">
+  <div class="slot-lbl" id="slot-lbl">Tirage du jeu 1...</div>
+  <div class="slot-machine">
+    <div class="slot-display" id="slot-disp">?</div>
+    <div class="slot-vignette"></div>
+  </div>
+  <div class="slot-reveal" id="slot-reveal">
+    <div class="slot-reveal-icon" id="slot-reveal-icon"></div>
+    <div class="slot-reveal-name" id="slot-reveal-name"></div>
+    <button class="slot-reveal-btn" onclick="onSlotDone()">Voir les paramètres →</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SECTION: TEAM REVEAL
+══════════════════════════════════════════════ -->
+<div id="s-team-reveal" class="section">
+  <div class="tr-arena">
+    <div class="tr-status" id="tr-status">Composition des équipes...</div>
+    <div class="tr-slots">
+      <div class="tr-team-col">
+        <div class="tr-team-tag" style="background:rgba(56,189,248,.12);color:#38BDF8;">ÉQUIPE A</div>
+        <div class="tr-slot-box spinning" id="tr-slot-a">?</div>
+      </div>
+      <div class="tr-vs-col">
+        <div class="tr-vs-icon">VS</div>
+      </div>
+      <div class="tr-team-col">
+        <div class="tr-team-tag" style="background:rgba(245,158,11,.12);color:#F59E0B;">ÉQUIPE B</div>
+        <div class="tr-slot-box spinning" id="tr-slot-b">?</div>
+      </div>
+    </div>
+  </div>
+  <div class="t-footer">
+    <button class="btn-primary" id="tr-done-btn" onclick="onTeamRevealDone()" style="opacity:0;pointer-events:none;">Voir les paramètres →</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SECTION: CROUPIER REVEAL (blackdart)
+══════════════════════════════════════════════ -->
+<div id="s-croupier" class="section">
+  <div class="cr-arena">
+    <div class="cr-title">🎩 Croupier</div>
+    <div class="cr-status" id="cr-status">Tirage du croupier...</div>
+    <div class="cr-icon">🃏</div>
+    <div class="cr-slot-box" id="cr-slot">?</div>
+  </div>
+  <div class="t-footer">
+    <button class="btn-primary" id="cr-done-btn" onclick="onCroupierRevealDone()" style="opacity:0;pointer-events:none;">Voir les paramètres →</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SECTION: PREGAME (avant jeu 1)
+══════════════════════════════════════════════ -->
+<div id="s-pregame" class="section">
+  <div class="t-header">
+    <span class="t-header-title" id="pg-htitle">Jeu 1</span>
+    <span class="t-progress"     id="pg-prog"></span>
+  </div>
+  <div class="t-scroll">
+    <div class="game-hero">
+      <div class="hero-icon" id="pg-icon"></div>
+      <div class="hero-name" id="pg-name"></div>
+      <div class="hero-sub"  id="pg-sub"></div>
+    </div>
+    <div>
+      <div class="t-label">Paramètres</div>
+      <div class="t-card"><div class="config-pills" id="pg-pills"></div></div>
+    </div>
+    <div id="pg-teams-wrap" style="display:none;">
+      <div class="t-label">Équipes</div>
+      <div class="teams-row" id="pg-teams"></div>
+    </div>
+  </div>
+  <div class="t-footer">
+    <button class="btn-primary" onclick="startGame()">🎯 DÉMARRER</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SECTION: BETWEEN GAMES
+══════════════════════════════════════════════ -->
+<div id="s-between" class="section">
+  <div class="t-header">
+    <span class="t-header-title">🏆 Tournoi</span>
+    <span class="t-progress" id="bt-prog"></span>
+  </div>
+  <div class="t-scroll">
+    <div style="font-size:.72rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--dim); text-align:center;" id="bt-recap"></div>
+    <div>
+      <div class="t-label">Classement</div>
+      <div class="lb" id="bt-lb"></div>
+    </div>
+    <!-- Slot machine inline (random mode) -->
+    <div id="bt-slot-wrap" style="display:none;">
+      <div class="t-label">Prochain jeu...</div>
+      <div class="bt-slot">
+        <div class="bt-slot-display" id="bt-slot-disp">?</div>
+      </div>
+    </div>
+    <!-- Next game info (after reveal) -->
+    <div id="bt-next" style="display:none;">
+      <div class="game-hero" style="padding:12px 0 8px;">
+        <div class="hero-icon" id="bt-icon"></div>
+        <div class="hero-name" id="bt-name"></div>
+      </div>
+      <div class="t-label">Paramètres</div>
+      <div class="t-card" style="margin-bottom:12px;"><div class="config-pills" id="bt-pills"></div></div>
+      <div id="bt-teams-wrap" style="display:none;">
+        <div class="t-label">Équipes</div>
+        <div class="teams-row" id="bt-teams"></div>
+      </div>
+    </div>
+  </div>
+  <div class="t-footer">
+    <button class="btn-primary" id="bt-launch-btn" onclick="launchNextGame()" style="display:none;">🎯 LANCER LA MANCHE</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SECTION: PODIUM
+══════════════════════════════════════════════ -->
+<div id="s-podium" class="section">
+  <div class="t-header">
+    <span class="t-header-title">🏆 Podium Final</span>
+  </div>
+  <div class="t-scroll">
+    <div style="text-align:center; padding:16px 0 8px;">
+      <div style="font-size:2.2rem; margin-bottom:6px;">🎉</div>
+      <div style="font-size:.72rem; letter-spacing:2.5px; color:var(--dim);">VAINQUEUR DU TOURNOI</div>
+      <div style="font-size:1.7rem; font-weight:800; letter-spacing:2px; color:var(--gold); margin-top:4px;" id="podium-winner"></div>
+    </div>
+    <div class="podium-wrap" id="podium-cols"></div>
+    <div>
+      <div class="t-label" style="margin-top:8px;">Classement complet</div>
+      <div class="podium-full" id="podium-full"></div>
+    </div>
+  </div>
+  <div class="t-footer">
+    <button class="btn-primary"   onclick="TournamentManager.quit();localStorage.removeItem('dartvault_tournament_payload');location.href='tournament.html'">🔄 NOUVEAU TOURNOI</button>
+    <button class="btn-secondary" onclick="location.href='index.html'">← ACCUEIL</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SECTION: RESUME (tournoi interrompu)
+══════════════════════════════════════════════ -->
+<div id="s-resume" class="section">
+  <div class="t-header">
+    <button class="t-back" onclick="quitConfirm()">←</button>
+    <span class="t-header-title">🏆 Tournoi en cours</span>
+  </div>
+  <div class="t-scroll">
+    <div class="t-card" style="text-align:center; border-color:rgba(232,197,71,.2);">
+      <div style="font-size:1.05rem; font-weight:700; letter-spacing:1.5px; color:var(--gold); margin-bottom:6px;">Tournoi interrompu</div>
+      <div style="font-size:.84rem; color:var(--dim); line-height:1.5; margin-bottom:16px;" id="resume-info"></div>
+      <button class="btn-primary"   onclick="resumeTournament()" style="margin-bottom:10px;">▶ REPRENDRE</button>
+      <button class="btn-danger"    onclick="quitConfirm()">✕ QUITTER LE TOURNOI</button>
+    </div>
+    <div>
+      <div class="t-label">Classement actuel</div>
+      <div class="lb" id="resume-lb"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     QUIT OVERLAY
+══════════════════════════════════════════════ -->
+<div id="quit-overlay">
+  <div class="quit-card">
+    <div class="quit-title">⚠ Quitter le tournoi ?</div>
+    <div class="quit-desc">La progression sera définitivement perdue.</div>
+    <div class="quit-actions">
+      <button class="btn-danger"    onclick="confirmQuit()">✕ QUITTER LE TOURNOI</button>
+      <button class="btn-secondary" onclick="document.getElementById('quit-overlay').classList.remove('open')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PROFILE PICKER (bottom sheet)
+══════════════════════════════════════════════ -->
+<div class="profile-picker-ov" id="profile-picker" onclick="if(event.target===this)closeProfilePicker()">
+  <div class="profile-picker-sheet">
+    <div class="pp-handle"></div>
+    <div class="pp-title">👤 AJOUTER DES JOUEURS</div>
+    <div class="pp-list" id="pp-list"></div>
+    <div class="pp-manual">
+      <input class="pp-manual-input" id="pp-manual-input" type="text" maxlength="20" placeholder="Nom personnalisé...">
+      <button class="pp-btn-add-manual" onclick="tPpManual()">+</button>
+    </div>
+    <div class="pp-footer">
+      <button class="pp-btn-cancel" onclick="closeProfilePicker()">Annuler</button>
+      <button class="pp-btn-confirm disabled" id="pp-btn-confirm" onclick="tPpConfirm()">Ajouter (0)</button>
+      <button class="pp-btn-manage" onclick="location.href='profil.html'">＋ Gérer</button>
+    </div>
+  </div>
+</div>
+
+<script src="tournament-config.js"></script>
+<script src="tournament.js"></script>
+<script>
+
+// ════════════════════════════════════════════════
+// CONSTANTS
+// ════════════════════════════════════════════════
+
+const GAME_ICONS = {
+  'g501':      '🎯', 'cricket':   '🏏', 'shanghai':  '🀄',
+  'horloge':   '🕐', 'race500':   '🏎️', 'blackdart': '🃏',
+  'territoire':'🗺️', 'dartspong': '🏓', 'shooter':   '🔫', 'bataille':  '⚓',
+};
+const GAME_COLORS = {
+  'g501':      'rgba(192,57,43,1)',   'cricket':   'rgba(76,175,80,1)',
+  'shanghai':  'rgba(156,39,176,1)',  'horloge':   'rgba(33,150,243,1)',
+  'race500':   'rgba(255,193,7,1)',   'blackdart': 'rgba(0,150,136,1)',
+  'territoire':'rgba(255,87,34,1)',   'dartspong': 'rgba(233,30,99,1)',
+  'shooter':   'rgba(244,67,54,1)',   'bataille':  'rgba(63,81,181,1)',
+};
+const RANK_EMOJIS = ['🥇','🥈','🥉'];
+
+// ════════════════════════════════════════════════
+// SETUP STATE
+// ════════════════════════════════════════════════
+
+const S = {
+  players:  [],   // selected player full-names ("emoji name")
+  nb:       3,
+  diff:     'easy',
+  input:    'total',
+  selMode:  'random',
+  games:    [],   // manual selection
+};
+
+// ════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════
+
+window.addEventListener('DOMContentLoaded', () => {
+  TournamentManager.load();
+
+  if (TournamentManager.exists()) {
+    const phase = TournamentManager.state.phase;
+    if      (phase === 'between') { show('between'); initBetween(); }
+    else if (phase === 'done')    { show('podium');  initPodium();  }
+    else                          { show('resume');  initResume();  }
+  } else {
+    show('setup');
+    initSetup();
+  }
+});
+
+function show(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('s-' + id).classList.add('active');
+}
+
+// ════════════════════════════════════════════════
+// SETUP SCREEN
+// ════════════════════════════════════════════════
+
+function initSetup() {
+  renderPlayers();
+  renderNb();
+  renderGrid();
+  validate();
+}
+
+/* Player profiles from localStorage */
+function getProfiles() {
+  try { return JSON.parse(localStorage.getItem('dartvault_profiles')) || []; } catch { return []; }
+}
+function getRecentOrder() {
+  try { return JSON.parse(localStorage.getItem('dartvault_recent_profiles')) || []; } catch { return []; }
+}
+function saveRecent(name) {
+  let r = getRecentOrder();
+  r = [name, ...r.filter(n => n !== name)];
+  localStorage.setItem('dartvault_recent_profiles', JSON.stringify(r));
+}
+function fullName(p) { return p.emoji + ' ' + p.name; }
+
+function renderPlayers() {
+  const list = document.getElementById('t-players-list');
+  list.innerHTML = '';
+  S.players.forEach((name, i) => {
+    const row = document.createElement('div');
+    row.className = 't-player-row';
+    row.innerHTML = `
+      <span style="opacity:.45;font-size:.72rem;flex-shrink:0;">${i + 1}.</span>
+      <span class="t-player-name">${escT(name)}</span>
+      <button class="t-player-remove" onclick="removePlayer(${JSON.stringify(name)})">✕</button>
+    `;
+    list.appendChild(row);
+  });
+  const addBtn = document.getElementById('btn-add-players');
+  if (addBtn) addBtn.disabled = S.players.length >= 6;
+  document.getElementById('sel-count').textContent = `${S.players.length} / 6 joueurs`;
+}
+
+function removePlayer(name) {
+  S.players = S.players.filter(p => p !== name);
+  renderPlayers();
+  renderGrid();
+  validate();
+}
+
+function escT(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Profile picker ────────────────────────────────────────────────
+let _ppSel = [];
+
+function openProfilePicker() {
+  if (S.players.length >= 6) return;
+  _ppSel = [];
+  const profiles = getProfiles();
+  const recent   = getRecentOrder();
+  const used     = S.players.map(n => n.toLowerCase());
+  const available = profiles
+    .filter(p => !used.includes(fullName(p).toLowerCase()))
+    .sort((a, b) => {
+      const ia = recent.indexOf(fullName(a)), ib = recent.indexOf(fullName(b));
+      if (ia === -1 && ib === -1) return 0;
+      if (ia === -1) return 1; if (ib === -1) return -1;
+      return ia - ib;
+    });
+  const list = document.getElementById('pp-list');
+  if (!available.length) {
+    list.innerHTML = `<div class="pp-empty">${profiles.length === 0
+      ? 'Aucun profil sauvegardé.<br>Créez-en un via Gérer.'
+      : 'Tous les profils sont déjà ajoutés.'}</div>`;
+  } else {
+    list.innerHTML = available.map(p => {
+      const n = fullName(p);
+      return `<div class="pp-profile-row" data-fullname="${escTAttr(n)}" onclick="tPpToggle(this)">
+        <span class="pp-avatar">${p.emoji}</span>
+        <span class="pp-name">${escT(p.name)}</span>
+        <span class="pp-check"></span>
+      </div>`;
+    }).join('');
+  }
+  _ppUpdateConfirm();
+  const inp = document.getElementById('pp-manual-input');
+  inp.value = '';
+  inp.onkeydown = e => { if (e.key === 'Enter') tPpManual(); };
+  document.getElementById('profile-picker').classList.add('open');
+}
+
+function tPpToggle(row) {
+  const name = row.dataset.fullname;
+  const max  = 6 - S.players.length;
+  if (row.classList.contains('checked')) {
+    row.classList.remove('checked');
+    row.querySelector('.pp-check').textContent = '';
+    _ppSel = _ppSel.filter(n => n !== name);
+  } else {
+    if (_ppSel.length >= max) return;
+    row.classList.add('checked');
+    row.querySelector('.pp-check').textContent = '✓';
+    _ppSel.push(name);
+  }
+  _ppUpdateConfirm();
+}
+
+function _ppUpdateConfirm() {
+  const max = 6 - S.players.length;
+  const btn = document.getElementById('pp-btn-confirm');
+  btn.textContent = _ppSel.length > 0 ? `Ajouter (${_ppSel.length})` : 'Ajouter (0)';
+  btn.classList.toggle('disabled', _ppSel.length === 0);
+  document.querySelectorAll('#pp-list .pp-profile-row:not(.checked)').forEach(r => {
+    r.classList.toggle('disabled', _ppSel.length >= max);
+  });
+}
+
+function tPpConfirm() {
+  _ppSel.forEach(name => {
+    if (S.players.length >= 6 || S.players.includes(name)) return;
+    saveRecent(name);
+    S.players.push(name);
+  });
+  closeProfilePicker();
+  renderPlayers();
+  renderGrid();
+  validate();
+}
+
+function tPpManual() {
+  const inp = document.getElementById('pp-manual-input');
+  const val = inp.value.trim();
+  if (!val) { inp.focus(); return; }
+  if (S.players.length < 6 && !S.players.includes(val)) {
+    S.players.push(val);
+  }
+  inp.value = '';
+  closeProfilePicker();
+  renderPlayers();
+  renderGrid();
+  validate();
+}
+
+function closeProfilePicker() {
+  document.getElementById('profile-picker').classList.remove('open');
+}
+
+function escTAttr(s) {
+  return String(s).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// Refresh picker if returning from profil.html
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    const picker = document.getElementById('profile-picker');
+    if (picker && picker.classList.contains('open')) openProfilePicker();
+  }
+});
+
+function changeNb(d) {
+  S.nb = Math.min(10, Math.max(2, S.nb + d));
+  renderNb();
+  validate();
+}
+function renderNb() { document.getElementById('nb-val').textContent = S.nb; }
+
+function pickOpt(el) {
+  document.querySelectorAll(`[data-grp="${el.dataset.grp}"]`).forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+  if (el.dataset.grp === 'diff') S.diff = el.dataset.val;
+}
+
+function pickInput(el) {
+  document.querySelectorAll('[data-grp="input"]').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+  S.input = el.dataset.val;
+  document.getElementById('ip-row').style.display = S.input === 'autodarts' ? 'block' : 'none';
+}
+
+function pickSelMode(el) {
+  document.querySelectorAll('[data-grp="sel"]').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+  S.selMode = el.dataset.val;
+  S.games   = [];
+  const wrap = document.getElementById('game-grid-wrap');
+  wrap.style.display = S.selMode === 'manual' ? 'block' : 'none';
+  if (S.selMode === 'manual') renderGrid();
+  validate();
+}
+
+function renderGrid() {
+  if (S.selMode !== 'manual') return;
+  const nb     = Math.max(2, S.players.length);
+  const games  = availableGames(nb);
+  const grid   = document.getElementById('game-grid');
+  document.getElementById('grid-label').textContent = `Choisissez ${S.nb} jeux (${games.length} disponibles)`;
+  grid.innerHTML = '';
+  games.forEach(game => {
+    const isTeam = resolveTeamMode(game, nb) === 'team';
+    const color  = GAME_COLORS[game.id] || 'rgba(232,197,71,1)';
+    const tile   = document.createElement('div');
+    tile.className = 'game-tile' + (S.games.includes(game.id) ? ' selected' : '');
+    tile.dataset.id = game.id;
+    tile.style.setProperty('--gc', color);
+    tile.innerHTML = `
+      <span class="tile-icon">${GAME_ICONS[game.id] || '🎯'}</span>
+      <div class="tile-name">${game.name}</div>
+      ${isTeam ? '<div class="tile-badge">Équipe</div>' : ''}
+      <div class="tile-num" id="tn-${game.id}"></div>
+    `;
+    tile.onclick = () => toggleTile(tile, game.id);
+    grid.appendChild(tile);
+  });
+  updateTileNums();
+}
+
+function toggleTile(tile, id) {
+  const i = S.games.indexOf(id);
+  if (i !== -1) {
+    S.games.splice(i, 1);
+    tile.classList.remove('selected');
+  } else {
+    if (S.games.length >= S.nb) return;
+    S.games.push(id);
+    tile.classList.add('selected');
+  }
+  updateTileNums();
+  validate();
+}
+
+function updateTileNums() {
+  document.querySelectorAll('.tile-num').forEach(el => el.textContent = '');
+  S.games.forEach((id, i) => {
+    const el = document.getElementById('tn-' + id);
+    if (el) el.textContent = i + 1;
+  });
+}
+
+function validate() {
+  const ok = S.players.length >= 2
+          && S.players.length <= 6
+          && (S.selMode === 'random' || S.games.length === S.nb)
+          && availableGames(Math.max(2, S.players.length)).length >= S.nb;
+  document.getElementById('btn-launch').disabled = !ok;
+}
+
+// ════════════════════════════════════════════════
+// LAUNCH
+// ════════════════════════════════════════════════
+
+function launchTournament() {
+  feedbackLaunch();
+  const ip = document.getElementById('ip-input').value.trim() || '192.168.1.37';
+  TournamentManager.create({
+    players:       S.players,
+    nbGames:       S.nb,
+    difficulty:    S.diff,
+    inputMode:     S.input,
+    autodarts_ip:  ip,
+    selectionMode: S.selMode,
+    selectedGames: S.selMode === 'manual' ? S.games : null,
+  });
+  runSlot('setup', () => showPregame());
+}
+
+// ════════════════════════════════════════════════
+// SLOT MACHINE
+// ════════════════════════════════════════════════
+
+let _slotCb = null;
+
+function runSlot(from, onDone) {
+  _slotCb = onDone;
+  const game  = TournamentManager.getCurrentGame();
+  if (!game) { onDone(); return; }
+
+  const idx   = TournamentManager.state.gameIndex;
+  const total = TournamentManager.state.games.length;
+  const color = GAME_COLORS[game.id] || 'rgba(232,197,71,1)';
+
+  document.getElementById('slot-lbl').textContent = `Tirage — Jeu ${idx + 1} / ${total}`;
+  const disp   = document.getElementById('slot-disp');
+  const reveal = document.getElementById('slot-reveal');
+  disp.classList.remove('revealing');
+  disp.textContent = '?';
+  disp.style.display = '';
+  reveal.classList.remove('visible');
+
+  show('slot');
+
+  const all = TOURNAMENT_GAMES;
+  let frame = 0;
+  const maxFrames = 32 + Math.floor(Math.random() * 12);
+  let delay = 55;
+
+  function spin() {
+    const g = all[frame % all.length];
+    disp.textContent = `${GAME_ICONS[g.id] || '🎯'} ${g.name}`;
+    frame++;
+    if (frame < maxFrames) {
+      // Son tick — monte en fréquence au début, redescend en ralentissant
+      const slow = frame > maxFrames - 14;
+      const freq = slow ? 440 - (frame - (maxFrames - 14)) * 12 : 660 + (frame % 4) * 55;
+      playTick(Math.max(280, freq), 0.04, slow ? 0.14 : 0.08);
+      if (slow) haptic('light');
+      if (frame > maxFrames - 14) delay = 55 + (frame - (maxFrames - 14)) * 38;
+      setTimeout(spin, delay);
+    } else {
+      feedbackReveal();
+      disp.classList.add('revealing');
+      disp.textContent = `${GAME_ICONS[game.id] || '🎯'} ${game.name}`;
+      TournamentManager.revealCurrentGame();
+      setTimeout(() => {
+        disp.closest('.slot-machine').style.display = 'none';
+        const icon = document.getElementById('slot-reveal-icon');
+        const name = document.getElementById('slot-reveal-name');
+        icon.textContent = GAME_ICONS[game.id] || '🎯';
+        icon.style.filter = `drop-shadow(0 0 20px ${color})`;
+        name.textContent = game.name;
+        name.style.color = color;
+        reveal.classList.add('visible');
+      }, 500);
+    }
+  }
+  spin();
+}
+
+function onSlotDone() {
+  const disp = document.getElementById('slot-disp');
+  disp.style.display = '';
+  disp.closest('.slot-machine').style.display = '';
+  if (_slotCb) _slotCb();
+}
+
+// ════════════════════════════════════════════════
+// TEAM REVEAL
+// ════════════════════════════════════════════════
+
+let _teamRevealCb = null;
+
+function runTeamReveal(game, onDone) {
+  _teamRevealCb = onDone;
+  const teams    = game.teams; // [[name,...],[name,...]]
+  const allNames = TournamentManager.state.players;
+
+  const slotA   = document.getElementById('tr-slot-a');
+  const slotB   = document.getElementById('tr-slot-b');
+  const doneBtn = document.getElementById('tr-done-btn');
+  const statusEl = document.getElementById('tr-status');
+
+  slotA.className = 'tr-slot-box spinning';
+  slotB.className = 'tr-slot-box spinning';
+  slotA.innerHTML = '?';
+  slotB.innerHTML = '?';
+  doneBtn.style.opacity      = '0';
+  doneBtn.style.pointerEvents = 'none';
+  statusEl.textContent = 'Composition des équipes...';
+
+  show('team-reveal');
+
+  let doneA = false, doneB = false;
+
+  function checkBothDone() {
+    if (doneA && doneB) {
+      statusEl.textContent = 'Équipes prêtes !';
+      doneBtn.style.opacity      = '1';
+      doneBtn.style.pointerEvents = 'auto';
+    }
+  }
+
+  function spinSlot(slotEl, players, frame, maxFrames, doneClass, onFinish) {
+    const name = allNames[frame % allNames.length];
+    slotEl.innerHTML = `<div class="tr-player-row">${name}</div>`;
+    frame++;
+    if (frame < maxFrames) {
+      const slow  = frame > maxFrames - 10;
+      const freq  = slow ? 440 - (frame - (maxFrames - 10)) * 14 : 660 + (frame % 4) * 55;
+      playTick(Math.max(280, freq), 0.04, slow ? 0.14 : 0.08);
+      if (slow) haptic('light');
+      const delay = slow ? 80 + (frame - (maxFrames - 10)) * 45 : 60;
+      setTimeout(() => spinSlot(slotEl, players, frame, maxFrames, doneClass, onFinish), delay);
+    } else {
+      feedbackReveal();
+      slotEl.className = `tr-slot-box ${doneClass}`;
+      slotEl.innerHTML = players.map(p => `<div class="tr-player-row">${p}</div>`).join('');
+      onFinish();
+    }
+  }
+
+  const maxA = 22 + Math.floor(Math.random() * 8);
+  const maxB = maxA + 8 + Math.floor(Math.random() * 6);
+  spinSlot(slotA, teams[0], 0, maxA, 'done-a', () => { doneA = true; checkBothDone(); });
+  setTimeout(() => {
+    spinSlot(slotB, teams[1], 0, maxB, 'done-b', () => { doneB = true; checkBothDone(); });
+  }, 200);
+}
+
+function onTeamRevealDone() {
+  if (_teamRevealCb) _teamRevealCb();
+}
+
+// ════════════════════════════════════════════════
+// CROUPIER REVEAL (blackdart)
+// ════════════════════════════════════════════════
+
+let _croupierRevealCb = null;
+
+function runCroupierReveal(game, onDone) {
+  _croupierRevealCb = onDone;
+  const allNames = TournamentManager.state.players;
+
+  const slotEl   = document.getElementById('cr-slot');
+  const doneBtn  = document.getElementById('cr-done-btn');
+  const statusEl = document.getElementById('cr-status');
+
+  slotEl.className   = 'cr-slot-box';
+  slotEl.textContent = '?';
+  doneBtn.style.opacity      = '0';
+  doneBtn.style.pointerEvents = 'none';
+  statusEl.textContent = 'Tirage du croupier...';
+
+  show('croupier');
+
+  // Pick winner upfront
+  const winner = allNames[Math.floor(Math.random() * allNames.length)];
+
+  const maxFrames = 26 + Math.floor(Math.random() * 10);
+
+  function spinFrame(frame) {
+    const name = allNames[frame % allNames.length];
+    slotEl.textContent = name;
+    frame++;
+    if (frame < maxFrames) {
+      const slow  = frame > maxFrames - 10;
+      const freq  = slow ? 440 - (frame - (maxFrames - 10)) * 14 : 660 + (frame % 4) * 55;
+      playTick(Math.max(280, freq), 0.04, slow ? 0.14 : 0.08);
+      if (slow) haptic('light');
+      const delay = slow ? 80 + (frame - (maxFrames - 10)) * 45 : 60;
+      setTimeout(() => spinFrame(frame), delay);
+    } else {
+      feedbackReveal();
+      slotEl.textContent = winner;
+      slotEl.className   = 'cr-slot-box cr-done';
+      statusEl.textContent = 'Croupier désigné !';
+      localStorage.setItem('dartvault_tournament_croupier', winner);
+      doneBtn.style.opacity      = '1';
+      doneBtn.style.pointerEvents = 'auto';
+    }
+  }
+
+  spinFrame(0);
+}
+
+function onCroupierRevealDone() {
+  if (_croupierRevealCb) _croupierRevealCb();
+}
+
+// ════════════════════════════════════════════════
+// PREGAME
+// ════════════════════════════════════════════════
+
+function showPregame() {
+  const game  = TournamentManager.getCurrentGame();
+  if (!game) return;
+  const idx   = TournamentManager.state.gameIndex;
+  const total = TournamentManager.state.games.length;
+  const color = GAME_COLORS[game.id] || 'rgba(232,197,71,1)';
+
+  document.getElementById('pg-htitle').textContent = `Jeu ${idx + 1} / ${total}`;
+  document.getElementById('pg-prog').textContent   = `${idx + 1} / ${total}`;
+
+  const icon = document.getElementById('pg-icon');
+  icon.textContent = GAME_ICONS[game.id] || '🎯';
+  icon.style.filter = `drop-shadow(0 0 16px ${color})`;
+
+  const name = document.getElementById('pg-name');
+  name.textContent = game.name;
+  name.style.color = color;
+
+  document.getElementById('pg-sub').textContent = game.teamMode === 'team' ? '⚔ Jeu en équipe' : '👤 Jeu solo';
+
+  renderPills('pg-pills', game);
+
+  const tw = document.getElementById('pg-teams-wrap');
+  if (game.teamMode === 'team' && game.teams) {
+    tw.style.display = 'block';
+    renderTeams('pg-teams', game.teams);
+  } else {
+    tw.style.display = 'none';
+  }
+
+  if (game.teamMode === 'team' && game.teams && game.teams.length >= 2) {
+    runTeamReveal(game, () => show('pregame'));
+  } else if (game.id === 'blackdart') {
+    runCroupierReveal(game, () => show('pregame'));
+  } else {
+    show('pregame');
+  }
+}
+
+function startGame() {
+  const game = TournamentManager.getCurrentGame();
+  if (!game) return;
+  feedbackLaunch();
+  TournamentManager.markGameStarted();
+  localStorage.setItem('dartvault_tournament_payload', JSON.stringify(TournamentManager.getTournamentPayload()));
+  setTimeout(() => { location.href = game.url; }, 180);
+}
+
+// ════════════════════════════════════════════════
+// BETWEEN
+// ════════════════════════════════════════════════
+
+function _maybeTeamReveal(game, onDone) {
+  if (game.teamMode === 'team' && game.teams && game.teams.length >= 2) {
+    runTeamReveal(game, onDone);
+  } else if (game.id === 'blackdart') {
+    runCroupierReveal(game, onDone);
+  } else {
+    onDone();
+  }
+}
+
+function initBetween() {
+  const st    = TournamentManager.state;
+  const idx   = st.gameIndex;
+  const total = st.games.length;
+
+  document.getElementById('bt-prog').textContent   = `${idx} / ${total}`;
+  document.getElementById('bt-recap').textContent  =
+    `Après ${idx} jeu${idx > 1 ? 'x' : ''} · ${total - idx} restant${total - idx > 1 ? 's' : ''}`;
+
+  renderLeaderboard('bt-lb', TournamentManager.getLeaderboard());
+
+  const next = TournamentManager.getCurrentGame();
+  if (!next) return;
+
+  if (st.selectionMode === 'random') {
+    document.getElementById('bt-slot-wrap').style.display = 'block';
+    document.getElementById('bt-next').style.display      = 'none';
+    document.getElementById('bt-launch-btn').style.display = 'none';
+    runBetweenSlot(next);
+  } else {
+    document.getElementById('bt-slot-wrap').style.display = 'none';
+    _maybeTeamReveal(next, () => { show('between'); showBetweenGame(next); });
+  }
+}
+
+function runBetweenSlot(game) {
+  const disp  = document.getElementById('bt-slot-disp');
+  disp.classList.remove('revealing');
+  disp.textContent = '?';
+
+  const all = TOURNAMENT_GAMES;
+  let frame = 0;
+  const maxFrames = 28 + Math.floor(Math.random() * 10);
+  let delay = 60;
+
+  function spin() {
+    const g = all[frame % all.length];
+    disp.textContent = `${GAME_ICONS[g.id] || '🎯'} ${g.name}`;
+    frame++;
+    if (frame < maxFrames) {
+      const slow = frame > maxFrames - 10;
+      const freq = slow ? 440 - (frame - (maxFrames - 10)) * 14 : 660 + (frame % 4) * 55;
+      playTick(Math.max(280, freq), 0.04, slow ? 0.14 : 0.08);
+      if (slow) haptic('light');
+      if (slow) delay = 60 + (frame - (maxFrames - 10)) * 45;
+      setTimeout(spin, delay);
+    } else {
+      feedbackReveal();
+      const color = GAME_COLORS[game.id] || 'rgba(232,197,71,1)';
+      disp.classList.add('revealing');
+      disp.textContent = `${GAME_ICONS[game.id] || '🎯'} ${game.name}`;
+      disp.style.color = color;
+      TournamentManager.revealCurrentGame();
+      setTimeout(() => _maybeTeamReveal(game, () => { show('between'); showBetweenGame(game); }), 800);
+    }
+  }
+  spin();
+}
+
+function showBetweenGame(game) {
+  const color = GAME_COLORS[game.id] || 'rgba(232,197,71,1)';
+
+  const icon = document.getElementById('bt-icon');
+  icon.textContent = GAME_ICONS[game.id] || '🎯';
+  icon.style.filter = `drop-shadow(0 0 14px ${color})`;
+
+  const name = document.getElementById('bt-name');
+  name.textContent = game.name;
+  name.style.color = color;
+
+  renderPills('bt-pills', game);
+
+  const tw = document.getElementById('bt-teams-wrap');
+  if (game.teamMode === 'team' && game.teams) {
+    tw.style.display = 'block';
+    renderTeams('bt-teams', game.teams);
+  } else {
+    tw.style.display = 'none';
+  }
+
+  document.getElementById('bt-slot-wrap').style.display  = 'none';
+  document.getElementById('bt-next').style.display        = 'block';
+  document.getElementById('bt-launch-btn').style.display  = 'block';
+}
+
+function launchNextGame() {
+  const game = TournamentManager.getCurrentGame();
+  if (!game) return;
+  feedbackLaunch();
+  TournamentManager.markGameStarted();
+  localStorage.setItem('dartvault_tournament_payload', JSON.stringify(TournamentManager.getTournamentPayload()));
+  setTimeout(() => { location.href = game.url; }, 180);
+}
+
+// ════════════════════════════════════════════════
+// PODIUM
+// ════════════════════════════════════════════════
+
+function initPodium() {
+  const lb = TournamentManager.getLeaderboard();
+  if (!lb.length) return;
+
+  document.getElementById('podium-winner').textContent = lb[0]?.name || '';
+
+  // Columns: 2nd · 1st · 3rd
+  const cols    = document.getElementById('podium-cols');
+  const order   = [lb[1], lb[0], lb[2]];
+  const classes = ['pc-2nd', 'pc-1st', 'pc-3rd'];
+  const medals  = ['🥈', '🥇', '🥉'];
+  cols.innerHTML = '';
+  order.filter(Boolean).forEach((p, i) => {
+    const realIdx = order.indexOf(p);
+    const col = document.createElement('div');
+    col.className = `podium-col ${classes[i]}`;
+    col.innerHTML = `
+      <div class="podium-avatar">${i === 1 ? '👑' : ''}</div>
+      <div class="podium-pname">${p.name}</div>
+      <div class="podium-ppts">${p.score} pt${p.score !== 1 ? 's' : ''}</div>
+      <div class="podium-block">${medals[i]}</div>
+    `;
+    cols.appendChild(col);
+  });
+
+  // Full ranking
+  const full = document.getElementById('podium-full');
+  full.innerHTML = '';
+  lb.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'pf-row';
+    row.innerHTML = `
+      <span class="pf-rank">${RANK_EMOJIS[i] || (i+1) + '.'}</span>
+      <span class="pf-name">${p.name}</span>
+      <span class="pf-pts">${p.score} pt${p.score !== 1 ? 's' : ''}</span>
+    `;
+    full.appendChild(row);
+  });
+}
+
+// ════════════════════════════════════════════════
+// RESUME
+// ════════════════════════════════════════════════
+
+function initResume() {
+  const st   = TournamentManager.state;
+  const idx  = st.gameIndex;
+  const game = TournamentManager.getCurrentGame();
+  document.getElementById('resume-info').textContent =
+    `Jeu ${idx + 1} / ${st.games.length}${game ? ' — ' + game.name : ''}`;
+  renderLeaderboard('resume-lb', TournamentManager.getLeaderboard());
+}
+
+function resumeTournament() {
+  const phase = TournamentManager.state.phase;
+  if (phase === 'playing') {
+    const game = TournamentManager.getCurrentGame();
+    if (game) {
+      localStorage.setItem('dartvault_tournament_payload', JSON.stringify(TournamentManager.getTournamentPayload()));
+      location.href = game.url;
+    }
+  } else if (phase === 'between') {
+    show('between');
+    initBetween();
+  } else {
+    showPregame();
+  }
+}
+
+// ════════════════════════════════════════════════
+// QUIT
+// ════════════════════════════════════════════════
+
+function quitConfirm() { document.getElementById('quit-overlay').classList.add('open'); }
+function confirmQuit()  { TournamentManager.quit(); localStorage.removeItem('dartvault_tournament_payload'); location.href = 'index.html'; }
+
+// ════════════════════════════════════════════════
+// SHARED RENDERERS
+// ════════════════════════════════════════════════
+
+function renderPills(id, game) {
+  const container = document.getElementById(id);
+  container.innerHTML = '';
+  const labels = TournamentManager.getConfigLabel(game).split(' · ').filter(Boolean);
+  labels.forEach(txt => {
+    const pill = document.createElement('div');
+    pill.className = 'config-pill';
+    pill.textContent = txt;
+    container.appendChild(pill);
+  });
+  // Input mode pill
+  const st = TournamentManager.state;
+  const modePill = document.createElement('div');
+  modePill.className = 'config-pill';
+  modePill.textContent = st.inputMode === 'autodarts' ? '🔗 Autodarts'
+                       : st.inputMode === 'darts'     ? '🎯 Par fléchettes'
+                                                      : '🔢 Total';
+  container.appendChild(modePill);
+}
+
+function renderTeams(id, teams) {
+  const container = document.getElementById(id);
+  container.innerHTML = '';
+  teams.forEach((team, i) => {
+    const card = document.createElement('div');
+    card.className = 'team-card';
+    card.innerHTML = `
+      <div class="team-title">Équipe ${i + 1}</div>
+      ${team.map(p => `<div class="team-player">${p}</div>`).join('')}
+    `;
+    container.appendChild(card);
+  });
+}
+
+function renderLeaderboard(id, lb) {
+  const container = document.getElementById(id);
+  const maxPts    = lb[0]?.score || 1;
+  container.innerHTML = '';
+  const rClasses = ['r1', 'r2', 'r3'];
+  lb.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = `lb-row ${rClasses[i] || ''}`;
+    const barW = maxPts > 0 ? Math.round((p.score / maxPts) * 100) : 0;
+    row.innerHTML = `
+      <span class="lb-rank">${RANK_EMOJIS[i] || (i+1) + '.'}</span>
+      <span class="lb-name">${p.name}</span>
+      <div class="lb-bar-wrap"><div class="lb-bar" style="width:${barW}%"></div></div>
+      <span class="lb-pts">${p.score} pt${p.score !== 1 ? 's' : ''}</span>
+    `;
+    container.appendChild(row);
+  });
+}
+
+// ════════════════════════════════════════════════
+// SON & VIBRATION
+// ════════════════════════════════════════════════
+
+const _ac = window.AudioContext || window.webkitAudioContext
+  ? new (window.AudioContext || window.webkitAudioContext)() : null;
+
+function haptic(type = 'light') {
+  if (localStorage.getItem('dartvault_vibration') === 'off') return;
+  if (!navigator.vibrate) return;
+  if (type === 'light')        navigator.vibrate(8);
+  else if (type === 'medium')  navigator.vibrate(18);
+  else if (type === 'success') navigator.vibrate([12, 40, 25]);
+  else if (type === 'impact')  navigator.vibrate([20, 15, 20, 15, 30]);
+}
+
+function playTick(freq = 520, dur = 0.04, vol = 0.15) {
+  if (!_ac || localStorage.getItem('dartvault_sound') === 'off') return;
+  try {
+    if (_ac.state === 'suspended') _ac.resume();
+    const o = _ac.createOscillator();
+    const g = _ac.createGain();
+    o.connect(g); g.connect(_ac.destination);
+    o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, _ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, _ac.currentTime + dur);
+    o.onended = () => { try { o.disconnect(); g.disconnect(); } catch(e){} };
+    o.start(); o.stop(_ac.currentTime + dur);
+  } catch(e) {}
+}
+
+function _playNote(freq, t, d, v = 0.18, type = 'sine') {
+  if (!_ac || localStorage.getItem('dartvault_sound') === 'off') return;
+  try {
+    if (_ac.state === 'suspended') _ac.resume();
+    const o = _ac.createOscillator();
+    const g = _ac.createGain();
+    o.type = type; o.frequency.value = freq;
+    o.connect(g); g.connect(_ac.destination);
+    const s = _ac.currentTime + t;
+    g.gain.setValueAtTime(0, s);
+    g.gain.linearRampToValueAtTime(v, s + 0.015);
+    g.gain.exponentialRampToValueAtTime(0.001, s + d);
+    o.onended = () => { try { o.disconnect(); g.disconnect(); } catch(e){} };
+    o.start(s); o.stop(s + d);
+  } catch(e) {}
+}
+
+// Feedback boutons UI
+function feedbackKey()    { haptic('light');   playTick(520, 0.05, 0.13); }
+function feedbackLaunch() { haptic('success'); _playNote(440,0,0.10); _playNote(660,0.10,0.12); _playNote(880,0.22,0.16); }
+
+// Mélodie révélation roulette — fanfare courte ascendante
+function feedbackReveal() {
+  haptic('impact');
+  [ [523,0,0.09], [659,0.10,0.09], [784,0.20,0.09], [1047,0.30,0.22] ]
+    .forEach(([f,t,d]) => _playNote(f, t, d, 0.16, 'square'));
+}
+
+// ── Global click feedback ────────────────────────────────────────
+document.addEventListener('click', e => {
+  const el = e.target.closest('button, .opt-pill, .nb-btn, .game-tile, .pp-profile-row, .t-player-remove');
+  if (!el) return;
+  // Boutons avec leur propre feedback
+  const skipIds = ['btn-launch', 'bt-launch-btn'];
+  if (skipIds.some(id => el.id === id)) return;
+  feedbackKey();
+});
+
+</script>
+</body>
+</html>

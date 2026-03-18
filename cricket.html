@@ -1723,8 +1723,12 @@ function endLeg(winnerIdx) {
       showLegResult(winner, false);
     }
   } else {
-    // Égalité — nouvelle manche sans attribuer de point
-    showDrawResult();
+    // Égalité — en tournoi avec limite de tours : fin de partie définitive
+    if (G.maxRounds > 0 && window.TournamentBridge) {
+      showFinalEnd();
+    } else {
+      showDrawResult();
+    }
   }
 }
 
@@ -1830,8 +1834,10 @@ function showFinalEnd() {
     const dartsStat = G.mode === 'noscore'
       ? `<span style="font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:700;color:var(--dim);margin-left:4px;">🎯 ${p.totalDarts||0} ${DV_LANG.t('x01_darts')||'fléchettes'}</span>`
       : '';
+    const _pWins = G.setsToWin > 0 ? (p.sets||0) : (p.legs||0);
+    const _trueRank = sorted.filter(q => { const _qw=G.setsToWin>0?(q.sets||0):(q.legs||0); if(_qw!==_pWins) return _qw>_pWins; if(G.mode==='noscore') return false; if(G.mode==='cutthroat') return (q.score||0)<(p.score||0); return (q.score||0)>(p.score||0); }).length;
     return `<div class="podium-row" style="border-left-color:${p.color};">
-      <span class="podium-icon">${PODIUM_ICONS[rank] || ''}</span>
+      <span class="podium-icon">${PODIUM_ICONS[_trueRank] || ''}</span>
       <span class="podium-name" style="color:${p.color};">${p.name}</span>
       <span class="podium-score">${showBadge ? badge : ''}${showScore && showBadge ? ' · ' + p.score + 'pts' : showScore ? p.score + 'pts' : ''}${dartsStat}</span>
     </div>`;
@@ -1840,6 +1846,28 @@ function showFinalEnd() {
   document.getElementById('btn-rematch').textContent = DV_LANG.t('rematch');
   document.getElementById('btn-end-close').textContent = '↩ ' + DV_LANG.t('cancel');
   document.getElementById('end-modal').classList.add('open');
+  if (window.TournamentBridge) {
+    // Build grouped ranking: players with equal wins+score are in the same group
+    const _isSameRank = (a, b) => {
+      const _aw = G.setsToWin > 0 ? (a.sets||0) : (a.legs||0);
+      const _bw = G.setsToWin > 0 ? (b.sets||0) : (b.legs||0);
+      if (_aw !== _bw) return false;
+      if (G.mode === 'noscore') return true;
+      return (a.score||0) === (b.score||0);
+    };
+    const _groups = [];
+    let _gi = 0;
+    while (_gi < sorted.length) {
+      let _gj = _gi + 1;
+      while (_gj < sorted.length && _isSameRank(sorted[_gi], sorted[_gj])) _gj++;
+      const _names = sorted.slice(_gi, _gj).map(p => p.name);
+      _groups.push(_names.length === 1 ? _names[0] : _names);
+      _gi = _gj;
+    }
+    // Complete draw (single group = everyone tied) → 0 pts for all
+    const _allTied = _groups.length === 1 && Array.isArray(_groups[0]);
+    TournamentBridge.onGameEnd(_allTied ? [] : _groups);
+  }
   // TTS victoire après le jingle
   var winnerName = sorted[0] ? sorted[0].name : '';
   speak(winnerName + ' ' + (DV_LANG.get() === 'en' ? 'wins the game' : 'remporte la partie'), 1200);
@@ -3110,5 +3138,8 @@ history.pushState(null, '', window.location.href);
   var _adDot=document.getElementById('ad-status-dot');if(_adDot)_adDot.addEventListener('click',function(){if(!adEnabled)return;lastNumThrows=0;dartCount=0;fetch('https://'+getIP()+':3181/api/reset',{method:'POST',mode:'no-cors'}).catch(function(){});this.style.background='#fff';this.style.boxShadow='0 0 12px rgba(255,255,255,.8)';setTimeout(function(){updateDot(ws&&ws.readyState===WebSocket.OPEN?'connected':'disconnected');},400);if(typeof showToast==='function')showToast('Autodarts reset');});
 })();
 </script>
+<script src="tournament-config.js"></script>
+<script src="tournament.js"></script>
+<script src="tournament-bridge.js"></script>
 </body>
 </html>

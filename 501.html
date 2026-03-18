@@ -2853,8 +2853,9 @@ function showFinalResult(winner) {
           p.allDoubleHits + '/' + p.allDoubleAttempts + ' ' +
           (p.allDoubleAttempts > 0 ? Math.round((p.allDoubleHits / p.allDoubleAttempts) * 100) : 0) + '%</div>')
       : '';
+    const _rank = sorted.filter(q => q.legs > p.legs || (q.legs === p.legs && calcAvg(q) > calcAvg(p))).length + 1;
     return '<div class="rank-row" style="border-color:' + p.color + '20">' +
-      '<div class="rank-medal">' + (medals[i] || '') + '</div>' +
+      '<div class="rank-medal">' + (medals[_rank - 1] || '') + '</div>' +
       '<div class="rank-name" style="color:' + p.color + '">' + p.name + '</div>' +
       '<div class="rank-info">' +
         '<div class="rank-legs" style="color:' + p.color + '">' + (G.setsToWin > 0 ? p.sets + ' ' + DV_LANG.t('x01_sets_lbl') : p.legs + ' ' + DV_LANG.t('x01_legs_lbl')) + '</div>' +
@@ -2866,6 +2867,11 @@ function showFinalResult(winner) {
   document.getElementById('btn-end-back').textContent = DV_LANG.t('config');
   document.getElementById('btn-end-close').textContent = '↩ ' + DV_LANG.t('cancel');
   document.getElementById('end-modal').classList.add('open');
+  if (window.TournamentBridge) {
+    const _g=[];let _gi=0;
+    while(_gi<sorted.length){let _gj=_gi+1;while(_gj<sorted.length&&sorted[_gj].legs===sorted[_gi].legs&&calcAvg(sorted[_gj])===calcAvg(sorted[_gi]))_gj++;const _gs=sorted.slice(_gi,_gj).map(p=>p.name);_g.push(_gs.length===1?_gs[0]:_gs);_gi=_gj;}
+    TournamentBridge.onGameEnd(_g);
+  }
   G._pendingNextLeg = false;
 
   // ── Sauvegarder stats cumulées pour classement ──
@@ -4288,5 +4294,8 @@ function escPP(s) {
 
 })();
 </script>
+<script src="tournament-config.js"></script>
+<script src="tournament.js"></script>
+<script src="tournament-bridge.js"></script>
 </body>
 </html>

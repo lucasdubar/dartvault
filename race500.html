@@ -1521,7 +1521,8 @@ function showWin(w){
   document.getElementById('etitle').style.color=w.c;
   document.getElementById('esub').textContent=w.s+' pts';
   document.getElementById('end-ranking').innerHTML=sr.map((p,i)=>{
-    const medal=['🥇','🥈','🥉'][i]||`${i+1}.`;
+    const _rank=sr.filter(q=>q.s>p.s).length+1;
+    const medal=['🥇','🥈','🥉'][_rank-1]||`${_rank}.`;
     const stealInfo = G.stealAmt
       ? `<div style="font-size:.7rem;color:var(--dim);margin-top:2px;">`+
         (p.stolen?`<span style="color:var(--ok)">↑ ${DV_LANG.t('rc_stat_stolen')} ${p.stolen}</span> `:``) +
@@ -1539,6 +1540,11 @@ function showWin(w){
     </div>`;
   }).join('');
   document.getElementById('end-modal').classList.add('open');
+  if (window.TournamentBridge) {
+    const _g=[];let _gi=0;
+    while(_gi<sr.length){let _gj=_gi+1;while(_gj<sr.length&&sr[_gj].s===sr[_gi].s)_gj++;const _gs=sr.slice(_gi,_gj).map(p=>p.n);_g.push(_gs.length===1?_gs[0]:_gs);_gi=_gj;}
+    TournamentBridge.onGameEnd(_g);
+  }
   speak(w.n+' '+(DV_LANG.get()==='en'?'wins the game':'remporte la partie'),1200);
 }
 
@@ -2334,5 +2340,8 @@ window.addEventListener('resize',adjustSlistPadding);
   });
 })();
 </script>
+<script src="tournament-config.js"></script>
+<script src="tournament.js"></script>
+<script src="tournament-bridge.js"></script>
 </body>
 </html>

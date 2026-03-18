@@ -764,6 +764,7 @@
         <button class="filter-btn" data-filter="fun" data-i18n="fun">Fun</button>
       </div>
       <button class="btn-random" id="btn-random">🎲 <span data-i18n="random">ALÉATOIRE</span></button>
+      <button class="btn-random" onclick="location.href='tournament.html'">🏆 <span data-i18n="hub_tournament">TOURNOI</span></button>
     </div>
   </div>
 
@@ -2162,7 +2163,7 @@
       // Fallback if SW never responds (local dev)
       setTimeout(function() {
         var el = document.getElementById('app-version');
-        if (el && !el.textContent) el.textContent = 'v2.4';
+        if (el && !el.textContent) el.textContent = 'v2.5';
       }, 2000);
     }, 2000);
 

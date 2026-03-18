@@ -2881,9 +2881,9 @@ function showVictory(winner) {
     return (b.stats.hpDealt - a.stats.hpDealt);
   });
 
-  let rank = 0;
   const rankHTML = sorted.map(p => {
-    const medal = p.eliminated ? '💀' : (medals[rank++] || '');
+    const _aliveRank = p.eliminated ? -1 : sorted.filter(q => !q.eliminated && q.stats.hpDealt > p.stats.hpDealt).length + 1;
+    const medal = p.eliminated ? '💀' : (medals[_aliveRank - 1] || `${_aliveRank}.`);
     const col = p.color;
     return `<div class="rank-row" style="border-color:${col}18;border-left-color:${col};">` +
       `<div class="rank-medal">${medal}</div>` +
@@ -2899,6 +2899,20 @@ function showVictory(winner) {
 
   document.getElementById('end-sub').innerHTML = rankHTML;
   document.getElementById('end-modal').classList.add('open');
+  if (window.TournamentBridge) {
+    const _alive = state.players.filter(p => !p.eliminated);
+    const _winTeam = _alive.length > 0 ? _alive[0].team : null;
+    if (_winTeam) {
+      TournamentBridge.onGameEnd([
+        state.players.filter(p => p.team === _winTeam).map(p => p.name),
+        state.players.filter(p => p.team !== _winTeam).map(p => p.name),
+      ]);
+    } else {
+      const _g=[];let _gi=0;
+      while(_gi<sorted.length){let _gj=_gi+1;while(_gj<sorted.length&&sorted[_gj].eliminated===sorted[_gi].eliminated&&sorted[_gj].stats.hpDealt===sorted[_gi].stats.hpDealt)_gj++;const _gs=sorted.slice(_gi,_gj).map(p=>p.name);_g.push(_gs.length===1?_gs[0]:_gs);_gi=_gj;}
+      TournamentBridge.onGameEnd(_g);
+    }
+  }
   // TTS victoire
   const alive = state.players.filter(p => !p.eliminated);
   if (alive.length > 0) {
@@ -3747,5 +3761,8 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
   });
 })();
 </script>
+<script src="tournament-config.js"></script>
+<script src="tournament.js"></script>
+<script src="tournament-bridge.js"></script>
 </body>
 </html>

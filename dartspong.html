@@ -2040,7 +2040,7 @@ function confirmZoneHit(idx) {
   G.turnDarts.push({ label: slotLabel, type: 'hit' });
   feedbackHit();
   addHist(`${em} ${cur.name} élimine ${tl[sector.type]} ${sector.number}`, col);
-  if(sectors.length===0){ G.playerDarts[cur.name]++; victory(G.currentIdx); return; }
+  if(sectors.length===0){ G.playerDarts[cur.name]++; victory(G.gameMode === 'duel' ? G.currentIdx : G.currentTeam); return; }
   if(G.streak===3){
     feedbackPoint();
     const spEl1 = document.getElementById('streak-player');
@@ -2132,7 +2132,7 @@ document.getElementById('bull-oui').addEventListener('click',()=>{
       addHist((cur.fromProfile?'':cur.emoji+' ')+`${cur.name} ${DV_LANG.t('dp_hist_bull_sacr').replace('{n}',s.number).replace('{type}',s.type)}`, cur.color);
     });
   }
-  if(sectors.length===0){ G.playerDarts[cur.name]++; victory(G.currentIdx); return; }
+  if(sectors.length===0){ G.playerDarts[cur.name]++; victory(G.gameMode === 'duel' ? G.currentIdx : G.currentTeam); return; }
   G.streak++;
   G.turnDarts.push({ label: '🎯BULL', type: 'bull' });
   G.playerDarts[cur.name]++; G.dartsThrown++;
@@ -2311,16 +2311,17 @@ function victory(winnerIdxOrTeam) {
       score: nz - p.sectors.length,
       stats: G.playerStats[p.name] || 0
     })).sort((a,b) => b.score - a.score);
-    rankingHtml = ranking.map((r,i) =>
-      `<div class="rank-row" style="border-color:${r.color}18;border-left-color:${r.color};">` +
-        `<div class="rank-medal">${medals[i]||''}</div>` +
+    rankingHtml = ranking.map((r,i) => {
+      const _rank=ranking.filter(q=>q.score>r.score).length+1;
+      return `<div class="rank-row" style="border-color:${r.color}18;border-left-color:${r.color};">` +
+        `<div class="rank-medal">${medals[_rank-1]||''}</div>` +
         `<div class="rank-name" style="color:${r.color}">${r.emoji} ${r.name}</div>` +
         `<div class="rank-info">` +
           `<div class="rank-legs" style="color:${r.color}">${r.score} / ${nz} zones</div>` +
           `<div class="rank-avg">${r.stats} tir${r.stats>1?'s':''}</div>` +
         `</div>` +
-      `</div>`
-    ).join('');
+      `</div>`;
+    }).join('');
   } else {
     const teamId = winnerIdxOrTeam;
     const names={A:'🔵 ÉQUIPE BLEUE',B:'🟡 ÉQUIPE JAUNE'};
@@ -2379,6 +2380,17 @@ function victory(winnerIdxOrTeam) {
   })();
 
   showEnd(`🏆 VICTOIRE !`, rankingHtml, winnerCol);
+  if (window.TournamentBridge) {
+    if (G.gameMode === 'duel') {
+      const _duelRanking = [...G.players].map(p => ({ name: p.name, score: G.numZones - p.sectors.length })).sort((a,b) => b.score - a.score);
+      const _dg=[];let _dgi=0;while(_dgi<_duelRanking.length){let _dgj=_dgi+1;while(_dgj<_duelRanking.length&&_duelRanking[_dgj].score===_duelRanking[_dgi].score)_dgj++;const _dgs=_duelRanking.slice(_dgi,_dgj).map(r=>r.name);_dg.push(_dgs.length===1?_dgs[0]:_dgs);_dgi=_dgj;}
+      TournamentBridge.onGameEnd(_dg);
+    } else {
+      const _winArr = winnerIdxOrTeam === 'A' ? G.teamA : winnerIdxOrTeam === 'B' ? G.teamB : G.teamC;
+      const _losArr = winnerIdxOrTeam === 'A' ? G.teamB : G.teamA;
+      TournamentBridge.onGameEnd([_winArr || [], _losArr || []]);
+    }
+  }
   // TTS victoire
   if (G.gameMode === 'duel') {
     speak(winnerName + ' ' + (DV_LANG.get()==='en'?'wins the game':'remporte la partie'), 1200);
@@ -3312,5 +3324,8 @@ window.addEventListener('beforeinstallprompt', e => {
   });
 })();
 </script>
+<script src="tournament-config.js"></script>
+<script src="tournament.js"></script>
+<script src="tournament-bridge.js"></script>
 </body>
 </html>
