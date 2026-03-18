@@ -118,9 +118,11 @@
       const croupierName = localStorage.getItem('dartvault_tournament_croupier');
       if (croupierName) {
         localStorage.removeItem('dartvault_tournament_croupier');
-        if (window.B && Array.isArray(window.B.players)) {
-          const idx = window.B.players.findIndex(p => p.name === croupierName);
-          if (idx >= 0 && typeof window.setDealer === 'function') window.setDealer(idx);
+        // B is declared with `let` in blackjack.html — not a window property, but accessible as a global
+        const _B = window.B || (typeof B !== 'undefined' ? B : null);
+        if (_B && Array.isArray(_B.players)) {
+          const idx = _B.players.findIndex(p => p.name === croupierName);
+          if (idx >= 0 && typeof setDealer === 'function') setDealer(idx);
         }
       }
     }

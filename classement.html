@@ -595,10 +595,15 @@ function getWinsForPeriod(game, period) {
       count = (gameData.monthly || {})[monthKey()] || 0;
     }
     if (count > 0) result[fullName] = count;
-    else if (game !== '_total') {
+    else {
       // Inclure joueurs avec parties mais sans victoire pour la période
       const gs = getGameStats();
-      if (gs[fullName] && gs[fullName][game] && gs[fullName][game].games > 0) result[fullName] = 0;
+      if (game === '_total') {
+        const pgs = gs[fullName];
+        if (pgs && Object.values(pgs).some(g => g.games > 0)) result[fullName] = 0;
+      } else if (gs[fullName] && gs[fullName][game] && gs[fullName][game].games > 0) {
+        result[fullName] = 0;
+      }
     }
   });
 
@@ -617,18 +622,32 @@ function renderRanking() {
   const gameStats = getGameStats();
 
   // Ajouter les joueurs avec des parties mais sans victoire
-  if (currentGame !== '_total') {
-    const activeProfiles = getActiveProfileNames();
-    Object.entries(gameStats).forEach(([fullName, gs]) => {
-      if (!activeProfiles.has(fullName)) return;
-      if (gs[currentGame] && gs[currentGame].games > 0 && !(fullName in winsMap)) {
-        winsMap[fullName] = 0;
-      }
-    });
-  }
+  const activeProfiles = getActiveProfileNames();
+  Object.entries(gameStats).forEach(([fullName, gs]) => {
+    if (!activeProfiles.has(fullName)) return;
+    if (fullName in winsMap) return;
+    if (currentGame === '_total') {
+      if (Object.values(gs).some(g => g.games > 0)) winsMap[fullName] = 0;
+    } else {
+      if (gs[currentGame] && gs[currentGame].games > 0) winsMap[fullName] = 0;
+    }
+  });
 
-  // Trier par victoires décroissantes
-  const sorted = Object.entries(winsMap).sort((a,b) => b[1] - a[1]);
+  // Précomputer les parties jouées pour le tri (tiebreaker)
+  const gamesForSort = {};
+  Object.entries(gameStats).forEach(([fullName, ps]) => {
+    if (currentGame === '_total') {
+      gamesForSort[fullName] = Object.values(ps).reduce((sum, g) => sum + (g.games || 0), 0);
+    } else {
+      gamesForSort[fullName] = ps[currentGame] ? (ps[currentGame].games || 0) : 0;
+    }
+  });
+
+  // Trier par victoires décroissantes, à égalité par parties jouées décroissantes
+  const sorted = Object.entries(winsMap).sort((a, b) => {
+    if (b[1] !== a[1]) return b[1] - a[1];
+    return (gamesForSort[b[0]] || 0) - (gamesForSort[a[0]] || 0);
+  });
 
   if (sorted.length === 0) {
     container.innerHTML = `

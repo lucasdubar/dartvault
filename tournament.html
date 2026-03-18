@@ -5,146 +5,141 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Tournoi — DartVault</title>
   <link rel="icon" href="favicon.ico">
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/fonts/fonts.css">
+<script>(function(){var t=localStorage.getItem('dartvault_theme')||'dark';if(t==='light'||t==='dark'||t==='colored')document.documentElement.setAttribute('data-theme',t);})();</script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg:       #0A0A0F;
-      --surface:  #141420;
-      --surface2: #1C1C2E;
-      --border:   rgba(255,255,255,.08);
-      --text:     #E0E0E0;
-      --dim:      rgba(255,255,255,.4);
-      --gold:     #E8C547;
-      --gold2:    #F0A040;
-    }
-
-    html, body {
-      min-height: 100dvh;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Rajdhani', sans-serif;
-      overflow-x: hidden;
-    }
+/* ── Base identique à 501 ── */
+:root{--bg:#0E0F10;--bg2:#161718;--bg3:#1C1E20;--bg4:#242628;--accent:#E8E8E8;--ok:#28C76F;--warn:#FF9F43;--danger:#DC3545;--text:#F0F0F0;--dim:#606468;--gold:#E8C547;--gold2:#F0A040;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;min-height:100dvh;display:flex;flex-direction:column;overflow-x:hidden;}
 
     /* ── Sections ── */
     .section { display: none; min-height: 100dvh; flex-direction: column; }
     .section.active { display: flex; }
 
-    /* ── Header ── */
+    /* ── Header (copie .header de 501) ── */
     .t-header {
-      display: flex; align-items: center; gap: 12px;
-      padding: 14px 18px;
-      border-bottom: 1px solid var(--border);
-      background: var(--bg);
-      position: sticky; top: 0; z-index: 10;
-      flex-shrink: 0;
+      display:flex;align-items:center;justify-content:space-between;
+      background:var(--bg2);padding:10px 14px;
+      border-bottom:1px solid rgba(255,255,255,.12);
+      flex-shrink:0;position:sticky;top:0;z-index:10;position:relative;
     }
     .t-back {
-      width: 36px; height: 36px; border-radius: 10px;
-      border: 1px solid var(--border); background: var(--surface);
-      color: var(--text); font-size: 1rem;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; flex-shrink: 0;
+      background:var(--bg3);border:1px solid rgba(255,255,255,.1);
+      color:var(--text);border-radius:8px;padding:7px 12px;
+      cursor:pointer;font-family:'Exo 2',sans-serif;
+      font-size:.82rem;font-weight:600;transition:all .2s;touch-action:manipulation;flex-shrink:0;
     }
+    .t-back:active { transform:scale(.94);border-color:var(--accent); }
     .t-header-title {
-      font-size: 1rem; font-weight: 700;
-      letter-spacing: 2px; text-transform: uppercase; color: var(--gold);
+      font-family:'Rajdhani',sans-serif;font-size:clamp(1rem,4vw,1.4rem);font-weight:700;
+      color:var(--gold);letter-spacing:1px;text-shadow:0 0 20px rgba(232,197,71,.4);
+      position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;pointer-events:none;
     }
-    .t-progress { margin-left: auto; font-size: .78rem; color: var(--dim); letter-spacing: 1px; }
+    .t-progress { font-size:.78rem;color:var(--dim);letter-spacing:1px; }
+    .t-header-right { display:flex;align-items:center;gap:8px; }
 
-    /* ── Scroll & footer ── */
-    .t-scroll {
-      flex: 1; overflow-y: auto; padding: 16px 18px;
-      display: flex; flex-direction: column; gap: 14px;
+    /* ── Settings Button & Panel ── */
+    .btn-settings-game {
+      width:44px;height:44px;border-radius:50%;flex-shrink:0;
+      background:var(--bg3);border:1px solid rgba(255,255,255,.15);
+      color:var(--dim);font-size:1rem;
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;transition:all .2s;touch-action:manipulation;padding:0;
     }
-    .t-footer {
-      padding: 14px 18px; border-top: 1px solid var(--border);
-      display: flex; flex-direction: column; gap: 10px; flex-shrink: 0;
+    .btn-settings-game:active { transform:scale(.9);border-color:var(--accent);color:var(--accent); }
+    @keyframes pop { from{opacity:0;transform:scale(.85)} to{opacity:1;transform:none} }
+    .settings-panel-game {
+      display:none;position:fixed;top:58px;right:14px;z-index:500;
+      background:var(--bg2);border:1px solid rgba(255,255,255,.1);
+      border-radius:14px;padding:14px 16px;min-width:210px;
+      box-shadow:0 8px 32px rgba(0,0,0,.5);
+      animation:pop .2s cubic-bezier(.34,1.56,.64,1);
     }
+    .settings-panel-game.open { display:block; }
+    .sg-section-label { font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:700;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px; }
+    .sg-row { display:flex;align-items:center;gap:10px;padding:8px 0; }
+    .sg-row + .sg-row { border-top:1px solid rgba(255,255,255,.07); }
+    .sg-row-label { font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;color:var(--text);flex:1;letter-spacing:.3px; }
+    .sg-toggle { position:relative;width:42px;height:24px;flex-shrink:0; }
+    .sg-toggle input { opacity:0;width:0;height:0; }
+    .sg-slider { position:absolute;inset:0;cursor:pointer;background:var(--bg4);border-radius:24px;border:1px solid rgba(255,255,255,.1);transition:background .2s; }
+    .sg-slider::before { content:'';position:absolute;width:18px;height:18px;left:2px;top:2px;background:#fff;border-radius:50%;transition:transform .2s; }
+    .sg-toggle input:checked + .sg-slider { background:var(--accent);border-color:var(--accent); }
+    .sg-toggle input:checked + .sg-slider::before { transform:translateX(18px); }
+    .sg-theme-pills { display:flex;gap:6px;width:100%; }
+    .sg-pill { flex:1;padding:7px 4px;border-radius:9px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.5px;text-align:center;border:1.5px solid rgba(255,255,255,.1);background:var(--bg3);color:var(--dim);transition:all .18s;touch-action:manipulation; }
+    .sg-pill:active { transform:scale(.94); }
+    .sg-pill.active { background:rgba(232,232,232,.12);border-color:var(--accent);color:var(--accent); }
 
-    /* ── Label ── */
-    .t-label {
-      font-size: .7rem; letter-spacing: 2px; text-transform: uppercase;
-      color: var(--dim); margin-bottom: 8px;
-    }
+    /* ── Scroll & footer (sections hors setup) ── */
+    .t-scroll { flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:14px; }
+    .t-footer { padding:14px 18px;border-top:1px solid rgba(255,255,255,.07);display:flex;flex-direction:column;gap:10px;flex-shrink:0; }
 
-    /* ── Card ── */
-    .t-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 14px; padding: 14px;
-    }
+    /* ── Label / Card (sections hors setup) ── */
+    .t-label { font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:8px; }
+    .t-card { background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:14px; }
 
-    /* ── Buttons ── */
-    .btn-primary {
-      width: 100%; padding: 14px; border-radius: 14px; border: none;
-      background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
-      color: #0A0A0A; font-family: 'Rajdhani', sans-serif;
-      font-size: 1.05rem; font-weight: 800; letter-spacing: 2.5px;
-      cursor: pointer; touch-action: manipulation; transition: all .2s;
-      box-shadow: 0 4px 20px rgba(232,197,71,.35);
-    }
-    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(232,197,71,.45); }
-    .btn-primary:active { transform: scale(.97); }
-    .btn-primary:disabled { opacity: .35; pointer-events: none; }
-    .btn-secondary {
-      width: 100%; padding: 12px; border-radius: 14px;
-      border: 1px solid var(--border); background: var(--surface2);
-      color: var(--text); font-family: 'Rajdhani', sans-serif;
-      font-size: .95rem; font-weight: 600; letter-spacing: 1.5px;
-      cursor: pointer; touch-action: manipulation; transition: all .2s;
-    }
-    .btn-secondary:hover { border-color: rgba(255,255,255,.2); }
-    .btn-danger {
-      width: 100%; padding: 12px; border-radius: 14px;
-      border: 1px solid rgba(244,67,54,.3); background: rgba(244,67,54,.08);
-      color: #F44336; font-family: 'Rajdhani', sans-serif;
-      font-size: .95rem; font-weight: 600; letter-spacing: 1.5px;
-      cursor: pointer; touch-action: manipulation; transition: all .2s;
-    }
+    /* ── Setup layout 2 colonnes (copie 501) ── */
+    .card { background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:14px;margin-bottom:12px; }
+    .card-title { font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:700;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px; }
+    /* Portrait : colonne unique (identique à 501) */
+    .setup-container { flex:1;overflow-y:auto;padding:14px;padding-bottom:max(140px,env(safe-area-inset-bottom));display:flex;flex-direction:column; }
+    .setup-col-config, .setup-col-players { display:contents; }
 
-    /* ── Option pills ── */
-    .opt-group { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-    .opt-pill {
-      padding: 8px 16px; border-radius: 10px;
-      border: 1px solid var(--border); background: var(--surface2);
-      color: var(--dim); font-family: 'Rajdhani', sans-serif;
-      font-size: .88rem; font-weight: 600; letter-spacing: 1px;
-      cursor: pointer; transition: all .15s; user-select: none;
-    }
-    .opt-pill.active {
-      background: rgba(232,197,71,.12); border-color: rgba(232,197,71,.4); color: var(--gold);
+    /* Paysage (copie exacte 501) */
+    @media (orientation:landscape) and (min-width:700px) {
+      #s-setup { min-height:0; height:100dvh; overflow:hidden; }
+      .setup-container { padding:8px 10px;padding-bottom:8px;display:flex!important;flex-direction:row!important;gap:10px;overflow:hidden;flex:1;min-height:0; }
+      .setup-col-config { display:flex!important;flex-direction:column;flex:1;min-width:0;overflow-y:auto;gap:0; }
+      .setup-col-players { display:flex!important;flex-direction:column;width:42%;max-width:460px;flex-shrink:0;overflow-y:auto;gap:0; }
+      .setup-col-players .btn-primary { margin-top:8px;padding:10px;font-size:.9rem; }
+      .card { padding:10px;margin-bottom:8px; }
     }
 
-    /* ── Player list ── */
-    .t-player-row {
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px 12px; border-radius: 11px;
-      background: var(--surface2); border: 1px solid var(--border);
-      margin-bottom: 7px;
+    /* Tablette paysage (copie exacte 501) */
+    @media (orientation:landscape) and (min-width:1024px) {
+      .setup-container { gap:16px;padding:12px 16px; }
+      .setup-col-players { width:40%;max-width:520px; }
+      .setup-col-players .btn-primary { padding:14px;font-size:1rem; }
+      .card { padding:14px;margin-bottom:12px; }
     }
-    .t-player-row:last-child { margin-bottom: 0; }
-    .t-player-name { flex: 1; font-size: .95rem; font-weight: 700; color: var(--text); letter-spacing: .3px; }
-    .t-player-remove {
-      width: 28px; height: 28px; border-radius: 8px; border: none;
-      background: rgba(244,67,54,.1); color: #F44336;
-      font-size: .75rem; cursor: pointer; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      transition: background .15s;
-    }
-    .t-player-remove:active { background: rgba(244,67,54,.22); }
-    .btn-add-players {
-      width: 100%; padding: 11px; border-radius: 11px; border: none;
-      background: rgba(232,197,71,.08); border: 1.5px dashed rgba(232,197,71,.3);
-      color: var(--gold); font-family: 'Rajdhani', sans-serif;
-      font-size: .95rem; font-weight: 700; letter-spacing: 1px;
-      cursor: pointer; touch-action: manipulation; transition: all .18s;
-      margin-top: 8px;
-    }
-    .btn-add-players:active { background: rgba(232,197,71,.15); }
-    .btn-add-players:disabled { opacity: .35; pointer-events: none; }
-    .sel-count { font-size: .74rem; color: var(--dim); text-align: center; margin-top: 8px; }
+
+    /* ── Bouton principal (copie .btn-main.btn-start de 501) ── */
+    .btn-primary { width:100%;padding:13px;border-radius:12px;border:none;font-family:'Rajdhani',sans-serif;font-size:1.15rem;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:all .2s;touch-action:manipulation;background:linear-gradient(135deg,var(--accent),#c9a830);color:#000;box-shadow:0 4px 18px rgba(232,232,232,.3); }
+    .btn-primary:active { transform:scale(.97); }
+    .btn-primary:disabled { opacity:.35;pointer-events:none; }
+
+    /* ── Bouton secondaire (copie .btn-sm de 501) ── */
+    .btn-secondary { width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:var(--bg3);color:var(--text);font-family:'Exo 2',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .2s;touch-action:manipulation; }
+    .btn-secondary:active { transform:scale(.97);border-color:var(--accent); }
+
+    /* ── Bouton danger ── */
+    .btn-danger { width:100%;padding:12px;border-radius:12px;border:1px solid rgba(220,53,69,.3);background:rgba(220,53,69,.12);color:var(--danger);font-family:'Exo 2',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .2s;touch-action:manipulation; }
+    .btn-danger:active { background:rgba(220,53,69,.25); }
+
+    /* ── Option pills (copie .option-btn de 501) ── */
+    .opt-group { display:flex;gap:8px;flex-wrap:wrap; }
+    .opt-pill { padding:10px;border-radius:10px;border:1.5px solid rgba(255,255,255,.1);background:var(--bg3);color:var(--dim);font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s;text-align:center;touch-action:manipulation; }
+    .opt-pill:active { transform:scale(.94); }
+    .opt-pill.active { border-color:var(--accent);color:var(--accent);background:rgba(232,232,232,.1); }
+
+    /* ── Player list (copie .player-row de 501) ── */
+    .t-player-row { display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;margin-top:5px;background:rgba(255,255,255,.04);animation:fadeInRow .2s; }
+    @keyframes fadeInRow { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:none} }
+    .t-player-name { font-size:.9rem;font-weight:600;flex:1; }
+    .t-player-remove { background:rgba(220,53,69,.2);border:none;color:var(--danger);border-radius:6px;width:44px;height:44px;cursor:pointer;font-size:.75rem;display:flex;align-items:center;justify-content:center;touch-action:manipulation; }
+    .t-player-remove:active { background:rgba(220,53,69,.5); }
+
+    /* ── Input row joueurs (copie exacte de 501) ── */
+    .input-row { display:flex;gap:8px; }
+    .input-row input { flex:1;background:var(--bg3);border:1.5px solid rgba(255,255,255,.1);border-radius:10px;padding:9px 12px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s; }
+    .input-row input:focus { border-color:var(--accent); }
+    .input-row input::placeholder { color:var(--dim); }
+    .input-row input:disabled { opacity:.35; }
+    .btn-add { width:40px;height:40px;background:var(--accent);border:none;border-radius:10px;font-size:1.3rem;cursor:pointer;color:#000;flex-shrink:0;font-weight:700;touch-action:manipulation; }
+    .btn-add:active { transform:scale(.9); }
+    .btn-add:disabled { opacity:.35;pointer-events:none; }
 
     /* ── Profile picker (same as classic games) ── */
     .profile-picker-ov {
@@ -155,7 +150,7 @@
     .profile-picker-ov.open { display: flex; }
     .profile-picker-sheet {
       width: 100%; max-width: 480px;
-      background: var(--surface); border-radius: 20px 20px 0 0;
+      background: var(--bg2); border-radius: 20px 20px 0 0;
       border: 1px solid var(--border); border-bottom: none;
       padding: 18px 16px 32px;
       animation: ppSlideUp .28s cubic-bezier(.34,1.2,.64,1);
@@ -169,7 +164,7 @@
     .pp-list { display: flex; flex-direction: column; gap: 8px; max-height: 50vh; overflow-y: auto; margin-bottom: 14px; }
     .pp-profile-row {
       display: flex; align-items: center; gap: 12px;
-      background: var(--surface2); border: 1px solid var(--border);
+      background: var(--bg3); border: 1px solid var(--border);
       border-radius: 12px; padding: 11px 14px;
       cursor: pointer; touch-action: manipulation; transition: all .18s;
     }
@@ -187,7 +182,7 @@
     .pp-empty { text-align: center; padding: 24px 0; color: var(--dim); font-family: 'Rajdhani', sans-serif; font-size: .95rem; }
     .pp-manual { display: flex; gap: 8px; margin-bottom: 10px; }
     .pp-manual-input {
-      flex: 1; padding: 10px 12px; background: var(--surface2);
+      flex: 1; padding: 10px 12px; background: var(--bg3);
       border: 1.5px solid var(--border); border-radius: 12px;
       color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 600;
       outline: none; transition: border-color .2s;
@@ -201,7 +196,7 @@
     }
     .pp-footer { display: flex; gap: 10px; }
     .pp-btn-cancel {
-      flex: 1; padding: 11px; background: var(--surface2); border: 1px solid var(--border);
+      flex: 1; padding: 11px; background: var(--bg3); border: 1px solid var(--border);
       border-radius: 12px; color: var(--dim); font-family: 'Rajdhani', sans-serif;
       font-size: 1rem; font-weight: 700; cursor: pointer;
     }
@@ -221,7 +216,7 @@
     .nb-row { display: flex; align-items: center; gap: 16px; justify-content: center; }
     .nb-btn {
       width: 40px; height: 40px; border-radius: 10px;
-      border: 1px solid var(--border); background: var(--surface2);
+      border: 1px solid var(--border); background: var(--bg3);
       color: var(--text); font-size: 1.2rem;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; transition: all .15s;
@@ -233,14 +228,14 @@
     .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
     .game-tile {
       padding: 14px 8px; border-radius: 12px;
-      border: 1.5px solid var(--border); background: var(--surface2);
+      border: 1.5px solid var(--border); background: var(--bg3);
       text-align: center; cursor: pointer; transition: all .18s; user-select: none;
     }
     .game-tile .tile-icon  { font-size: 1.7rem; display: block; margin-bottom: 5px; }
     .game-tile .tile-name  { font-size: .8rem; font-weight: 700; color: var(--dim); letter-spacing: .5px; }
     .game-tile .tile-badge { font-size: .62rem; margin-top: 3px; padding: 2px 6px; border-radius: 6px; background: rgba(52,211,153,.12); color: #34D399; display: inline-block; }
     .game-tile .tile-num   { display: none; width: 18px; height: 18px; border-radius: 50%; background: var(--gold); color: #0A0A0A; font-size: .65rem; font-weight: 800; align-items: center; justify-content: center; margin: 4px auto 0; }
-    .game-tile.selected { border-color: var(--gc, rgba(232,197,71,.5)); background: color-mix(in srgb, var(--gc, rgba(232,197,71)) 10%, var(--surface2)); }
+    .game-tile.selected { border-color: var(--gc, rgba(232,197,71,.5)); background: color-mix(in srgb, var(--gc, rgba(232,197,71)) 10%, var(--bg3)); }
     .game-tile.selected .tile-name { color: var(--text); }
     .game-tile.selected .tile-num  { display: flex; }
 
@@ -248,7 +243,7 @@
     .ip-row { margin-top: 12px; display: none; }
     .ip-input {
       width: 100%; padding: 9px 12px; border-radius: 10px;
-      border: 1px solid var(--border); background: var(--surface2);
+      border: 1px solid var(--border); background: var(--bg3);
       color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: .88rem; outline: none;
       margin-top: 6px;
     }
@@ -268,7 +263,7 @@
     .slot-machine {
       width: min(300px, 88vw); height: 90px;
       border-radius: 18px; border: 2px solid rgba(232,197,71,.25);
-      background: var(--surface);
+      background: var(--bg2);
       box-shadow: 0 0 40px rgba(232,197,71,.12), inset 0 0 24px rgba(0,0,0,.5);
       display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;
     }
@@ -327,7 +322,7 @@
     }
     .tr-slot-box {
       width: 100%; min-height: 62px;
-      background: var(--surface); border: 2px solid rgba(255,255,255,.1);
+      background: var(--bg2); border: 2px solid rgba(255,255,255,.1);
       border-radius: 14px; padding: 10px 10px;
       display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
       font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 800;
@@ -383,7 +378,7 @@
     }
     .cr-slot-box {
       width: 220px; min-height: 72px;
-      background: var(--surface); border: 2px solid rgba(232,197,71,.25);
+      background: var(--bg2); border: 2px solid rgba(232,197,71,.25);
       border-radius: 16px; padding: 14px 16px;
       display: flex; align-items: center; justify-content: center;
       font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 800;
@@ -422,7 +417,7 @@
     .teams-row { display: flex; gap: 10px; }
     .team-card {
       flex: 1; padding: 12px; border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.1); background: var(--surface2); text-align: center;
+      border: 1px solid rgba(255,255,255,.1); background: var(--bg3); text-align: center;
     }
     .team-card:first-child { border-color: rgba(99,102,241,.3); }
     .team-card:last-child  { border-color: rgba(248,113,113,.3); }
@@ -438,7 +433,7 @@
     .lb-row {
       display: flex; align-items: center; gap: 10px;
       padding: 10px 14px; border-radius: 12px;
-      background: var(--surface2); border: 1px solid var(--border);
+      background: var(--bg3); border: 1px solid var(--border);
     }
     .lb-row.r1 { border-color: rgba(232,197,71,.3); background: rgba(232,197,71,.05); }
     .lb-row.r2 { border-color: rgba(192,192,192,.25); }
@@ -464,7 +459,7 @@
     .pc-3rd .podium-block { height: 45px;  background: rgba(205,127,50,.1);   border: 1px solid rgba(205,127,50,.25); }
 
     .podium-full { display: flex; flex-direction: column; gap: 7px; }
-    .pf-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; background: var(--surface2); border: 1px solid var(--border); }
+    .pf-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; background: var(--bg3); border: 1px solid var(--border); }
     .pf-rank { font-size: 1.1rem; width: 26px; text-align: center; flex-shrink: 0; }
     .pf-name { flex: 1; font-size: .95rem; font-weight: 700; }
     .pf-pts  { font-size: .95rem; font-weight: 800; color: var(--gold); }
@@ -479,7 +474,7 @@
     }
     #quit-overlay.open { display: flex; }
     .quit-card {
-      background: var(--surface); border: 1px solid rgba(244,67,54,.3);
+      background: var(--bg2); border: 1px solid rgba(244,67,54,.3);
       border-radius: 20px; padding: 24px 20px;
       max-width: 360px; width: 100%; text-align: center;
     }
@@ -490,7 +485,7 @@
     /* ── Between slot (inline) ── */
     .bt-slot {
       width: 100%; height: 72px; border-radius: 14px;
-      border: 1.5px solid rgba(232,197,71,.2); background: var(--surface);
+      border: 1.5px solid rgba(232,197,71,.2); background: var(--bg2);
       display: flex; align-items: center; justify-content: center;
     }
     .bt-slot-display { font-size: 1.1rem; font-weight: 800; color: var(--text); letter-spacing: 1px; transition: color .3s; }
@@ -500,6 +495,53 @@
       *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
     }
   </style>
+  <style id="theme-overrides">
+/* ── Exact 501 theme values ── */
+[data-theme="dark"]{--bg:#0E0F10!important;--bg2:#161718!important;--bg3:#1C1E20!important;--bg4:#242628!important;--text:#F0F0F0!important;--dim:#606468!important;--accent:#E8E8E8!important;--ok:#28C76F!important;--warn:#FF9F43!important;--danger:#DC3545!important;}
+[data-theme="light"]{--bg:#F7F0F2!important;--bg2:#FFFFFF!important;--bg3:#EDE4E7!important;--bg4:#E2D6DA!important;--text:#111213!important;--dim:#8A6070!important;--accent:#1A1A1A!important;--ok:#1A8A4A!important;--warn:#C06000!important;--danger:#C8272B!important;}
+[data-theme="colored"]{--bg:#1A0000!important;--bg2:#2A0505!important;--bg3:#3A0A0A!important;--bg4:#4A0F0F!important;--accent:#FF2020!important;--ok:#28C76F!important;--warn:#FF9F43!important;--danger:#FF2020!important;--text:#F0F0F0!important;--dim:#774444!important;}
+/* Surfaces */
+[data-theme="dark"] body,[data-theme="light"] body{background:var(--bg)!important;color:var(--text)!important;}
+[data-theme="dark"] .t-header,[data-theme="light"] .t-header{background:var(--bg2)!important;border-bottom-color:rgba(232,232,232,.15)!important;}
+[data-theme="light"] .t-header{border-bottom-color:rgba(22,23,24,.1)!important;}
+[data-theme="dark"] .card,[data-theme="light"] .card{background:var(--bg2)!important;border-color:rgba(232,232,232,.07)!important;}
+[data-theme="light"] .card{border-color:rgba(22,23,24,.08)!important;}
+[data-theme="dark"] .t-card,[data-theme="light"] .t-card{background:var(--bg2)!important;}
+[data-theme="dark"] .t-back,[data-theme="light"] .t-back{background:var(--bg3)!important;color:var(--text)!important;border-color:rgba(232,232,232,.15)!important;}
+[data-theme="light"] .t-back{border-color:rgba(22,23,24,.18)!important;}
+/* Option pills */
+[data-theme="dark"] .opt-pill,[data-theme="light"] .opt-pill{background:var(--bg3)!important;color:var(--dim)!important;border:1.5px solid rgba(255,255,255,.12)!important;}
+[data-theme="light"] .opt-pill{border-color:rgba(22,23,24,.18)!important;}
+[data-theme="dark"] .opt-pill.active{background:rgba(232,232,232,.12)!important;border-color:var(--accent)!important;color:var(--accent)!important;}
+[data-theme="light"] .opt-pill.active{background:rgba(22,23,24,.10)!important;border-color:var(--accent)!important;color:var(--accent)!important;}
+/* Bouton start */
+[data-theme="dark"] .btn-primary{background:linear-gradient(135deg,#E8E8E8,#B8B8B8)!important;color:#111213!important;box-shadow:0 4px 18px rgba(232,232,232,.3)!important;border:none!important;}
+[data-theme="light"] .btn-primary{background:linear-gradient(135deg,#1A1A1A,#333333)!important;color:#F7F0F2!important;box-shadow:0 4px 18px rgba(22,23,24,.3)!important;border:none!important;}
+/* Bouton + (copie btn-add 501) */
+[data-theme="dark"] #btn-add-players{background:var(--accent)!important;color:#111213!important;border:1.5px solid rgba(232,232,232,.3)!important;box-shadow:0 0 12px rgba(232,232,232,.25)!important;}
+[data-theme="light"] #btn-add-players{background:var(--accent)!important;color:#F7F0F2!important;border:1.5px solid rgba(22,23,24,.35)!important;box-shadow:0 0 10px rgba(22,23,24,.18)!important;}
+/* Boutons secondaires */
+[data-theme="dark"] .btn-secondary,[data-theme="dark"] .t-back,[data-theme="dark"] .nb-btn{background:var(--bg3)!important;color:var(--text)!important;border-color:rgba(232,232,232,.15)!important;}
+[data-theme="light"] .btn-secondary,[data-theme="light"] .t-back,[data-theme="light"] .nb-btn{background:var(--bg3)!important;color:var(--text)!important;border-color:rgba(22,23,24,.18)!important;}
+/* Inputs */
+[data-theme="dark"] .ip-input,[data-theme="dark"] .pp-manual-input,[data-theme="dark"] .input-row input{background:var(--bg3)!important;color:var(--text)!important;border-color:rgba(232,232,232,.15)!important;}
+[data-theme="light"] .ip-input,[data-theme="light"] .pp-manual-input,[data-theme="light"] .input-row input{background:var(--bg3)!important;color:var(--text)!important;border-color:rgba(22,23,24,.2)!important;}
+/* Profile picker */
+[data-theme="dark"] .profile-picker-sheet,[data-theme="light"] .profile-picker-sheet{background:var(--bg2)!important;}
+[data-theme="dark"] .pp-profile-row,[data-theme="light"] .pp-profile-row{background:var(--bg3)!important;border-color:rgba(232,232,232,.08)!important;}
+[data-theme="light"] .pp-profile-row{border-color:rgba(22,23,24,.1)!important;}
+/* Settings panel */
+[data-theme="dark"] .settings-panel-game,[data-theme="light"] .settings-panel-game{background:var(--bg2)!important;border-color:rgba(232,232,232,.1)!important;}
+[data-theme="light"] .settings-panel-game{border-color:rgba(22,23,24,.1)!important;}
+[data-theme="dark"] .sg-pill,[data-theme="light"] .sg-pill{background:var(--bg3)!important;}
+/* Player rows */
+[data-theme="dark"] .t-player-row{background:rgba(255,255,255,.04)!important;}
+[data-theme="light"] .t-player-row{background:rgba(22,23,24,.04)!important;}
+/* Quit / leaderboard cards */
+[data-theme="dark"] .quit-card,[data-theme="light"] .quit-card{background:var(--bg2)!important;border-color:rgba(232,232,232,.1)!important;}
+[data-theme="light"] .quit-card{border-color:rgba(22,23,24,.1)!important;}
+[data-theme="dark"] .lb-row,[data-theme="light"] .lb-row{background:var(--bg3)!important;}
+  </style>
 </head>
 <body>
 
@@ -508,81 +550,80 @@
 ══════════════════════════════════════════════ -->
 <div id="s-setup" class="section active">
   <div class="t-header">
-    <button class="t-back" onclick="location.href='index.html'">←</button>
+    <button class="t-back" onclick="location.href='index.html'">← Menu</button>
     <span class="t-header-title">🏆 Nouveau tournoi</span>
+    <button class="btn-settings-game" aria-label="Paramètres">⚙️</button>
   </div>
 
-  <div class="t-scroll">
+  <div class="setup-container">
 
-    <!-- JOUEURS -->
-    <div>
-      <div class="t-label">Joueurs (2 – 6)</div>
-      <div class="t-card">
-        <div id="t-players-list"></div>
-        <button class="btn-add-players" id="btn-add-players" onclick="openProfilePicker()">＋ Ajouter des joueurs</button>
-        <div class="sel-count" id="sel-count">0 / 6 joueurs</div>
-      </div>
-    </div>
+    <!-- ── COLONNE GAUCHE : CONFIG ── -->
+    <div class="setup-col-config">
 
-    <!-- NOMBRE DE JEUX -->
-    <div>
-      <div class="t-label">Nombre de jeux</div>
-      <div class="t-card" style="text-align:center; padding:18px;">
-        <div class="nb-row">
+      <div class="card">
+
+        <!-- Nombre de jeux -->
+        <div class="card-title">Nombre de jeux</div>
+        <div class="nb-row" style="justify-content:flex-start;gap:12px;margin-bottom:16px;">
           <button class="nb-btn" onclick="changeNb(-1)">−</button>
-          <span class="nb-val" id="nb-val">3</span>
+          <span class="nb-val" id="nb-val" style="font-size:1.6rem;min-width:28px;">3</span>
           <button class="nb-btn" onclick="changeNb(+1)">+</button>
         </div>
-      </div>
-    </div>
 
-    <!-- DIFFICULTÉ -->
-    <div>
-      <div class="t-label">Difficulté</div>
-      <div class="t-card">
-        <div class="opt-group">
+        <!-- Sélection aléatoire / manuelle -->
+        <div class="card-title">Sélection des jeux</div>
+        <div class="opt-group" style="justify-content:flex-start;margin-bottom:10px;">
+          <div class="opt-pill active" data-grp="sel" data-val="random" onclick="pickSelMode(this)">🎲 Aléatoire</div>
+          <div class="opt-pill"        data-grp="sel" data-val="manual" onclick="pickSelMode(this)">Manuel</div>
+        </div>
+        <div id="game-grid-wrap" style="display:none;">
+          <div class="card-title" id="grid-label" style="margin-top:4px;">Choisissez vos jeux</div>
+          <div class="game-grid" id="game-grid"></div>
+        </div>
+
+        <!-- Difficulté -->
+        <div class="card-title" style="margin-top:16px;">Difficulté</div>
+        <div class="opt-group" style="justify-content:flex-start;margin-bottom:16px;">
           <div class="opt-pill active" data-grp="diff" data-val="easy"   onclick="pickOpt(this)">Facile</div>
           <div class="opt-pill"        data-grp="diff" data-val="normal" onclick="pickOpt(this)">Normal</div>
         </div>
-      </div>
-    </div>
 
-    <!-- SAISIE -->
-    <div>
-      <div class="t-label">Mode de saisie</div>
-      <div class="t-card">
-        <div class="opt-group">
+        <!-- Mode de saisie -->
+        <div class="card-title">Mode de saisie</div>
+        <div class="opt-group" style="justify-content:flex-start;">
           <div class="opt-pill active" data-grp="input" data-val="total"     onclick="pickInput(this)">🔢 Total</div>
           <div class="opt-pill"        data-grp="input" data-val="darts"     onclick="pickInput(this)">🎯 Par fléchettes</div>
           <div class="opt-pill"        data-grp="input" data-val="autodarts" onclick="pickInput(this)">🔗 Autodarts</div>
         </div>
         <div class="ip-row" id="ip-row">
-          <div class="t-label" style="margin-bottom:4px;">Adresse IP Autodarts</div>
+          <div class="card-title" style="margin-top:10px;margin-bottom:4px;">Adresse IP Autodarts</div>
           <input class="ip-input" id="ip-input" type="text" value="192.168.1.37">
         </div>
+
       </div>
-    </div>
 
-    <!-- SÉLECTION JEUX -->
-    <div>
-      <div class="t-label">Sélection des jeux</div>
-      <div class="t-card">
-        <div class="opt-group" style="margin-bottom:14px;">
-          <div class="opt-pill active" data-grp="sel" data-val="random" onclick="pickSelMode(this)">🎲 Aléatoire</div>
-          <div class="opt-pill"        data-grp="sel" data-val="manual" onclick="pickSelMode(this)">Manuel</div>
+    </div><!-- /setup-col-config -->
+
+    <!-- ── COLONNE DROITE : JOUEURS ── -->
+    <div class="setup-col-players">
+
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div class="card-title" style="margin-bottom:0;">👥 Joueurs (2 – 6)</div>
+          <button class="t-back" onclick="openProfilePicker()" style="font-size:.75rem;padding:5px 9px;">👤 Profils</button>
         </div>
-        <div id="game-grid-wrap" style="display:none;">
-          <div class="t-label" id="grid-label">Choisissez vos jeux</div>
-          <div class="game-grid" id="game-grid"></div>
+        <div class="input-row">
+          <input type="text" id="player-input" placeholder="Nom du joueur" maxlength="18">
+          <button class="btn-add" id="btn-add-players" onclick="addPlayerDirect()">+</button>
         </div>
+        <div id="t-players-list"></div>
       </div>
-    </div>
 
-  </div><!-- /t-scroll -->
+      <button class="btn-primary" id="btn-launch" onclick="launchTournament()" disabled>🎯 LANCER LE TOURNOI</button>
 
-  <div class="t-footer">
-    <button class="btn-primary" id="btn-launch" onclick="launchTournament()" disabled>LANCER LE TOURNOI</button>
-  </div>
+    </div><!-- /setup-col-players -->
+
+  </div><!-- /setup-container -->
 </div>
 
 
@@ -650,8 +691,12 @@
 ══════════════════════════════════════════════ -->
 <div id="s-pregame" class="section">
   <div class="t-header">
+    <button class="t-back" onclick="quitConfirm()">← Quitter</button>
     <span class="t-header-title" id="pg-htitle">Jeu 1</span>
-    <span class="t-progress"     id="pg-prog"></span>
+    <div class="t-header-right">
+      <span class="t-progress" id="pg-prog"></span>
+      <button class="btn-settings-game" aria-label="Paramètres">⚙️</button>
+    </div>
   </div>
   <div class="t-scroll">
     <div class="game-hero">
@@ -679,8 +724,12 @@
 ══════════════════════════════════════════════ -->
 <div id="s-between" class="section">
   <div class="t-header">
+    <button class="t-back" onclick="quitConfirm()">← Quitter</button>
     <span class="t-header-title">🏆 Tournoi</span>
-    <span class="t-progress" id="bt-prog"></span>
+    <div class="t-header-right">
+      <span class="t-progress" id="bt-prog"></span>
+      <button class="btn-settings-game" aria-label="Paramètres">⚙️</button>
+    </div>
   </div>
   <div class="t-scroll">
     <div style="font-size:.72rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--dim); text-align:center;" id="bt-recap"></div>
@@ -720,7 +769,9 @@
 ══════════════════════════════════════════════ -->
 <div id="s-podium" class="section">
   <div class="t-header">
+    <div style="width:44px;flex-shrink:0;"></div>
     <span class="t-header-title">🏆 Podium Final</span>
+    <button class="btn-settings-game" aria-label="Paramètres">⚙️</button>
   </div>
   <div class="t-scroll">
     <div style="text-align:center; padding:16px 0 8px;">
@@ -746,8 +797,9 @@
 ══════════════════════════════════════════════ -->
 <div id="s-resume" class="section">
   <div class="t-header">
-    <button class="t-back" onclick="quitConfirm()">←</button>
+    <button class="t-back" onclick="quitConfirm()">← Quitter</button>
     <span class="t-header-title">🏆 Tournoi en cours</span>
+    <button class="btn-settings-game" aria-label="Paramètres">⚙️</button>
   </div>
   <div class="t-scroll">
     <div class="t-card" style="text-align:center; border-color:rgba(232,197,71,.2);">
@@ -767,6 +819,49 @@
 <!-- ══════════════════════════════════════════════
      QUIT OVERLAY
 ══════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════════
+     SETTINGS PANEL (partagé, identique aux jeux)
+══════════════════════════════════════════════ -->
+<div class="settings-panel-game" id="sg-panel">
+  <div class="sg-section-label">Thème</div>
+  <div class="sg-row" style="padding-top:0;border-top:none;">
+    <div class="sg-theme-pills">
+      <button class="sg-pill" id="sg-pill-dark">🌙 Sombre</button>
+      <button class="sg-pill" id="sg-pill-light">☀️ Clair</button>
+      <button class="sg-pill" id="sg-pill-colored">🎨 Coloré</button>
+    </div>
+  </div>
+  <div class="sg-row">
+    <span>📳</span>
+    <span class="sg-row-label">Vibrations</span>
+    <label class="sg-toggle">
+      <input type="checkbox" id="sg-toggle-vib" checked>
+      <span class="sg-slider"></span>
+    </label>
+  </div>
+  <div class="sg-row">
+    <span>🔊</span>
+    <span class="sg-row-label">Sons</span>
+    <label class="sg-toggle">
+      <input type="checkbox" id="sg-toggle-snd" checked>
+      <span class="sg-slider"></span>
+    </label>
+  </div>
+  <div class="sg-row">
+    <span>🗣️</span>
+    <span class="sg-row-label">Annonceur</span>
+    <label class="sg-toggle">
+      <input type="checkbox" id="sg-toggle-tts" checked>
+      <span class="sg-slider"></span>
+    </label>
+  </div>
+  <div class="sg-row">
+    <span class="sg-row-label">Langue / Language</span>
+    <button id="sg-btn-lang" style="background:none;border:none;cursor:pointer;font-size:1.8rem;line-height:1;padding:2px;border-radius:6px;touch-action:manipulation;">🇫🇷</button>
+  </div>
+</div>
+
+
 <div id="quit-overlay">
   <div class="quit-card">
     <div class="quit-title">⚠ Quitter le tournoi ?</div>
@@ -808,9 +903,9 @@
 // ════════════════════════════════════════════════
 
 const GAME_ICONS = {
-  'g501':      '🎯', 'cricket':   '🏏', 'shanghai':  '🀄',
-  'horloge':   '🕐', 'race500':   '🏎️', 'blackdart': '🃏',
-  'territoire':'🗺️', 'dartspong': '🏓', 'shooter':   '🔫', 'bataille':  '⚓',
+  'g501':      '🎯', 'cricket':   '🦗', 'shanghai':  '🗼',
+  'horloge':   '🕐', 'race500':   '🏁', 'blackdart': '🃏',
+  'territoire':'🏰', 'dartspong': '🔴', 'shooter':   '💥', 'bataille':  '⚓',
 };
 const GAME_COLORS = {
   'g501':      'rgba(192,57,43,1)',   'cricket':   'rgba(76,175,80,1)',
@@ -897,8 +992,32 @@ function renderPlayers() {
   });
   const addBtn = document.getElementById('btn-add-players');
   if (addBtn) addBtn.disabled = S.players.length >= 6;
-  document.getElementById('sel-count').textContent = `${S.players.length} / 6 joueurs`;
+  const inp = document.getElementById('player-input');
+  if (inp) inp.disabled = S.players.length >= 6;
 }
+
+function addPlayerDirect() {
+  const inp = document.getElementById('player-input');
+  if (!inp) return;
+  const val = inp.value.trim();
+  if (!val) {
+    // Champ vide → ouvrir le picker de profils, comme 501
+    if (typeof openProfilePicker === 'function') openProfilePicker();
+    return;
+  }
+  if (S.players.length >= 6) return;
+  if (!S.players.includes(val)) S.players.push(val);
+  inp.value = '';
+  inp.focus();
+  renderPlayers();
+  renderGrid();
+  validate();
+}
+
+// Ajout au Enter dans le champ nom
+document.getElementById('player-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addPlayerDirect();
+});
 
 function removePlayer(name) {
   S.players = S.players.filter(p => p !== name);
@@ -1682,6 +1801,83 @@ document.addEventListener('click', e => {
   feedbackKey();
 });
 
+</script>
+
+<script>
+// ── Settings Panel (identique aux jeux) ─────────────────────────────
+(function() {
+  const THEME_KEY = 'dartvault_theme';
+  const VIB_KEY   = 'dartvault_vibration';
+  const SND_KEY   = 'dartvault_sound';
+  const LANG_KEY  = 'dartvault_lang';
+
+  const sgPanel = document.getElementById('sg-panel');
+  if (!sgPanel) return;
+
+  // Tous les boutons ⚙️ de la page (un par section)
+  document.querySelectorAll('.btn-settings-game').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      sgPanel.classList.toggle('open');
+      if (sgPanel.classList.contains('open')) syncSgPanel();
+    });
+  });
+  document.addEventListener('click', e => {
+    if (!sgPanel.contains(e.target) && !e.target.classList.contains('btn-settings-game'))
+      sgPanel.classList.remove('open');
+  });
+
+  function syncSgPanel() {
+    const t = localStorage.getItem(THEME_KEY) || 'dark';
+    ['dark','light','colored'].forEach(k => {
+      const p = document.getElementById('sg-pill-'+k);
+      if (p) p.classList.toggle('active', t === k);
+    });
+    const vt = document.getElementById('sg-toggle-vib');
+    if (vt) vt.checked = localStorage.getItem(VIB_KEY) !== 'off';
+    const st = document.getElementById('sg-toggle-snd');
+    if (st) st.checked = localStorage.getItem(SND_KEY) !== 'off';
+    const tt = document.getElementById('sg-toggle-tts');
+    if (tt) tt.checked = localStorage.getItem('dartvault_tts') !== 'off';
+    const lang = localStorage.getItem(LANG_KEY) || 'fr';
+    const lb = document.getElementById('sg-btn-lang');
+    if (lb) lb.textContent = lang === 'fr' ? '🇫🇷' : '🇬🇧';
+  }
+
+  function applyTheme(t) {
+    localStorage.setItem(THEME_KEY, t);
+    document.documentElement.setAttribute('data-theme', t);
+    syncSgPanel();
+  }
+
+  ['dark','light','colored'].forEach(k => {
+    const p = document.getElementById('sg-pill-'+k);
+    if (p) p.addEventListener('click', () => applyTheme(k));
+  });
+
+  const vibTog = document.getElementById('sg-toggle-vib');
+  if (vibTog) vibTog.addEventListener('change', () =>
+    localStorage.setItem(VIB_KEY, vibTog.checked ? 'on' : 'off'));
+
+  const sndTog = document.getElementById('sg-toggle-snd');
+  if (sndTog) sndTog.addEventListener('change', () =>
+    localStorage.setItem(SND_KEY, sndTog.checked ? 'on' : 'off'));
+
+  const ttsTog = document.getElementById('sg-toggle-tts');
+  if (ttsTog) ttsTog.addEventListener('change', () =>
+    localStorage.setItem('dartvault_tts', ttsTog.checked ? 'on' : 'off'));
+
+  const langBtn = document.getElementById('sg-btn-lang');
+  if (langBtn) langBtn.addEventListener('click', () => {
+    const cur = localStorage.getItem(LANG_KEY) || 'fr';
+    localStorage.setItem(LANG_KEY, cur === 'fr' ? 'en' : 'fr');
+    syncSgPanel();
+  });
+
+  // Appliquer le thème au chargement
+  const savedTheme = localStorage.getItem(THEME_KEY);
+  if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+})();
 </script>
 </body>
 </html>
