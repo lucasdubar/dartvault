@@ -42,6 +42,9 @@
 
   // ── Store ranking when game ends ──────────────────────────────────────────
   let _ranking = null;
+  // Guard: recordResult must only be called once per game, even if the user
+  // clicks "Annuler" on the end popup and finishes the game again.
+  let _resultRecorded = false;
 
   // ════════════════════════════════════════════════
   // PUBLIC API — called by each game at game end
@@ -55,9 +58,13 @@
     onGameEnd(ranking) {
       _ranking = ranking;
 
-      // Load fresh state and record result
-      TournamentManager.load();
-      TournamentManager.recordResult(ranking);
+      // Record result only once — prevents score inflation when user goes
+      // back via "Annuler" on the end popup and finishes the game again.
+      if (!_resultRecorded) {
+        _resultRecorded = true;
+        TournamentManager.load();
+        TournamentManager.recordResult(ranking);
+      }
 
       // Inject tournament UI — onGameEnd() always runs AFTER openModal() (synchronous),
       // so the modal already has the 'open' class. We inject here directly instead of
@@ -405,6 +412,16 @@
       const el = modal.querySelector(sel);
       if (el) el.style.display = 'none';
     });
+
+    // ── Intercept "Annuler/Close" button: in tournament, redirect to tournament.html
+    //    instead of letting the user replay (which would re-record wins infinitely).
+    const closeBtnIntercept = modal.querySelector('#btn-end-close');
+    if (closeBtnIntercept) {
+      closeBtnIntercept.addEventListener('click', (e) => {
+        e.stopImmediatePropagation();
+        location.href = 'tournament.html';
+      }, true); // capture phase — runs before the game's own handler
+    }
 
     // ── Find close button and its container row ──
     const closeBtn = modal.querySelector('#btn-end-close');
