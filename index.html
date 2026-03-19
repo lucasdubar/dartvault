@@ -262,6 +262,14 @@
     }
     .btn-action-tournament:active { transform:scale(.95); box-shadow:0 2px 8px rgba(232,197,71,.2); }
     [data-theme="light"] .btn-action-tournament { background:linear-gradient(135deg,#E8C547,#F0A040); color:#0A0A0A; }
+    [data-theme="light"] #random-slot-modal { background:#ffffff; }
+    [data-theme="light"] .rslot-label { color:#222; }
+    [data-theme="light"] .rslot-box { background:rgba(0,0,0,.05); border-color:rgba(0,0,0,.12); }
+    [data-theme="light"] .rslot-name { color:#111; }
+    [data-theme="light"] .rslot-players { color:#555; }
+    [data-theme="light"] .rslot-cancel { color:#444; border-color:rgba(0,0,0,.18); }
+    [data-theme="light"] .rslot-stop { background:rgba(220,50,50,.12); color:#c0392b; border-color:rgba(220,50,50,.3); }
+    [data-theme="light"] .rslot-reroll { background:rgba(0,0,0,.07); color:#333; border-color:rgba(0,0,0,.18); }
     /* ── Slot machine Aléatoire ── */
     #random-slot-modal {
       display:none; position:fixed; inset:0; z-index:400;
@@ -396,6 +404,19 @@
       position:relative; z-index:1;
     }
     .rslot-cancel:active { color:rgba(255,120,120,1); }
+    /* ── Aléatoire : paysage téléphone (hauteur serrée) ── */
+    @media (orientation:landscape) and (max-height:500px) {
+      #random-slot-modal { gap:8px; padding:10px 16px; }
+      .rslot-box { min-height:0; flex-shrink:1; padding:12px 16px 10px; gap:5px; }
+      .rslot-icon { font-size:1.8rem; }
+      .rslot-box.reveal .rslot-icon { font-size:2.4rem; }
+      .rslot-name { font-size:1.2rem; letter-spacing:2px; }
+      .rslot-players { font-size:.75rem; margin-top:0; }
+      .rslot-play-btn { padding:9px 32px; font-size:.95rem; }
+      .rslot-action-slot { height:34px; }
+      .rslot-cancel { padding:4px 0; font-size:.8rem; }
+      .rslot-label { font-size:.65rem; letter-spacing:2px; }
+    }
 
     /* ── GRILLE ── */
     .games-grid {
@@ -441,7 +462,9 @@
       border-color: transparent;
     }
     [data-theme="light"] .game-card .game-name { color: #1A1A1A; font-weight:700; }
-    [data-theme="light"] .game-card .game-description { color: #555; }
+    [data-theme="light"] .game-card .game-description { color: #2E2E2E; }
+    [data-theme="dark"] .game-card .game-description { color: #A8AAAE; }
+    [data-theme="colored"] .game-card .game-description { color: rgba(240,240,240,.82); }
     [data-theme="light"] .game-card .game-players span { background:#F0F0F3; border-color:#DDD; color:#777; }
     [data-theme="light"] .info-btn { background:rgba(0,0,0,.05); border-color:rgba(0,0,0,.1); color:#888; }
 
@@ -463,9 +486,11 @@
       font-family:'Rajdhani',sans-serif; font-size:1.15rem; font-weight:700;
       color:var(--accent); letter-spacing:.5px; margin-bottom:5px;
       text-align:center; line-height:1.2;
-      transition: color .25s;
+      transition: color .25s, text-shadow .25s;
+      -webkit-text-stroke: 0.4px rgba(255,255,255,.55);
     }
-    .game-description { font-size:.75rem; color:var(--dim); line-height:1.45; margin-bottom:8px; flex:1; }
+    [data-theme="light"] .game-card .game-name { -webkit-text-stroke: 0.4px rgba(0,0,0,.4); }
+    .game-description { font-size:.75rem; color:rgba(240,240,240,.72); line-height:1.45; margin-bottom:8px; flex:1; }
     .game-players { font-family:'Rajdhani',sans-serif; font-size:.68rem; font-weight:700; color:var(--dim2); letter-spacing:1px; text-transform:uppercase; }
     .game-players span { background:var(--bg3); border:1px solid var(--dim2); border-radius:5px; padding:2px 7px; }
 
@@ -663,6 +688,22 @@
       .game-card { flex:0 0 calc(20% - 10px); max-width:calc(20% - 10px); }
       .games-grid.solo-mode .game-card { flex:0 0 260px; max-width:260px; }
     }
+    @media (min-width: 1600px) {
+      body { padding: 8px 48px 40px; }
+      .games-grid { gap:16px; }
+      .game-card { padding:20px 16px 16px; }
+      .game-icon { font-size:clamp(2rem,2.4vw,3.2rem); margin-bottom:10px; }
+      .game-name { font-size:clamp(1.15rem,1.3vw,1.8rem); }
+      .game-description { font-size:clamp(.78rem,.85vw,1.05rem); }
+      .game-players { font-size:clamp(.72rem,.75vw,.95rem); }
+      .game-players span { padding:3px 10px; }
+      .info-btn { width:26px; height:26px; font-size:.72rem; }
+      .fav-btn  { width:26px; height:26px; font-size:.95rem; }
+      .gc-back-title { font-size:clamp(1.6rem,2vw,2.6rem); }
+      [data-key="territoire"] .gc-back-title { font-size:clamp(1.2rem,1.5vw,1.9rem); }
+      [data-key="bataille"] .gc-front .game-name { font-size:clamp(1rem,1.1vw,1.5rem); }
+      .gc-btn-rules, .gc-btn-play { font-size:clamp(.78rem,.85vw,1rem); padding:11px 0; }
+    }
   
     /* ── Bouton favori ── */
     .fav-btn {
@@ -780,6 +821,15 @@
     [data-theme="light"] .gc-btn-rules { background:rgba(0,0,0,.05); border-color:rgba(0,0,0,.15); color:var(--text); }
     /* Paysage : hauteur minimale réduite */
     @media(orientation:landscape)and(min-width:700px){ .gc-inner { min-height:130px; } }
+    /* ── PAYSAGE TABLETTE (landscape + hauteur ≥500px = pas un téléphone) ── */
+    @media (orientation:landscape) and (min-width:700px) and (min-height:500px) {
+      .game-name { font-size:clamp(1.1rem,1.8vw,1.5rem); }
+      .gc-back-title { font-size:clamp(1.6rem,2.6vw,2.2rem); }
+      [data-key="territoire"] .gc-back-title { font-size:clamp(1.2rem,1.8vw,1.6rem); letter-spacing:1px; }
+      [data-key="bataille"] .gc-front .game-name { font-size:clamp(0.95rem,1.4vw,1.2rem); letter-spacing:0; }
+      .gc-btn-rules, .gc-btn-play { font-size:clamp(.75rem,1.1vw,.92rem); }
+      .gc-inner { min-height:150px; }
+    }
 
     /* ── RÈGLES INDEX : deux boutons ── */
     .rules-idx-actions {
@@ -1097,7 +1147,7 @@
       <div class="filter-tabs">
         <button class="filter-btn active" data-filter="all" data-i18n="all">Tout</button>
         <button class="filter-btn" data-filter="classic" data-i18n="classic">Classique</button>
-        <button class="filter-btn" data-filter="fun" data-i18n="fun">Fun</button>
+        <button class="filter-btn" data-filter="fun" data-i18n="fun">Original</button>
       </div>
       <div class="action-row">
         <button class="btn-action btn-action-random" id="btn-random">🎲 <span data-i18n="random">ALÉATOIRE</span></button>
@@ -1502,7 +1552,7 @@
     // ═══════════════════════════════════════════════════════
     const TRANSLATIONS = {
       fr: {
-        all: 'Tout', classic: 'Classique', fun: 'Fun', random: 'ALÉATOIRE',
+        all: 'Tout', classic: 'Classique', fun: 'Original', random: 'ALÉATOIRE',
         install: 'Installer',
         profiles: 'Profils',
         theme: 'Thème', theme_dark: '🌙 Sombre', theme_light: '☀️ Clair', theme_colored: '🎨 Coloré',
@@ -1835,7 +1885,7 @@
         }
       },
       en: {
-        all: 'All', classic: 'Classic', fun: 'Fun', random: 'RANDOM',
+        all: 'All', classic: 'Classic', fun: 'Original', random: 'RANDOM',
         install: 'Install',
         profiles: 'Profiles',
         theme: 'Theme', theme_dark: '🌙 Dark', theme_light: '☀️ Light', theme_colored: '🎨 Coloured',
@@ -2853,7 +2903,7 @@
       // Fallback if SW never responds (local dev)
       setTimeout(function() {
         var el = document.getElementById('app-version');
-        if (el && !el.textContent) el.textContent = 'v2.11';
+        if (el && !el.textContent) el.textContent = 'v2.12';
       }, 2000);
     }, 2000);
 

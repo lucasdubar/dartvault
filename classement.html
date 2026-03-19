@@ -677,84 +677,84 @@ function renderRanking() {
     if (currentGame === '501' && ps['501']) {
       const s = ps['501'];
       gamesPlayed = s.games || 0;
-      const avg = s.totalThrows > 0 ? (s.totalScore / s.totalThrows).toFixed(1) : '0.0';
-      const dblHtml = s.doubleAttempts > 0 ? `<span>D% <span class="rank-stat-val">${Math.round(s.doubleHits/s.doubleAttempts*100)}%</span></span>` : '';
+      const avg = (s.totalThrows || 0) > 0 ? ((s.totalScore || 0) / s.totalThrows).toFixed(1) : '0.0';
+      const dblHtml = (s.doubleAttempts || 0) > 0 ? `<span>D% <span class="rank-stat-val">${Math.round((s.doubleHits||0)/s.doubleAttempts*100)}%</span></span>` : '';
       statsHtml = `<div class="rank-stats">
         <span>${currentLang==='fr'?'Moy':'Avg'} : <span class="rank-stat-val">${avg}</span></span>
-        <span>${currentLang==='fr'?'Flé':'Drt'} : <span class="rank-stat-val">${s.totalDarts}</span></span>
+        <span>${currentLang==='fr'?'Flé':'Drt'} : <span class="rank-stat-val">${s.totalDarts||0}</span></span>
         ${dblHtml}
       </div>`;
     } else if (currentGame === 'territoire' && ps['territoire']) {
       const s = ps['territoire'];
       gamesPlayed = s.games || 0;
       statsHtml = `<div class="rank-stats">
-        <span>✓<span class="rank-stat-val">${s.captures}</span></span>
-        <span>🛡️<span class="rank-stat-val">${s.shields}</span></span>
-        <span>✗<span class="rank-stat-val">${s.neutralized}</span></span>
+        <span>✓<span class="rank-stat-val">${s.captures||0}</span></span>
+        <span>🛡️<span class="rank-stat-val">${s.shields||0}</span></span>
+        <span>✗<span class="rank-stat-val">${s.neutralized||0}</span></span>
       </div>`;
     } else if (currentGame === 'cricket' && ps['cricket']) {
       const s = ps['cricket'];
       gamesPlayed = s.games || 0;
       statsHtml = `<div class="rank-stats">
-        <span>${currentLang==='fr'?'Zones':'Zones'} : <span class="rank-stat-val">${s.closedZones}</span></span>
-        <span>${currentLang==='fr'?'Flé':'Drt'} : <span class="rank-stat-val">${s.totalDarts}</span></span>
+        <span>${currentLang==='fr'?'Zones':'Zones'} : <span class="rank-stat-val">${s.closedZones||0}</span></span>
+        <span>${currentLang==='fr'?'Flé':'Drt'} : <span class="rank-stat-val">${s.totalDarts||0}</span></span>
       </div>`;
     } else if (currentGame === 'shanghai' && ps['shanghai']) {
       const s = ps['shanghai'];
       gamesPlayed = s.games || 0;
-      const pct = s.totalDarts > 0 ? Math.round(s.zonesHit / s.totalDarts * 100) : 0;
+      const pct = (s.totalDarts||0) > 0 ? Math.round((s.zonesHit||0) / s.totalDarts * 100) : 0;
       statsHtml = `<div class="rank-stats">
         <span>🎯 <span class="rank-stat-val">${pct}%</span></span>
-        <span>🗼 <span class="rank-stat-val">${s.shanghais}</span></span>
+        <span>🗼 <span class="rank-stat-val">${s.shanghais||0}</span></span>
       </div>`;
     } else if (currentGame === 'blackjack' && ps['blackjack']) {
       const s = ps['blackjack'];
       gamesPlayed = s.games || 0;
-      const avgMoney = gamesPlayed > 0 ? (s.moneyDelta / gamesPlayed).toFixed(1) : '0.0';
+      const avgMoney = gamesPlayed > 0 ? ((s.moneyDelta||0) / gamesPlayed).toFixed(1) : '0.0';
       const sign = parseFloat(avgMoney) >= 0 ? '+' : '';
       const moneyColor = parseFloat(avgMoney) >= 0 ? '#4CAF50' : '#F44336';
       statsHtml = `<div class="rank-stats">
         <span style="color:${moneyColor}">💰 <span class="rank-stat-val">${sign}${avgMoney}€</span></span>
-        <span>🃏 <span class="rank-stat-val">${s.blackdarts}</span></span>
+        <span>🃏 <span class="rank-stat-val">${s.blackdarts||0}</span></span>
       </div>`;
     } else if (currentGame === 'race500' && ps['race500']) {
       const s = ps['race500'];
       gamesPlayed = s.games || 0;
       statsHtml = `<div class="rank-stats">
-        <span style="color:#4CAF50">+<span class="rank-stat-val">${s.pointsStolen}</span></span>
-        <span style="color:#F44336">-<span class="rank-stat-val">${s.pointsLost}</span></span>
+        <span style="color:#4CAF50">+<span class="rank-stat-val">${s.pointsStolen||0}</span></span>
+        <span style="color:#F44336">-<span class="rank-stat-val">${s.pointsLost||0}</span></span>
       </div>`;
     } else if (currentGame === 'horloge' && ps['horloge']) {
       const s = ps['horloge'];
       gamesPlayed = s.games || 0;
-      const pct = s.totalDarts > 0 ? Math.round(s.zonesHit / s.totalDarts * 100) : 0;
+      const pct = (s.totalDarts||0) > 0 ? Math.round((s.zonesHit||0) / s.totalDarts * 100) : 0;
       statsHtml = `<div class="rank-stats">
         <span>🎯 <span class="rank-stat-val">${pct}%</span></span>
-        <span>${currentLang==='fr'?'Flé':'Drt'} : <span class="rank-stat-val">${s.totalDarts}</span></span>
+        <span>${currentLang==='fr'?'Flé':'Drt'} : <span class="rank-stat-val">${s.totalDarts||0}</span></span>
       </div>`;
     } else if (currentGame === 'dartspong' && ps['dartspong']) {
       const s = ps['dartspong'];
       gamesPlayed = s.games || 0;
-      const pct = s.totalDarts > 0 ? Math.round(s.zonesEliminated / s.totalDarts * 100) : 0;
+      const pct = (s.totalDarts||0) > 0 ? Math.round((s.zonesEliminated||0) / s.totalDarts * 100) : 0;
       statsHtml = `<div class="rank-stats">
         <span>🎯 <span class="rank-stat-val">${pct}%</span></span>
-        <span>${currentLang==='fr'?'Flé':'Drt'} : <span class="rank-stat-val">${s.totalDarts}</span></span>
+        <span>${currentLang==='fr'?'Flé':'Drt'} : <span class="rank-stat-val">${s.totalDarts||0}</span></span>
       </div>`;
     } else if (currentGame === 'shooter' && ps['shooter']) {
       const s = ps['shooter'];
       gamesPlayed = s.games || 0;
       statsHtml = `<div class="rank-stats">
-        <span>❤️<span class="rank-stat-val">${s.hpDealt}</span></span>
-        <span>🔫<span class="rank-stat-val">${s.bulletsGained}</span></span>
-        <span>💚<span class="rank-stat-val">${s.hpHealed}</span></span>
+        <span>❤️<span class="rank-stat-val">${s.hpDealt||0}</span></span>
+        <span>🔫<span class="rank-stat-val">${s.bulletsGained||0}</span></span>
+        <span>💚<span class="rank-stat-val">${s.hpHealed||0}</span></span>
       </div>`;
     } else if (currentGame === 'bataille' && ps['bataille']) {
       const s = ps['bataille'];
       gamesPlayed = s.games || 0;
-      const pct = s.totalShots > 0 ? Math.round(s.hits / s.totalShots * 100) : 0;
+      const pct = (s.totalShots||0) > 0 ? Math.round((s.hits||0) / s.totalShots * 100) : 0;
       statsHtml = `<div class="rank-stats">
-        <span>💥<span class="rank-stat-val">${s.hits}</span></span>
-        <span>💧<span class="rank-stat-val">${s.totalShots - s.hits}</span></span>
+        <span>💥<span class="rank-stat-val">${s.hits||0}</span></span>
+        <span>💧<span class="rank-stat-val">${(s.totalShots||0) - (s.hits||0)}</span></span>
         <span>🎯 <span class="rank-stat-val">${pct}%</span></span>
       </div>`;
     }

@@ -105,6 +105,29 @@ html,body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;
       .card { padding:14px;margin-bottom:12px; }
     }
 
+    /* Grand écran paysage (≥1600px) */
+    @media (orientation:landscape) and (min-width:1600px) {
+      .setup-container { gap:24px; padding:20px 28px; }
+      .setup-col-players { width:36%; max-width:680px; }
+      .card, .t-card { padding:20px; margin-bottom:16px; }
+      .card-title { font-size:1rem; margin-bottom:14px; }
+
+      .btn-primary { padding:18px; font-size:1.4rem; border-radius:16px; }
+      .btn-secondary, .btn-danger { padding:16px; font-size:1.1rem; }
+      .btn-add { width:52px; height:52px; font-size:1.5rem; border-radius:12px; }
+      .opt-pill { font-size:1.05rem; padding:12px 16px; border-radius:12px; }
+
+      .input-row input { padding:13px 16px; font-size:1.1rem; border-radius:12px; }
+      .t-player-row { padding:10px 14px; }
+      .t-player-name { font-size:1.1rem; }
+      .t-player-remove { width:52px; height:52px; }
+
+      .game-tile { padding:18px 10px; border-radius:14px; }
+      .game-tile .tile-icon { font-size:clamp(1.8rem,2.2vw,2.8rem); margin-bottom:8px; }
+      .game-tile .tile-name { font-size:clamp(.85rem,1vw,1.1rem); }
+      .game-tile .tile-num  { width:22px; height:22px; font-size:.75rem; }
+    }
+
     /* ── Bouton principal (copie .btn-main.btn-start de 501) ── */
     .btn-primary { width:100%;padding:13px;border-radius:12px;border:none;font-family:'Rajdhani',sans-serif;font-size:1.15rem;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:all .2s;touch-action:manipulation;background:linear-gradient(135deg,var(--accent),#c9a830);color:#000;box-shadow:0 4px 18px rgba(232,232,232,.3); }
     .btn-primary:active { transform:scale(.97); }
@@ -1684,7 +1707,11 @@ function runSlot(from, onDone) {
         icon.style.filter = `drop-shadow(0 0 20px ${color})`;
         name.textContent = game.name;
         name.style.color = color;
+        const autoAdvance = (game.teamMode === 'team' && game.teams && game.teams.length >= 2) || game.id === 'blackdart';
+        const revealBtn = reveal.querySelector('.slot-reveal-btn');
+        if (revealBtn) revealBtn.style.display = autoAdvance ? 'none' : '';
         reveal.classList.add('visible');
+        if (autoAdvance) setTimeout(() => onSlotDone(), 1400);
       }, 500);
     }
   }
