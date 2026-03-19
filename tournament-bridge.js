@@ -53,6 +53,64 @@
   // clicks "Annuler" on the end popup and finishes the game again.
   let _resultRecorded = false;
 
+  // ── Game key map (matches each game's internal GAME_KEY for localStorage) ─
+  const _GAME_STATS_KEY = {
+    g501: '501', cricket: 'cricket', shanghai: 'shanghai', horloge: 'horloge',
+    race500: 'race500', blackdart: 'blackjack', territoire: 'territoire',
+    dartspong: 'dartspong', shooter: 'shooter', bataille: 'bataille',
+  };
+
+  // Bridge-side stats recording.
+  // Games guard their stats/wins behind `p.fromProfile`, but tournament players
+  // are added via addPlayer() which never sets fromProfile. The bridge records
+  // games count and wins directly so tournament play appears in the classement.
+  function _bridgeRecordStats(ranking) {
+    const gameKey = _GAME_STATS_KEY[currentGameId];
+    if (!gameKey) return;
+
+    // 1. Increment games count for every tournament player
+    const STATS_KEY = 'dartvault_game_stats';
+    let stats = {};
+    try { stats = JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch (e) {}
+    payload.players.forEach(name => {
+      if (!stats[name]) stats[name] = {};
+      if (!stats[name][gameKey]) stats[name][gameKey] = { games: 0 };
+      stats[name][gameKey].games = (stats[name][gameKey].games || 0) + 1;
+    });
+    localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+
+    // 2. Record win for winner(s) — ranking[0] is string (solo) or string[] (team)
+    const first = ranking[0];
+    if (!first) return;
+    const winners = Array.isArray(first) ? first : [first];
+
+    const WINS_KEY = 'dartvault_wins';
+    let wins = {};
+    try { wins = JSON.parse(localStorage.getItem(WINS_KEY)) || {}; } catch (e) {}
+
+    function _dateKeys() {
+      const today = new Date().toISOString().slice(0, 10);
+      const d = new Date(), day = d.getDay() || 7;
+      d.setDate(d.getDate() - day + 1);
+      const week = d.toISOString().slice(0, 10);
+      const month = new Date().toISOString().slice(0, 7);
+      return { today, week, month };
+    }
+    function _mutateWin(name) {
+      if (!wins[name]) wins[name] = {};
+      ['_total', gameKey].forEach(g => {
+        if (!wins[name][g]) wins[name][g] = { daily: {}, weekly: {}, monthly: {}, total: 0 };
+        const k = _dateKeys();
+        wins[name][g].daily[k.today]   = (wins[name][g].daily[k.today]   || 0) + 1;
+        wins[name][g].weekly[k.week]   = (wins[name][g].weekly[k.week]   || 0) + 1;
+        wins[name][g].monthly[k.month] = (wins[name][g].monthly[k.month] || 0) + 1;
+        wins[name][g].total            = (wins[name][g].total             || 0) + 1;
+      });
+    }
+    winners.forEach(_mutateWin);
+    localStorage.setItem(WINS_KEY, JSON.stringify(wins));
+  }
+
   // ════════════════════════════════════════════════
   // PUBLIC API — called by each game at game end
   // ════════════════════════════════════════════════
@@ -71,7 +129,9 @@
         _resultRecorded = true;
         TournamentManager.load();
         TournamentManager.recordResult(ranking);
-        // _recordWins is already called by each game's own end-game logic — no need to call it here.
+        // Games skip stats/wins for non-profile players. The bridge records
+        // them directly so tournament play is reflected in the classement.
+        _bridgeRecordStats(ranking);
       }
 
       // Inject tournament UI — onGameEnd() always runs AFTER openModal() (synchronous),
