@@ -135,6 +135,33 @@
       border-bottom:1px solid rgba(168,182,200,.6);
       box-shadow:0 2px 12px rgba(0,0,0,.1);
     }
+
+    /* ── Rules popup — mode coloré (couleur du jeu via --gc-r/g/b) ── */
+    [data-theme="colored"] .rules-overlay {
+      background: rgba(var(--gc-r,80), var(--gc-g,20), var(--gc-b,20), .25) !important;
+    }
+    [data-theme="colored"] .rules-card {
+      background: linear-gradient(165deg,
+        rgba(var(--gc-r,20), var(--gc-g,0), var(--gc-b,0), .28) 0%,
+        rgba(8,5,5,1) 55%,
+        rgba(var(--gc-r,20), var(--gc-g,0), var(--gc-b,0), .14) 100%
+      ) !important;
+      border-color: rgba(var(--gc-r,20), var(--gc-g,0), var(--gc-b,0), .35) !important;
+    }
+    [data-theme="colored"] .rules-card::before {
+      background: radial-gradient(circle,
+        rgba(var(--gc-r,20), var(--gc-g,0), var(--gc-b,0), .4) 0%,
+        rgba(var(--gc-r,20), var(--gc-g,0), var(--gc-b,0), .12) 40%,
+        transparent 70%
+      ) !important;
+    }
+    [data-theme="colored"] .rules-card::after {
+      background: radial-gradient(circle,
+        rgba(var(--gc-r,20), var(--gc-g,0), var(--gc-b,0), .16) 0%,
+        transparent 65%
+      ) !important;
+    }
+
     .header-bar-left  { display:flex; align-items:center; gap:6px; }
     .header-bar-right { display:flex; align-items:center; gap:8px; }
 
@@ -238,66 +265,137 @@
     /* ── Slot machine Aléatoire ── */
     #random-slot-modal {
       display:none; position:fixed; inset:0; z-index:400;
-      background:var(--bg); backdrop-filter:blur(18px);
-      flex-direction:column; align-items:center; justify-content:center; gap:22px; padding:24px;
+      background:#07090F;
+      flex-direction:column; align-items:center; justify-content:center; gap:20px; padding:28px 20px;
+      overflow:hidden;
     }
     #random-slot-modal.open { display:flex; }
-    .rslot-label {
-      font-size:.72rem; letter-spacing:3px; text-transform:uppercase;
-      color:var(--dim); text-align:center;
+
+    /* Halo de fond animé */
+    #rslot-bg {
+      position:absolute; inset:0; pointer-events:none;
+      background:radial-gradient(ellipse 80% 60% at 50% 38%, var(--rslot-glow,rgba(41,121,255,.18)) 0%, transparent 70%);
+      transition:background .25s ease;
     }
+    #random-slot-modal.revealed #rslot-bg {
+      background:radial-gradient(ellipse 90% 70% at 50% 38%, var(--rslot-glow,rgba(41,121,255,.32)) 0%, transparent 68%);
+    }
+
+    /* Label statut */
+    .rslot-label {
+      font-family:'Rajdhani',sans-serif;
+      font-size:.75rem; letter-spacing:4px; text-transform:uppercase;
+      color:var(--dim); text-align:center; position:relative; z-index:1;
+      transition:color .4s;
+    }
+    #random-slot-modal.revealed .rslot-label {
+      color:var(--rslot-color,var(--accent));
+      text-shadow:0 0 18px var(--rslot-glow,rgba(41,121,255,.6));
+    }
+
+    /* Boîte principale */
     .rslot-box {
-      width:220px; height:140px;
-      background:var(--bg3); border:2px solid var(--border);
-      border-radius:20px; padding:18px 16px;
-      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
-      transition:border-color .4s, box-shadow .4s;
-      overflow:hidden; flex-shrink:0;
+      width:min(340px,90vw); min-height:200px;
+      background:rgba(12,14,22,.85);
+      border:2px solid rgba(255,255,255,.1);
+      border-radius:26px; padding:28px 20px 24px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+      transition:border-color .3s, box-shadow .3s;
+      overflow:hidden; flex-shrink:0; position:relative; z-index:1;
+      backdrop-filter:blur(12px);
+    }
+    .rslot-box::before {
+      content:''; position:absolute; inset:0; border-radius:26px; pointer-events:none;
+      background:radial-gradient(ellipse 70% 50% at 50% 0%, var(--rslot-glow,rgba(41,121,255,.08)) 0%, transparent 70%);
+      transition:background .3s;
     }
     .rslot-box.reveal {
-      border-color:var(--accent); box-shadow:0 0 36px var(--accent-glow);
+      border-color:var(--rslot-color,var(--accent));
+      box-shadow:0 0 0 1px var(--rslot-color,var(--accent)), 0 0 40px var(--rslot-glow,rgba(41,121,255,.45)), inset 0 0 30px rgba(0,0,0,.3);
     }
-    .rslot-icon { font-size:2.8rem; line-height:1; }
+    .rslot-box.reveal::before {
+      background:radial-gradient(ellipse 80% 60% at 50% 0%, var(--rslot-glow,rgba(41,121,255,.18)) 0%, transparent 70%);
+    }
+
+    /* Icône */
+    .rslot-icon {
+      font-size:3.2rem; line-height:1;
+      transition:font-size .3s, filter .3s;
+      filter:drop-shadow(0 0 0px transparent);
+    }
+    .rslot-box.reveal .rslot-icon {
+      font-size:4.4rem;
+      filter:drop-shadow(0 0 22px var(--rslot-glow,rgba(41,121,255,.8)));
+      animation:rslotIconPop .5s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes rslotIconPop {
+      from { transform:scale(.6); opacity:.5; }
+      to   { transform:scale(1);  opacity:1; }
+    }
+
+    /* Nom du jeu */
     .rslot-name {
-      font-family:'Rajdhani',sans-serif; font-size:1.5rem; font-weight:800;
-      letter-spacing:2.5px; color:var(--dim); text-align:center;
-      transition:color .3s;
+      font-family:'Rajdhani',sans-serif; font-size:1.65rem; font-weight:800;
+      letter-spacing:3px; color:rgba(255,255,255,.35); text-align:center;
+      transition:color .3s, text-shadow .3s; line-height:1.1;
     }
-    .rslot-box.reveal .rslot-name { color:var(--accent); }
-    .rslot-play-btn {
-      font-family:'Rajdhani',sans-serif; font-size:1.05rem; font-weight:800;
-      letter-spacing:2px; padding:14px 40px; border-radius:14px; border:none;
-      background:linear-gradient(135deg,#E8C547,#F0A040);
-      color:#0A0A0A; cursor:pointer; touch-action:manipulation;
-      transition:opacity .3s, transform .2s;
+    .rslot-box.reveal .rslot-name {
+      color:var(--rslot-color,var(--accent));
+      text-shadow:0 0 28px var(--rslot-glow,rgba(41,121,255,.7));
       animation:fadeUp .4s ease-out;
     }
+
+    /* Bouton Jouer */
+    .rslot-play-btn {
+      font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:800;
+      letter-spacing:2.5px; padding:15px 44px; border-radius:14px; border:none;
+      background:linear-gradient(135deg,#E8C547,#F0A040);
+      color:#0A0A0A; cursor:pointer; touch-action:manipulation;
+      transition:opacity .35s, transform .2s, box-shadow .35s;
+      box-shadow:0 6px 24px rgba(232,197,71,.35);
+      position:relative; z-index:1;
+    }
     .rslot-play-btn:active { transform:scale(.96); }
+
+    /* Boutons secondaires */
+    .rslot-action-slot {
+      position:relative; height:44px; width:min(200px,70vw);
+    }
+    .rslot-action-slot .rslot-stop,
+    .rslot-action-slot .rslot-reroll {
+      position:absolute; inset:0; width:100%; margin:0;
+    }
+    .rslot-players {
+      font-family:'Rajdhani',sans-serif; font-size:.85rem; font-weight:600; letter-spacing:1.5px;
+      color:var(--dim); text-align:center; margin-top:2px;
+      opacity:0; transition:opacity .4s .3s;
+    }
+    .rslot-box.reveal .rslot-players { opacity:1; }
     .rslot-stop {
-      font-family:'Rajdhani',sans-serif; font-size:.9rem; font-weight:700; letter-spacing:1.5px;
-      padding:10px 28px; border-radius:11px;
-      border:1.5px solid rgba(255,80,80,.45); background:rgba(255,60,60,.12);
+      font-family:'Rajdhani',sans-serif; font-size:.88rem; font-weight:700; letter-spacing:1.5px;
+      padding:11px 24px; border-radius:11px;
+      border:1.5px solid rgba(255,80,80,.4); background:rgba(255,60,60,.1);
       color:rgba(255,120,120,.95); cursor:pointer; touch-action:manipulation; transition:all .2s;
       display:none;
     }
     .rslot-stop.spinning { display:block; animation:fadeUp .3s ease-out; }
     .rslot-stop:active { transform:scale(.95); background:rgba(255,60,60,.22); }
     .rslot-reroll {
-      font-family:'Rajdhani',sans-serif; font-size:.9rem; font-weight:700; letter-spacing:1.5px;
-      padding:10px 28px; border-radius:11px;
-      border:1.5px solid var(--border); background:var(--bg3);
+      font-family:'Rajdhani',sans-serif; font-size:.88rem; font-weight:700; letter-spacing:1.5px;
+      padding:11px 24px; border-radius:11px;
+      border:1.5px solid rgba(255,255,255,.12); background:rgba(255,255,255,.06);
       color:var(--text); cursor:pointer; touch-action:manipulation; transition:all .2s;
       opacity:0; pointer-events:none;
     }
     .rslot-reroll.visible { opacity:1; pointer-events:auto; animation:fadeUp .4s .1s ease-out both; }
-    .rslot-reroll:active { transform:scale(.95); background:var(--bg4); }
+    .rslot-reroll:active { transform:scale(.95); background:rgba(255,255,255,.1); }
     .rslot-cancel {
-      font-family:'Rajdhani',sans-serif; font-size:.88rem; font-weight:700; letter-spacing:1px;
-      padding:10px 28px; border-radius:11px;
-      border:1.5px solid rgba(255,80,80,.35); background:rgba(255,60,60,.08);
-      color:rgba(255,120,120,.9); cursor:pointer; touch-action:manipulation; transition:all .2s;
+      font-family:'Rajdhani',sans-serif; font-size:.85rem; font-weight:600; letter-spacing:.5px;
+      padding:10px 0; border-radius:11px; border:none; background:transparent;
+      color:rgba(255,120,120,.7); cursor:pointer; touch-action:manipulation; transition:all .2s;
+      position:relative; z-index:1;
     }
-    .rslot-cancel:active { transform:scale(.95); background:rgba(255,60,60,.16); }
+    .rslot-cancel:active { color:rgba(255,120,120,1); }
 
     /* ── GRILLE ── */
     .games-grid {
@@ -1009,15 +1107,19 @@
 
     <!-- Slot machine Aléatoire -->
     <div id="random-slot-modal">
+      <div id="rslot-bg"></div>
       <div class="rslot-label" id="rslot-status">Tirage en cours...</div>
       <div class="rslot-box" id="rslot-box">
         <div class="rslot-icon" id="rslot-icon">🎲</div>
         <div class="rslot-name" id="rslot-name">?</div>
+        <div class="rslot-players" id="rslot-players"></div>
       </div>
       <button class="rslot-play-btn" id="rslot-play-btn" style="opacity:0;pointer-events:none;" onclick="rslotGo()">Jouer →</button>
-      <button class="rslot-stop" id="rslot-stop-btn" onclick="rslotStop()">⏹ Stop</button>
-      <button class="rslot-reroll" id="rslot-reroll-btn" onclick="rslotReroll()">🎲 Relancer</button>
-      <button class="rslot-cancel" onclick="rslotClose()">✕ Annuler</button>
+      <div class="rslot-action-slot">
+        <button class="rslot-stop" id="rslot-stop-btn" onclick="rslotStop()">⏹ Stop</button>
+        <button class="rslot-reroll" id="rslot-reroll-btn" onclick="rslotReroll()">🎲 Relancer</button>
+      </div>
+      <button class="rslot-cancel" onclick="rslotClose()" id="rslot-cancel-lbl">✕ Annuler</button>
     </div>
   </div>
 
@@ -1122,7 +1224,7 @@
         <!-- Recto -->
         <div class="gc-front">
           <button class="fav-btn" data-key="blackjack" onclick="toggleFav(event,'blackjack')">☆</button>
-          <button class="info-btn" onclick="showRules(event,'blackdarts')">i</button>
+          <button class="info-btn" onclick="showRules(event,'blackjack')">i</button>
           <span class="game-icon">🃏</span>
           <div class="game-name">BLACKDART</div>
           <div class="game-description" data-i18n="desc_blackdarts">Approche le score cible sans le dépasser — ni le croupier.</div>
@@ -1133,7 +1235,7 @@
           <div class="gc-back-title">BLACK<br>DART</div>
           <div class="gc-back-sep"></div>
           <div class="gc-back-actions">
-            <button class="gc-btn-rules" data-i18n="gc_rules" onclick="showRules(event,'blackdarts')">RÈGLES</button>
+            <button class="gc-btn-rules" data-i18n="gc_rules" onclick="showRules(event,'blackjack')">RÈGLES</button>
             <a class="gc-btn-play" data-i18n="gc_play" href="blackjack.html" onclick="event.stopPropagation()">JOUER</a>
           </div>
         </div>
@@ -2290,21 +2392,30 @@
     }
 
     let _rslotStopped = false;
-    let _rslotWinIcon = '', _rslotWinName = '';
+    let _rslotWinIcon = '', _rslotWinName = '', _rslotWinColor = '', _rslotWinGlow = '', _rslotWinPlayers = '';
 
-    function _rslotReveal(iconEl, nameEl, statusEl, playBtn, rerollBtn, stopBtn, box) {
+    function _rslotSetColor(modal, color, glow) {
+      modal.style.setProperty('--rslot-color', color);
+      modal.style.setProperty('--rslot-glow', glow);
+    }
+
+    function _rslotReveal(iconEl, nameEl, statusEl, playBtn, rerollBtn, stopBtn, box, modal) {
+      _rslotSetColor(modal, _rslotWinColor, _rslotWinGlow);
       iconEl.textContent = _rslotWinIcon;
       nameEl.textContent = _rslotWinName;
+      document.getElementById('rslot-players').textContent = _rslotWinPlayers;
       box.className = 'rslot-box reveal';
-      statusEl.textContent = currentLang === 'en' ? 'Your game!' : 'Votre jeu !';
+      modal.classList.add('revealed');
+      statusEl.textContent = currentLang === 'en' ? '— YOUR GAME —' : '— VOTRE JEU —';
       playBtn.style.opacity = '1'; playBtn.style.pointerEvents = 'auto';
-      playBtn.style.animation = 'none'; void playBtn.offsetWidth; playBtn.style.animation = 'fadeUp .4s ease-out';
+      playBtn.style.animation = 'none'; void playBtn.offsetWidth; playBtn.style.animation = 'fadeUp .45s cubic-bezier(.34,1.56,.64,1)';
       rerollBtn.className = 'rslot-reroll visible';
       stopBtn.className = 'rslot-stop';
       if (typeof vib === 'function') vib([25, 15, 50]);
     }
 
-    function _rslotSpin(allGames, winIcon, winName) {
+    function _rslotSpin(allGames, winIcon, winName, winColor, winGlow, winPlayers) {
+      const modal    = document.getElementById('random-slot-modal');
       const iconEl   = document.getElementById('rslot-icon');
       const nameEl   = document.getElementById('rslot-name');
       const statusEl = document.getElementById('rslot-status');
@@ -2314,9 +2425,13 @@
       const box      = document.getElementById('rslot-box');
 
       _rslotStopped = false;
-      _rslotWinIcon = winIcon;
-      _rslotWinName = winName;
+      _rslotWinIcon    = winIcon;
+      _rslotWinName    = winName;
+      _rslotWinColor   = winColor   || 'rgba(41,121,255,1)';
+      _rslotWinGlow    = winGlow    || 'rgba(41,121,255,.45)';
+      _rslotWinPlayers = winPlayers || '';
 
+      modal.classList.remove('revealed');
       iconEl.textContent = '🎲';
       nameEl.textContent = '?';
       box.className = 'rslot-box';
@@ -2325,12 +2440,14 @@
       rerollBtn.className = 'rslot-reroll';
       stopBtn.className = 'rslot-stop spinning';
 
-      const maxFrames = 22 + Math.floor(Math.random() * 8);
+      const maxFrames = 26 + Math.floor(Math.random() * 8);
       function spinFrame(frame) {
-        if (_rslotStopped) { _rslotReveal(iconEl, nameEl, statusEl, playBtn, rerollBtn, stopBtn, box); return; }
+        if (_rslotStopped) { _rslotReveal(iconEl, nameEl, statusEl, playBtn, rerollBtn, stopBtn, box, modal); return; }
         const g = allGames[frame % allGames.length];
         iconEl.textContent = g.icon;
         nameEl.textContent = g.name;
+        // Update background halo with current game's color
+        _rslotSetColor(modal, g.color || 'rgba(41,121,255,1)', g.glow || 'rgba(41,121,255,.3)');
         frame++;
         if (frame < maxFrames) {
           const slow = frame > maxFrames - 9;
@@ -2340,7 +2457,7 @@
           const delay = slow ? 90 + (frame - (maxFrames - 9)) * 52 : 65;
           setTimeout(() => spinFrame(frame), delay);
         } else {
-          _rslotReveal(iconEl, nameEl, statusEl, playBtn, rerollBtn, stopBtn, box);
+          _rslotReveal(iconEl, nameEl, statusEl, playBtn, rerollBtn, stopBtn, box, modal);
         }
       }
       spinFrame(0);
@@ -2353,6 +2470,7 @@
       _rslotEligible = [...cards].filter(c => activeFilter === 'all' || c.dataset.cat === activeFilter);
       if (_rslotEligible.length === 0) return;
 
+      if (_audioCtx && _audioCtx.state === 'suspended') _audioCtx.resume();
       const modal = document.getElementById('random-slot-modal');
       modal.classList.add('open');
       rslotReroll();
@@ -2361,19 +2479,29 @@
     window.rslotReroll = function() {
       if (_rslotEligible.length === 0) return;
       const pick = _rslotEligible[Math.floor(Math.random() * _rslotEligible.length)];
-      _rslotUrl = pick.href;
-      const winIcon = pick.querySelector('.game-icon')?.textContent?.trim() || '🎯';
-      const winName = pick.querySelector('.game-name')?.textContent?.trim() || '?';
+      _rslotUrl = pick.querySelector('.gc-btn-play')?.href || '';
+      const winIcon    = pick.querySelector('.game-icon')?.textContent?.trim() || '🎯';
+      const winName    = pick.querySelector('.game-name')?.textContent?.trim() || '?';
+      const winPlayers = pick.querySelector('.game-players')?.textContent?.trim() || '';
+      const winColor = pick.dataset.color || 'rgba(41,121,255,1)';
+      const winGlow  = pick.dataset.glow  || 'rgba(41,121,255,.45)';
       const allGames = _rslotEligible.map(c => ({
-        icon: c.querySelector('.game-icon')?.textContent?.trim() || '🎯',
-        name: c.querySelector('.game-name')?.textContent?.trim() || '?',
+        icon:  c.querySelector('.game-icon')?.textContent?.trim() || '🎯',
+        name:  c.querySelector('.game-name')?.textContent?.trim() || '?',
+        color: c.dataset.color || 'rgba(41,121,255,1)',
+        glow:  c.dataset.glow  || 'rgba(41,121,255,.35)',
       }));
       if (typeof vib === 'function') vib([10, 20, 10]);
-      _rslotSpin(allGames, winIcon, winName);
+      _rslotSpin(allGames, winIcon, winName, winColor, winGlow, winPlayers);
     };
 
     window.rslotGo = function() { if (_rslotUrl) location.href = _rslotUrl; };
-    window.rslotClose = function() { document.getElementById('random-slot-modal').classList.remove('open'); };
+    window.rslotClose = function() {
+      _rslotStopped = true;
+      if (_audioCtx) _audioCtx.suspend();
+      const m = document.getElementById('random-slot-modal');
+      m.classList.remove('open', 'revealed');
+    };
 
     document.getElementById('random-slot-modal').addEventListener('click', function(e) {
       if (e.target === this) rslotClose();
@@ -2387,14 +2515,19 @@
 
     // ── RÈGLES ─────────────────────────────────────────────────────────
     // ── RÈGLES ─────────────────────────────────────────────────────────
+    const _GAME_RGBA = {
+      x01:[192,57,43], cricket:[76,175,80], shanghai:[156,39,176],
+      horloge:[33,150,243], race:[255,193,7], blackdarts:[0,150,136], blackjack:[0,150,136],
+      territoire:[255,87,34], dartspong:[68,136,255], battleroyal:[244,67,54], bataille:[63,81,181],
+    };
     const _GAME_URLS = {
       x01:'501.html', cricket:'cricket.html', shanghai:'shanghai.html',
-      bataille:'bataille.html', blackdarts:'blackjack.html', dartspong:'dartspong.html',
+      bataille:'bataille.html', blackdarts:'blackjack.html', blackjack:'blackjack.html', dartspong:'dartspong.html',
       territoire:'territoire.html', battleroyal:'shooter.html', race:'race500.html', horloge:'horloge.html',
     };
     const _RULES_KEYS = {
       x01:'dartvault_rules_501', cricket:'dartvault_rules_cricket', shanghai:'dartvault_rules_shanghai',
-      bataille:'dartvault_rules_bataille', blackdarts:'dartvault_rules_blackjack', dartspong:'dartvault_rules_dartspong',
+      bataille:'dartvault_rules_bataille', blackdarts:'dartvault_rules_blackjack', blackjack:'dartvault_rules_blackjack', dartspong:'dartvault_rules_dartspong',
       territoire:'dartvault_rules_territoire', battleroyal:'dartvault_rules_shooter', race:'dartvault_rules_race500', horloge:'dartvault_rules_horloge',
     };
 
@@ -2403,6 +2536,13 @@
       const lang = currentLang;
       const T = TRANSLATIONS[lang];
       const r = T.rules[key]; if (!r) return;
+
+      // Injecte la couleur du jeu pour le mode coloré
+      const ov = document.getElementById('m-rules');
+      const [cr,cg,cb] = _GAME_RGBA[key] || [80,80,80];
+      ov.style.setProperty('--gc-r', cr);
+      ov.style.setProperty('--gc-g', cg);
+      ov.style.setProperty('--gc-b', cb);
       const playLink = document.getElementById('rules-play-link');
       if (playLink) {
         playLink.href = _GAME_URLS[key] || '#';
@@ -2713,7 +2853,7 @@
       // Fallback if SW never responds (local dev)
       setTimeout(function() {
         var el = document.getElementById('app-version');
-        if (el && !el.textContent) el.textContent = 'v2.8';
+        if (el && !el.textContent) el.textContent = 'v2.9';
       }, 2000);
     }, 2000);
 

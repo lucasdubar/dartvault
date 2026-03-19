@@ -996,6 +996,38 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
   [class*="flash"],[class*="pulse"]{animation:none!important;}
   [class*="spin"]{animation:none!important;}
 }
+
+/* ── Header gradients (identique à l'index) ── */
+[data-theme="dark"] .header{
+  background:linear-gradient(180deg,rgba(168,182,200,.14) 0%,#0E0F10 100%)!important;
+  border-bottom:1px solid rgba(168,182,200,.18)!important;
+  box-shadow:0 2px 20px rgba(0,0,0,.45)!important;
+}
+[data-theme="light"] .header{
+  background:linear-gradient(180deg,rgba(168,182,200,.5) 0%,#F7F0F2 100%)!important;
+  border-bottom:1px solid rgba(168,182,200,.6)!important;
+  box-shadow:0 2px 12px rgba(0,0,0,.1)!important;
+}
+[data-theme="colored"] .header{
+  background:linear-gradient(180deg,rgba(156,39,176,.35) 0%,#0D001A 100%)!important;
+  border-bottom:1px solid rgba(156,39,176,.3)!important;
+  box-shadow:0 2px 20px rgba(156,39,176,.15)!important;
+}
+
+/* ── Rules popup — mode coloré ── */
+[data-theme="colored"] .rules-overlay{
+  background:rgba(156,39,176,.25)!important;
+}
+[data-theme="colored"] .rules-card{
+  background:linear-gradient(165deg,#1a0828 0%,#0f0518 50%,#130820 100%)!important;
+  border-color:rgba(156,39,176,.25)!important;
+}
+[data-theme="colored"] .rules-card::before{
+  background:radial-gradient(circle,rgba(156,39,176,.3) 0%,rgba(80,10,100,.12) 40%,transparent 70%)!important;
+}
+[data-theme="colored"] .rules-card::after{
+  background:radial-gradient(circle,rgba(156,39,176,.12) 0%,transparent 65%)!important;
+}
 </style>
   <script src="lang.js"></script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Shanghai","url":"https://dartvault.app/shanghai","description":"Shanghai sur DartVault. Visez chaque zone, tentez le Shanghai !","isPartOf":{"@type":"WebSite","name":"DartVault","url":"https://dartvault.app"}}</script>

@@ -40,6 +40,13 @@
   try { payload = JSON.parse(localStorage.getItem(PAYLOAD_KEY)); } catch { payload = null; }
   if (!payload || !payload.active || payload.gameId !== currentGameId) return;
 
+  // ── Session guard: only activate if launched from tournament.html ──────────
+  // sessionStorage is set by tournament.html just before navigating here.
+  // It persists through page refreshes but not across new tabs/sessions,
+  // preventing the bridge from hijacking the game when opened directly.
+  const _sessionIdx = sessionStorage.getItem('dartvault_t_session');
+  if (_sessionIdx === null || _sessionIdx !== String(payload.gameIndex)) return;
+
   // ── Store ranking when game ends ──────────────────────────────────────────
   let _ranking = null;
   // Guard: recordResult must only be called once per game, even if the user
@@ -64,6 +71,13 @@
         _resultRecorded = true;
         TournamentManager.load();
         TournamentManager.recordResult(ranking);
+
+        // Record winners in dartvault_wins so classement tracks championship wins
+        if (typeof window._recordWins === 'function') {
+          const winnerEntry = ranking[0];
+          const winners = Array.isArray(winnerEntry) ? winnerEntry : [winnerEntry];
+          window._recordWins(winners.filter(w => typeof w === 'string'));
+        }
       }
 
       // Inject tournament UI — onGameEnd() always runs AFTER openModal() (synchronous),

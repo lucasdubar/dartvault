@@ -818,7 +818,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
 
 /* Surfaces */
 [data-theme="dark"] body,[data-theme="light"] body{background:var(--bg)!important;color:var(--text)!important;}
-[data-theme="dark"] .header,[data-theme="light"] .header,[data-theme="dark"] .bottom-fixed,[data-theme="light"] .bottom-fixed,[data-theme="dark"] .game-top,[data-theme="light"] .game-top{background:var(--bg2)!important;}
+[data-theme="dark"] .bottom-fixed,[data-theme="light"] .bottom-fixed,[data-theme="dark"] .game-top,[data-theme="light"] .game-top{background:var(--bg2)!important;}
 [data-theme="dark"] .card,[data-theme="light"] .card,[data-theme="dark"] .mod,[data-theme="light"] .mod,[data-theme="dark"] .drawer,[data-theme="light"] .drawer{background:var(--bg2)!important;}
 
 /* Bouton démarrer */
@@ -930,6 +930,23 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
   .drawer{animation:none!important;transform:none!important;}
   .pp-sheet,.settings-panel-game{animation:none!important;}
   [class*="val-ready"],[class*="hl-pulse"]{animation:none!important;}
+}
+
+/* ── Header gradients (identique à l'index) ── */
+[data-theme="dark"] .header{
+  background:linear-gradient(180deg,rgba(168,182,200,.14) 0%,#0E0F10 100%)!important;
+  border-bottom:1px solid rgba(168,182,200,.18)!important;
+  box-shadow:0 2px 20px rgba(0,0,0,.45)!important;
+}
+[data-theme="light"] .header{
+  background:linear-gradient(180deg,rgba(168,182,200,.5) 0%,#F7F0F2 100%)!important;
+  border-bottom:1px solid rgba(168,182,200,.6)!important;
+  box-shadow:0 2px 12px rgba(0,0,0,.1)!important;
+}
+[data-theme="colored"] .header{
+  background:linear-gradient(180deg,rgba(244,67,54,.35) 0%,#1A0000 100%)!important;
+  border-bottom:1px solid rgba(244,67,54,.3)!important;
+  box-shadow:0 2px 20px rgba(244,67,54,.15)!important;
 }
 </style>
   <script src="lang.js"></script>

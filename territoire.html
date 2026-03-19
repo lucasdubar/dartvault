@@ -997,7 +997,7 @@
 
 /* Surfaces */
 [data-theme="dark"] body,[data-theme="light"] body{background:var(--bg)!important;color:var(--text)!important;}
-[data-theme="dark"] .header,[data-theme="light"] .header,[data-theme="dark"] .bottom-fixed,[data-theme="light"] .bottom-fixed,[data-theme="dark"] .game-top,[data-theme="light"] .game-top{background:var(--bg2)!important;}
+[data-theme="dark"] .bottom-fixed,[data-theme="light"] .bottom-fixed,[data-theme="dark"] .game-top,[data-theme="light"] .game-top{background:var(--bg2)!important;}
 [data-theme="dark"] .card,[data-theme="light"] .card,[data-theme="dark"] .mod,[data-theme="light"] .mod,[data-theme="dark"] .drawer,[data-theme="light"] .drawer{background:var(--bg2)!important;}
 
 /* Bouton démarrer */
@@ -1121,6 +1121,38 @@
   .drawer{animation:none!important;transform:none!important;}
   .pp-sheet,.settings-panel-game{animation:none!important;}
   [class*="val-ready"],[class*="hl-pulse"],[class*="pulse"]{animation:none!important;}
+}
+
+/* ── Header gradients (identique à l'index) ── */
+[data-theme="dark"] .header{
+  background:linear-gradient(180deg,rgba(168,182,200,.14) 0%,#0E0F10 100%)!important;
+  border-bottom:1px solid rgba(168,182,200,.18)!important;
+  box-shadow:0 2px 20px rgba(0,0,0,.45)!important;
+}
+[data-theme="light"] .header{
+  background:linear-gradient(180deg,rgba(168,182,200,.5) 0%,#F7F0F2 100%)!important;
+  border-bottom:1px solid rgba(168,182,200,.6)!important;
+  box-shadow:0 2px 12px rgba(0,0,0,.1)!important;
+}
+[data-theme="colored"] .header{
+  background:linear-gradient(180deg,rgba(255,87,34,.35) 0%,#1A0E00 100%)!important;
+  border-bottom:1px solid rgba(255,87,34,.3)!important;
+  box-shadow:0 2px 20px rgba(255,87,34,.15)!important;
+}
+
+/* ── Rules popup — mode coloré ── */
+[data-theme="colored"] .rules-overlay{
+  background:rgba(255,87,34,.25)!important;
+}
+[data-theme="colored"] .rules-card{
+  background:linear-gradient(165deg,#281005 0%,#180802 50%,#200a04 100%)!important;
+  border-color:rgba(255,87,34,.25)!important;
+}
+[data-theme="colored"] .rules-card::before{
+  background:radial-gradient(circle,rgba(255,87,34,.3) 0%,rgba(150,40,10,.12) 40%,transparent 70%)!important;
+}
+[data-theme="colored"] .rules-card::after{
+  background:radial-gradient(circle,rgba(255,87,34,.12) 0%,transparent 65%)!important;
 }
 </style>
   <script src="lang.js"></script>
