@@ -71,13 +71,7 @@
         _resultRecorded = true;
         TournamentManager.load();
         TournamentManager.recordResult(ranking);
-
-        // Record winners in dartvault_wins so classement tracks championship wins
-        if (typeof window._recordWins === 'function') {
-          const winnerEntry = ranking[0];
-          const winners = Array.isArray(winnerEntry) ? winnerEntry : [winnerEntry];
-          window._recordWins(winners.filter(w => typeof w === 'string'));
-        }
+        // _recordWins is already called by each game's own end-game logic — no need to call it here.
       }
 
       // Inject tournament UI — onGameEnd() always runs AFTER openModal() (synchronous),
