@@ -3570,7 +3570,7 @@ renderTeams();
   function connect(){if(ws){try{ws.close();}catch(e){}}var url=getWSUrl();try{ws=new WebSocket(url);}catch(e){scheduleReconnect();return;}ws.onopen=function(){lastNumThrows=0;dartCount=0;updateDot('connected');};ws.onmessage=function(event){try{var msg=JSON.parse(event.data);if(msg.type!=='state')return;var data=msg.data;if(data.event==='Throw detected'&&data.numThrows>lastNumThrows){injectDart(data.throws[data.numThrows-1]);lastNumThrows=data.numThrows;if(data.numThrows>=3)updateDot('takeout');else updateDot('connected');}if(data.event==='Takeoff started'){updateDot('takeout');}if(data.event==='Takeout finished'){if(adTurnResetTimer){clearTimeout(adTurnResetTimer);adTurnResetTimer=null;}if(lastNumThrows>0){lastNumThrows=0;updateDot('connected');handleTakeout();}}if(data.event==='Manual reset'){lastNumThrows=0;dartCount=0;adInTakeout=false;updateDot('connected');}}catch(e){}};ws.onclose=function(){updateDot('disconnected');if(active)scheduleReconnect();};ws.onerror=function(){updateDot('disconnected');};}
   function scheduleReconnect(){if(reconnectTimer||!active)return;updateDot('reconnecting');reconnectTimer=setTimeout(function(){reconnectTimer=null;if(active)connect();},RECONNECT_DELAY);}
   function stopBridge(){active=false;if(reconnectTimer){clearTimeout(reconnectTimer);reconnectTimer=null;}if(ws){try{ws.close();}catch(e){}ws=null;}updateDot('disconnected');}
-  function startBridge(){active=true;dartCount=0;connect();}
+  function startBridge(){active=true;dartCount=0;fetch('http://'+getIP()+':3180/api/reset',{method:'POST',mode:'no-cors',targetAddressSpace:'local'}).catch(function(){});connect();}
 
   // ── Observe game start (fiable — ne dépend pas du hook startGame) ──
   var _adCheckInterval = setInterval(function() {

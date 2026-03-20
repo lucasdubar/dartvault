@@ -4272,6 +4272,7 @@ function escPP(s) {
 
   function startBridge() {
     active = true;
+    fetch('http://' + getIP() + ':3180/api/reset', { method: 'POST', mode: 'no-cors', targetAddressSpace: 'local' }).catch(function(){});
     connect();
   }
 
