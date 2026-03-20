@@ -1287,7 +1287,7 @@ function showEnd(title,sub,color){
     var STATS_KEY = 'dartvault_game_stats';
     var gstats; try { gstats = JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch(e) { gstats = {}; }
     G.players.forEach(function(p) {
-      if (!p.fromProfile) return;
+      if (!p.fromProfile && !window.TournamentBridge) return;
       var key = p.name;
       if (!gstats[key]) gstats[key] = {};
       if (!gstats[key]['horloge']) gstats[key]['horloge'] = { zonesHit:0, totalDarts:0, games:0 };

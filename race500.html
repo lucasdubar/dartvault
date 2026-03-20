@@ -1580,7 +1580,7 @@ function showWin(w){
     var STATS_KEY = 'dartvault_game_stats';
     var stats; try { stats = JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch(e) { stats = {}; }
     G.pl.forEach(function(p) {
-      if (!p.fromProfile) return;
+      if (!p.fromProfile && !window.TournamentBridge) return;
       var key = p.n;
       if (!stats[key]) stats[key] = {};
       if (!stats[key]['race500']) stats[key]['race500'] = { pointsStolen:0, pointsLost:0, games:0 };

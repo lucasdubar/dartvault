@@ -2880,7 +2880,7 @@ function showVictory(winner) {
     var STATS_KEY = 'dartvault_game_stats';
     var stats; try { stats = JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch(e) { stats = {}; }
     state.players.forEach(function(p) {
-      if (!p.fromProfile) return;
+      if (!p.fromProfile && !window.TournamentBridge) return;
       var key = p.name;
       if (!stats[key]) stats[key] = {};
       if (!stats[key].shooter) stats[key].shooter = { hpDealt:0, bulletsGained:0, hpHealed:0, games:0 };

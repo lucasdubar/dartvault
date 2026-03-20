@@ -162,8 +162,10 @@
       ) !important;
     }
 
-    .header-bar-left  { display:flex; align-items:center; gap:6px; }
-    .header-bar-right { display:flex; align-items:center; gap:8px; }
+    .header-bar-left  { display:flex; align-items:center; gap:6px; flex:1; }
+    .header-bar-right { display:flex; align-items:center; gap:8px; flex:1; justify-content:flex-end; }
+    .header-bar-center { display:flex; align-items:center; justify-content:center; }
+    .app-logo-header { width:38px; height:38px; display:block; background:transparent; }
 
     /* ── HEADER logo + titre dans le flux ── */
     .header { text-align:center; margin:0 0 16px; animation:fadeDown .5s ease-out; }
@@ -175,17 +177,23 @@
     .header-top-right { display:none; }
     .header-top-left  { display:none; }
     .btn-profiles {
-      background:linear-gradient(135deg, var(--bg3) 0%, var(--bg4) 100%);
-      border:1px solid rgba(168,182,200,.28);
-      color:var(--text); border-radius:12px;
-      padding:7px 12px; font-family:'Exo 2',sans-serif;
-      font-size:.9rem; font-weight:600; cursor:pointer;
+      background:linear-gradient(135deg, #6B7280 0%, #9CA3AF 40%, #6B7280 100%);
+      border:1px solid rgba(200,210,220,.45);
+      color:#F0F4F8; border-radius:12px;
+      padding:7px 10px; font-family:'Exo 2',sans-serif;
+      font-size:.85rem; font-weight:700; cursor:pointer;
       touch-action:manipulation; transition:all .2s;
-      display:flex; align-items:center; gap:6px; white-space:nowrap;
-      box-shadow:0 2px 10px rgba(0,0,0,.35); letter-spacing:.3px;
+      display:flex; align-items:center; gap:5px; white-space:nowrap;
+      box-shadow:0 2px 8px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.2);
+      letter-spacing:.3px; text-shadow:0 1px 2px rgba(0,0,0,.4);
     }
-    .btn-profiles:active { transform:scale(.94); border-color:var(--accent); color:var(--accent); box-shadow:none; }
-    [data-theme="light"] .btn-profiles { border-color:rgba(100,110,130,.25); box-shadow:0 2px 8px rgba(0,0,0,.1); }
+    .btn-profiles:active { transform:scale(.94); box-shadow:none; }
+    [data-theme="light"] .btn-profiles {
+      background:linear-gradient(135deg, #8A9BB0 0%, #C0CDD8 40%, #8A9BB0 100%);
+      border-color:rgba(120,140,160,.4); color:#1A2030;
+      text-shadow:0 1px 0 rgba(255,255,255,.4);
+      box-shadow:0 2px 6px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.5);
+    }
     .app-logo { width:52px; height:52px; border-radius:0; display:block; background:transparent; }
     .app-title {
       font-family:'Exo 2',sans-serif;
@@ -263,6 +271,9 @@
     .btn-action-tournament:active { transform:scale(.95); box-shadow:0 2px 8px rgba(232,197,71,.2); }
     [data-theme="light"] .btn-action-tournament { background:linear-gradient(135deg,#E8C547,#F0A040); color:#0A0A0A; }
     [data-theme="light"] #random-slot-modal { background:#ffffff; }
+    [data-theme="light"] #rslot-bg { display:none; }
+    [data-theme="light"] .rslot-box.reveal { box-shadow:0 0 0 1px var(--rslot-color,var(--accent)), inset 0 0 20px rgba(0,0,0,.06); }
+    [data-theme="dark"] #rslot-bg { opacity:.35; }
     [data-theme="light"] .rslot-label { color:#222; }
     [data-theme="light"] .rslot-box { background:rgba(0,0,0,.05); border-color:rgba(0,0,0,.12); }
     [data-theme="light"] .rslot-name { color:#111; }
@@ -780,6 +791,12 @@
       border-color:var(--gc-col,rgba(0,0,0,.2));
       box-shadow:inset 0 1px 0 rgba(0,0,0,.04);
     }
+    /* Light : supprimer le halo intérieur recto + verso, garder le contour */
+    [data-theme="light"] .gc-front::before,
+    [data-theme="light"] .gc-back::before { background:none; }
+    /* Dark : réduire le halo intérieur recto + verso */
+    [data-theme="dark"] .gc-front::before,
+    [data-theme="dark"] .gc-back::before { opacity:.4; }
     /* Pointer events : seule la face visible est cliquable */
     .gc-back { pointer-events:none; }
     .game-card.gc-flip.flipped .gc-front { pointer-events:none; }
@@ -1126,8 +1143,11 @@
   <!-- ── BARRE FIXE EN HAUT ── -->
   <div class="header-bar">
     <div class="header-bar-left">
-      <button class="btn-profiles" onclick="location.href='profil.html'">👤 <span data-i18n="profiles">Profils</span></button>
+      <button class="btn-profiles" aria-label="Profils" onclick="location.href='profil.html'">👤</button>
       <button class="btn-profiles" aria-label="Profils et classement" onclick="location.href='classement.html'">🏆</button>
+    </div>
+    <div class="header-bar-center">
+      <img src="/icons/logo-hub.png" class="app-logo-header" alt="DartVault">
     </div>
     <div class="header-bar-right">
       <button class="btn-install-header" id="btn-install-header-top">📲 <span data-i18n="install">Installer</span></button>
@@ -1137,20 +1157,16 @@
   </div>
 
   <div class="header" style="max-width:600px;width:100%;margin-top:56px;">
-    <!-- Logo centré uniquement -->
-    <div class="header-top">
-      <img src="/icons/logo-hub.png" class="app-logo" alt="DartVault">
-    </div>
     <div class="app-title">DARTVAULT</div>
     <!-- Filtres + actions -->
     <div class="filter-action-bar">
       <div class="filter-tabs">
         <button class="filter-btn active" data-filter="all" data-i18n="all">Tout</button>
         <button class="filter-btn" data-filter="classic" data-i18n="classic">Classique</button>
-        <button class="filter-btn" data-filter="fun" data-i18n="fun">Original</button>
+        <button class="filter-btn" data-filter="fun" data-i18n="fun">Fun</button>
       </div>
       <div class="action-row">
-        <button class="btn-action btn-action-random" id="btn-random">🎲 <span data-i18n="random">ALÉATOIRE</span></button>
+        <button class="btn-action btn-action-random" id="btn-random">🎲 <span data-i18n="random">PARTIE RAPIDE</span></button>
         <button class="btn-action btn-action-tournament" onclick="location.href='tournament.html'">🏆 <span data-i18n="hub_tournament">CHAMPIONNAT</span></button>
       </div>
     </div>
@@ -1552,7 +1568,7 @@
     // ═══════════════════════════════════════════════════════
     const TRANSLATIONS = {
       fr: {
-        all: 'Tout', classic: 'Classique', fun: 'Original', random: 'ALÉATOIRE',
+        all: 'Tout', classic: 'Classique', fun: 'Fun', random: 'PARTIE RAPIDE',
         install: 'Installer',
         profiles: 'Profils',
         theme: 'Thème', theme_dark: '🌙 Sombre', theme_light: '☀️ Clair', theme_colored: '🎨 Coloré',
@@ -1885,7 +1901,7 @@
         }
       },
       en: {
-        all: 'All', classic: 'Classic', fun: 'Original', random: 'RANDOM',
+        all: 'All', classic: 'Classic', fun: 'Fun', random: 'RANDOM',
         install: 'Install',
         profiles: 'Profiles',
         theme: 'Theme', theme_dark: '🌙 Dark', theme_light: '☀️ Light', theme_colored: '🎨 Coloured',
@@ -2903,7 +2919,7 @@
       // Fallback if SW never responds (local dev)
       setTimeout(function() {
         var el = document.getElementById('app-version');
-        if (el && !el.textContent) el.textContent = 'v2.19';
+        if (el && !el.textContent) el.textContent = 'v2.20';
       }, 2000);
     }, 2000);
 

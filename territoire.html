@@ -2625,7 +2625,7 @@ function showEndMessage(title, sub, col) {
     var STATS_KEY = 'dartvault_game_stats';
     var gstats; try { gstats = JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch(e) { gstats = {}; }
     state.players.forEach(function(p) {
-      if (!profilePlayers.has(p.name)) return;
+      if (!profilePlayers.has(p.name) && !window.TournamentBridge) return;
       var key = p.name;
       if (!gstats[key]) gstats[key] = {};
       if (!gstats[key]['territoire']) gstats[key]['territoire'] = { captures:0, shields:0, neutralized:0, games:0 };

@@ -61,25 +61,15 @@
   };
 
   // Bridge-side stats recording.
-  // Games guard their stats/wins behind `p.fromProfile`, but tournament players
-  // are added via addPlayer() which never sets fromProfile. The bridge records
-  // games count and wins directly so tournament play appears in the classement.
+  // Each game's own stats IIFE now handles detailed stats (games count, avg, darts, etc.)
+  // for tournament players via the `!window.TournamentBridge` guard exemption.
+  // The bridge only records WINS, since _recordWins() in each game still skips
+  // non-profile (tournament) players.
   function _bridgeRecordStats(ranking) {
     const gameKey = _GAME_STATS_KEY[currentGameId];
     if (!gameKey) return;
 
-    // 1. Increment games count for every tournament player
-    const STATS_KEY = 'dartvault_game_stats';
-    let stats = {};
-    try { stats = JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch (e) {}
-    payload.players.forEach(name => {
-      if (!stats[name]) stats[name] = {};
-      if (!stats[name][gameKey]) stats[name][gameKey] = { games: 0 };
-      stats[name][gameKey].games = (stats[name][gameKey].games || 0) + 1;
-    });
-    localStorage.setItem(STATS_KEY, JSON.stringify(stats));
-
-    // 2. Record win for winner(s) — ranking[0] is string (solo) or string[] (team)
+    // Record win for winner(s) — ranking[0] is string (solo) or string[] (team)
     const first = ranking[0];
     if (!first) return;
     const winners = Array.isArray(first) ? first : [first];

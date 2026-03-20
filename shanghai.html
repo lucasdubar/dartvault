@@ -1769,7 +1769,7 @@ function showEndRanking() {
     var STATS_KEY = 'dartvault_game_stats';
     var gstats; try { gstats = JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch(e) { gstats = {}; }
     state.players.forEach(function(p) {
-      if (!p.fromProfile) return;
+      if (!p.fromProfile && !window.TournamentBridge) return;
       var key = p.name;
       if (!gstats[key]) gstats[key] = {};
       if (!gstats[key]['shanghai']) gstats[key]['shanghai'] = { zonesHit:0, totalDarts:0, shanghais:0, games:0 };
@@ -2128,7 +2128,7 @@ document.getElementById('btn-shanghai-yes').addEventListener('click', () => {
     var STATS_KEY = 'dartvault_game_stats';
     var gstats; try { gstats = JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch(e) { gstats = {}; }
     state.players.forEach(function(p) {
-      if (!p.fromProfile) return;
+      if (!p.fromProfile && !window.TournamentBridge) return;
       var key = p.name;
       if (!gstats[key]) gstats[key] = {};
       if (!gstats[key]['shanghai']) gstats[key]['shanghai'] = { zonesHit:0, totalDarts:0, shanghais:0, games:0 };

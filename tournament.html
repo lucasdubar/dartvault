@@ -505,6 +505,64 @@ html,body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;
     .pf-pts  { font-size: .95rem; font-weight: 800; color: var(--gold); }
 
     /* ════════════════════════════════════════════════
+       PODIUM WINNER BANNER
+    ════════════════════════════════════════════════ */
+    .podium-banner {
+      position: relative; text-align: center;
+      padding: 20px 16px 14px; margin-bottom: 2px;
+    }
+    .podium-banner::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 70% at 50% 50%, rgba(232,197,71,.14) 0%, transparent 72%);
+      pointer-events: none;
+    }
+    .podium-banner-crown { font-size: 2.6rem; display: block; filter: drop-shadow(0 0 12px rgba(232,197,71,.5)); }
+    .podium-banner-label { font-size: .6rem; letter-spacing: 3.5px; color: var(--dim); font-weight: 700; margin: 6px 0 8px; display: block; }
+    .podium-banner-name  {
+      font-size: 1.9rem; font-weight: 900; letter-spacing: 1.5px;
+      background: linear-gradient(135deg, #E8C547 0%, #F0A040 50%, #E8C547 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      display: block; text-shadow: none;
+      filter: drop-shadow(0 2px 8px rgba(232,197,71,.35));
+    }
+
+    /* ════════════════════════════════════════════════
+       GAME RESULTS (collapsible)
+    ════════════════════════════════════════════════ */
+    .pgames { display: flex; flex-direction: column; gap: 8px; }
+    .pgame-item {
+      border-radius: 14px; border: 1px solid var(--border);
+      background: var(--bg3); overflow: hidden;
+      border-left: 3px solid var(--pgame-color, var(--border));
+    }
+    .pgame-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 14px 11px 12px; cursor: pointer; user-select: none;
+    }
+    .pgame-icon   { font-size: 1.25rem; flex-shrink: 0; }
+    .pgame-info   { flex: 1; min-width: 0; }
+    .pgame-name   { font-size: .9rem; font-weight: 700; letter-spacing: .4px; }
+    .pgame-sub    { font-size: .7rem; color: var(--dim); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pgame-winner-badge {
+      font-size: .75rem; font-weight: 700; color: var(--gold);
+      background: rgba(232,197,71,.1); border: 1px solid rgba(232,197,71,.2);
+      border-radius: 8px; padding: 2px 8px; flex-shrink: 0; max-width: 90px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .pgame-chevron { font-size: .65rem; color: var(--dim); transition: transform .2s; flex-shrink: 0; margin-left: 4px; }
+    .pgame-item.open .pgame-chevron { transform: rotate(180deg); }
+    .pgame-body   { display: none; padding: 0 12px 12px; }
+    .pgame-item.open .pgame-body { display: flex; flex-direction: column; gap: 5px; }
+    .pgame-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 10px; border-radius: 10px; background: var(--bg2);
+    }
+    .pgame-row-rank  { font-size: 1rem; width: 24px; text-align: center; flex-shrink: 0; }
+    .pgame-row-name  { flex: 1; font-size: .88rem; font-weight: 600; }
+    .pgame-row-team  { flex: 1; font-size: .82rem; font-weight: 600; color: var(--dim); }
+    .pgame-row-pts   { font-size: .8rem; font-weight: 800; color: var(--gold); flex-shrink: 0; }
+
+    /* ════════════════════════════════════════════════
        QUIT OVERLAY
     ════════════════════════════════════════════════ */
     #quit-overlay {
@@ -957,15 +1015,19 @@ html,body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;
     <button class="btn-settings-game" aria-label="Paramètres">⚙️</button>
   </div>
   <div class="t-scroll">
-    <div style="text-align:center; padding:16px 0 8px;">
-      <div style="font-size:2.2rem; margin-bottom:6px;">🎉</div>
-      <div style="font-size:.72rem; letter-spacing:2.5px; color:var(--dim);" data-i18n="t_tournament_winner">VAINQUEUR DU TOURNOI</div>
-      <div style="font-size:1.7rem; font-weight:800; letter-spacing:2px; color:var(--gold); margin-top:4px;" id="podium-winner"></div>
+    <div class="podium-banner">
+      <span class="podium-banner-crown">👑</span>
+      <span class="podium-banner-label" data-i18n="t_tournament_winner">VAINQUEUR DU TOURNOI</span>
+      <span class="podium-banner-name" id="podium-winner"></span>
     </div>
     <div class="podium-wrap" id="podium-cols"></div>
     <div>
       <div class="t-label" style="margin-top:8px;" data-i18n="t_full_ranking">Classement complet</div>
-      <div class="podium-full" id="podium-full"></div>
+      <div class="lb" id="podium-full"></div>
+    </div>
+    <div>
+      <div class="t-label" style="margin-top:16px;" data-i18n="t_games_played">Jeux joués</div>
+      <div class="pgames" id="podium-games"></div>
     </div>
   </div>
   <div class="t-footer">
@@ -1122,6 +1184,7 @@ const T_DICT = {
     t_podium_title: '🏆 Podium Final',
     t_tournament_winner: 'VAINQUEUR DU TOURNOI',
     t_full_ranking: 'Classement complet',
+    t_games_played: 'Résultats par jeu',
     t_new_tournament_btn: '🔄 NOUVEAU TOURNOI',
     t_home_btn: '← ACCUEIL',
     t_tournament_ongoing: '🏆 Tournoi en cours',
@@ -1196,6 +1259,7 @@ const T_DICT = {
     t_podium_title: '🏆 Final Podium',
     t_tournament_winner: 'TOURNAMENT WINNER',
     t_full_ranking: 'Full ranking',
+    t_games_played: 'Results by game',
     t_new_tournament_btn: '🔄 NEW TOURNAMENT',
     t_home_btn: '← HOME',
     t_tournament_ongoing: '🏆 Tournament in progress',
@@ -2030,7 +2094,6 @@ function initPodium() {
     const col = document.createElement('div');
     col.className = `podium-col ${classes[i]}`;
     col.innerHTML = `
-      <div class="podium-avatar">${i === 1 ? '👑' : ''}</div>
       <div class="podium-pname">${p.name}</div>
       <div class="podium-ppts">${p.score} ${p.score !== 1 ? T.t_pts_plural : T.t_pts}</div>
       <div class="podium-block">${medals[i]}</div>
@@ -2038,18 +2101,87 @@ function initPodium() {
     cols.appendChild(col);
   });
 
-  // Full ranking
-  const full = document.getElementById('podium-full');
-  full.innerHTML = '';
-  lb.forEach((p, i) => {
-    const row = document.createElement('div');
-    row.className = 'pf-row';
-    row.innerHTML = `
-      <span class="pf-rank">${RANK_EMOJIS[i] || (i+1) + '.'}</span>
-      <span class="pf-name">${p.name}</span>
-      <span class="pf-pts">${p.score} ${p.score !== 1 ? T.t_pts_plural : T.t_pts}</span>
+  // Full ranking (reuse leaderboard renderer with bars)
+  renderLeaderboard('podium-full', lb);
+
+  // Games played (collapsible)
+  const gamesEl = document.getElementById('podium-games');
+  gamesEl.innerHTML = '';
+  const st = TournamentManager.state;
+  if (!st) return;
+  st.games.forEach((game, gi) => {
+    const color = GAME_COLORS[game.id] || 'rgba(232,197,71,1)';
+    const icon  = GAME_ICONS[game.id] || '🎯';
+    const cfgLabel = TournamentManager.getConfigLabel(game);
+
+    // Determine winner label
+    let winnerLabel = '';
+    if (game.ranking && game.ranking.length > 0) {
+      const first = game.ranking[0];
+      if (Array.isArray(first)) {
+        winnerLabel = first.join(' & ');
+      } else {
+        winnerLabel = first;
+      }
+    }
+
+    const item = document.createElement('div');
+    item.className = 'pgame-item';
+    item.style.setProperty('--pgame-color', color);
+
+    item.innerHTML = `
+      <div class="pgame-header" onclick="this.closest('.pgame-item').classList.toggle('open')">
+        <span class="pgame-icon">${icon}</span>
+        <div class="pgame-info">
+          <div class="pgame-name">${game.name}</div>
+          ${cfgLabel ? `<div class="pgame-sub">${cfgLabel}</div>` : ''}
+        </div>
+        ${winnerLabel ? `<span class="pgame-winner-badge">🥇 ${winnerLabel}</span>` : ''}
+        <span class="pgame-chevron">▼</span>
+      </div>
+      <div class="pgame-body" id="pgame-body-${gi}"></div>
     `;
-    full.appendChild(row);
+
+    gamesEl.appendChild(item);
+
+    // Populate body
+    const body = item.querySelector('.pgame-body');
+    if (!game.ranking) return;
+
+    const nb = st.players.length;
+    if (game.teamMode === 'team' && Array.isArray(game.ranking[0])) {
+      // Team ranking
+      const winPts = Math.ceil(nb / 2);
+      game.ranking.forEach((team, ti) => {
+        const pts = ti === 0 ? winPts : 0;
+        const row = document.createElement('div');
+        row.className = 'pgame-row';
+        row.innerHTML = `
+          <span class="pgame-row-rank">${RANK_EMOJIS[ti] || (ti+1) + '.'}</span>
+          <span class="pgame-row-team">${Array.isArray(team) ? team.join(' & ') : team}</span>
+          <span class="pgame-row-pts">+${pts} pt${pts !== 1 ? 's' : ''}</span>
+        `;
+        body.appendChild(row);
+      });
+    } else {
+      // Solo ranking (may include tied groups as arrays)
+      let rank = 1;
+      game.ranking.forEach((entry) => {
+        const group = Array.isArray(entry) ? entry : [entry];
+        const pts = Math.max(0, nb - rank);
+        group.forEach(name => {
+          const row = document.createElement('div');
+          row.className = 'pgame-row';
+          row.innerHTML = `
+            <span class="pgame-row-rank">${RANK_EMOJIS[rank-1] || rank + '.'}</span>
+            <span class="pgame-row-name">${name}</span>
+            <span class="pgame-row-pts">+${pts} pt${pts !== 1 ? 's' : ''}</span>
+          `;
+          body.appendChild(row);
+        });
+        rank += group.length;
+      });
+    }
   });
 }
 

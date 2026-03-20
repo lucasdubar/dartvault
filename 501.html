@@ -1093,6 +1093,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
   .players-list-wrap{overflow-y:auto;}
   .players-grid-duel{flex:0 0 auto;align-items:start;grid-auto-rows:auto;}
   .players-grid-duel .player-card-501{max-height:210px;min-height:120px;overflow:hidden;width:100%;}
+  .players-grid-duel.duel-solo .player-card-501{max-height:none;overflow:visible;}
 
   /* ── Cards duel : lisibles de loin ── */
   .players-grid-duel .pc-name-duel{font-size:1.9rem!important;}
@@ -2918,7 +2919,7 @@ function showFinalResult(winner) {
     var STATS_KEY = 'dartvault_game_stats';
     var stats; try { stats = JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch(e) { stats = {}; }
     G.players.forEach(function(p) {
-      if (!p.fromProfile) return;
+      if (!p.fromProfile && !window.TournamentBridge) return;
       var key = p.name;
       if (!stats[key]) stats[key] = {};
       if (!stats[key]['501']) stats[key]['501'] = { totalScore:0, totalThrows:0, totalDarts:0, games:0, doubleAttempts:0, doubleHits:0 };

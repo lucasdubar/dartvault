@@ -2540,7 +2540,7 @@ function showEnd() {
     var stats; try { stats = JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch(e) { stats = {}; }
     Object.values(G.playerStats).forEach(function(ps) {
       var fullName = ps.name;
-      if (!profilePlayers.has(fullName)) return;
+      if (!profilePlayers.has(fullName) && !window.TournamentBridge) return;
       if (!stats[fullName]) stats[fullName] = {};
       if (!stats[fullName].bataille) stats[fullName].bataille = { hits:0, totalShots:0, games:0 };
       var s = stats[fullName].bataille;
