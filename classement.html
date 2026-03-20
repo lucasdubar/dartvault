@@ -344,6 +344,36 @@
       color:var(--dim); letter-spacing:2.5px; text-transform:uppercase;
       padding:0 2px;
     }
+    /* ── TABLETTE (portrait + paysage) : pleine largeur ── */
+    @media (min-width:700px) {
+      .page-header { max-width:100%; }
+      .page-content { max-width:100%; padding:16px 28px; }
+    }
+
+    /* ── PAYSAGE TABLETTE : sidebar + classement ── */
+    @media (orientation:landscape) and (min-width:700px) and (min-height:500px) {
+      .page-content {
+        display:grid;
+        grid-template-columns:200px 1fr;
+        grid-template-rows:auto auto 1fr auto;
+        gap:10px 16px;
+        align-items:start;
+      }
+      /* Sélecteur jeu → col1 row1 */
+      .page-content > div:first-child { grid-column:1; grid-row:1; }
+      /* Période → col1 row2 */
+      .period-selector { grid-column:1; grid-row:2; align-self:start; }
+      /* Classement → col2 toutes lignes */
+      #ranking-container { grid-column:2; grid-row:1/5; }
+      /* Bouton reset → col1 row3 */
+      .page-content > div:last-child { grid-column:1; grid-row:3; margin:0; }
+      /* Bouton jeu pleine largeur colonne */
+      .btn-game-pick { width:100%; justify-content:center; box-sizing:border-box; }
+      /* Dropdown période aligné à gauche */
+      .period-dropdown { left:0; transform:none; min-width:100%; }
+      .btn-period { width:100%; justify-content:space-between; box-sizing:border-box; }
+    }
+
     @media(prefers-reduced-motion:reduce){
       .rules-quick-point{animation:none;opacity:1;}
       .player-row,[class*="rank-row"]{animation:none!important;opacity:1!important;transform:none!important;}

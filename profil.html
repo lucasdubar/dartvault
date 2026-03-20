@@ -415,6 +415,22 @@
     .btn-modal-delete:active { transform:scale(.97); opacity:.88; }
 
     @keyframes pop { from{transform:scale(.85);opacity:0} to{transform:scale(1);opacity:1} }
+
+    /* ── TABLETTE (portrait + paysage) : pleine largeur + 2 colonnes ── */
+    @media (min-width:700px) {
+      .page-header { max-width:100%; }
+      .page-content { max-width:100%; padding:16px 28px; }
+      /* Profils en 2 colonnes dès le portrait tablette */
+      #profiles-list { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+      .transfer-btns { flex-direction:row; }
+      .btn-transfer { flex:1; }
+    }
+
+    /* ── PAYSAGE TABLETTE : 3 colonnes de profils ── */
+    @media (orientation:landscape) and (min-width:700px) and (min-height:500px) {
+      #profiles-list { grid-template-columns:1fr 1fr 1fr; }
+    }
+
   @media(prefers-reduced-motion:reduce){
     *{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important;}
   }
