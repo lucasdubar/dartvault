@@ -522,6 +522,58 @@
     .btn-support:active { transform:scale(.96); background:rgba(255,179,0,.2); }
     [data-theme="light"] .btn-support { background:rgba(255,152,0,.08); border-color:rgba(255,152,0,.3); color:#E68A00; }
 
+    /* ── STATS PICKER BOTTOM SHEET ── */
+    #stats-pick-overlay {
+      display:none; position:fixed; inset:0; z-index:600;
+      background:rgba(0,0,0,.6); backdrop-filter:blur(6px);
+    }
+    #stats-pick-overlay.open { display:block; }
+    #stats-pick-sheet {
+      position:fixed; bottom:0; left:0; right:0; z-index:601;
+      background:var(--bg2); border-radius:22px 22px 0 0;
+      border-top:1px solid rgba(255,255,255,.12);
+      padding:0 0 max(20px,env(safe-area-inset-bottom)) 0;
+      transform:translateY(100%);
+      transition:transform .3s cubic-bezier(.32,1,.46,1);
+      max-height:70dvh; display:flex; flex-direction:column;
+    }
+    #stats-pick-sheet.open { transform:translateY(0); }
+    [data-theme="light"] #stats-pick-sheet {
+      background:#FFFFFF; border-top-color:rgba(0,0,0,.1);
+    }
+    .stats-pick-handle {
+      width:38px; height:4px; border-radius:2px;
+      background:rgba(255,255,255,.2); margin:12px auto 0;
+      flex-shrink:0;
+    }
+    [data-theme="light"] .stats-pick-handle { background:rgba(0,0,0,.15); }
+    .stats-pick-title {
+      font-family:'Rajdhani',sans-serif; font-size:1rem;
+      font-weight:700; letter-spacing:2px; text-transform:uppercase;
+      color:var(--dim); text-align:center; padding:10px 20px 12px;
+      flex-shrink:0;
+    }
+    #stats-pick-list {
+      overflow-y:auto; padding:0 14px 8px;
+    }
+    .stats-pick-item {
+      display:flex; align-items:center; gap:12px;
+      padding:12px 14px; border-radius:14px;
+      cursor:pointer; transition:background .15s;
+      touch-action:manipulation;
+    }
+    .stats-pick-item:active { background:rgba(255,255,255,.06); transform:scale(.98); }
+    [data-theme="light"] .stats-pick-item:active { background:rgba(0,0,0,.05); }
+    .stats-pick-emoji { font-size:1.6rem; line-height:1; width:36px; text-align:center; flex-shrink:0; }
+    .stats-pick-name {
+      font-family:'Exo 2',sans-serif; font-size:1rem; font-weight:600;
+      color:var(--text); letter-spacing:.3px;
+    }
+    .stats-pick-empty {
+      text-align:center; color:var(--dim); padding:24px 20px;
+      font-size:.88rem;
+    }
+
     /* ── MODAL RÈGLES ── */
     .mov { display:none; position:fixed; inset:0; z-index:500; background:rgba(0,0,0,.88); backdrop-filter:blur(10px); align-items:center; justify-content:center; padding:16px; }
     .mov.open { display:flex; }
@@ -712,7 +764,6 @@
       .fav-btn  { width:26px; height:26px; font-size:.95rem; }
       .gc-back-title { font-size:clamp(1.6rem,2vw,2.6rem); }
       [data-key="territoire"] .gc-back-title { font-size:clamp(1.2rem,1.5vw,1.9rem); }
-      [data-key="bataille"] .gc-front .game-name { font-size:clamp(1rem,1.1vw,1.5rem); }
       .gc-btn-rules, .gc-btn-play { font-size:clamp(.78rem,.85vw,1rem); padding:11px 0; }
     }
   
@@ -808,7 +859,6 @@
       color:var(--gc-col,var(--accent)); position:relative; z-index:1;
     }
     [data-key="territoire"] .gc-back-title { font-size:1.1rem; letter-spacing:1px; }
-    [data-key="bataille"] .gc-front .game-name { font-size:0.9rem; letter-spacing:0; }
     /* Verso : séparateur */
     .gc-back-sep {
       width:32px; height:2px; border-radius:2px;
@@ -843,7 +893,6 @@
       .game-name { font-size:clamp(1.1rem,1.8vw,1.5rem); }
       .gc-back-title { font-size:clamp(1.6rem,2.6vw,2.2rem); }
       [data-key="territoire"] .gc-back-title { font-size:clamp(1.2rem,1.8vw,1.6rem); letter-spacing:1px; }
-      [data-key="bataille"] .gc-front .game-name { font-size:clamp(0.95rem,1.4vw,1.2rem); letter-spacing:0; }
       .gc-btn-rules, .gc-btn-play { font-size:clamp(.75rem,1.1vw,.92rem); }
       .gc-inner { min-height:150px; }
     }
@@ -1144,7 +1193,8 @@
   <div class="header-bar">
     <div class="header-bar-left">
       <button class="btn-profiles" aria-label="Profils" onclick="location.href='profil.html'">👤</button>
-      <button class="btn-profiles" aria-label="Profils et classement" onclick="location.href='classement.html'">🏆</button>
+      <button class="btn-profiles" aria-label="Classement" onclick="location.href='classement.html'">🏆</button>
+      <button class="btn-profiles" aria-label="Stats joueur" id="btn-stats-pick">🔍</button>
     </div>
     <div class="header-bar-center">
       <img src="/icons/logo-hub.png" class="app-logo-header" alt="DartVault">
@@ -1191,10 +1241,9 @@
 
   <div class="games-grid">
 
-    <!-- CLASSIQUE -->
+    <!-- 1. X01 DARTS -->
     <div class="game-card gc-flip" data-cat="classic" data-key="x01" data-color="#FF2020" data-glow="rgba(255,32,32,.4)">
       <div class="gc-inner">
-        <!-- Recto -->
         <div class="gc-front">
           <button class="fav-btn" data-key="x01" onclick="toggleFav(event,'x01')">☆</button>
           <button class="info-btn" onclick="showRules(event,'x01')">i</button>
@@ -1203,7 +1252,6 @@
           <div class="game-description" data-i18n="desc_x01">Démarre de 501 et réduis ton score à 0.</div>
           <div class="game-players"><span data-i18n="players_x01">👤 1 – 6 joueurs</span></div>
         </div>
-        <!-- Verso -->
         <div class="gc-back">
           <div class="gc-back-title">X01<br>DARTS</div>
           <div class="gc-back-sep"></div>
@@ -1215,79 +1263,9 @@
       </div>
     </div>
 
-    <div class="game-card gc-flip" data-cat="classic" data-key="cricket" data-color="#00FF4C" data-glow="rgba(0,255,76,.4)">
-      <div class="gc-inner">
-        <!-- Recto -->
-        <div class="gc-front">
-          <button class="fav-btn" data-key="cricket" onclick="toggleFav(event,'cricket')">☆</button>
-          <button class="info-btn" onclick="showRules(event,'cricket')">i</button>
-          <span class="game-icon">🦗</span>
-          <div class="game-name">CRICKET</div>
-          <div class="game-description" data-i18n="desc_cricket">Ferme les n° 15–20 et le Bull avant tes adversaires.</div>
-          <div class="game-players"><span data-i18n="players_cricket">👤 2 – 6 joueurs</span></div>
-        </div>
-        <!-- Verso -->
-        <div class="gc-back">
-          <div class="gc-back-title">CRICKET</div>
-          <div class="gc-back-sep"></div>
-          <div class="gc-back-actions">
-            <button class="gc-btn-rules" data-i18n="gc_rules" onclick="showRules(event,'cricket')">RÈGLES</button>
-            <a class="gc-btn-play" data-i18n="gc_play" href="cricket.html" onclick="event.stopPropagation()">JOUER</a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="game-card gc-flip" data-cat="classic" data-key="shanghai" data-color="#CC00FF" data-glow="rgba(204,0,255,.4)">
-      <div class="gc-inner">
-        <!-- Recto -->
-        <div class="gc-front">
-          <button class="fav-btn" data-key="shanghai" onclick="toggleFav(event,'shanghai')">☆</button>
-          <button class="info-btn" onclick="showRules(event,'shanghai')">i</button>
-          <span class="game-icon">🗼</span>
-          <div class="game-name">SHANGHAI</div>
-          <div class="game-description" data-i18n="desc_shanghai">Max de points manche par manche — ou Shanghai pour gagner !</div>
-          <div class="game-players"><span data-i18n="players_shanghai">👤 1 – 6 joueurs</span></div>
-        </div>
-        <!-- Verso -->
-        <div class="gc-back">
-          <div class="gc-back-title">SHANGHAI</div>
-          <div class="gc-back-sep"></div>
-          <div class="gc-back-actions">
-            <button class="gc-btn-rules" data-i18n="gc_rules" onclick="showRules(event,'shanghai')">RÈGLES</button>
-            <a class="gc-btn-play" data-i18n="gc_play" href="shanghai.html" onclick="event.stopPropagation()">JOUER</a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- FUN : Bataille, Blackdart, DartPong, Territoire, Shooter, Race -->
-    <div class="game-card gc-flip" data-cat="fun" data-key="bataille" data-color="#00AAFF" data-glow="rgba(0,170,255,.4)">
-      <div class="gc-inner">
-        <!-- Recto -->
-        <div class="gc-front">
-          <button class="fav-btn" data-key="bataille" onclick="toggleFav(event,'bataille')">☆</button>
-          <button class="info-btn" onclick="showRules(event,'bataille')">i</button>
-          <span class="game-icon">⚓</span>
-          <div class="game-name" data-i18n="name_bataille">BATAILLE NAVALE</div>
-          <div class="game-description" data-i18n="desc_bataille">Coule la flotte adverse à coups de fléchettes !</div>
-          <div class="game-players"><span data-i18n="players_bataille">👥 2 – 6 joueurs</span></div>
-        </div>
-        <!-- Verso -->
-        <div class="gc-back">
-          <div class="gc-back-title" data-i18n="gcbt_bataille">BATAILLE<br>NAVALE</div>
-          <div class="gc-back-sep"></div>
-          <div class="gc-back-actions">
-            <button class="gc-btn-rules" data-i18n="gc_rules" onclick="showRules(event,'bataille')">RÈGLES</button>
-            <a class="gc-btn-play" data-i18n="gc_play" href="bataille.html" onclick="event.stopPropagation()">JOUER</a>
-          </div>
-        </div>
-      </div>
-    </div>
-
+    <!-- 2. BLACKDART -->
     <div class="game-card gc-flip" data-cat="fun" data-key="blackjack" data-color="#40C060" data-glow="rgba(64,192,96,.4)">
       <div class="gc-inner">
-        <!-- Recto -->
         <div class="gc-front">
           <button class="fav-btn" data-key="blackjack" onclick="toggleFav(event,'blackjack')">☆</button>
           <button class="info-btn" onclick="showRules(event,'blackjack')">i</button>
@@ -1296,7 +1274,6 @@
           <div class="game-description" data-i18n="desc_blackdarts">Approche le score cible sans le dépasser — ni le croupier.</div>
           <div class="game-players"><span data-i18n="players_blackdarts">👥 2 – 6 joueurs</span></div>
         </div>
-        <!-- Verso -->
         <div class="gc-back">
           <div class="gc-back-title">BLACK<br>DART</div>
           <div class="gc-back-sep"></div>
@@ -1308,32 +1285,31 @@
       </div>
     </div>
 
-    <div class="game-card gc-flip" data-cat="fun" data-key="dartspong" data-color="#4488FF" data-glow="rgba(68,136,255,.4)">
+    <!-- 4. BATAILLE NAVALE -->
+    <div class="game-card gc-flip" data-cat="fun" data-key="bataille" data-color="#00AAFF" data-glow="rgba(0,170,255,.4)">
       <div class="gc-inner">
-        <!-- Recto -->
         <div class="gc-front">
-          <button class="fav-btn" data-key="dartspong" onclick="toggleFav(event,'dartspong')">☆</button>
-          <button class="info-btn" onclick="showRules(event,'dartspong')">i</button>
-          <span class="game-icon">🔴</span>
-          <div class="game-name">DARTPONG</div>
-          <div class="game-description" data-i18n="desc_dartspong">Élimine tes zones et tente le Bull pour gagner !</div>
-          <div class="game-players"><span data-i18n="players_dartspong">👥 2 – 6 joueurs</span></div>
+          <button class="fav-btn" data-key="bataille" onclick="toggleFav(event,'bataille')">☆</button>
+          <button class="info-btn" onclick="showRules(event,'bataille')">i</button>
+          <span class="game-icon">⚓</span>
+          <div class="game-name" data-i18n="name_bataille">BATAILLE NAVALE</div>
+          <div class="game-description" data-i18n="desc_bataille">Coule la flotte adverse à coups de fléchettes !</div>
+          <div class="game-players"><span data-i18n="players_bataille">👥 2 – 6 joueurs</span></div>
         </div>
-        <!-- Verso -->
         <div class="gc-back">
-          <div class="gc-back-title">DART<br>PONG</div>
+          <div class="gc-back-title" data-i18n="gcbt_bataille">BATAILLE<br>NAVALE</div>
           <div class="gc-back-sep"></div>
           <div class="gc-back-actions">
-            <button class="gc-btn-rules" data-i18n="gc_rules" onclick="showRules(event,'dartspong')">RÈGLES</button>
-            <a class="gc-btn-play" data-i18n="gc_play" href="dartspong.html" onclick="event.stopPropagation()">JOUER</a>
+            <button class="gc-btn-rules" data-i18n="gc_rules" onclick="showRules(event,'bataille')">RÈGLES</button>
+            <a class="gc-btn-play" data-i18n="gc_play" href="bataille.html" onclick="event.stopPropagation()">JOUER</a>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- 4. TERRITOIRE -->
     <div class="game-card gc-flip" data-cat="fun" data-key="territoire" data-color="#FF9900" data-glow="rgba(255,153,0,.4)">
       <div class="gc-inner">
-        <!-- Recto -->
         <div class="gc-front">
           <button class="fav-btn" data-key="territoire" onclick="toggleFav(event,'territoire')">☆</button>
           <button class="info-btn" onclick="showRules(event,'territoire')">i</button>
@@ -1342,7 +1318,6 @@
           <div class="game-description" data-i18n="desc_territoire">Conquiers le plus de zones avant la fin du temps !</div>
           <div class="game-players"><span data-i18n="players_territoire">👥 2 – 4 joueurs</span></div>
         </div>
-        <!-- Verso -->
         <div class="gc-back">
           <div class="gc-back-title" data-i18n="name_territoire">TERRITOIRE</div>
           <div class="gc-back-sep"></div>
@@ -1354,9 +1329,31 @@
       </div>
     </div>
 
+    <!-- 5. CRICKET -->
+    <div class="game-card gc-flip" data-cat="classic" data-key="cricket" data-color="#00FF4C" data-glow="rgba(0,255,76,.4)">
+      <div class="gc-inner">
+        <div class="gc-front">
+          <button class="fav-btn" data-key="cricket" onclick="toggleFav(event,'cricket')">☆</button>
+          <button class="info-btn" onclick="showRules(event,'cricket')">i</button>
+          <span class="game-icon">🦗</span>
+          <div class="game-name">CRICKET</div>
+          <div class="game-description" data-i18n="desc_cricket">Ferme les n° 15–20 et le Bull avant tes adversaires.</div>
+          <div class="game-players"><span data-i18n="players_cricket">👤 2 – 6 joueurs</span></div>
+        </div>
+        <div class="gc-back">
+          <div class="gc-back-title">CRICKET</div>
+          <div class="gc-back-sep"></div>
+          <div class="gc-back-actions">
+            <button class="gc-btn-rules" data-i18n="gc_rules" onclick="showRules(event,'cricket')">RÈGLES</button>
+            <a class="gc-btn-play" data-i18n="gc_play" href="cricket.html" onclick="event.stopPropagation()">JOUER</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. BATTLE ROYAL -->
     <div class="game-card gc-flip" data-cat="fun" data-key="shooter" data-color="#FF0020" data-glow="rgba(255,0,32,.4)">
       <div class="gc-inner">
-        <!-- Recto -->
         <div class="gc-front">
           <button class="fav-btn" data-key="shooter" onclick="toggleFav(event,'shooter')">☆</button>
           <button class="info-btn" onclick="showRules(event,'battleroyal')">i</button>
@@ -1365,7 +1362,6 @@
           <div class="game-description" data-i18n="desc_battleroyal">Tire, esquive, élimine — dernier debout l'emporte !</div>
           <div class="game-players"><span data-i18n="players_battleroyal">👥 2 – 4 joueurs</span></div>
         </div>
-        <!-- Verso -->
         <div class="gc-back">
           <div class="gc-back-title">BATTLE<br>ROYAL</div>
           <div class="gc-back-sep"></div>
@@ -1377,9 +1373,9 @@
       </div>
     </div>
 
+    <!-- 7. RACE -->
     <div class="game-card gc-flip" data-cat="fun" data-key="race500" data-color="#FF6600" data-glow="rgba(255,102,0,.4)">
       <div class="gc-inner">
-        <!-- Recto -->
         <div class="gc-front">
           <button class="fav-btn" data-key="race500" onclick="toggleFav(event,'race500')">☆</button>
           <button class="info-btn" onclick="showRules(event,'race')">i</button>
@@ -1388,7 +1384,6 @@
           <div class="game-description" data-i18n="desc_race">Course vers 500 pts — vole ceux de tes rivaux !</div>
           <div class="game-players"><span data-i18n="players_race">👥 2 – 6 joueurs</span></div>
         </div>
-        <!-- Verso -->
         <div class="gc-back">
           <div class="gc-back-title">RACE</div>
           <div class="gc-back-sep"></div>
@@ -1400,9 +1395,53 @@
       </div>
     </div>
 
+    <!-- 8. DARTPONG -->
+    <div class="game-card gc-flip" data-cat="fun" data-key="dartspong" data-color="#4488FF" data-glow="rgba(68,136,255,.4)">
+      <div class="gc-inner">
+        <div class="gc-front">
+          <button class="fav-btn" data-key="dartspong" onclick="toggleFav(event,'dartspong')">☆</button>
+          <button class="info-btn" onclick="showRules(event,'dartspong')">i</button>
+          <span class="game-icon">🔴</span>
+          <div class="game-name">DARTPONG</div>
+          <div class="game-description" data-i18n="desc_dartspong">Élimine tes zones et tente le Bull pour gagner !</div>
+          <div class="game-players"><span data-i18n="players_dartspong">👥 2 – 6 joueurs</span></div>
+        </div>
+        <div class="gc-back">
+          <div class="gc-back-title">DART<br>PONG</div>
+          <div class="gc-back-sep"></div>
+          <div class="gc-back-actions">
+            <button class="gc-btn-rules" data-i18n="gc_rules" onclick="showRules(event,'dartspong')">RÈGLES</button>
+            <a class="gc-btn-play" data-i18n="gc_play" href="dartspong.html" onclick="event.stopPropagation()">JOUER</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. SHANGHAI -->
+    <div class="game-card gc-flip" data-cat="classic" data-key="shanghai" data-color="#CC00FF" data-glow="rgba(204,0,255,.4)">
+      <div class="gc-inner">
+        <div class="gc-front">
+          <button class="fav-btn" data-key="shanghai" onclick="toggleFav(event,'shanghai')">☆</button>
+          <button class="info-btn" onclick="showRules(event,'shanghai')">i</button>
+          <span class="game-icon">🗼</span>
+          <div class="game-name">SHANGHAI</div>
+          <div class="game-description" data-i18n="desc_shanghai">Max de points manche par manche — ou Shanghai pour gagner !</div>
+          <div class="game-players"><span data-i18n="players_shanghai">👤 1 – 6 joueurs</span></div>
+        </div>
+        <div class="gc-back">
+          <div class="gc-back-title">SHANGHAI</div>
+          <div class="gc-back-sep"></div>
+          <div class="gc-back-actions">
+            <button class="gc-btn-rules" data-i18n="gc_rules" onclick="showRules(event,'shanghai')">RÈGLES</button>
+            <a class="gc-btn-play" data-i18n="gc_play" href="shanghai.html" onclick="event.stopPropagation()">JOUER</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10. HORLOGE -->
     <div class="game-card gc-flip" data-cat="classic" data-key="horloge" data-color="#A0B0FF" data-glow="rgba(160,176,255,.4)">
       <div class="gc-inner">
-        <!-- Recto -->
         <div class="gc-front">
           <button class="fav-btn" data-key="horloge" onclick="toggleFav(event,'horloge')">☆</button>
           <button class="info-btn" onclick="showRules(event,'horloge')">i</button>
@@ -1411,7 +1450,6 @@
           <div class="game-description" data-i18n="desc_horloge">Touche chaque numéro de 1 à 20 dans l'ordre !</div>
           <div class="game-players"><span data-i18n="players_horloge">👤 1 – 6 joueurs</span></div>
         </div>
-        <!-- Verso -->
         <div class="gc-back">
           <div class="gc-back-title" data-i18n="name_horloge">HORLOGE</div>
           <div class="gc-back-sep"></div>
@@ -1546,6 +1584,14 @@
       <button id="contact-send" style="width:100%;padding:13px;border-radius:12px;border:none;font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--accent),#888);color:#000;touch-action:manipulation;">Envoyer</button>
       <div id="contact-status" style="text-align:center;margin-top:10px;font-size:.85rem;font-weight:600;min-height:1.2em;"></div>
     </div>
+  </div>
+
+  <!-- Stats Player Picker -->
+  <div id="stats-pick-overlay" onclick="closeStatsPick()"></div>
+  <div id="stats-pick-sheet">
+    <div class="stats-pick-handle"></div>
+    <div class="stats-pick-title" id="stats-pick-title">Voir les stats de…</div>
+    <div id="stats-pick-list"></div>
   </div>
 
   <!-- Modal règles -->
@@ -2919,7 +2965,7 @@
       // Fallback if SW never responds (local dev)
       setTimeout(function() {
         var el = document.getElementById('app-version');
-        if (el && !el.textContent) el.textContent = 'v2.20';
+        if (el && !el.textContent) el.textContent = 'v2.21';
       }, 2000);
     }, 2000);
 
@@ -3144,6 +3190,54 @@
   var _adLangBtn = document.getElementById('sg-btn-lang');
   if (_adLangBtn) _adLangObs.observe(_adLangBtn, { childList: true, characterData: true, subtree: true });
   updateAdTexts();
+})();
+
+// ── STATS PLAYER PICKER ──────────────────────────────────
+(function() {
+  var overlay = document.getElementById('stats-pick-overlay');
+  var sheet   = document.getElementById('stats-pick-sheet');
+  var list    = document.getElementById('stats-pick-list');
+  var title   = document.getElementById('stats-pick-title');
+
+  document.getElementById('btn-stats-pick').addEventListener('click', function(e) {
+    e.stopPropagation();
+    openStatsPick();
+  });
+
+  window.openStatsPick = function() {
+    var lang = localStorage.getItem('dartvault_lang') || 'fr';
+    title.textContent = lang === 'fr' ? 'Voir les stats de…' : 'View stats for…';
+    var profiles = [];
+    try { profiles = JSON.parse(localStorage.getItem('dartvault_profiles') || '[]'); } catch(e) {}
+    list.innerHTML = '';
+    if (!profiles.length) {
+      list.innerHTML = '<div class="stats-pick-empty">' + (lang === 'fr' ? 'Aucun profil enregistré.' : 'No saved profiles.') + '</div>';
+    } else {
+      profiles.forEach(function(p) {
+        if (!p || !p.name) return;
+        var item = document.createElement('div');
+        item.className = 'stats-pick-item';
+        item.innerHTML = '<span class="stats-pick-emoji">' + (p.emoji || '🎯') + '</span>'
+          + '<span class="stats-pick-name">' + p.name + '</span>';
+        item.addEventListener('click', function() {
+          closeStatsPick();
+          location.href = 'stats-joueur.html?p=' + encodeURIComponent((p.emoji || '') + ' ' + p.name);
+        });
+        list.appendChild(item);
+      });
+    }
+    overlay.classList.add('open');
+    requestAnimationFrame(function() { sheet.classList.add('open'); });
+  };
+
+  window.closeStatsPick = function() {
+    sheet.classList.remove('open');
+    setTimeout(function() { overlay.classList.remove('open'); }, 300);
+  };
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeStatsPick();
+  });
 })();
 </script>
 <script src="https://www.paypal.com/sdk/js?client-id=BAAAohnqJWwyyCIhTs3FjsSGbd45HTMn_kneUgGvApRWa2BpsLKLJkbcmO-J69HKTx3TK49Ze5i6vVyu7U&components=hosted-buttons&disable-funding=venmo&currency=EUR"></script>

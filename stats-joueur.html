@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <link rel="stylesheet" href="/fonts/fonts.css">
+  <meta charset="UTF-8">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0A0A0A">
+  <title>DartVault — Stats Joueur</title>
+  <script>
+    (function(){
+      var t = localStorage.getItem('dartvault_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', t === 'colored' ? 'colored' : t);
+    })();
+  </script>
+  <style>
+    :root {
+      --bg:#0A0A0A; --bg2:#141414; --bg3:#1E1E1E; --bg4:#252525;
+      --text:#F0F0F0; --dim:#666; --dim2:#444;
+      --accent:#E8C547; --accent-glow:rgba(232,197,71,.25);
+      --border:rgba(255,255,255,.07);
+    }
+    [data-theme="dark"] {
+      --bg:#0E0F10; --bg2:#161718; --bg3:#1C1E20; --bg4:#242628;
+      --text:#F0F0F0; --dim:#777; --dim2:#555;
+      --accent:#E8E8E8; --accent-glow:rgba(232,232,232,.15);
+      --border:rgba(255,255,255,.07);
+    }
+    [data-theme="light"] {
+      --bg:#F7F0F2; --bg2:#FFFFFF; --bg3:#EDE4E7; --bg4:#E2D6DA;
+      --text:#1A0A0E; --dim:#8A6070; --dim2:#C8A0B0;
+      --accent:#2A1018; --accent-glow:rgba(22,23,24,.12);
+      --border:rgba(22,23,24,.10);
+    }
+    [data-theme="colored"] {
+      --bg:#050D1A; --bg2:#0A1628; --bg3:#102035; --bg4:#162840;
+      --text:#C8E8FF; --dim:#4A7FAA; --dim2:#2A4F6A;
+      --accent:#38BDF8; --accent-glow:rgba(56,189,248,.25);
+      --border:rgba(56,189,248,.18);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body {
+      font-family:'Exo 2',sans-serif;
+      background:var(--bg); color:var(--text);
+      min-height:100dvh;
+      display:flex; flex-direction:column; align-items:center;
+      padding:0 0 40px; overflow-x:hidden;
+      transition:background .3s, color .3s;
+    }
+
+    /* ── Header ── */
+    .page-header {
+      width:100%; max-width:520px;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 14px;
+      position:sticky; top:0; z-index:50;
+      background:var(--bg2);
+      border-bottom:1px solid var(--border);
+    }
+    [data-theme="dark"] .page-header {
+      background:linear-gradient(180deg,rgba(168,182,200,.14) 0%,#0E0F10 100%);
+      border-bottom:1px solid rgba(168,182,200,.18);
+      box-shadow:0 2px 20px rgba(0,0,0,.45);
+    }
+    [data-theme="light"] .page-header {
+      background:linear-gradient(180deg,rgba(168,182,200,.5) 0%,#F7F0F2 100%);
+      border-bottom:1px solid rgba(168,182,200,.6);
+      box-shadow:0 2px 12px rgba(0,0,0,.1);
+    }
+    [data-theme="colored"] .page-header {
+      background:linear-gradient(180deg,rgba(56,189,248,.18) 0%,#050D1A 100%);
+      border-bottom:1px solid rgba(56,189,248,.3);
+      box-shadow:0 2px 20px rgba(56,189,248,.08);
+    }
+    .btn-back-page {
+      background:var(--bg3); border:1px solid var(--border);
+      color:var(--text); border-radius:10px;
+      padding:7px 14px; font-family:'Exo 2',sans-serif;
+      font-size:.85rem; font-weight:600; cursor:pointer;
+      touch-action:manipulation; transition:all .2s;
+    }
+    .btn-back-page:active { transform:scale(.94); border-color:var(--accent); }
+    .page-title {
+      font-family:'Rajdhani',sans-serif; font-size:1.25rem; font-weight:700;
+      color:var(--accent); letter-spacing:2px;
+      text-shadow:0 0 16px var(--accent-glow);
+      position:absolute; left:50%; transform:translateX(-50%);
+      white-space:nowrap; pointer-events:none;
+    }
+    [data-theme="dark"] .page-title { text-shadow:0 0 16px rgba(232,232,232,.15); }
+    [data-theme="light"] .page-title { text-shadow:none; }
+    [data-theme="colored"] .page-title { text-shadow:0 0 20px rgba(56,189,248,.5); }
+
+    /* ── Settings button ── */
+    .btn-settings {
+      width:38px; height:38px; border-radius:50%; flex-shrink:0;
+      background:var(--bg2); border:1px solid var(--border);
+      color:var(--dim); font-size:1.1rem;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .2s; touch-action:manipulation;
+    }
+    .btn-settings:active { transform:scale(.9); border-color:var(--accent); color:var(--accent); }
+    .settings-panel {
+      display:none; position:fixed; top:62px; right:14px; z-index:500;
+      background:var(--bg2); border:1px solid var(--border);
+      border-radius:14px; padding:14px 16px; min-width:210px;
+      box-shadow:0 8px 32px rgba(0,0,0,.5);
+      animation:pop .2s cubic-bezier(.34,1.56,.64,1);
+    }
+    [data-theme="light"] .settings-panel { box-shadow:0 4px 24px rgba(0,0,0,.12); }
+    .settings-panel.open { display:block; }
+    .sg-section-label { font-family:'Rajdhani',sans-serif; font-size:.7rem; font-weight:700; color:var(--dim); letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; }
+    .sg-row { display:flex; align-items:center; gap:10px; padding:8px 0; }
+    .sg-row + .sg-row { border-top:1px solid var(--border); }
+    .sg-row-label { font-family:'Rajdhani',sans-serif; font-size:.95rem; font-weight:700; color:var(--text); flex:1; letter-spacing:.3px; }
+    .sg-toggle { position:relative; width:42px; height:24px; flex-shrink:0; }
+    .sg-toggle input { opacity:0; width:0; height:0; }
+    .sg-slider { position:absolute; inset:0; cursor:pointer; background:var(--bg4); border-radius:24px; border:1px solid rgba(255,255,255,.1); transition:background .2s; }
+    .sg-slider::before { content:''; position:absolute; width:18px; height:18px; left:2px; top:2px; background:#fff; border-radius:50%; transition:transform .2s; }
+    .sg-toggle input:checked + .sg-slider { background:var(--accent); border-color:var(--accent); }
+    .sg-toggle input:checked + .sg-slider::before { transform:translateX(18px); }
+    [data-theme="light"] .sg-slider { background:#DDD; border-color:#CCC; }
+    [data-theme="light"] .sg-slider::before { background:#FFF; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+    .sg-theme-pills { display:flex; gap:6px; width:100%; }
+    .sg-pill { flex:1; padding:7px 4px; border-radius:9px; cursor:pointer; font-family:'Rajdhani',sans-serif; font-size:.78rem; font-weight:700; letter-spacing:.5px; text-align:center; border:1.5px solid var(--border); background:var(--bg3); color:var(--dim); transition:all .18s; touch-action:manipulation; }
+    .sg-pill:active { transform:scale(.94); }
+    .sg-pill.active { background:rgba(232,197,71,.15); border-color:var(--accent); color:var(--accent); }
+    [data-theme="light"] .sg-pill.active { background:rgba(22,23,24,.1); }
+    [data-theme="colored"] .sg-pill.active { background:rgba(56,189,248,.15); }
+
+    /* ── Contenu ── */
+    .page-content {
+      width:100%; max-width:520px;
+      padding:16px 16px;
+      display:flex; flex-direction:column; gap:14px;
+    }
+
+    /* ── Hero card ── */
+    .hero-card {
+      border:1px solid var(--border);
+      border-radius:20px; padding:20px 18px;
+      position:relative; overflow:hidden;
+      /* Glow via background gradient — pas de ::before pour éviter le clip abrupt */
+      background:
+        radial-gradient(ellipse 100% 120% at 50% -30%,
+          var(--accent-glow) 0%,
+          transparent 65%),
+        var(--bg2);
+    }
+    [data-theme="colored"] .hero-card {
+      border-color:rgba(56,189,248,.3);
+      background:
+        radial-gradient(ellipse 100% 120% at 50% -30%,
+          rgba(56,189,248,.18) 0%,
+          transparent 65%),
+        rgba(10,22,40,.95);
+    }
+    [data-theme="light"] .hero-card {
+      background:
+        radial-gradient(ellipse 100% 120% at 50% -30%,
+          rgba(22,23,24,.06) 0%,
+          transparent 65%),
+        #FFFFFF;
+    }
+
+    /* Rank badge haut-droite */
+    .hero-rank {
+      position:absolute; top:14px; right:16px;
+      font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700;
+      line-height:1; text-align:center;
+    }
+    .hero-rank.rank-1 { font-size:1.7rem; filter:drop-shadow(0 0 8px rgba(232,197,71,.7)); }
+    .hero-rank.rank-2 { font-size:1.7rem; filter:drop-shadow(0 0 6px rgba(176,184,200,.5)); }
+    .hero-rank.rank-3 { font-size:1.7rem; filter:drop-shadow(0 0 6px rgba(205,127,50,.5)); }
+    .hero-rank.rank-n  { color:var(--dim); font-size:1rem; }
+
+    /* Identité (emoji + nom sur même ligne) */
+    .hero-identity {
+      display:flex; align-items:center; gap:12px;
+      margin-bottom:16px; padding-right:40px;
+    }
+    .hero-emoji { font-size:2.2rem; line-height:1; flex-shrink:0; }
+    .hero-name-wrap { display:flex; align-items:center; gap:8px; min-width:0; }
+    .hero-name {
+      font-family:'Rajdhani',sans-serif; font-size:1.9rem; font-weight:700;
+      color:var(--text); letter-spacing:.5px; line-height:1;
+    }
+    .btn-player-switch {
+      background:var(--bg3); border:1px solid var(--border);
+      color:var(--dim); border-radius:8px;
+      width:28px; height:28px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; touch-action:manipulation;
+      font-size:.75rem; transition:all .2s;
+    }
+    .btn-player-switch:active { transform:scale(.9); border-color:var(--accent); color:var(--accent); }
+    .btn-player-switch.open { border-color:var(--accent); color:var(--accent); }
+
+    /* Panneau switch joueur */
+    .player-switch-panel {
+      display:none; background:var(--bg2); border:1px solid var(--border);
+      border-radius:14px; overflow:hidden;
+      box-shadow:0 8px 28px rgba(0,0,0,.4);
+      animation:fadeSlide .2s ease-out;
+    }
+    .player-switch-panel.open { display:block; }
+    .ps-title {
+      font-family:'Rajdhani',sans-serif; font-size:.68rem; font-weight:700;
+      color:var(--dim); letter-spacing:2px; text-transform:uppercase;
+      padding:10px 14px 6px;
+    }
+    .ps-item {
+      display:flex; align-items:center; gap:12px;
+      padding:10px 14px; cursor:pointer; touch-action:manipulation;
+      transition:background .15s; border-top:1px solid var(--border);
+    }
+    .ps-item:first-of-type { border-top:none; }
+    .ps-item:active { background:rgba(255,255,255,.05); }
+    .ps-item.current { background:rgba(255,255,255,.04); }
+    .ps-item-emoji { font-size:1.4rem; }
+    .ps-item-name {
+      font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700;
+      color:var(--text); flex:1;
+    }
+    .ps-item.current .ps-item-name { color:var(--accent); }
+    .ps-item-check { font-size:.8rem; color:var(--accent); }
+
+    /* Stats row */
+    .hero-stats-row { display:flex; gap:8px; }
+    .hero-stat {
+      flex:1;
+      display:flex; flex-direction:column; align-items:center;
+      background:rgba(255,255,255,.04); border-radius:12px;
+      padding:10px 6px 8px;
+      border:1px solid var(--border);
+    }
+    [data-theme="light"] .hero-stat { background:rgba(22,23,24,.04); }
+    [data-theme="colored"] .hero-stat { border-color:rgba(56,189,248,.12); background:rgba(56,189,248,.04); }
+    .hero-stat-val {
+      font-family:'Rajdhani',sans-serif; font-size:1.5rem; font-weight:700;
+      color:var(--accent); line-height:1;
+    }
+    .hero-stat-lbl {
+      font-size:.58rem; color:var(--dim); letter-spacing:.8px;
+      text-transform:uppercase; margin-top:4px; font-weight:700;
+    }
+
+    /* ── Grille de tuiles 4/ligne ── */
+    .game-tiles-grid {
+      display:flex; flex-wrap:wrap;
+      gap:8px; justify-content:center;
+    }
+    /* Base tile — border colorée toujours visible, dégradé argenté neutre */
+    .game-tile {
+      width:calc(25% - 6px);
+      aspect-ratio:1; border-radius:12px;
+      border:1.5px solid color-mix(in srgb, var(--tile-color) 28%, transparent);
+      background:linear-gradient(145deg,
+        color-mix(in srgb, white 6%, var(--bg3)) 0%,
+        var(--bg2) 100%);
+      display:flex; flex-direction:column; align-items:center;
+      justify-content:center; gap:4px;
+      cursor:pointer; touch-action:manipulation;
+      transition:border-color .2s, background .2s, box-shadow .2s;
+      position:relative; overflow:hidden;
+    }
+    .game-tile:active { transform:scale(.91); }
+
+    /* Dark — dégradé argenté subtil */
+    [data-theme="dark"] .game-tile {
+      background:linear-gradient(145deg,
+        rgba(255,255,255,.07) 0%,
+        #161718 55%,
+        rgba(255,255,255,.02) 100%);
+    }
+    /* Light — blanc > gris rosé */
+    [data-theme="light"] .game-tile {
+      background:linear-gradient(145deg, #FFFFFF 0%, #EDE4E7 100%);
+      border-color:color-mix(in srgb, var(--tile-color) 22%, transparent);
+    }
+    /* Colored — dégradé fort de la couleur du jeu */
+    [data-theme="colored"] .game-tile {
+      background:linear-gradient(145deg,
+        color-mix(in srgb, var(--tile-color) 20%, #0A1628) 0%,
+        #050D1A 85%);
+      border-color:color-mix(in srgb, var(--tile-color) 40%, transparent);
+    }
+
+    .game-tile-icon { font-size:1.4rem; line-height:1; }
+    .game-tile-name {
+      font-family:'Rajdhani',sans-serif; font-size:.78rem; font-weight:700;
+      color:var(--dim); letter-spacing:.2px; text-align:center;
+      padding:0 3px; line-height:1.15;
+    }
+
+    /* Barre colorée en bas */
+    .game-tile::after {
+      content:''; position:absolute; bottom:0; left:0; right:0;
+      height:2.5px; background:var(--tile-color); transform:scaleX(0);
+      transition:transform .2s cubic-bezier(.4,0,.2,1);
+    }
+    /* Point indicateur (a des données) */
+    .game-tile.has-data::before {
+      content:''; position:absolute; top:5px; right:5px;
+      width:5px; height:5px; border-radius:50%;
+      background:var(--tile-color); opacity:.6;
+      transition:opacity .2s;
+    }
+
+    /* Has-data — border + gradient plus marqués */
+    .game-tile.has-data {
+      border-color:color-mix(in srgb, var(--tile-color) 52%, transparent);
+    }
+    .game-tile.has-data .game-tile-name {
+      color:color-mix(in srgb, var(--tile-color) 70%, var(--dim));
+    }
+    [data-theme="dark"] .game-tile.has-data {
+      background:linear-gradient(145deg,
+        color-mix(in srgb, var(--tile-color) 14%, rgba(255,255,255,.05)) 0%,
+        #161718 100%);
+    }
+    [data-theme="light"] .game-tile.has-data {
+      background:linear-gradient(145deg,
+        color-mix(in srgb, var(--tile-color) 10%, #FFFFFF) 0%,
+        #EDE4E7 100%);
+      border-color:color-mix(in srgb, var(--tile-color) 48%, transparent);
+    }
+    [data-theme="colored"] .game-tile.has-data {
+      background:linear-gradient(145deg,
+        color-mix(in srgb, var(--tile-color) 32%, #0A1628) 0%,
+        #050D1A 85%);
+      border-color:color-mix(in srgb, var(--tile-color) 62%, transparent);
+    }
+
+    /* Active */
+    .game-tile.active {
+      border-color:var(--tile-color);
+      background:linear-gradient(145deg,
+        color-mix(in srgb, var(--tile-color) 22%, var(--bg2)) 0%,
+        var(--bg2) 100%);
+      box-shadow:0 0 18px color-mix(in srgb, var(--tile-color) 32%, transparent),
+                 inset 0 0 10px color-mix(in srgb, var(--tile-color) 10%, transparent);
+    }
+    [data-theme="colored"] .game-tile.active {
+      background:linear-gradient(145deg,
+        color-mix(in srgb, var(--tile-color) 42%, #0A1628) 0%,
+        color-mix(in srgb, var(--tile-color) 14%, #050D1A) 100%);
+    }
+    [data-theme="light"] .game-tile.active {
+      background:linear-gradient(145deg,
+        color-mix(in srgb, var(--tile-color) 18%, #FFFFFF) 0%,
+        color-mix(in srgb, var(--tile-color) 8%, #EDE4E7) 100%);
+    }
+    .game-tile.active .game-tile-name { color:var(--tile-color); font-weight:700; }
+    .game-tile.active::after { transform:scaleX(1); }
+    .game-tile.active.has-data::before { opacity:0; }
+
+    /* ── Panneau détail ── */
+    .game-detail-panel {
+      background:var(--bg2); border:1px solid var(--border);
+      border-radius:16px; overflow:hidden;
+      border-top:3px solid var(--panel-color, var(--border));
+      animation:fadeSlide .22s ease-out;
+    }
+    [data-theme="colored"] .game-detail-panel { background:rgba(10,22,40,.9); }
+    @keyframes fadeSlide { from{opacity:0;transform:translateY(-5px)} to{opacity:1;transform:translateY(0)} }
+
+    .gd-header { display:flex; align-items:center; gap:10px; padding:14px 16px 10px; }
+    .gd-icon { font-size:1.4rem; flex-shrink:0; }
+    .gd-title {
+      font-family:'Rajdhani',sans-serif; font-size:1.05rem; font-weight:700;
+      color:var(--text); letter-spacing:.5px; flex:1;
+    }
+    .gd-record { text-align:right; }
+    .gd-wins {
+      font-family:'Rajdhani',sans-serif; font-size:1.25rem; font-weight:700;
+      color:var(--panel-color, var(--accent)); line-height:1;
+    }
+    .gd-wg { font-size:.62rem; color:var(--dim); letter-spacing:.5px; margin-top:2px; }
+
+    .gd-bar-wrap { padding:0 16px 10px; }
+    .gd-bar-track { height:5px; background:var(--bg4); border-radius:3px; overflow:hidden; }
+    .gd-bar-fill {
+      height:100%; border-radius:3px;
+      background:var(--panel-color, var(--accent));
+      transition:width .7s cubic-bezier(.4,0,.2,1);
+    }
+    .gd-bar-labels { display:flex; justify-content:space-between; font-size:.65rem; color:var(--dim); margin-top:5px; }
+
+    .gd-chips { display:flex; gap:6px; flex-wrap:wrap; padding:4px 16px 16px; }
+    .gd-chip {
+      background:var(--bg3); border:1px solid var(--border);
+      border-radius:8px; padding:6px 12px;
+      font-family:'Rajdhani',sans-serif; font-size:.85rem; font-weight:600;
+      color:var(--dim); white-space:nowrap;
+    }
+    [data-theme="colored"] .gd-chip { border-color:rgba(56,189,248,.12); }
+    .gd-chip strong { color:var(--text); font-weight:700; }
+    .gd-empty { padding:14px 16px 18px; font-size:.82rem; color:var(--dim2); font-style:italic; text-align:center; }
+
+    @keyframes pop { from{transform:scale(.85);opacity:0} to{transform:scale(1);opacity:1} }
+    @media(prefers-reduced-motion:reduce){
+      *{animation-duration:.01ms!important;transition-duration:.01ms!important;}
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <button class="btn-back-page" id="btn-back" onclick="location.href='index.html'">← Menu</button>
+    <div class="page-title" id="page-title">🔍 STATS</div>
+    <button class="btn-settings" id="btn-settings" aria-label="Paramètres">⚙️</button>
+  </div>
+
+  <!-- Settings panel -->
+  <div class="settings-panel" id="settings-panel">
+    <div class="sg-section-label" id="sg-lbl-theme">Thème</div>
+    <div class="sg-row" style="padding-top:0;border-top:none;">
+      <div class="sg-theme-pills">
+        <button class="sg-pill" id="sg-pill-dark">🌙 Sombre</button>
+        <button class="sg-pill" id="sg-pill-light">☀️ Clair</button>
+        <button class="sg-pill" id="sg-pill-colored">🎨 Coloré</button>
+      </div>
+    </div>
+    <div class="sg-row">
+      <span>📳</span>
+      <span class="sg-row-label" id="sg-lbl-vib">Vibrations</span>
+      <label class="sg-toggle"><input type="checkbox" id="sg-vib" checked><span class="sg-slider"></span></label>
+    </div>
+    <div class="sg-row">
+      <span>🔊</span>
+      <span class="sg-row-label" id="sg-lbl-snd">Sons</span>
+      <label class="sg-toggle"><input type="checkbox" id="sg-snd" checked><span class="sg-slider"></span></label>
+    </div>
+    <div class="sg-row">
+      <span>🗣️</span>
+      <span class="sg-row-label" id="sg-lbl-tts">Annonceur</span>
+      <label class="sg-toggle"><input type="checkbox" id="sg-tts" checked><span class="sg-slider"></span></label>
+    </div>
+    <div class="sg-row">
+      <span class="sg-row-label">Langue / Language</span>
+      <button id="sg-lang-btn" aria-label="Langue" style="background:none;border:none;cursor:pointer;font-size:1.8rem;line-height:1;padding:2px;border-radius:6px;touch-action:manipulation;">🇫🇷</button>
+    </div>
+  </div>
+
+  <div class="page-content">
+
+    <!-- Hero card -->
+    <div class="hero-card">
+      <div class="hero-rank" id="hero-rank"></div>
+      <div class="hero-identity">
+        <div class="hero-emoji" id="hero-emoji">👤</div>
+        <div class="hero-name-wrap">
+          <div class="hero-name" id="hero-name">—</div>
+          <button class="btn-player-switch" id="btn-player-switch" title="Changer de joueur">▾</button>
+        </div>
+      </div>
+      <div class="player-switch-panel" id="player-switch-panel"></div>
+      <div class="hero-stats-row">
+        <div class="hero-stat">
+          <div class="hero-stat-val" id="total-wins">0</div>
+          <div class="hero-stat-lbl" id="lbl-wins">Victoires</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val" id="total-games">0</div>
+          <div class="hero-stat-lbl" id="lbl-games">Parties</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val" id="total-winrate">—</div>
+          <div class="hero-stat-lbl">Winrate</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grille des jeux -->
+    <div class="game-tiles-grid" id="game-tiles"></div>
+
+    <!-- Panneau stats (1 seul, switche au clic) -->
+    <div id="game-detail"></div>
+
+  </div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════
+// i18n
+// ══════════════════════════════════════════════════════════════════════
+const lang = localStorage.getItem('dartvault_lang') || 'fr';
+const isFr = lang === 'fr';
+const T = {
+  fr: {
+    back: '← Menu', pageTitle: '🔍 STATS',
+    theme: 'Thème', dark: '🌙 Sombre', light: '☀️ Clair', colored: '🎨 Coloré',
+    vib: 'Vibrations', snd: 'Sons', tts: 'Annonceur',
+    wins: 'Victoires', games: 'Parties',
+    wg: 'V / P', noData: 'Aucune partie jouée',
+    winsLabel: (n) => `${n} victoire${n!==1?'s':''}`,
+    gamesLabel: (n) => `${n} partie${n!==1?'s':''}`,
+    winsPct: (p) => `${p}% victoires`,
+    avg: 'Moy', drt: 'Flé',
+    avgGame: 'Moy/partie',
+    hits: 'Touches', misses: 'Ratés', acc: 'Précision',
+    captures: 'Captures', shields: 'Boucliers', neutralized: 'Neutralisés',
+    dmg: 'Dégâts', bullets: 'Balles', heals: 'Soins',
+    stolen: 'pts volés', lost: 'pts perdus',
+  },
+  en: {
+    back: '← Menu', pageTitle: '🔍 STATS',
+    theme: 'Theme', dark: '🌙 Dark', light: '☀️ Light', colored: '🎨 Colored',
+    vib: 'Vibrations', snd: 'Sounds', tts: 'Announcer',
+    wins: 'Wins', games: 'Games',
+    wg: 'W / G', noData: 'No games played yet',
+    winsLabel: (n) => `${n} win${n!==1?'s':''}`,
+    gamesLabel: (n) => `${n} game${n!==1?'s':''}`,
+    winsPct: (p) => `${p}% wins`,
+    avg: 'Avg', drt: 'Drt',
+    avgGame: 'Avg/game',
+    hits: 'Hits', misses: 'Misses', acc: 'Accuracy',
+    captures: 'Captures', shields: 'Shields', neutralized: 'Neutralized',
+    dmg: 'Damage', bullets: 'Bullets', heals: 'Heals',
+    stolen: 'pts stolen', lost: 'pts lost',
+  }
+};
+const L = T[isFr ? 'fr' : 'en'];
+
+// ══════════════════════════════════════════════════════════════════════
+// SETTINGS PANEL
+// ══════════════════════════════════════════════════════════════════════
+(function(){
+  const btn   = document.getElementById('btn-settings');
+  const panel = document.getElementById('settings-panel');
+
+  // Traductions panel
+  document.getElementById('btn-back').textContent       = L.back;
+  document.getElementById('sg-lbl-theme').textContent   = L.theme;
+  document.getElementById('sg-pill-dark').textContent   = L.dark;
+  document.getElementById('sg-pill-light').textContent  = L.light;
+  document.getElementById('sg-pill-colored').textContent= L.colored;
+  document.getElementById('sg-lbl-vib').textContent     = L.vib;
+  document.getElementById('sg-lbl-snd').textContent     = L.snd;
+  document.getElementById('sg-lbl-tts').textContent     = L.tts;
+  document.getElementById('lbl-wins').textContent       = L.wins;
+  document.getElementById('lbl-games').textContent      = L.games;
+
+  btn.addEventListener('click', e => { e.stopPropagation(); panel.classList.toggle('open'); syncPanel(); });
+  document.addEventListener('click', e => { if (!panel.contains(e.target) && e.target !== btn) panel.classList.remove('open'); });
+
+  function syncPanel() {
+    const t = localStorage.getItem('dartvault_theme') || 'dark';
+    ['dark','light','colored'].forEach(k => document.getElementById('sg-pill-'+k).classList.toggle('active', t===k));
+    const vib = document.getElementById('sg-vib'); if(vib) vib.checked = localStorage.getItem('dartvault_vibration') !== 'off';
+    const snd = document.getElementById('sg-snd'); if(snd) snd.checked = localStorage.getItem('dartvault_sound') !== 'off';
+    const tts = document.getElementById('sg-tts'); if(tts) tts.checked = localStorage.getItem('dartvault_tts') !== 'off';
+    const lb  = document.getElementById('sg-lang-btn'); if(lb) lb.textContent = lang === 'fr' ? '🇫🇷' : '🇬🇧';
+  }
+
+  ['dark','light','colored'].forEach(k => {
+    document.getElementById('sg-pill-'+k).addEventListener('click', () => {
+      localStorage.setItem('dartvault_theme', k);
+      document.documentElement.setAttribute('data-theme', k);
+      syncPanel();
+    });
+  });
+  const vib = document.getElementById('sg-vib'); if(vib){ vib.checked = localStorage.getItem('dartvault_vibration')!=='off'; vib.addEventListener('change', ()=>localStorage.setItem('dartvault_vibration', vib.checked?'on':'off')); }
+  const snd = document.getElementById('sg-snd'); if(snd){ snd.checked = localStorage.getItem('dartvault_sound')!=='off'; snd.addEventListener('change', ()=>localStorage.setItem('dartvault_sound', snd.checked?'on':'off')); }
+  const tts = document.getElementById('sg-tts'); if(tts){ tts.checked = localStorage.getItem('dartvault_tts')!=='off'; tts.addEventListener('change', ()=>localStorage.setItem('dartvault_tts', tts.checked?'on':'off')); }
+  const lb  = document.getElementById('sg-lang-btn');
+  if(lb){
+    lb.textContent = lang==='fr'?'🇫🇷':'🇬🇧';
+    lb.addEventListener('click', ()=>{
+      localStorage.setItem('dartvault_lang', lang==='fr'?'en':'fr');
+      location.reload();
+    });
+  }
+  syncPanel();
+})();
+
+// ══════════════════════════════════════════════════════════════════════
+// CONFIG JEUX
+// ══════════════════════════════════════════════════════════════════════
+const GAME_CONFIGS = [
+  { key:'501',        icon:'🎯', fr:'X01',     en:'X01',     color:'#EF4444' },
+  { key:'cricket',    icon:'🦗', fr:'Cricket', en:'Cricket', color:'#10B981' },
+  { key:'blackjack',  icon:'🃏', fr:'Black',   en:'Black',   color:'#8B5CF6' },
+  { key:'bataille',   icon:'⚓', fr:'Naval',   en:'Naval',   color:'#3B82F6' },
+  { key:'territoire', icon:'🏰', fr:'Territ.', en:'Territ.', color:'#F59E0B' },
+  { key:'shooter',    icon:'💥', fr:'Royal',   en:'Royal',   color:'#F97316' },
+  { key:'race500',    icon:'🏁', fr:'Race',    en:'Race',    color:'#EC4899' },
+  { key:'dartspong',  icon:'🔴', fr:'Pong',    en:'Pong',    color:'#06B6D4' },
+  { key:'shanghai',   icon:'🗼', fr:'Shang.',  en:'Shang.',  color:'#84CC16' },
+  { key:'horloge',    icon:'🕐', fr:'Hrlg.',   en:'Hrlg.',   color:'#94A3B8' },
+];
+const GAME_FULL = {
+  fr:{ '501':'X01 DARTS',cricket:'CRICKET',blackjack:'BLACKDART',bataille:'BATAILLE NAVALE',territoire:'TERRITOIRE',shooter:'BATTLE ROYAL',race500:'RACE 500',dartspong:'DARTSPONG',shanghai:'SHANGHAI',horloge:'HORLOGE' },
+  en:{ '501':'X01 DARTS',cricket:'CRICKET',blackjack:'BLACKDART',bataille:'BATTLESHIP',     territoire:'TERRITORY', shooter:'BATTLE ROYAL',race500:'RACE 500',dartspong:'DARTSPONG',shanghai:'SHANGHAI',horloge:'HORLOGE' }
+};
+
+// ══════════════════════════════════════════════════════════════════════
+// DONNÉES
+// ══════════════════════════════════════════════════════════════════════
+const params   = new URLSearchParams(location.search);
+const fullName = params.get('p') || '';
+function getWins()      { try{ return JSON.parse(localStorage.getItem('dartvault_wins'))||{}; }      catch(e){ return {}; } }
+function getGameStats() { try{ return JSON.parse(localStorage.getItem('dartvault_game_stats'))||{}; } catch(e){ return {}; } }
+function getProfiles()  { try{ return JSON.parse(localStorage.getItem('dartvault_profiles'))||[]; }  catch(e){ return []; } }
+
+let playerWins  = {};
+let playerStats = {};
+
+// ══════════════════════════════════════════════════════════════════════
+// CLASSEMENT GLOBAL (pour badge)
+// ══════════════════════════════════════════════════════════════════════
+function computeRank(name) {
+  const allWins   = getWins();
+  const profiles  = getProfiles();
+  const active    = new Set(profiles.map(p => p.emoji+' '+p.name));
+  const totals    = {};
+  Object.entries(allWins).forEach(([n, data]) => {
+    if (!active.has(n)) return;
+    let tot = 0;
+    GAME_CONFIGS.forEach(g => { if (data[g.key]) tot += (data[g.key].total||0); });
+    totals[n] = tot;
+  });
+  // S'assurer que le joueur courant est inclus (même avec 0 victoires)
+  if (!(name in totals)) totals[name] = 0;
+  const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]);
+  const idx    = sorted.findIndex(([n]) => n === name);
+  return idx >= 0 ? idx + 1 : sorted.length;
+}
+
+function renderRankBadge(rank) {
+  const el = document.getElementById('hero-rank');
+  if (!el) return;
+  el.className = 'hero-rank';
+  if (rank === 1)      { el.textContent = '🏆'; el.classList.add('rank-1'); }
+  else if (rank === 2) { el.textContent = '🥈'; el.classList.add('rank-2'); }
+  else if (rank === 3) { el.textContent = '🥉'; el.classList.add('rank-3'); }
+  else                 { el.textContent = '#'+rank; el.classList.add('rank-n'); }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// RENDU PRINCIPAL
+// ══════════════════════════════════════════════════════════════════════
+function render() {
+  if (!fullName) return;
+
+  const profiles = getProfiles();
+  const profile  = profiles.find(p => (p.emoji+' '+p.name) === fullName);
+  const emoji    = profile ? profile.emoji : (fullName.split(' ')[0] || '👤');
+  const name     = profile ? profile.name  : (fullName.slice(fullName.indexOf(' ')+1) || fullName);
+
+  document.getElementById('hero-emoji').textContent = emoji;
+  document.getElementById('hero-name').textContent  = name;
+
+  const allWins      = getWins();
+  const allGameStats = getGameStats();
+  playerWins   = allWins[fullName] || {};
+  playerStats  = allGameStats[fullName] || {};
+
+  let totalWins = 0, totalGames = 0;
+  GAME_CONFIGS.forEach(g => {
+    const pw = playerWins[g.key]; if(pw) totalWins  += (pw.total||0);
+    const ps = playerStats[g.key]; if(ps) totalGames += (ps.games||0);
+  });
+  const wr = totalGames > 0 ? Math.round(totalWins/totalGames*100) : null;
+
+  document.getElementById('total-wins').textContent    = totalWins;
+  document.getElementById('total-games').textContent   = totalGames;
+  document.getElementById('total-winrate').textContent = wr !== null ? wr+'%' : '—';
+
+  renderRankBadge(computeRank(fullName));
+  renderTiles();
+
+  // Sélectionner auto le 1er jeu avec données
+  const first = GAME_CONFIGS.find(g => playerStats[g.key] && playerStats[g.key].games > 0);
+  if (first) selectGame(first.key);
+  else document.getElementById('game-detail').innerHTML = '';
+}
+
+// ── Tuiles ─────────────────────────────────────────────────────────
+function renderTiles() {
+  const grid = document.getElementById('game-tiles');
+  grid.innerHTML = GAME_CONFIGS.map(g => {
+    const ps      = playerStats[g.key];
+    const hasData = ps && (ps.games||0) > 0;
+    const cls     = ['game-tile', hasData ? 'has-data' : ''].filter(Boolean).join(' ');
+    const label   = isFr ? g.fr : g.en;
+    return `<div class="${cls}" id="tile-${g.key}" style="--tile-color:${g.color}" onclick="selectGame('${g.key}')">
+      <div class="game-tile-icon">${g.icon}</div>
+      <div class="game-tile-name">${label}</div>
+    </div>`;
+  }).join('');
+}
+
+function selectGame(key) {
+  document.querySelectorAll('.game-tile').forEach(t => t.classList.remove('active'));
+  const tile = document.getElementById('tile-'+key);
+  if (tile) tile.classList.add('active');
+  renderDetail(key);
+}
+
+// ── Panneau détail ──────────────────────────────────────────────────
+function renderDetail(key) {
+  const container = document.getElementById('game-detail');
+  if (!key) { container.innerHTML = ''; return; }
+
+  const g    = GAME_CONFIGS.find(c => c.key === key);
+  if (!g) return;
+
+  const ps      = playerStats[key] || null;
+  const wins    = (playerWins[key] && playerWins[key].total) || 0;
+  const games   = ps ? (ps.games||0) : 0;
+  const pct     = games > 0 ? Math.round(wins/games*100) : 0;
+  const hasData = games > 0;
+  const fullGameName = (GAME_FULL[isFr?'fr':'en']||GAME_FULL.fr)[key] || g.fr;
+
+  let barHtml = '', chipsHtml = '';
+
+  if (hasData) {
+    barHtml = `<div class="gd-bar-wrap">
+      <div class="gd-bar-track"><div class="gd-bar-fill" style="width:${pct}%"></div></div>
+      <div class="gd-bar-labels">
+        <span>${L.winsLabel(wins)}</span>
+        <span>${L.winsPct(pct)}</span>
+      </div>
+    </div>`;
+    const chips = buildChips(key, ps);
+    if (chips.length) chipsHtml = `<div class="gd-chips">${chips.map(c=>`<div class="gd-chip">${c}</div>`).join('')}</div>`;
+  } else {
+    chipsHtml = `<div class="gd-empty">${L.noData}</div>`;
+  }
+
+  container.innerHTML = `<div class="game-detail-panel" style="--panel-color:${g.color}">
+    <div class="gd-header">
+      <div class="gd-icon">${g.icon}</div>
+      <div class="gd-title">${fullGameName}</div>
+      <div class="gd-record">
+        <div class="gd-wins">${wins}<span style="font-size:.75rem;opacity:.4;font-weight:600">/${games}</span></div>
+        <div class="gd-wg">${L.wg}</div>
+      </div>
+    </div>
+    ${barHtml}${chipsHtml}
+  </div>`;
+}
+
+// ── Chips par jeu ───────────────────────────────────────────────────
+function buildChips(key, ps) {
+  if (!ps) return [];
+  const c = [];
+  const d = L.drt;
+  if (key==='501') {
+    const avg = (ps.totalThrows||0)>0 ? ((ps.totalScore||0)/ps.totalThrows).toFixed(1) : '—';
+    c.push(`${L.avg}: <strong>${avg}</strong>`);
+    c.push(`${d}: <strong>${ps.totalDarts||0}</strong>`);
+    if ((ps.doubleAttempts||0)>0) c.push(`D%: <strong>${Math.round((ps.doubleHits||0)/ps.doubleAttempts*100)}%</strong>`);
+  } else if (key==='cricket') {
+    c.push(`Zones: <strong>${ps.closedZones||0}</strong>`);
+    c.push(`${d}: <strong>${ps.totalDarts||0}</strong>`);
+  } else if (key==='blackjack') {
+    const avg = ((ps.moneyDelta||0)/(ps.games||1)).toFixed(1);
+    const sign = parseFloat(avg)>=0?'+':'';
+    const col  = parseFloat(avg)>=0?'#4CAF50':'#F44336';
+    c.push(`${L.avgGame}: <strong style="color:${col}">${sign}${avg}€</strong>`);
+    c.push(`🃏 Blackdarts: <strong>${ps.blackdarts||0}</strong>`);
+  } else if (key==='bataille') {
+    const acc = (ps.totalShots||0)>0 ? Math.round((ps.hits||0)/ps.totalShots*100) : 0;
+    c.push(`💥 ${L.hits}: <strong>${ps.hits||0}</strong>`);
+    c.push(`💧 ${L.misses}: <strong>${(ps.totalShots||0)-(ps.hits||0)}</strong>`);
+    c.push(`🎯 ${acc}%`);
+  } else if (key==='territoire') {
+    c.push(`✓ ${L.captures}: <strong>${ps.captures||0}</strong>`);
+    c.push(`🛡️ ${L.shields}: <strong>${ps.shields||0}</strong>`);
+    c.push(`✗ ${L.neutralized}: <strong>${ps.neutralized||0}</strong>`);
+  } else if (key==='shooter') {
+    c.push(`❤️ ${L.dmg}: <strong>${ps.hpDealt||0}</strong>`);
+    c.push(`🔫 ${L.bullets}: <strong>${ps.bulletsGained||0}</strong>`);
+    c.push(`💚 ${L.heals}: <strong>${ps.hpHealed||0}</strong>`);
+  } else if (key==='race500') {
+    c.push(`<strong style="color:#4CAF50">+${ps.pointsStolen||0}</strong> ${L.stolen}`);
+    c.push(`<strong style="color:#F44336">-${ps.pointsLost||0}</strong> ${L.lost}`);
+  } else if (key==='dartspong') {
+    const acc = (ps.totalDarts||0)>0 ? Math.round((ps.zonesEliminated||0)/ps.totalDarts*100) : 0;
+    c.push(`🎯 ${acc}%`); c.push(`${d}: <strong>${ps.totalDarts||0}</strong>`);
+  } else if (key==='shanghai') {
+    const acc = (ps.totalDarts||0)>0 ? Math.round((ps.zonesHit||0)/ps.totalDarts*100) : 0;
+    c.push(`🎯 ${acc}%`); c.push(`🗼 Shanghais: <strong>${ps.shanghais||0}</strong>`);
+  } else if (key==='horloge') {
+    const acc = (ps.totalDarts||0)>0 ? Math.round((ps.zonesHit||0)/ps.totalDarts*100) : 0;
+    c.push(`🎯 ${acc}%`); c.push(`${d}: <strong>${ps.totalDarts||0}</strong>`);
+  }
+  return c;
+}
+
+render();
+
+// ══════════════════════════════════════════════════════════════════════
+// PLAYER SWITCHER
+// ══════════════════════════════════════════════════════════════════════
+(function(){
+  const btn   = document.getElementById('btn-player-switch');
+  const panel = document.getElementById('player-switch-panel');
+  if (!btn || !panel) return;
+
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    const isOpen = panel.classList.toggle('open');
+    btn.classList.toggle('open', isOpen);
+    if (isOpen) buildSwitcher();
+  });
+  document.addEventListener('click', e => {
+    if (!panel.contains(e.target) && e.target !== btn) {
+      panel.classList.remove('open');
+      btn.classList.remove('open');
+    }
+  });
+
+  function buildSwitcher() {
+    const profiles = getProfiles();
+    if (!profiles.length) { panel.innerHTML = `<div class="ps-title" style="padding-bottom:10px;">${isFr?'Aucun profil':'No profiles'}</div>`; return; }
+    const title = isFr ? 'CHANGER DE JOUEUR' : 'SWITCH PLAYER';
+    const rows = profiles.map(p => {
+      const pName = p.emoji + ' ' + p.name;
+      const isCurrent = pName === fullName;
+      return `<div class="ps-item${isCurrent?' current':''}" onclick="switchPlayer('${encodeURIComponent(pName)}')">
+        <div class="ps-item-emoji">${p.emoji}</div>
+        <div class="ps-item-name">${p.name}</div>
+        ${isCurrent ? '<div class="ps-item-check">✓</div>' : ''}
+      </div>`;
+    }).join('');
+    panel.innerHTML = `<div class="ps-title">${title}</div>${rows}`;
+  }
+})();
+
+function switchPlayer(encodedName) {
+  location.href = 'stats-joueur.html?p=' + encodedName;
+}
+</script>
+</body>
+</html>

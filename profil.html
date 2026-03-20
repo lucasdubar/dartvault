@@ -49,10 +49,10 @@
       --border:rgba(22,23,24,.10);
     }
     [data-theme="colored"] {
-      --bg:#0E0900; --bg2:#1A1200; --bg3:#261B00; --bg4:#332400;
-      --text:#F5E6C0; --dim:#8A7040; --dim2:#5A4820;
-      --accent:#E8A020; --accent-glow:rgba(232,160,32,.35);
-      --border:rgba(232,160,32,.12);
+      --bg:#050D1A; --bg2:#0A1628; --bg3:#102035; --bg4:#162840;
+      --text:#C8E8FF; --dim:#4A7FAA; --dim2:#2A4F6A;
+      --accent:#38BDF8; --accent-glow:rgba(56,189,248,.35);
+      --border:rgba(56,189,248,.18);
       --gold:#E8C547; --silver:#B0B8C8; --bronze:#CD7F32;
     }
 
@@ -72,9 +72,27 @@
       display:flex; align-items:center; justify-content:space-between;
       padding:14px 16px 10px;
       position:sticky; top:0; z-index:50;
-      background:var(--bg);
+      background:var(--bg2);
       border-bottom:1px solid var(--border);
     }
+    [data-theme="dark"] .page-header {
+      background:linear-gradient(180deg,rgba(168,182,200,.14) 0%,#0E0F10 100%);
+      border-bottom:1px solid rgba(168,182,200,.18);
+      box-shadow:0 2px 20px rgba(0,0,0,.45);
+    }
+    [data-theme="light"] .page-header {
+      background:linear-gradient(180deg,rgba(168,182,200,.5) 0%,#F7F0F2 100%);
+      border-bottom:1px solid rgba(168,182,200,.6);
+      box-shadow:0 2px 12px rgba(0,0,0,.1);
+    }
+    [data-theme="colored"] .page-header {
+      background:linear-gradient(180deg,rgba(56,189,248,.18) 0%,#050D1A 100%);
+      border-bottom:1px solid rgba(56,189,248,.3);
+      box-shadow:0 2px 20px rgba(56,189,248,.08);
+    }
+    [data-theme="dark"] .page-title { text-shadow:0 0 16px rgba(232,232,232,.15); }
+    [data-theme="light"] .page-title { text-shadow:none; }
+    [data-theme="colored"] .page-title { text-shadow:0 0 20px rgba(56,189,248,.5); }
     .btn-back-page {
       background:var(--bg3); border:1px solid var(--border);
       color:var(--text); border-radius:10px;
@@ -92,7 +110,7 @@
 
     /* ── Settings button & panel (same as games) ── */
     .btn-settings-game {
-      width:34px; height:34px; min-height:44px; border-radius:50%; flex-shrink:0;
+      width:44px; height:44px; border-radius:50%; flex-shrink:0;
       background:var(--bg3); border:1px solid rgba(255,255,255,.15);
       color:var(--dim); font-size:1rem;
       display:flex; align-items:center; justify-content:center;
@@ -100,6 +118,7 @@
     }
     .btn-settings-game:active { transform:scale(.9); border-color:var(--accent); color:var(--accent); }
     [data-theme="light"] .btn-settings-game { border-color:rgba(22,23,24,.18); }
+    [data-theme="colored"] .btn-settings-game { border-color:rgba(56,189,248,.3); color:rgba(56,189,248,.6); }
     .settings-panel-game {
       display:none; position:fixed; top:64px; right:14px; z-index:500;
       background:var(--bg2); border:1px solid var(--border);
@@ -145,7 +164,7 @@
     .sg-pill:active { transform:scale(.94); }
     .sg-pill.active { background:rgba(232,197,71,.15); border-color:var(--accent); color:var(--accent); }
     [data-theme="light"] .sg-pill.active { background:rgba(22,23,24,.1); border-color:var(--accent); color:var(--accent); }
-    [data-theme="colored"] .sg-pill.active { background:rgba(232,160,32,.15); border-color:var(--accent); color:var(--accent); }
+    [data-theme="colored"] .sg-pill.active { background:rgba(56,189,248,.15); border-color:var(--accent); color:var(--accent); }
 
     /* ── Contenu ── */
     .page-content {
@@ -168,6 +187,11 @@
     [data-theme="light"] .btn-create-profile {
       background:rgba(22,23,24,.06); border-color:rgba(22,23,24,.25); color:var(--accent);
     }
+    [data-theme="colored"] .btn-create-profile {
+      background:rgba(56,189,248,.08); border-color:rgba(56,189,248,.4);
+      box-shadow:0 0 18px rgba(56,189,248,.12);
+    }
+    [data-theme="colored"] .btn-create-profile:active { background:rgba(56,189,248,.18); }
 
     /* ── Section label ── */
     /* ── Boutons transfert ── */
@@ -199,10 +223,10 @@
     .btn-download:active { border-color:rgba(72,199,142,.8); background:rgba(72,199,142,.08); }
     .btn-import  { border-color:rgba(99,179,237,.3); }
     .btn-import:active  { border-color:rgba(99,179,237,.8); background:rgba(99,179,237,.08); }
-    [data-theme="colored"] .btn-download { border-color:rgba(232,160,32,.3); }
-    [data-theme="colored"] .btn-download:active { border-color:var(--accent); background:rgba(232,160,32,.1); }
-    [data-theme="colored"] .btn-import  { border-color:rgba(232,160,32,.2); }
-    [data-theme="colored"] .btn-import:active  { border-color:var(--accent); background:rgba(232,160,32,.08); }
+    [data-theme="colored"] .btn-download { border-color:rgba(56,189,248,.3); }
+    [data-theme="colored"] .btn-download:active { border-color:var(--accent); background:rgba(56,189,248,.1); }
+    [data-theme="colored"] .btn-import  { border-color:rgba(56,189,248,.2); }
+    [data-theme="colored"] .btn-import:active  { border-color:var(--accent); background:rgba(56,189,248,.08); }
     .transfer-icon { font-size:1.3rem; flex-shrink:0; }
 
     .section-label {
@@ -249,7 +273,20 @@
       cursor:pointer; touch-action:manipulation; transition:all .2s;
     }
     .btn-profile-action:active { transform:scale(.9); }
+    .btn-profile-stats:active  { border-color:var(--accent); color:var(--accent); }
     .btn-profile-delete:active { border-color:#E53935; color:#E53935; }
+
+    [data-theme="colored"] .profile-card {
+      border-color:rgba(56,189,248,.2);
+      background:rgba(10,22,40,.9);
+    }
+    [data-theme="colored"] .profile-avatar {
+      border-color:rgba(56,189,248,.3);
+    }
+    [data-theme="colored"] .profile-avatar:hover {
+      border-color:var(--accent); box-shadow:0 0 0 3px rgba(56,189,248,.18);
+    }
+    [data-theme="colored"] .btn-modal-confirm { color:#050D1A; }
 
     /* ── Empty state ── */
     .empty-state {
@@ -806,6 +843,7 @@ function renderProfiles() {
         <div class="profile-meta">${isFr ? 'Créé le' : 'Created'} ${p.createdAt || '—'}</div>
       </div>
       <div class="profile-actions">
+        <button class="btn-profile-action btn-profile-stats" onclick="location.href='stats-joueur.html?p='+encodeURIComponent('${p.emoji} ${p.name}')" title="${isFr ? 'Statistiques' : 'Statistics'}" aria-label="Stats ${p.name}">🔍</button>
         <button class="btn-profile-action btn-profile-delete" onclick="askDelete(${i})" title="${isFr ? 'Supprimer' : 'Delete'}" aria-label="Supprimer ${p.name}">🗑</button>
       </div>
     </div>

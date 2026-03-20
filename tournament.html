@@ -137,6 +137,17 @@ html,body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;
     .btn-secondary { width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:var(--bg3);color:var(--text);font-family:'Exo 2',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .2s;touch-action:manipulation; }
     .btn-secondary:active { transform:scale(.97);border-color:var(--accent); }
 
+    /* ── Bouton sm (identique à 501 header) ── */
+    .btn-sm { background:var(--bg3);border:1px solid rgba(255,255,255,.1);color:var(--text);border-radius:8px;padding:7px 12px;cursor:pointer;font-family:'Exo 2',sans-serif;font-size:.82rem;font-weight:600;transition:all .2s;touch-action:manipulation; }
+    .btn-sm:active { transform:scale(.94);border-color:var(--accent); }
+
+    /* ── Footer podium ── */
+    .podium-footer { padding:14px 18px max(20px,env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.07);display:flex;flex-direction:column;gap:8px;flex-shrink:0;align-items:center; }
+    .podium-new-btn { width:100%;padding:14px;border-radius:14px;border:none;font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:1.5px;cursor:pointer;transition:all .2s;touch-action:manipulation;background:linear-gradient(135deg,var(--accent),#c9a830);color:#000;box-shadow:0 4px 22px rgba(232,197,71,.35); }
+    .podium-new-btn:active { transform:scale(.97);box-shadow:0 2px 10px rgba(232,197,71,.2); }
+    .podium-menu-btn { background:transparent;border:none;color:var(--dim);font-family:'Exo 2',sans-serif;font-size:.82rem;font-weight:600;padding:8px 16px;cursor:pointer;touch-action:manipulation;transition:color .2s;letter-spacing:.5px; }
+    .podium-menu-btn:active { color:var(--text); }
+
     /* ── Bouton danger ── */
     .btn-danger { width:100%;padding:12px;border-radius:12px;border:1px solid rgba(220,53,69,.3);background:rgba(220,53,69,.12);color:var(--danger);font-family:'Exo 2',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .2s;touch-action:manipulation; }
     .btn-danger:active { background:rgba(220,53,69,.25); }
@@ -1010,7 +1021,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;
 ══════════════════════════════════════════════ -->
 <div id="s-podium" class="section">
   <div class="t-header">
-    <div style="width:44px;flex-shrink:0;"></div>
+    <button class="btn-sm" onclick="location.href='index.html'" data-i18n="t_home_btn">← Menu</button>
     <span class="t-header-title" data-i18n="t_podium_title">🏆 Podium Final</span>
     <button class="btn-settings-game" aria-label="Paramètres">⚙️</button>
   </div>
@@ -1030,9 +1041,9 @@ html,body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;
       <div class="pgames" id="podium-games"></div>
     </div>
   </div>
-  <div class="t-footer">
-    <button class="btn-primary"   onclick="TournamentManager.quit();localStorage.removeItem('dartvault_tournament_payload');location.href='tournament.html'" data-i18n="t_new_tournament_btn">🔄 NOUVEAU TOURNOI</button>
-    <button class="btn-secondary" onclick="location.href='index.html'" data-i18n="t_home_btn">← ACCUEIL</button>
+  <div class="podium-footer">
+    <button class="podium-new-btn" onclick="TournamentManager.quit();localStorage.removeItem('dartvault_tournament_payload');location.href='tournament.html'" data-i18n="t_new_tournament_btn">🔄 NOUVEAU TOURNOI</button>
+    <button class="podium-menu-btn" onclick="location.href='index.html'" data-i18n="t_home_btn_short">← Menu</button>
   </div>
 </div>
 
@@ -1186,7 +1197,8 @@ const T_DICT = {
     t_full_ranking: 'Classement complet',
     t_games_played: 'Résultats par jeu',
     t_new_tournament_btn: '🔄 NOUVEAU TOURNOI',
-    t_home_btn: '← ACCUEIL',
+    t_home_btn: '← Menu',
+    t_home_btn_short: '← Menu',
     t_tournament_ongoing: '🏆 Tournoi en cours',
     t_interrupted: 'Tournoi interrompu',
     t_current_ranking: 'Classement actuel',
@@ -1261,7 +1273,8 @@ const T_DICT = {
     t_full_ranking: 'Full ranking',
     t_games_played: 'Results by game',
     t_new_tournament_btn: '🔄 NEW TOURNAMENT',
-    t_home_btn: '← HOME',
+    t_home_btn: '← Menu',
+    t_home_btn_short: '← Menu',
     t_tournament_ongoing: '🏆 Tournament in progress',
     t_interrupted: 'Tournament interrupted',
     t_current_ranking: 'Current ranking',

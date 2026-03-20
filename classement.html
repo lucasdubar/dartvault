@@ -49,17 +49,10 @@
       --border:rgba(22,23,24,.10);
     }
     [data-theme="colored"] {
-      --bg:#0E0900; --bg2:#1A1200; --bg3:#261B00; --bg4:#332400;
-      --text:#F5E6C0; --dim:#8A7040; --dim2:#5A4820;
-      --accent:#E8A020; --accent-glow:rgba(232,160,32,.35);
-      --border:rgba(232,160,32,.12);
-      --gold:#E8C547; --silver:#B0B8C8; --bronze:#CD7F32;
-    }
-    [data-theme="colored"] {
-      --bg:#0E0900; --bg2:#1A1200; --bg3:#261B00; --bg4:#332400;
-      --text:#F5E6C0; --dim:#8A7040; --dim2:#5A4820;
-      --accent:#E8A020; --accent-glow:rgba(232,160,32,.35);
-      --border:rgba(232,160,32,.12);
+      --bg:#050D1A; --bg2:#0A1628; --bg3:#102035; --bg4:#162840;
+      --text:#C8E8FF; --dim:#4A7FAA; --dim2:#2A4F6A;
+      --accent:#38BDF8; --accent-glow:rgba(56,189,248,.35);
+      --border:rgba(56,189,248,.18);
       --gold:#E8C547; --silver:#B0B8C8; --bronze:#CD7F32;
     }
 
@@ -79,8 +72,26 @@
       display:flex; align-items:center; justify-content:space-between;
       padding:14px 16px 10px;
       position:sticky; top:0; z-index:50;
-      background:var(--bg);
+      background:var(--bg2);
       border-bottom:1px solid var(--border);
+    }
+    [data-theme="dark"] .page-header {
+      background:linear-gradient(180deg,rgba(168,182,200,.14) 0%,#0E0F10 100%);
+      border-bottom:1px solid rgba(168,182,200,.18);
+      box-shadow:0 2px 20px rgba(0,0,0,.45);
+    }
+    [data-theme="light"] .page-header {
+      background:linear-gradient(180deg,rgba(168,182,200,.5) 0%,#F7F0F2 100%);
+      border-bottom:1px solid rgba(168,182,200,.6);
+      box-shadow:0 2px 12px rgba(0,0,0,.1);
+    }
+    [data-theme="colored"] .page-header {
+      background:linear-gradient(180deg,rgba(56,189,248,.18) 0%,#050D1A 100%);
+      border-bottom:1px solid rgba(56,189,248,.3);
+      box-shadow:0 2px 20px rgba(56,189,248,.08);
+    }
+    [data-theme="colored"] .gp-option.active {
+      background:rgba(56,189,248,.15); border-color:var(--accent); color:var(--accent);
     }
     .btn-back-page {
       background:var(--bg3); border:1px solid var(--border);
@@ -283,6 +294,17 @@
       font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700;
       color:var(--text); flex:1; letter-spacing:.3px;
     }
+    .rank-name-link {
+      text-decoration:none; cursor:pointer;
+      transition:color .15s;
+    }
+    .rank-name-link:active { color:var(--accent); }
+    .rank-avatar-link {
+      text-decoration:none; cursor:pointer;
+      transition:transform .15s, box-shadow .15s;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .rank-avatar-link:active { transform:scale(.88); }
     .rank-wins {
       font-family:'Rajdhani',sans-serif; font-size:1.2rem; font-weight:700;
       color:var(--accent); min-width:32px; text-align:right;
@@ -765,11 +787,12 @@ function renderRanking() {
     }
     const gamesStr = gamesPlayed > 0 ? `<span class="rank-games">/${gamesPlayed}</span>` : '';
 
+    const statsUrl = 'stats-joueur.html?p=' + encodeURIComponent(fullName);
     return `
       <div class="rank-row">
         <div class="rank-pos">${pos}</div>
-        <div class="rank-avatar">${emoji}</div>
-        <div class="rank-name">${escHtml(pseudo)}</div>
+        <a class="rank-avatar rank-avatar-link" href="${statsUrl}" title="${escHtml(pseudo)}">${emoji}</a>
+        <a class="rank-name rank-name-link" href="${statsUrl}">${escHtml(pseudo)}</a>
         ${statsHtml}
         <div class="rank-wins-col">
           <div class="rank-wins">${wins}${gamesStr}</div>
