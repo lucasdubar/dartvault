@@ -4222,6 +4222,10 @@ function escPP(s) {
           if (data.numThrows >= 3) updateDot('takeout');
           else updateDot('connected');
         }
+        // Takeout started (board en attente de retrait des fléchettes)
+        if (data.event === 'Takeoff started') {
+          updateDot('takeout');
+        }
         // Takeout finished
         if (data.event === 'Takeout finished') {
           if (adTurnResetTimer) { clearTimeout(adTurnResetTimer); adTurnResetTimer = null; }
