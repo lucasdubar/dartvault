@@ -4229,9 +4229,13 @@ function escPP(s) {
         // Takeout finished
         if (data.event === 'Takeout finished') {
           if (adTurnResetTimer) { clearTimeout(adTurnResetTimer); adTurnResetTimer = null; }
-          lastNumThrows = 0;
-          updateDot('connected');
-          handleTakeout();
+          if (lastNumThrows > 0) {
+            // Takeout réel après des fléchettes lancées — flux normal
+            lastNumThrows = 0;
+            updateDot('connected');
+            handleTakeout();
+          }
+          // lastNumThrows === 0 : faux takeout (coup de vent etc.) — rester orange jusqu'au reset
         }
         // Manual reset
         if (data.event === 'Manual reset') {
