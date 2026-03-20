@@ -1046,7 +1046,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
 <div class="header">
   <button class="btn-sm" id="btn-back" data-i18n="menu">← Menu</button>
   <div class="header-title">🗼 SHANGHAI</div>
-  <div style="display:flex;gap:6px;align-items:center;"><span id="ad-status-dot" style="display:none;width:12px;height:12px;border-radius:50%;background:#606468;transition:all .3s;cursor:pointer;-webkit-tap-highlight-color:transparent;"></span><button class="btn-sm" id="btn-rules" aria-label="Règles du jeu" data-i18n="rules_btn">ℹ️</button><button class="btn-settings-game" id="btn-settings-game" aria-label="Paramètres">⚙️</button></div>
+  <div style="display:flex;gap:6px;align-items:center;"><div id="ad-leds" style="display:none;align-items:center;gap:4px;cursor:pointer;-webkit-tap-highlight-color:transparent;" title="Tap to reset Autodarts"><span style="font-size:.75rem;line-height:1;opacity:.8;">📡</span><div style="display:flex;flex-direction:column;gap:2px;"><span id="ad-led-1" style="display:block;width:6px;height:6px;border-radius:50%;background:#2a2d31;transition:background .2s,box-shadow .2s;"></span><span id="ad-led-2" style="display:block;width:6px;height:6px;border-radius:50%;background:#2a2d31;transition:background .2s,box-shadow .2s;"></span><span id="ad-led-3" style="display:block;width:6px;height:6px;border-radius:50%;background:#2a2d31;transition:background .2s,box-shadow .2s;"></span></div></div><button class="btn-sm" id="btn-rules" aria-label="Règles du jeu" data-i18n="rules_btn">ℹ️</button><button class="btn-settings-game" id="btn-settings-game" aria-label="Paramètres">⚙️</button></div>
 </div>
 
 <!-- SETUP -->
@@ -2603,10 +2603,46 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
   'use strict';
   const STORAGE_KEY='dartvault_autodarts_ip',DEFAULT_IP='192.168.1.37',PORT_WS=3180,PORT_WSS=3181,RECONNECT_DELAY=3000;
   let ws=null,active=false,reconnectTimer=null,lastNumThrows=0,adEnabled=false,dartCount=0;
+  let adInTakeout = false;
+  let adTurnResetTimer = null;
   function getIP(){return localStorage.getItem(STORAGE_KEY)||DEFAULT_IP;}
   function setIP(ip){localStorage.setItem(STORAGE_KEY,ip);}
   function getWSUrl(){var ip=getIP(),sec=window.location.protocol==='https:';return(sec?'wss':'ws')+'://'+ip+':'+(sec?PORT_WSS:PORT_WS)+'/api/events';}
-  function updateDot(st){var dot=document.getElementById('ad-status-dot');if(!dot)return;if(!adEnabled){dot.style.display='none';return;}dot.style.display='';if(st==='connected'){dot.style.background='#28C76F';dot.style.boxShadow='0 0 8px rgba(40,199,111,.6)';dot.style.animation='';}else if(st==='reconnecting'){dot.style.background='#FF9F43';dot.style.boxShadow='0 0 8px rgba(255,159,67,.5)';dot.style.animation='ad-pulse 1s ease-in-out infinite';}else{dot.style.background='#DC3545';dot.style.boxShadow='0 0 6px rgba(220,53,69,.4)';dot.style.animation='';}}
+  function setLed(el, state) {
+    if (!el) return;
+    var bg, sh, anim;
+    if      (state === 'green')  { bg = '#28C76F'; sh = '0 0 5px rgba(40,199,111,.8)';  anim = ''; }
+    else if (state === 'yellow') { bg = '#FF9F43'; sh = '0 0 5px rgba(255,159,67,.8)';  anim = ''; }
+    else if (state === 'pulse')  { bg = '#FF9F43'; sh = '0 0 5px rgba(255,159,67,.5)';  anim = 'ad-pulse 1s ease-in-out infinite'; }
+    else if (state === 'red')    { bg = '#DC3545'; sh = '0 0 4px rgba(220,53,69,.5)';   anim = ''; }
+    else                         { bg = '#2a2d31'; sh = 'none';                           anim = ''; }
+    el.style.background  = bg;
+    el.style.boxShadow   = sh;
+    el.style.animation   = anim;
+  }
+  function updateDot(status) {
+    var wrap = document.getElementById('ad-leds');
+    if (!wrap) return;
+    if (!adEnabled) { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'flex';
+    var l1 = document.getElementById('ad-led-1');
+    var l2 = document.getElementById('ad-led-2');
+    var l3 = document.getElementById('ad-led-3');
+    if (status === 'takeout') {
+      adInTakeout = true;
+      setLed(l1, 'yellow'); setLed(l2, 'yellow'); setLed(l3, 'yellow');
+    } else if (status === 'reconnecting') {
+      setLed(l1, 'pulse');  setLed(l2, 'pulse');  setLed(l3, 'pulse');
+    } else if (status === 'disconnected') {
+      adInTakeout = false;
+      setLed(l1, 'off');    setLed(l2, 'off');    setLed(l3, 'off');
+    } else { // connected
+      adInTakeout = false;
+      setLed(l1, lastNumThrows >= 1 ? 'green' : 'off');
+      setLed(l2, lastNumThrows >= 2 ? 'green' : 'off');
+      setLed(l3, lastNumThrows >= 3 ? 'green' : 'off');
+    }
+  }
   if(!document.getElementById('ad-pulse-style')){var s=document.createElement('style');s.id='ad-pulse-style';s.textContent='@keyframes ad-pulse{0%,100%{opacity:1}50%{opacity:.4}}';document.head.appendChild(s);}
 
   // ── Force validation nécessaire quand Autodarts coché ──
@@ -2671,7 +2707,7 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     dartCount=0;
   }
 
-  function connect(){if(ws){try{ws.close();}catch(e){}}var url=getWSUrl();try{ws=new WebSocket(url);}catch(e){scheduleReconnect();return;}ws.onopen=function(){lastNumThrows=0;dartCount=0;updateDot('connected');};ws.onmessage=function(event){try{var msg=JSON.parse(event.data);if(msg.type!=='state')return;var data=msg.data;if(data.event==='Throw detected'&&data.numThrows>lastNumThrows){injectDart(data.throws[data.numThrows-1]);lastNumThrows=data.numThrows;}if(data.event==='Takeout finished'){lastNumThrows=0;handleTakeout();}if(data.event==='Manual reset'){lastNumThrows=0;dartCount=0;}}catch(e){}};ws.onclose=function(){updateDot('disconnected');if(active)scheduleReconnect();};ws.onerror=function(){updateDot('disconnected');};}
+  function connect(){if(ws){try{ws.close();}catch(e){}}var url=getWSUrl();try{ws=new WebSocket(url);}catch(e){scheduleReconnect();return;}ws.onopen=function(){lastNumThrows=0;dartCount=0;updateDot('connected');};ws.onmessage=function(event){try{var msg=JSON.parse(event.data);if(msg.type!=='state')return;var data=msg.data;if(data.event==='Throw detected'&&data.numThrows>lastNumThrows){injectDart(data.throws[data.numThrows-1]);lastNumThrows=data.numThrows;if(data.numThrows>=3)updateDot('takeout');else updateDot('connected');}if(data.event==='Takeoff started'){updateDot('takeout');}if(data.event==='Takeout finished'){if(adTurnResetTimer){clearTimeout(adTurnResetTimer);adTurnResetTimer=null;}if(lastNumThrows>0){lastNumThrows=0;updateDot('connected');handleTakeout();}}if(data.event==='Manual reset'){lastNumThrows=0;dartCount=0;adInTakeout=false;updateDot('connected');}}catch(e){}};ws.onclose=function(){updateDot('disconnected');if(active)scheduleReconnect();};ws.onerror=function(){updateDot('disconnected');};}
   function scheduleReconnect(){if(reconnectTimer||!active)return;updateDot('reconnecting');reconnectTimer=setTimeout(function(){reconnectTimer=null;if(active)connect();},RECONNECT_DELAY);}
   function stopBridge(){active=false;if(reconnectTimer){clearTimeout(reconnectTimer);reconnectTimer=null;}if(ws){try{ws.close();}catch(e){}ws=null;}updateDot('disconnected');}
   function startBridge(){active=true;dartCount=0;connect();}
@@ -2688,7 +2724,19 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
 
   var _origNext=window.nextPlayer;if(_origNext){window.nextPlayer=function(){dartCount=0;_origNext.apply(this,arguments);};}
   var _btnBack=document.getElementById('btn-back');if(_btnBack)_btnBack.addEventListener('click',function(){stopBridge();adEnabled=false;updateDot('disconnected');chkVal.disabled=false;chkVal.parentElement.style.opacity='';});
-  var _adDot=document.getElementById('ad-status-dot');if(_adDot)_adDot.addEventListener('click',function(){if(!adEnabled)return;lastNumThrows=0;dartCount=0;fetch('https://'+getIP()+':3181/api/reset',{method:'POST',mode:'no-cors'}).catch(function(){});this.style.background='#fff';this.style.boxShadow='0 0 12px rgba(255,255,255,.8)';setTimeout(function(){updateDot(ws&&ws.readyState===WebSocket.OPEN?'connected':'disconnected');},400);if(typeof showToast==='function')showToast('Autodarts reset');});
+  var _adDot = document.getElementById('ad-leds');
+  if (_adDot) _adDot.addEventListener('click', function() {
+    if (!adEnabled) return;
+    lastNumThrows = 0;
+    adInTakeout = false;
+    fetch('http://' + getIP() + ':3180/api/reset', { method: 'POST', mode: 'no-cors', targetAddressSpace: 'local' }).catch(function(){});
+    ['ad-led-1','ad-led-2','ad-led-3'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) { el.style.background = '#fff'; el.style.boxShadow = '0 0 8px rgba(255,255,255,.9)'; el.style.animation = ''; }
+    });
+    setTimeout(function() { updateDot(ws && ws.readyState === WebSocket.OPEN ? 'connected' : 'disconnected'); }, 400);
+    if (typeof showToast === 'function') showToast('Autodarts reset');
+  });
 })();
 </script>
 <script src="tournament-config.js"></script>
