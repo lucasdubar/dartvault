@@ -292,9 +292,9 @@
       border-color:color-mix(in srgb, var(--tile-color) 40%, transparent);
     }
 
-    .game-tile-icon { font-size:1.4rem; line-height:1; }
+    .game-tile-icon { font-size:clamp(1.4rem,4.5vw,2.8rem); line-height:1; }
     .game-tile-name {
-      font-family:'Rajdhani',sans-serif; font-size:.78rem; font-weight:700;
+      font-family:'Rajdhani',sans-serif; font-size:clamp(.78rem,1.8vw,1.2rem); font-weight:700;
       color:var(--dim); letter-spacing:.2px; text-align:center;
       padding:0 3px; line-height:1.15;
     }
@@ -428,26 +428,38 @@
       .page-content {
         display:grid;
         grid-template-columns:360px 1fr;
+        grid-template-rows:auto 1fr auto;
         gap:20px;
         align-items:stretch;
       }
       /* Hero card : occupe toute la hauteur de la colonne gauche */
       .hero-card {
-        grid-column:1; grid-row:1/3; order:0;
-        display:flex; flex-direction:column; justify-content:space-between;
-        padding:32px 28px;
+        grid-column:1; grid-row:1/4; order:0;
+        display:flex; flex-direction:column; justify-content:center;
+        gap:28px; padding:32px 24px;
       }
-      /* Nom : autorisé à passer sur 2 lignes, taille adaptée */
+      /* Identité : emoji au-dessus du nom, centré */
+      .hero-identity {
+        flex-direction:column; align-items:center;
+        gap:12px; margin-bottom:0; padding-right:0;
+      }
+      .hero-emoji { font-size:5rem; }
+      .hero-name-wrap { flex-direction:column; align-items:center; gap:10px; }
       .hero-name {
-        font-size:2.2rem;
+        font-size:2.6rem; text-align:center;
         white-space:normal; overflow:visible; text-overflow:clip;
       }
-      .hero-emoji   { font-size:3.2rem; }
-      .hero-stat-val { font-size:2.2rem; }
-      .hero-stats-row { gap:14px; }
-      /* Détail en premier dans la colonne droite, tuiles en dessous */
-      #game-detail     { grid-column:2; grid-row:1; order:1; }
-      .game-tiles-grid { grid-column:2; grid-row:2; order:2; }
+      .btn-player-switch { width:34px; height:34px; font-size:.85rem; }
+      /* Stats : empilées verticalement, plus grandes */
+      .hero-stats-row { flex-direction:column; gap:10px; }
+      .hero-stat { padding:18px 16px; flex-direction:row; justify-content:space-between; align-items:center; }
+      .hero-stat-val { font-size:clamp(2.4rem,3.5vw,3.2rem); }
+      .hero-stat-lbl { font-size:clamp(.8rem,1vw,1rem); letter-spacing:1px; margin-top:0; }
+      /* Sélecteur de période : en haut de la colonne droite */
+      .period-selector { grid-column:2; grid-row:1; order:1; justify-content:flex-start; margin-bottom:0; }
+      /* Détail puis tuiles dans la colonne droite */
+      #game-detail     { grid-column:2; grid-row:2; order:2; }
+      .game-tiles-grid { grid-column:2; grid-row:3; order:3; }
       /* 5 tuiles par ligne dans la colonne droite */
       .game-tile { width:calc(20% - 7px); }
     }
@@ -455,6 +467,39 @@
     @media(prefers-reduced-motion:reduce){
       *{animation-duration:.01ms!important;transition-duration:.01ms!important;}
     }
+
+    /* ── Period Selector ── */
+    .period-selector { position:relative; display:flex; justify-content:center; margin-bottom:14px; }
+    .btn-period {
+      background:var(--bg2); border:1.5px solid var(--border);
+      border-radius:12px; padding:8px 18px;
+      font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700;
+      color:var(--text); letter-spacing:.5px;
+      cursor:pointer; touch-action:manipulation;
+      display:flex; align-items:center; gap:8px; transition:border-color .2s;
+    }
+    .btn-period:active { border-color:var(--accent); }
+    .btn-period .arrow { font-size:.7rem; color:var(--dim); transition:transform .2s; }
+    .btn-period.open .arrow { transform:rotate(180deg); }
+    .period-dropdown {
+      display:none; position:absolute; top:calc(100% + 6px); left:50%;
+      transform:translateX(-50%);
+      background:var(--bg2); border:1px solid var(--border);
+      border-radius:12px; overflow:hidden;
+      box-shadow:0 8px 32px rgba(0,0,0,.5);
+      z-index:100; min-width:190px;
+      animation:pop-p .18s cubic-bezier(.34,1.56,.64,1);
+    }
+    .period-dropdown.open { display:block; }
+    .period-option {
+      padding:12px 20px; font-family:'Rajdhani',sans-serif;
+      font-size:.95rem; font-weight:700; color:var(--dim);
+      letter-spacing:.5px; cursor:pointer; transition:all .15s;
+    }
+    .period-option:hover, .period-option:active { background:var(--bg3); color:var(--text); }
+    .period-option.active { color:var(--accent); }
+    .period-option + .period-option { border-top:1px solid var(--border); }
+    @keyframes pop-p { from{transform:translateX(-50%) scale(.85);opacity:0} to{transform:translateX(-50%) scale(1);opacity:1} }
   </style>
 </head>
 <body>
@@ -497,6 +542,20 @@
   </div>
 
   <div class="page-content">
+
+    <!-- Sélecteur de période -->
+    <div class="period-selector">
+      <button class="btn-period" id="btn-period">
+        <span id="period-label">Quotidien</span>
+        <span class="arrow">▼</span>
+      </button>
+      <div class="period-dropdown" id="period-dropdown">
+        <div class="period-option active" data-period="daily">Quotidien</div>
+        <div class="period-option" data-period="weekly">Hebdomadaire</div>
+        <div class="period-option" data-period="monthly">Mensuel</div>
+        <div class="period-option" data-period="alltime">All Time</div>
+      </div>
+    </div>
 
     <!-- Hero card -->
     <div class="hero-card">
@@ -656,8 +715,32 @@ function getWins()      { try{ return JSON.parse(localStorage.getItem('dartvault
 function getGameStats() { try{ return JSON.parse(localStorage.getItem('dartvault_game_stats'))||{}; } catch(e){ return {}; } }
 function getProfiles()  { try{ return JSON.parse(localStorage.getItem('dartvault_profiles'))||[]; }  catch(e){ return []; } }
 
+function todayKey()  { return new Date().toISOString().slice(0,10); }
+function weekKey()   { const d=new Date(),day=d.getDay()||7; d.setDate(d.getDate()-day+1); return d.toISOString().slice(0,10); }
+function monthKey()  { return new Date().toISOString().slice(0,7); }
+
+let currentPeriod = 'daily';
 let playerWins  = {};
 let playerStats = {};
+
+function getWinsForPeriod(key) {
+  const pw = playerWins[key];
+  if (!pw) return 0;
+  if (currentPeriod === 'alltime') return pw.total || 0;
+  if (currentPeriod === 'daily')   return (pw.daily  ||{})[todayKey()] || 0;
+  if (currentPeriod === 'weekly')  return (pw.weekly ||{})[weekKey()]  || 0;
+  if (currentPeriod === 'monthly') return (pw.monthly||{})[monthKey()] || 0;
+  return 0;
+}
+function getGamesForPeriod(key) {
+  const ps = playerStats[key];
+  if (!ps) return 0;
+  if (currentPeriod === 'alltime') return ps.games || 0;
+  if (currentPeriod === 'daily')   return (ps.daily  ||{})[todayKey()] || 0;
+  if (currentPeriod === 'weekly')  return (ps.weekly ||{})[weekKey()]  || 0;
+  if (currentPeriod === 'monthly') return (ps.monthly||{})[monthKey()] || 0;
+  return 0;
+}
 
 // ══════════════════════════════════════════════════════════════════════
 // CLASSEMENT GLOBAL (pour badge)
@@ -711,8 +794,8 @@ function render() {
 
   let totalWins = 0, totalGames = 0;
   GAME_CONFIGS.forEach(g => {
-    const pw = playerWins[g.key]; if(pw) totalWins  += (pw.total||0);
-    const ps = playerStats[g.key]; if(ps) totalGames += (ps.games||0);
+    totalWins  += getWinsForPeriod(g.key);
+    totalGames += getGamesForPeriod(g.key);
   });
   const wr = totalGames > 0 ? Math.round(totalWins/totalGames*100) : null;
 
@@ -723,8 +806,8 @@ function render() {
   renderRankBadge(computeRank(fullName));
   renderTiles();
 
-  // Sélectionner auto le 1er jeu avec données
-  const first = GAME_CONFIGS.find(g => playerStats[g.key] && playerStats[g.key].games > 0);
+  // Sélectionner auto le 1er jeu avec données pour la période
+  const first = GAME_CONFIGS.find(g => getGamesForPeriod(g.key) > 0);
   if (first) selectGame(first.key);
   else document.getElementById('game-detail').innerHTML = '';
 }
@@ -733,8 +816,7 @@ function render() {
 function renderTiles() {
   const grid = document.getElementById('game-tiles');
   grid.innerHTML = GAME_CONFIGS.map(g => {
-    const ps      = playerStats[g.key];
-    const hasData = ps && (ps.games||0) > 0;
+    const hasData = getGamesForPeriod(g.key) > 0;
     const cls     = ['game-tile', hasData ? 'has-data' : ''].filter(Boolean).join(' ');
     const label   = isFr ? g.fr : g.en;
     return `<div class="${cls}" id="tile-${g.key}" style="--tile-color:${g.color}" onclick="selectGame('${g.key}')">
@@ -760,8 +842,8 @@ function renderDetail(key) {
   if (!g) return;
 
   const ps      = playerStats[key] || null;
-  const wins    = (playerWins[key] && playerWins[key].total) || 0;
-  const games   = ps ? (ps.games||0) : 0;
+  const wins    = getWinsForPeriod(key);
+  const games   = getGamesForPeriod(key);
   const pct     = games > 0 ? Math.round(wins/games*100) : 0;
   const hasData = games > 0;
   const fullGameName = (GAME_FULL[isFr?'fr':'en']||GAME_FULL.fr)[key] || g.fr;
@@ -844,6 +926,48 @@ function buildChips(key, ps) {
 }
 
 render();
+
+// ══════════════════════════════════════════════════════════════════════
+// PERIOD SELECTOR
+// ══════════════════════════════════════════════════════════════════════
+(function() {
+  const PERIODS = {
+    daily:   isFr ? 'Quotidien'    : 'Daily',
+    weekly:  isFr ? 'Hebdomadaire' : 'Weekly',
+    monthly: isFr ? 'Mensuel'      : 'Monthly',
+    alltime: 'All Time',
+  };
+  const btn      = document.getElementById('btn-period');
+  const dropdown = document.getElementById('period-dropdown');
+  const label    = document.getElementById('period-label');
+
+  // Appliquer les labels i18n
+  document.querySelectorAll('.period-option').forEach(opt => {
+    opt.textContent = PERIODS[opt.dataset.period] || opt.dataset.period;
+  });
+  label.textContent = PERIODS[currentPeriod];
+
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    btn.classList.toggle('open');
+    dropdown.classList.toggle('open');
+  });
+  document.addEventListener('click', () => {
+    btn.classList.remove('open');
+    dropdown.classList.remove('open');
+  });
+  document.querySelectorAll('.period-option').forEach(opt => {
+    opt.addEventListener('click', e => {
+      e.stopPropagation();
+      currentPeriod = opt.dataset.period;
+      label.textContent = PERIODS[currentPeriod];
+      document.querySelectorAll('.period-option').forEach(o => o.classList.toggle('active', o.dataset.period === currentPeriod));
+      btn.classList.remove('open');
+      dropdown.classList.remove('open');
+      render();
+    });
+  });
+})();
 
 // ══════════════════════════════════════════════════════════════════════
 // PLAYER SWITCHER

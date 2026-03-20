@@ -1854,6 +1854,11 @@ function showFinalEnd() {
       s.closedZones += closed;
       s.totalDarts += (p.totalDarts || 0);
       s.games++;
+      var _dkcr=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();
+      if(!s.daily)s.daily={};if(!s.weekly)s.weekly={};if(!s.monthly)s.monthly={};
+      s.daily[_dkcr.today]=(s.daily[_dkcr.today]||0)+1;
+      s.weekly[_dkcr.week]=(s.weekly[_dkcr.week]||0)+1;
+      s.monthly[_dkcr.month]=(s.monthly[_dkcr.month]||0)+1;
     });
     localStorage.setItem(STATS_KEY, JSON.stringify(stats));
   })();

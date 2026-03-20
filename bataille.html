@@ -2547,6 +2547,11 @@ function showEnd() {
       s.hits += ps.hits || 0;
       s.totalShots += (ps.hits || 0) + (ps.misses || 0);
       s.games += 1;
+      var _dkba=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();
+      if(!s.daily)s.daily={};if(!s.weekly)s.weekly={};if(!s.monthly)s.monthly={};
+      s.daily[_dkba.today]=(s.daily[_dkba.today]||0)+1;
+      s.weekly[_dkba.week]=(s.weekly[_dkba.week]||0)+1;
+      s.monthly[_dkba.month]=(s.monthly[_dkba.month]||0)+1;
     });
     localStorage.setItem(STATS_KEY, JSON.stringify(stats));
   })();

@@ -1588,6 +1588,11 @@ function showWin(w){
       s.pointsStolen += (p.stolen || 0);
       s.pointsLost += (p.lost || 0);
       s.games++;
+      var _dkrc=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();
+      if(!s.daily)s.daily={};if(!s.weekly)s.weekly={};if(!s.monthly)s.monthly={};
+      s.daily[_dkrc.today]=(s.daily[_dkrc.today]||0)+1;
+      s.weekly[_dkrc.week]=(s.weekly[_dkrc.week]||0)+1;
+      s.monthly[_dkrc.month]=(s.monthly[_dkrc.month]||0)+1;
     });
     localStorage.setItem(STATS_KEY, JSON.stringify(stats));
   })();

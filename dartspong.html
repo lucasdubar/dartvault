@@ -2410,6 +2410,11 @@ function victory(winnerIdxOrTeam) {
       s.zonesEliminated += (G.playerStats[p.name] || 0);
       s.totalDarts += (G.playerDarts[p.name] || 0);
       s.games++;
+      var _dkdp=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();
+      if(!s.daily)s.daily={};if(!s.weekly)s.weekly={};if(!s.monthly)s.monthly={};
+      s.daily[_dkdp.today]=(s.daily[_dkdp.today]||0)+1;
+      s.weekly[_dkdp.week]=(s.weekly[_dkdp.week]||0)+1;
+      s.monthly[_dkdp.month]=(s.monthly[_dkdp.month]||0)+1;
     });
     localStorage.setItem(STATS_KEY, JSON.stringify(gstats));
   })();

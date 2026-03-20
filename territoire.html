@@ -2637,6 +2637,11 @@ function showEndMessage(title, sub, col) {
         gs.neutralized += ps.neutralized;
       }
       gs.games++;
+      var _dkte=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();
+      if(!gs.daily)gs.daily={};if(!gs.weekly)gs.weekly={};if(!gs.monthly)gs.monthly={};
+      gs.daily[_dkte.today]=(gs.daily[_dkte.today]||0)+1;
+      gs.weekly[_dkte.week]=(gs.weekly[_dkte.week]||0)+1;
+      gs.monthly[_dkte.month]=(gs.monthly[_dkte.month]||0)+1;
     });
     localStorage.setItem(STATS_KEY, JSON.stringify(gstats));
   }

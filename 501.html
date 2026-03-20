@@ -2933,6 +2933,11 @@ function showFinalResult(winner) {
         s.doubleHits += p.allDoubleHits || 0;
       }
       s.games++;
+      var _dk501=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();
+      if(!s.daily)s.daily={};if(!s.weekly)s.weekly={};if(!s.monthly)s.monthly={};
+      s.daily[_dk501.today]=(s.daily[_dk501.today]||0)+1;
+      s.weekly[_dk501.week]=(s.weekly[_dk501.week]||0)+1;
+      s.monthly[_dk501.month]=(s.monthly[_dk501.month]||0)+1;
     });
     localStorage.setItem(STATS_KEY, JSON.stringify(stats));
   })();

@@ -1783,6 +1783,11 @@ function showEndRanking() {
       s.totalDarts += darts;
       s.shanghais += sh;
       s.games++;
+      var _dksh=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();
+      if(!s.daily)s.daily={};if(!s.weekly)s.weekly={};if(!s.monthly)s.monthly={};
+      s.daily[_dksh.today]=(s.daily[_dksh.today]||0)+1;
+      s.weekly[_dksh.week]=(s.weekly[_dksh.week]||0)+1;
+      s.monthly[_dksh.month]=(s.monthly[_dksh.month]||0)+1;
     });
     localStorage.setItem(STATS_KEY, JSON.stringify(gstats));
   })();
@@ -2142,6 +2147,11 @@ document.getElementById('btn-shanghai-yes').addEventListener('click', () => {
       s.totalDarts += darts;
       s.shanghais += sh;
       s.games++;
+      var _dksh=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();
+      if(!s.daily)s.daily={};if(!s.weekly)s.weekly={};if(!s.monthly)s.monthly={};
+      s.daily[_dksh.today]=(s.daily[_dksh.today]||0)+1;
+      s.weekly[_dksh.week]=(s.weekly[_dksh.week]||0)+1;
+      s.monthly[_dksh.month]=(s.monthly[_dksh.month]||0)+1;
     });
     localStorage.setItem(STATS_KEY, JSON.stringify(gstats));
   })();

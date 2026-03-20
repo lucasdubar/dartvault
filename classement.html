@@ -354,9 +354,9 @@
     @media (orientation:landscape) and (min-width:700px) and (min-height:500px) {
       .page-content {
         display:grid;
-        grid-template-columns:200px 1fr;
+        grid-template-columns:clamp(220px, 22vw, 300px) 1fr;
         grid-template-rows:auto auto 1fr auto;
-        gap:10px 16px;
+        gap:12px 20px;
         align-items:start;
       }
       /* Sélecteur jeu → col1 row1 */
@@ -367,11 +367,28 @@
       #ranking-container { grid-column:2; grid-row:1/5; }
       /* Bouton reset → col1 row3 */
       .page-content > div:last-child { grid-column:1; grid-row:3; margin:0; }
-      /* Bouton jeu pleine largeur colonne */
-      .btn-game-pick { width:100%; justify-content:center; box-sizing:border-box; }
-      /* Dropdown période aligné à gauche */
+
+      /* Sidebar : boutons plus grands, police plus grande */
+      .btn-game-pick {
+        width:100%; justify-content:center; box-sizing:border-box;
+        font-size:clamp(1rem,1.3vw,1.3rem); padding:clamp(12px,1.5vh,18px) 16px;
+      }
+      .btn-period {
+        width:100%; justify-content:space-between; box-sizing:border-box;
+        font-size:clamp(1rem,1.3vw,1.3rem); padding:clamp(12px,1.5vh,18px) 16px;
+      }
       .period-dropdown { left:0; transform:none; min-width:100%; }
-      .btn-period { width:100%; justify-content:space-between; box-sizing:border-box; }
+      .period-option { font-size:clamp(.95rem,1.2vw,1.2rem); padding:clamp(10px,1.3vh,16px) 16px; }
+
+      /* Classement : lignes et textes plus grands */
+      .rank-row { padding:clamp(14px,1.8vh,22px) clamp(16px,2vw,28px); gap:clamp(12px,1.5vw,20px); }
+      .rank-pos { font-size:clamp(1.2rem,1.6vw,1.8rem); width:clamp(28px,2.5vw,40px); }
+      .rank-avatar { width:clamp(42px,4.5vw,58px); height:clamp(42px,4.5vw,58px); font-size:clamp(1.4rem,2vw,2rem); }
+      .rank-name { font-size:clamp(1.1rem,1.5vw,1.7rem); }
+      .rank-wins { font-size:clamp(1.6rem,2.4vw,2.8rem); }
+      .rank-wins-label { font-size:clamp(.72rem,.9vw,1rem); }
+      .ranking-header { padding:clamp(12px,1.5vh,18px) clamp(16px,2vw,28px); }
+      .ranking-header-title, .ranking-header-wins { font-size:clamp(.75rem,.9vw,1rem); letter-spacing:2px; }
     }
 
     @media(prefers-reduced-motion:reduce){
@@ -650,10 +667,18 @@ function getWinsForPeriod(game, period) {
     else {
       // Inclure joueurs avec parties mais sans victoire pour la période
       const gs = getGameStats();
+      const gp = (s) => {
+        if (!s) return 0;
+        if (period === 'alltime') return s.games || 0;
+        if (period === 'daily')   return (s.daily   || {})[todayKey()] || 0;
+        if (period === 'weekly')  return (s.weekly  || {})[weekKey()]  || 0;
+        if (period === 'monthly') return (s.monthly || {})[monthKey()] || 0;
+        return 0;
+      };
       if (game === '_total') {
         const pgs = gs[fullName];
-        if (pgs && Object.values(pgs).some(g => g.games > 0)) result[fullName] = 0;
-      } else if (gs[fullName] && gs[fullName][game] && gs[fullName][game].games > 0) {
+        if (pgs && Object.values(pgs).some(g => gp(g) > 0)) result[fullName] = 0;
+      } else if (gs[fullName] && gp(gs[fullName][game]) > 0) {
         result[fullName] = 0;
       }
     }
@@ -664,6 +689,15 @@ function getWinsForPeriod(game, period) {
 
 function getGameStats() {
   try { return JSON.parse(localStorage.getItem('dartvault_game_stats')) || {}; } catch(e) { return {}; }
+}
+
+function getGamesForPeriod(s) {
+  if (!s) return 0;
+  if (currentPeriod === 'alltime') return s.games || 0;
+  if (currentPeriod === 'daily')   return (s.daily   || {})[todayKey()] || 0;
+  if (currentPeriod === 'weekly')  return (s.weekly  || {})[weekKey()]  || 0;
+  if (currentPeriod === 'monthly') return (s.monthly || {})[monthKey()] || 0;
+  return 0;
 }
 
 function renderRanking() {
@@ -679,9 +713,9 @@ function renderRanking() {
     if (!activeProfiles.has(fullName)) return;
     if (fullName in winsMap) return;
     if (currentGame === '_total') {
-      if (Object.values(gs).some(g => g.games > 0)) winsMap[fullName] = 0;
+      if (Object.values(gs).some(g => getGamesForPeriod(g) > 0)) winsMap[fullName] = 0;
     } else {
-      if (gs[currentGame] && gs[currentGame].games > 0) winsMap[fullName] = 0;
+      if (gs[currentGame] && getGamesForPeriod(gs[currentGame]) > 0) winsMap[fullName] = 0;
     }
   });
 
@@ -689,9 +723,9 @@ function renderRanking() {
   const gamesForSort = {};
   Object.entries(gameStats).forEach(([fullName, ps]) => {
     if (currentGame === '_total') {
-      gamesForSort[fullName] = Object.values(ps).reduce((sum, g) => sum + (g.games || 0), 0);
+      gamesForSort[fullName] = Object.values(ps).reduce((sum, g) => sum + getGamesForPeriod(g), 0);
     } else {
-      gamesForSort[fullName] = ps[currentGame] ? (ps[currentGame].games || 0) : 0;
+      gamesForSort[fullName] = getGamesForPeriod(ps[currentGame]);
     }
   });
 
@@ -728,7 +762,7 @@ function renderRanking() {
 
     if (currentGame === '501' && ps['501']) {
       const s = ps['501'];
-      gamesPlayed = s.games || 0;
+      gamesPlayed = getGamesForPeriod(s);
       const avg = (s.totalThrows || 0) > 0 ? ((s.totalScore || 0) / s.totalThrows).toFixed(1) : '0.0';
       const dblHtml = (s.doubleAttempts || 0) > 0 ? `<span>D% <span class="rank-stat-val">${Math.round((s.doubleHits||0)/s.doubleAttempts*100)}%</span></span>` : '';
       statsHtml = `<div class="rank-stats">
@@ -738,7 +772,7 @@ function renderRanking() {
       </div>`;
     } else if (currentGame === 'territoire' && ps['territoire']) {
       const s = ps['territoire'];
-      gamesPlayed = s.games || 0;
+      gamesPlayed = getGamesForPeriod(s);
       statsHtml = `<div class="rank-stats">
         <span>✓<span class="rank-stat-val">${s.captures||0}</span></span>
         <span>🛡️<span class="rank-stat-val">${s.shields||0}</span></span>
@@ -746,14 +780,14 @@ function renderRanking() {
       </div>`;
     } else if (currentGame === 'cricket' && ps['cricket']) {
       const s = ps['cricket'];
-      gamesPlayed = s.games || 0;
+      gamesPlayed = getGamesForPeriod(s);
       statsHtml = `<div class="rank-stats">
         <span>${currentLang==='fr'?'Zones':'Zones'} : <span class="rank-stat-val">${s.closedZones||0}</span></span>
         <span>${currentLang==='fr'?'Flé':'Drt'} : <span class="rank-stat-val">${s.totalDarts||0}</span></span>
       </div>`;
     } else if (currentGame === 'shanghai' && ps['shanghai']) {
       const s = ps['shanghai'];
-      gamesPlayed = s.games || 0;
+      gamesPlayed = getGamesForPeriod(s);
       const pct = (s.totalDarts||0) > 0 ? Math.round((s.zonesHit||0) / s.totalDarts * 100) : 0;
       statsHtml = `<div class="rank-stats">
         <span>🎯 <span class="rank-stat-val">${pct}%</span></span>
@@ -761,8 +795,8 @@ function renderRanking() {
       </div>`;
     } else if (currentGame === 'blackjack' && ps['blackjack']) {
       const s = ps['blackjack'];
-      gamesPlayed = s.games || 0;
-      const avgMoney = gamesPlayed > 0 ? ((s.moneyDelta||0) / gamesPlayed).toFixed(1) : '0.0';
+      gamesPlayed = getGamesForPeriod(s);
+      const avgMoney = (s.games||0) > 0 ? ((s.moneyDelta||0) / s.games).toFixed(1) : '0.0';
       const sign = parseFloat(avgMoney) >= 0 ? '+' : '';
       const moneyColor = parseFloat(avgMoney) >= 0 ? '#4CAF50' : '#F44336';
       statsHtml = `<div class="rank-stats">
@@ -771,14 +805,14 @@ function renderRanking() {
       </div>`;
     } else if (currentGame === 'race500' && ps['race500']) {
       const s = ps['race500'];
-      gamesPlayed = s.games || 0;
+      gamesPlayed = getGamesForPeriod(s);
       statsHtml = `<div class="rank-stats">
         <span style="color:#4CAF50">+<span class="rank-stat-val">${s.pointsStolen||0}</span></span>
         <span style="color:#F44336">-<span class="rank-stat-val">${s.pointsLost||0}</span></span>
       </div>`;
     } else if (currentGame === 'horloge' && ps['horloge']) {
       const s = ps['horloge'];
-      gamesPlayed = s.games || 0;
+      gamesPlayed = getGamesForPeriod(s);
       const pct = (s.totalDarts||0) > 0 ? Math.round((s.zonesHit||0) / s.totalDarts * 100) : 0;
       statsHtml = `<div class="rank-stats">
         <span>🎯 <span class="rank-stat-val">${pct}%</span></span>
@@ -786,7 +820,7 @@ function renderRanking() {
       </div>`;
     } else if (currentGame === 'dartspong' && ps['dartspong']) {
       const s = ps['dartspong'];
-      gamesPlayed = s.games || 0;
+      gamesPlayed = getGamesForPeriod(s);
       const pct = (s.totalDarts||0) > 0 ? Math.round((s.zonesEliminated||0) / s.totalDarts * 100) : 0;
       statsHtml = `<div class="rank-stats">
         <span>🎯 <span class="rank-stat-val">${pct}%</span></span>
@@ -794,7 +828,7 @@ function renderRanking() {
       </div>`;
     } else if (currentGame === 'shooter' && ps['shooter']) {
       const s = ps['shooter'];
-      gamesPlayed = s.games || 0;
+      gamesPlayed = getGamesForPeriod(s);
       statsHtml = `<div class="rank-stats">
         <span>❤️<span class="rank-stat-val">${s.hpDealt||0}</span></span>
         <span>🔫<span class="rank-stat-val">${s.bulletsGained||0}</span></span>
@@ -802,7 +836,7 @@ function renderRanking() {
       </div>`;
     } else if (currentGame === 'bataille' && ps['bataille']) {
       const s = ps['bataille'];
-      gamesPlayed = s.games || 0;
+      gamesPlayed = getGamesForPeriod(s);
       const pct = (s.totalShots||0) > 0 ? Math.round((s.hits||0) / s.totalShots * 100) : 0;
       statsHtml = `<div class="rank-stats">
         <span>💥<span class="rank-stat-val">${s.hits||0}</span></span>
@@ -813,7 +847,7 @@ function renderRanking() {
 
     // Pour "Tout", compter le total de parties tous jeux confondus
     if (currentGame === '_total' && ps) {
-      Object.values(ps).forEach(function(g) { if (g.games) gamesPlayed += g.games; });
+      Object.values(ps).forEach(function(g) { gamesPlayed += getGamesForPeriod(g); });
     }
     const gamesStr = gamesPlayed > 0 ? `<span class="rank-games">/${gamesPlayed}</span>` : '';
 

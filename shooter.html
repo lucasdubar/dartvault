@@ -2889,6 +2889,11 @@ function showVictory(winner) {
       s.bulletsGained += p.stats.bulletsGained || 0;
       s.hpHealed += p.stats.hpHealed || 0;
       s.games += 1;
+      var _dkso=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();
+      if(!s.daily)s.daily={};if(!s.weekly)s.weekly={};if(!s.monthly)s.monthly={};
+      s.daily[_dkso.today]=(s.daily[_dkso.today]||0)+1;
+      s.weekly[_dkso.week]=(s.weekly[_dkso.week]||0)+1;
+      s.monthly[_dkso.month]=(s.monthly[_dkso.month]||0)+1;
     });
     localStorage.setItem(STATS_KEY, JSON.stringify(stats));
   })();
