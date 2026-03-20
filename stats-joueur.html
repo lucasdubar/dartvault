@@ -427,12 +427,25 @@
     @media (orientation:landscape) and (min-width:700px) and (min-height:500px) {
       .page-content {
         display:grid;
-        grid-template-columns:280px 1fr;
-        gap:16px;
-        align-items:start;
+        grid-template-columns:360px 1fr;
+        gap:20px;
+        align-items:stretch;
       }
+      /* Hero card : occupe toute la hauteur de la colonne gauche */
+      .hero-card {
+        grid-column:1; grid-row:1/3; order:0;
+        display:flex; flex-direction:column; justify-content:space-between;
+        padding:32px 28px;
+      }
+      /* Nom : autorisé à passer sur 2 lignes, taille adaptée */
+      .hero-name {
+        font-size:2.2rem;
+        white-space:normal; overflow:visible; text-overflow:clip;
+      }
+      .hero-emoji   { font-size:3.2rem; }
+      .hero-stat-val { font-size:2.2rem; }
+      .hero-stats-row { gap:14px; }
       /* Détail en premier dans la colonne droite, tuiles en dessous */
-      .hero-card       { grid-column:1; grid-row:1/3; align-self:start; order:0; }
       #game-detail     { grid-column:2; grid-row:1; order:1; }
       .game-tiles-grid { grid-column:2; grid-row:2; order:2; }
       /* 5 tuiles par ligne dans la colonne droite */
