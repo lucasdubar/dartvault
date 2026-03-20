@@ -4402,6 +4402,9 @@ function escPP(s) {
       if (!adEnabled || typeof G === 'undefined' || !G.gameStarted) return;
       console.log('[Autodarts] Manual reset — reconnecting bridge');
       lastNumThrows = 0;
+      adInTakeout = false;
+      // Envoyer le reset au board manager Autodarts
+      fetch('https://' + getIP() + ':3181/api/reset', { method: 'POST', mode: 'no-cors' }).catch(function(){});
       // Flash blanc sur les 3 LEDs, puis reconnect
       ['ad-led-1','ad-led-2','ad-led-3'].forEach(function(id) {
         var el = document.getElementById(id);
