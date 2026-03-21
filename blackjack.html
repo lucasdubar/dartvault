@@ -660,8 +660,9 @@ input[type=number]{-moz-appearance:textfield;}
 
   .target-banner{padding:6px 10px;}
   .target-num{font-size:2.6rem;}
-  .players-section{flex:1;overflow-y:auto;padding:4px 8px;}
+  .players-section{flex:1;overflow-y:auto;overflow-x:hidden;padding:4px 8px;}
   .players-grid{grid-template-columns:repeat(2,1fr)!important;gap:5px;}
+  .player-chip{min-width:0;overflow:hidden;}
 
   .cur-section{display:none!important;}
 
@@ -1417,6 +1418,10 @@ function feedbackBlackjack(){
   });
   setTimeout(()=>haptic('success'),300);
   setTimeout(()=>haptic('success'),700);
+  setTimeout(()=>{
+    if(localStorage.getItem('dartvault_sound')==='off')return;
+    try{const a=new Audio('voicebooking-speech.wav');a.play().catch(()=>{});}catch(e){}
+  },1300);
 }
 function feedbackVictory(){
   haptic('success');
@@ -2840,7 +2845,7 @@ window.addEventListener('resize',adjustPlayersPadding);
     var l3 = document.getElementById('ad-led-3');
     if (status === 'takeout') {
       adInTakeout = true;
-      setLed(l1, 'yellow'); setLed(l2, 'yellow'); setLed(l3, 'yellow');
+      setLed(l1, 'pulse'); setLed(l2, 'pulse'); setLed(l3, 'pulse');
     } else if (status === 'reconnecting') {
       setLed(l1, 'pulse');  setLed(l2, 'pulse');  setLed(l3, 'pulse');
     } else if (status === 'disconnected') {
@@ -2961,9 +2966,10 @@ window.addEventListener('resize',adjustPlayersPadding);
     if (btnMode) { btnMode.style.opacity = ''; btnMode.style.pointerEvents = ''; }
   });
 
-  var _adDot = document.getElementById('ad-leds');
-  if (_adDot) _adDot.addEventListener('click', function() {
+  // ── Reset complet Autodarts (fetch API + flash LEDs + reconnect) ──
+  function triggerAdReset(silent) {
     if (!adEnabled) return;
+    if (adTurnResetTimer) { clearTimeout(adTurnResetTimer); adTurnResetTimer = null; }
     lastNumThrows = 0;
     adInTakeout = false;
     fetch('http://' + getIP() + ':3180/api/reset', { method: 'POST', mode: 'no-cors', targetAddressSpace: 'local' }).catch(function(){});
@@ -2971,9 +2977,34 @@ window.addEventListener('resize',adjustPlayersPadding);
       var el = document.getElementById(id);
       if (el) { el.style.background = '#fff'; el.style.boxShadow = '0 0 8px rgba(255,255,255,.9)'; el.style.animation = ''; }
     });
-    setTimeout(function() { updateDot(ws && ws.readyState === WebSocket.OPEN ? 'connected' : 'disconnected'); }, 400);
-    if (typeof showToast === 'function') showToast('Autodarts reset');
+    setTimeout(function() { connect(); }, 300);
+    if (!silent && typeof showToast === 'function') showToast('Autodarts reset');
+  }
+
+  // ── Tap status dot = reset Autodarts (déblocage) ──
+  var _adDot = document.getElementById('ad-leds');
+  if (_adDot) _adDot.addEventListener('click', function() {
+    if (!adEnabled || typeof B === 'undefined' || !B.gameStarted) return;
+    triggerAdReset(false);
   });
+
+  // ── Reset automatique sur clic manuel Valider ──
+  var _adValBtn = document.getElementById('nkey-validate');
+  if (_adValBtn) _adValBtn.addEventListener('click', function() {
+    if (!adEnabled) return;
+    triggerAdReset(false);
+  });
+
+  // ── Auto-reset 1s après chaque début de tour (silencieux) ──
+  var _origDCommit = window.dCommit;
+  if (typeof _origDCommit === 'function') {
+    window.dCommit = function() {
+      _origDCommit.apply(this, arguments);
+      if (!adEnabled) return;
+      if (adTurnResetTimer) clearTimeout(adTurnResetTimer);
+      adTurnResetTimer = setTimeout(function() { triggerAdReset(true); }, 1000);
+    };
+  }
 })();
 </script>
 <script src="tournament-config.js"></script>

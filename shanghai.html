@@ -2640,7 +2640,7 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     var l3 = document.getElementById('ad-led-3');
     if (status === 'takeout') {
       adInTakeout = true;
-      setLed(l1, 'yellow'); setLed(l2, 'yellow'); setLed(l3, 'yellow');
+      setLed(l1, 'pulse'); setLed(l2, 'pulse'); setLed(l3, 'pulse');
     } else if (status === 'reconnecting') {
       setLed(l1, 'pulse');  setLed(l2, 'pulse');  setLed(l3, 'pulse');
     } else if (status === 'disconnected') {
@@ -2732,11 +2732,12 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     }
   },500);
 
-  var _origNext=window.nextPlayer;if(_origNext){window.nextPlayer=function(){dartCount=0;_origNext.apply(this,arguments);};}
   var _btnBack=document.getElementById('btn-back');if(_btnBack)_btnBack.addEventListener('click',function(){stopBridge();adEnabled=false;updateDot('disconnected');chkVal.disabled=false;chkVal.parentElement.style.opacity='';});
-  var _adDot = document.getElementById('ad-leds');
-  if (_adDot) _adDot.addEventListener('click', function() {
+
+  // ── Reset complet Autodarts (fetch API + flash LEDs + reconnect) ──
+  function triggerAdReset(silent) {
     if (!adEnabled) return;
+    if (adTurnResetTimer) { clearTimeout(adTurnResetTimer); adTurnResetTimer = null; }
     lastNumThrows = 0;
     adInTakeout = false;
     fetch('http://' + getIP() + ':3180/api/reset', { method: 'POST', mode: 'no-cors', targetAddressSpace: 'local' }).catch(function(){});
@@ -2744,9 +2745,34 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
       var el = document.getElementById(id);
       if (el) { el.style.background = '#fff'; el.style.boxShadow = '0 0 8px rgba(255,255,255,.9)'; el.style.animation = ''; }
     });
-    setTimeout(function() { updateDot(ws && ws.readyState === WebSocket.OPEN ? 'connected' : 'disconnected'); }, 400);
-    if (typeof showToast === 'function') showToast('Autodarts reset');
+    setTimeout(function() { connect(); }, 300);
+    if (!silent && typeof showToast === 'function') showToast('Autodarts reset');
+  }
+
+  // ── Tap status dot = reset Autodarts (déblocage) ──
+  var _adDot = document.getElementById('ad-leds');
+  if (_adDot) _adDot.addEventListener('click', function() {
+    if (!adEnabled || typeof state === 'undefined' || !state.gameStarted) return;
+    triggerAdReset(false);
   });
+
+  // ── Reset automatique sur clic manuel Valider ──
+  var _adValBtn = document.getElementById('btn-val');
+  if (_adValBtn) _adValBtn.addEventListener('click', function() {
+    if (!adEnabled) return;
+    triggerAdReset(false);
+  });
+
+  // ── Auto-reset 1s après chaque début de tour (silencieux) ──
+  var _origNext = window.nextPlayer;
+  if (typeof _origNext === 'function') {
+    window.nextPlayer = function() {
+      _origNext.apply(this, arguments);
+      if (!adEnabled) return;
+      if (adTurnResetTimer) clearTimeout(adTurnResetTimer);
+      adTurnResetTimer = setTimeout(function() { triggerAdReset(true); }, 1000);
+    };
+  }
 })();
 </script>
 <script src="tournament-config.js"></script>

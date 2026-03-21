@@ -1148,6 +1148,13 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
       <div class="option-btn" id="opt-simpleout" onclick="selectOpt('simpleout')" data-i18n="x01_simpleout">Simple Out</div>
       <div class="option-btn" id="opt-dblindblout" onclick="selectOpt('dblindblout')" data-i18n="x01_dblindblout">D. In / D. Out</div>
     </div>
+    <div class="card-title" style="margin-top:12px;">⏱ Tours max / manche</div>
+    <div class="pill-group" style="margin-bottom:12px;">
+      <label class="pill-label"><input type="radio" name="maxrounds501" value="0" checked><span class="pill">∞</span></label>
+      <label class="pill-label"><input type="radio" name="maxrounds501" value="10"><span class="pill">10</span></label>
+      <label class="pill-label"><input type="radio" name="maxrounds501" value="15"><span class="pill">15</span></label>
+      <label class="pill-label"><input type="radio" name="maxrounds501" value="20"><span class="pill">20</span></label>
+    </div>
     <div class="card-title" style="margin-top:12px;">🏆 Format</div>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;">
       <div>
@@ -1237,6 +1244,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
       <span class="finish-lbl">💡 FINISH :</span>
       <span class="finish-route" id="finish-route"></span>
     </div>
+    <div id="round-label-501" style="display:none;text-align:center;font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:700;color:var(--dim);letter-spacing:1.5px;margin-top:4px;"></div>
   </div>
 
   <!-- Liste joueurs -->
@@ -1809,7 +1817,10 @@ document.getElementById('btn-start').addEventListener('click', () => {
   G.setsToWin = selectedSets;
   G.legsPerSet = 3;
   G.trackDoubles = document.getElementById('chk-double-stats').checked;
+  // Autodarts actif → forcer le mode saisie par fléchette
+  if (localStorage.getItem('dartvault_autodarts_enabled') === '1') inputMode = 'darts';
   G.inputMode = inputMode;
+  G.maxRounds = parseInt(document.querySelector('input[name="maxrounds501"]:checked').value);
   startGame();
 });
 
@@ -1818,6 +1829,7 @@ function startGame() {
   G.firstPlayerIdx = 0;
   G.history = [];
   G.throwTimeline = [];
+  G.round = 1;
   G.gameStarted = true;
   G.players.forEach(p => {
     p.score = G.startScore;
@@ -1932,6 +1944,18 @@ function updateDisplay(flashIdx) {
 
   // Grille joueurs
   renderPlayersGrid(flashIdx);
+
+  // Indicateur de tour
+  const rl501 = document.getElementById('round-label-501');
+  if (rl501) {
+    if (G.maxRounds > 0) {
+      rl501.style.display = '';
+      rl501.textContent = 'TOUR ' + G.round + ' / ' + G.maxRounds;
+      rl501.style.color = G.round >= G.maxRounds ? 'var(--danger)' : 'var(--dim)';
+    } else {
+      rl501.style.display = 'none';
+    }
+  }
 
   // Undo btn
   document.getElementById('nkey-undo').classList.toggle('disabled', G.history.length === 0);
@@ -2224,6 +2248,7 @@ function pushDartSnap() {
     doubleInDone: G.players.map(p => p.doubleInDone),
     throwTimeline: G.throwTimeline ? [...G.throwTimeline] : [],
     dartsInTurn: dartState.darts.map(d => ({...d})),  // pour reconstruire l'affichage
+    round: G.round,
   });
 }
 
@@ -2723,7 +2748,19 @@ function showDoutModal(scoreAtTurnStart, isCheckout = false) {
 }
 
 function nextPlayer(flashIdx) {
-  G.currentIdx = (G.currentIdx + 1) % G.players.length;
+  const nextIdx = (G.currentIdx + 1) % G.players.length;
+  if (nextIdx === 0) {
+    // Tous les joueurs ont joué ce tour → on entre dans un nouveau tour
+    if (G.maxRounds > 0 && G.round >= G.maxRounds) {
+      G.currentIdx = nextIdx;
+      _ttsLastFinish = -1;
+      if (G.inputMode === 'darts') dartReset();
+      _endByMaxRounds();
+      return;
+    }
+    G.round++;
+  }
+  G.currentIdx = nextIdx;
   _ttsLastFinish = -1;
   if (G.inputMode === 'darts') dartReset();
   updateDisplay(flashIdx);
@@ -2744,6 +2781,7 @@ function undoLast() {
     p.legsInSet = s.legsInSet[i];
     if (s.doubleInDone) p.doubleInDone = s.doubleInDone[i];
   });
+  if (s.round !== undefined) G.round = s.round;
   // Timeline : 1 snap = 1 entrée (vrai en mode total et en mode darts avec nouvelle archi)
   if (G.throwTimeline && G.throwTimeline.length > 0) {
     G.throwTimeline.pop();
@@ -2941,6 +2979,53 @@ function showFinalResult(winner) {
     });
     localStorage.setItem(STATS_KEY, JSON.stringify(stats));
   })();
+}
+
+function _endByMaxRounds() {
+  G.gameStarted = false;
+  // Tri par score restant croissant (le plus bas gagne)
+  const sorted = [...G.players].sort((a, b) => a.score - b.score);
+  const winner = sorted[0];
+  const medals = ['🏆','🥈','🥉'];
+
+  // Cumuler les stats
+  G._preFinalCumulatives = G.players.map(p => ({
+    allThrows: [...p.allThrows],
+    allDartsThrown: p.allDartsThrown,
+    allDoubleAttempts: p.allDoubleAttempts,
+    allDoubleHits: p.allDoubleHits,
+  }));
+  G.players.forEach(p => {
+    p.allThrows = p.allThrows.concat(p.throws);
+    p.allDartsThrown += p.dartsThrown;
+    p.allDoubleAttempts += p.doubleAttempts;
+    p.allDoubleHits += p.doubleHits;
+  });
+
+  const isTie = sorted.length > 1 && sorted[0].score === sorted[1].score;
+  document.getElementById('end-title').textContent = isTie
+    ? '🤝 ' + DV_LANG.t('x01_tie') || 'Égalité !'
+    : '🏆 ' + winner.name + (DV_LANG.get() === 'en' ? ' wins!' : ' remporte la partie !');
+  document.getElementById('end-title').style.color = isTie ? 'var(--warn)' : winner.color;
+  speak((isTie ? (DV_LANG.get() === 'en' ? 'Tie game' : 'Égalité') : winner.name + ' ' + (DV_LANG.get() === 'en' ? 'wins' : 'remporte la partie')), 1200);
+
+  document.getElementById('end-ranking').innerHTML = sorted.map((p, i) => {
+    const avg = calcAvg(p);
+    return '<div class="rank-row" style="border-color:' + p.color + '20">' +
+      '<div class="rank-medal">' + (medals[i] || '') + '</div>' +
+      '<div class="rank-name" style="color:' + p.color + '">' + p.name + '</div>' +
+      '<div class="rank-info">' +
+        '<div class="rank-legs" style="color:' + p.color + '">' + p.score + ' restants</div>' +
+        '<div class="rank-avg">' + DV_LANG.t('x01_avg_lbl') + ' ' + avg.toFixed(1) + ' | ' + p.dartsThrown + ' ' + DV_LANG.t('x01_stat_darts') + '</div>' +
+      '</div></div>';
+  }).join('');
+
+  document.getElementById('btn-rematch').textContent = DV_LANG.t('rematch');
+  document.getElementById('btn-end-back').textContent = DV_LANG.t('config');
+  document.getElementById('btn-end-close').textContent = '↩ ' + DV_LANG.t('cancel');
+  document.getElementById('end-modal').classList.add('open');
+  G._pendingNextLeg = false;
+  updateDisplay();
 }
 
 // ── STATS MODAL ──────────────────────────────────────────────────────
@@ -4075,7 +4160,7 @@ function escPP(s) {
     var l3 = document.getElementById('ad-led-3');
     if (status === 'takeout') {
       adInTakeout = true;
-      setLed(l1, 'yellow'); setLed(l2, 'yellow'); setLed(l3, 'yellow');
+      setLed(l1, 'pulse'); setLed(l2, 'pulse'); setLed(l3, 'pulse');
     } else if (status === 'reconnecting') {
       setLed(l1, 'pulse');  setLed(l2, 'pulse');  setLed(l3, 'pulse');
     } else if (status === 'disconnected') {
@@ -4166,13 +4251,19 @@ function escPP(s) {
     dHit(dart.number);
   }
 
-  // ── Client-side auto-reset (sans appel réseau) ──
-  function adAutoReset() {
+  // ── Reset complet Autodarts (fetch API + flash LEDs + reconnect) ──
+  function triggerAdReset(silent) {
     if (!adEnabled) return;
     if (adTurnResetTimer) { clearTimeout(adTurnResetTimer); adTurnResetTimer = null; }
     lastNumThrows = 0;
-    // Ne pas effacer les LEDs jaunes si autodarts est encore en takeout
-    if (!adInTakeout && ws && ws.readyState === WebSocket.OPEN) updateDot('connected');
+    adInTakeout = false;
+    fetch('http://' + getIP() + ':3180/api/reset', { method: 'POST', mode: 'no-cors', targetAddressSpace: 'local' }).catch(function(){});
+    ['ad-led-1','ad-led-2','ad-led-3'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) { el.style.background = '#fff'; el.style.boxShadow = '0 0 8px rgba(255,255,255,.9)'; el.style.animation = ''; }
+    });
+    setTimeout(function() { connect(); }, 300);
+    if (!silent && typeof showToast === 'function') showToast('Autodarts reset');
   }
 
   // ── Handle takeout: auto-complete + next player ──
@@ -4181,12 +4272,10 @@ function escPP(s) {
     if (typeof dartState === 'undefined') return;
     // Si aucune fléchette n'a été lancée, ignorer le takeout
     if (dartState.dartIdx === 0) return;
-    // Si le tour est déjà terminé (bust ou checkout), ignorer le takeout
-    var p = G.players[G.currentIdx];
-    if (p && p.throws.length > 0) {
-      var lastT = p.throws[p.throws.length - 1];
-      if (lastT.bust) return; // bust déjà traité, ne pas re-annoncer
-    }
+    // Si le tour courant s'est terminé en bust (via dHit), ignorer le takeout
+    // On vérifie dartState.darts (tour en cours) et non p.throws (historique) pour éviter
+    // de bloquer le takeout sur la base d'un bust d'un tour précédent
+    if (dartState.darts.some(function(d) { return d.bust; })) return;
 
     // Utiliser dValidateEarly qui gère correctement :
     // - Auto-complétion des fléchettes manquantes en OUT
@@ -4371,14 +4460,14 @@ function escPP(s) {
     });
   }
 
-  // ── Auto-reset 2s après chaque début de tour ──
+  // ── Auto-reset 1s après chaque début de tour (silencieux) ──
   var _origNextPlayer = window.nextPlayer;
   if (typeof _origNextPlayer === 'function') {
     window.nextPlayer = function() {
       _origNextPlayer.apply(this, arguments);
       if (!adEnabled) return;
       if (adTurnResetTimer) clearTimeout(adTurnResetTimer);
-      adTurnResetTimer = setTimeout(function() { adAutoReset(); }, 2000);
+      adTurnResetTimer = setTimeout(function() { triggerAdReset(true); }, 1000);
     };
   }
 
@@ -4415,20 +4504,18 @@ function escPP(s) {
   if (_adDot) {
     _adDot.addEventListener('click', function() {
       if (!adEnabled || typeof G === 'undefined' || !G.gameStarted) return;
-      console.log('[Autodarts] Manual reset — reconnecting bridge');
-      lastNumThrows = 0;
-      adInTakeout = false;
-      // Envoyer le reset au board manager Autodarts
-      fetch('http://' + getIP() + ':3180/api/reset', { method: 'POST', mode: 'no-cors', targetAddressSpace: 'local' }).catch(function(){});
-      // Flash blanc sur les 3 LEDs, puis reconnect
-      ['ad-led-1','ad-led-2','ad-led-3'].forEach(function(id) {
-        var el = document.getElementById(id);
-        if (el) { el.style.background = '#fff'; el.style.boxShadow = '0 0 8px rgba(255,255,255,.9)'; el.style.animation = ''; }
-      });
-      setTimeout(function() { connect(); }, 300);
-      if (typeof showToast === 'function') showToast('Autodarts reset');
+      triggerAdReset(false);
     });
   }
+
+  // ── Reset automatique sur clic manuel Valider (pad fléchettes + numpad) ──
+  ['dart-val-btn', 'nkey-val'].forEach(function(id) {
+    var btn = document.getElementById(id);
+    if (btn) btn.addEventListener('click', function() {
+      if (!adEnabled || typeof G === 'undefined' || !G.gameStarted) return;
+      triggerAdReset(false);
+    });
+  });
 
 })();
 </script>

@@ -1587,7 +1587,12 @@ function determineLegWinner() {
     .filter(x => x.closed === maxClosed);
 
   if (G.mode === 'noscore') {
-    // Pas de départage par score — égalité si plusieurs candidats
+    if (candidates.length === 1) return candidates[0].i;
+    // Tiebreaker 1 : zones fermées (déjà filtré sur maxClosed, donc égaux)
+    // Tiebreaker 2 : total de hits valides (min 3 par zone, hits au-delà ignorés)
+    const validHits = c => CRICKET_NUMS.reduce((s, n) => s + Math.min(c.p.marks[n], 3), 0);
+    const maxHits = Math.max(...candidates.map(validHits));
+    candidates = candidates.filter(c => validHits(c) === maxHits);
     return candidates.length === 1 ? candidates[0].i : -1;
   }
 
@@ -1863,12 +1868,19 @@ function showFinalEnd() {
     localStorage.setItem(STATS_KEY, JSON.stringify(stats));
   })();
 
+  const _validHits = p => CRICKET_NUMS.reduce((s, n) => s + Math.min(p.marks[n]||0, 3), 0);
+  const _closedCount = p => CRICKET_NUMS.filter(n => (p.marks[n]||0) >= 3).length;
   const sorted = [...G.players].sort((a, b) => {
     // Tri principal : legs ou sets (desc)
     const aWins = G.setsToWin > 0 ? (a.sets||0) : (a.legs||0);
     const bWins = G.setsToWin > 0 ? (b.sets||0) : (b.legs||0);
     if (bWins !== aWins) return bWins - aWins;
-    // Tri secondaire : score
+    // Tri secondaire selon le mode
+    if (G.mode === 'noscore') {
+      const aClosed = _closedCount(a), bClosed = _closedCount(b);
+      if (bClosed !== aClosed) return bClosed - aClosed;
+      return _validHits(b) - _validHits(a);
+    }
     if (G.mode === 'cutthroat') return (a.score||0) - (b.score||0); // moins = mieux
     return (b.score||0) - (a.score||0); // standard : plus = mieux
   });
@@ -1879,11 +1891,12 @@ function showFinalEnd() {
     const badge = G.setsToWin > 0
       ? `${p.sets||0}${DV_LANG.t('ckt_set_abbr')}`
       : `${p.legs||0}${legAbbr()}`;
+    const _pClosed = _closedCount(p), _pHits = _validHits(p);
     const dartsStat = G.mode === 'noscore'
-      ? `<span style="font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:700;color:var(--dim);margin-left:4px;">🎯 ${p.totalDarts||0} ${DV_LANG.t('x01_darts')||'fléchettes'}</span>`
+      ? `<span style="font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:700;color:var(--dim);margin-left:4px;">📌 ${_pClosed} zones · ${_pHits} hits</span>`
       : '';
     const _pWins = G.setsToWin > 0 ? (p.sets||0) : (p.legs||0);
-    const _trueRank = sorted.filter(q => { const _qw=G.setsToWin>0?(q.sets||0):(q.legs||0); if(_qw!==_pWins) return _qw>_pWins; if(G.mode==='noscore') return false; if(G.mode==='cutthroat') return (q.score||0)<(p.score||0); return (q.score||0)>(p.score||0); }).length;
+    const _trueRank = sorted.filter(q => { const _qw=G.setsToWin>0?(q.sets||0):(q.legs||0); if(_qw!==_pWins) return _qw>_pWins; if(G.mode==='noscore'){ const _qc=_closedCount(q),_pc2=_pClosed; if(_qc!==_pc2) return _qc>_pc2; return _validHits(q)>_pHits; } if(G.mode==='cutthroat') return (q.score||0)<(p.score||0); return (q.score||0)>(p.score||0); }).length;
     return `<div class="podium-row" style="border-left-color:${p.color};">
       <span class="podium-icon">${PODIUM_ICONS[_trueRank] || ''}</span>
       <span class="podium-name" style="color:${p.color};">${p.name}</span>
@@ -1900,7 +1913,7 @@ function showFinalEnd() {
       const _aw = G.setsToWin > 0 ? (a.sets||0) : (a.legs||0);
       const _bw = G.setsToWin > 0 ? (b.sets||0) : (b.legs||0);
       if (_aw !== _bw) return false;
-      if (G.mode === 'noscore') return true;
+      if (G.mode === 'noscore') return _closedCount(a) === _closedCount(b) && _validHits(a) === _validHits(b);
       return (a.score||0) === (b.score||0);
     };
     const _groups = [];
@@ -3129,7 +3142,7 @@ history.pushState(null, '', window.location.href);
     var l3 = document.getElementById('ad-led-3');
     if (status === 'takeout') {
       adInTakeout = true;
-      setLed(l1, 'yellow'); setLed(l2, 'yellow'); setLed(l3, 'yellow');
+      setLed(l1, 'pulse'); setLed(l2, 'pulse'); setLed(l3, 'pulse');
     } else if (status === 'reconnecting') {
       setLed(l1, 'pulse');  setLed(l2, 'pulse');  setLed(l3, 'pulse');
     } else if (status === 'disconnected') {
@@ -3217,11 +3230,12 @@ history.pushState(null, '', window.location.href);
     }
   },500);
 
-  var _origAdvance=window.advanceToNextPlayer;if(_origAdvance){window.advanceToNextPlayer=function(){dartCount=0;_origAdvance.apply(this,arguments);};}
   var _btnBack=document.getElementById('btn-back');if(_btnBack)_btnBack.addEventListener('click',function(){stopBridge();adEnabled=false;updateDot('disconnected');chkVal.disabled=false;chkVal.parentElement.style.opacity='';});
-  var _adDot = document.getElementById('ad-leds');
-  if (_adDot) _adDot.addEventListener('click', function() {
+
+  // ── Reset complet Autodarts (fetch API + flash LEDs + reconnect) ──
+  function triggerAdReset(silent) {
     if (!adEnabled) return;
+    if (adTurnResetTimer) { clearTimeout(adTurnResetTimer); adTurnResetTimer = null; }
     lastNumThrows = 0;
     adInTakeout = false;
     fetch('http://' + getIP() + ':3180/api/reset', { method: 'POST', mode: 'no-cors', targetAddressSpace: 'local' }).catch(function(){});
@@ -3229,9 +3243,34 @@ history.pushState(null, '', window.location.href);
       var el = document.getElementById(id);
       if (el) { el.style.background = '#fff'; el.style.boxShadow = '0 0 8px rgba(255,255,255,.9)'; el.style.animation = ''; }
     });
-    setTimeout(function() { updateDot(ws && ws.readyState === WebSocket.OPEN ? 'connected' : 'disconnected'); }, 400);
-    if (typeof showToast === 'function') showToast('Autodarts reset');
+    setTimeout(function() { connect(); }, 300);
+    if (!silent && typeof showToast === 'function') showToast('Autodarts reset');
+  }
+
+  // ── Tap status dot = reset Autodarts (déblocage) ──
+  var _adDot = document.getElementById('ad-leds');
+  if (_adDot) _adDot.addEventListener('click', function() {
+    if (!adEnabled || typeof G === 'undefined' || !G.started) return;
+    triggerAdReset(false);
   });
+
+  // ── Reset automatique sur clic manuel Valider ──
+  var _adValBtn = document.getElementById('btn-val');
+  if (_adValBtn) _adValBtn.addEventListener('click', function() {
+    if (!adEnabled) return;
+    triggerAdReset(false);
+  });
+
+  // ── Auto-reset 1s après chaque début de tour (silencieux) ──
+  var _origAdvance = window.advanceToNextPlayer;
+  if (typeof _origAdvance === 'function') {
+    window.advanceToNextPlayer = function() {
+      _origAdvance.apply(this, arguments);
+      if (!adEnabled) return;
+      if (adTurnResetTimer) clearTimeout(adTurnResetTimer);
+      adTurnResetTimer = setTimeout(function() { triggerAdReset(true); }, 1000);
+    };
+  }
 })();
 </script>
 <script src="tournament-config.js"></script>

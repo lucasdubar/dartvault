@@ -971,6 +971,15 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;overf
         <button class="btn-difficulty-dp" id="btn-difficulty-dp" data-i18n="easy_btn">😊 Facile</button>
       </div>
     </div>
+    <div style="margin-top:12px;">
+      <div class="card-title">🔢 Tours max / manche</div>
+      <div class="pill-group">
+        <label class="pill-label"><input type="radio" name="maxroundsdp" value="0" checked><span class="pill">∞</span></label>
+        <label class="pill-label"><input type="radio" name="maxroundsdp" value="10"><span class="pill">10</span></label>
+        <label class="pill-label"><input type="radio" name="maxroundsdp" value="15"><span class="pill">15</span></label>
+        <label class="pill-label"><input type="radio" name="maxroundsdp" value="20"><span class="pill">20</span></label>
+      </div>
+    </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px;">
       <div>
         <div class="card-title" data-i18n="dp_mode">🎮 Mode de jeu</div>
@@ -1042,6 +1051,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;overf
     </div>
     <!-- Scores équipes -->
     <div class="scores-bar-dp" id="scores-bar-dp"></div>
+    <div id="dp-round-label" style="font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:700;color:var(--dim);letter-spacing:1px;text-align:center;padding:2px 0;display:none;"></div>
 
     <!-- Historique inline (landscape uniquement) -->
     <div class="hist-inline" id="hist-inline">
@@ -1190,6 +1200,15 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;overf
       <button class="btn-modal btn-gray" id="btn-end-menu">🏠 Menu</button>
       <button class="btn-modal btn-gray" id="btn-end-close" data-i18n="cancel">↩ Retour</button>
     </div>
+  </div>
+</div>
+
+<!-- Modal prolongation -->
+<div class="modal-ov" id="overtime-modal-dp">
+  <div class="modal" style="max-width:320px;text-align:center;">
+    <div class="modal-title" id="overtime-title-dp" style="font-size:1.3rem;color:var(--warn);">🤝 Égalité !</div>
+    <p id="overtime-sub-dp" style="font-size:.9rem;opacity:.8;margin-bottom:16px;"></p>
+    <button class="btn-modal btn-gold" id="btn-overtime-play">▶️ Jouer la prolongation</button>
   </div>
 </div>
 
@@ -1536,7 +1555,7 @@ document.getElementById('btn-rand').addEventListener('click', () => {
 document.addEventListener('click', e => {
   const el = e.target.closest('button, label, .pill-label, .option-btn');
   if (!el) return;
-  const skipIds = ['btn-start','btn-out','btn-undo','btn-hist','btn-rematch','btn-end-back','btn-end-menu','btn-end-close'];
+  const skipIds = ['btn-start','btn-out','btn-undo','btn-hist','btn-rematch','btn-end-back','btn-end-menu','btn-end-close','btn-overtime-play'];
   if (skipIds.includes(el.id)) return;
   feedbackKey();
 });
@@ -1583,6 +1602,9 @@ function startGame() {
   G.players.forEach(p => { G.playerStats[p.name] = 0; G.playerDarts[p.name] = 0; });
   G.gameStarted = true;
   G.requireValidate = document.getElementById('chk-validate') ? document.getElementById('chk-validate').checked : false;
+  G.maxRounds = parseInt(document.querySelector('input[name="maxroundsdp"]:checked').value)||0;
+  G.round = 1;
+  G.overtimeCount = 0;
 
   renderScoresBar();
   showScreen('game');
@@ -1699,6 +1721,8 @@ function updateDisplay() {
     else{d.classList.add('active');}
   }
   document.getElementById('btn-undo').classList.toggle('disabled', G.actionHistory.length===0);
+  const _rl=document.getElementById('dp-round-label');
+  if(_rl){if(G.maxRounds>0){_rl.style.display='';_rl.textContent='TOUR '+G.round+' / '+G.maxRounds;_rl.style.color=G.round>=G.maxRounds?'var(--danger)':'var(--dim)';}else{_rl.style.display='none';}}
 
   // Bouton Valider : état "ready" quand tour terminé en mode confirmation
   const quickSelect = document.getElementById('quick-select-dp')?.checked;
@@ -2305,6 +2329,15 @@ function nextPlayer() {
   G.turnDarts = [];  // Réinitialiser les slots fléchettes
   G.currentIdx=(G.currentIdx+1)%G.players.length;
   G.currentTeam=G.players[G.currentIdx].team;
+  if(G.currentIdx===0&&G.maxRounds>0){
+    G.round++;
+    if(G.round>G.maxRounds){
+      G.gameStarted=false;
+      updateDisplay();
+      setTimeout(()=>_endByMaxRoundsDP(),300);
+      return;
+    }
+  }
   updateDisplay();
 }
 
@@ -2445,7 +2478,7 @@ function victory(winnerIdxOrTeam) {
 // ── UNDO ─────────────────────────────────────────────
 function saveState() {
   G.actionHistory.push({
-    idx:G.currentIdx, team:G.currentTeam, darts:G.dartsThrown, streak:G.streak,
+    idx:G.currentIdx, team:G.currentTeam, darts:G.dartsThrown, streak:G.streak, round:G.round,
     sA:[...G.sectorsA.map(s=>({...s}))],
     sB:[...G.sectorsB.map(s=>({...s}))],
     sC:[...G.sectorsC.map(s=>({...s}))],
@@ -2461,6 +2494,7 @@ document.getElementById('btn-undo').addEventListener('click',()=>{
   feedbackUndo();
   const s=G.actionHistory.pop();
   G.currentIdx=s.idx; G.currentTeam=s.team; G.dartsThrown=s.darts; G.streak=s.streak;
+  if(s.round!==undefined) G.round=s.round;
   G.sectorsA=s.sA; G.sectorsB=s.sB; G.sectorsC=s.sC; G.bullUsed=s.bull;
   G.lastShot = null; // Effacer le clignotement après annulation
   G.turnDarts = s.turnDarts ? [...s.turnDarts] : []; // Restaurer les slots fléchettes
@@ -2506,6 +2540,55 @@ document.getElementById('btn-hist').addEventListener('click',()=>{
 });
 document.getElementById('close-hist').addEventListener('click',()=>document.getElementById('hist-drawer').classList.remove('open'));
 document.getElementById('hist-drawer').addEventListener('click',e=>{if(e.target===document.getElementById('hist-drawer'))document.getElementById('hist-drawer').classList.remove('open');});
+
+// ── MAX ROUNDS END ────────────────────────────────────
+function _showOvertimeDP(n){
+  document.getElementById('overtime-title-dp').textContent='🤝 Égalité parfaite !';
+  document.getElementById('overtime-sub-dp').textContent='Prolongation n°'+n+' !';
+  openModal('overtime-modal-dp');
+}
+function _endByMaxRoundsDP(){
+  const nz=G.numZones;
+  if(G.gameMode==='duel'){
+    const sorted=[...G.players].sort((a,b)=>{
+      const diff=(nz-b.sectors.length)-(nz-a.sectors.length);
+      if(diff!==0)return diff;
+      return (G.playerStats[b.name]||0)-(G.playerStats[a.name]||0);
+    });
+    const topScore=nz-sorted[0].sectors.length;
+    const topStats=G.playerStats[sorted[0].name]||0;
+    const isTie=sorted.length>1&&(nz-sorted[1].sectors.length)===topScore&&(G.playerStats[sorted[1].name]||0)===topStats;
+    if(isTie){G.overtimeCount++;G.maxRounds++;_showOvertimeDP(G.overtimeCount);return;}
+    const w=sorted[0];
+    G.gameStarted=false;
+    G._finalWinnerNames=w.fromProfile?[w.name]:[];
+    _recordWins(G._finalWinnerNames);
+    (function(){var K='dartvault_game_stats';var gs;try{gs=JSON.parse(localStorage.getItem(K))||{};}catch(e){gs={};}G.players.forEach(function(p){if(!p.fromProfile&&!profilePlayers.has(p.name)&&!window.TournamentBridge)return;var k=p.name;if(!gs[k])gs[k]={};if(!gs[k]['dartspong'])gs[k]['dartspong']={zonesEliminated:0,totalDarts:0,games:0};var s=gs[k]['dartspong'];s.zonesEliminated+=(G.playerStats[p.name]||0);s.totalDarts+=(G.playerDarts[p.name]||0);s.games++;var _d=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();if(!s.daily)s.daily={};if(!s.weekly)s.weekly={};if(!s.monthly)s.monthly={};s.daily[_d.today]=(s.daily[_d.today]||0)+1;s.weekly[_d.week]=(s.weekly[_d.week]||0)+1;s.monthly[_d.month]=(s.monthly[_d.month]||0)+1;});localStorage.setItem(K,JSON.stringify(gs));})();
+    const medals=['🏆','🥈','🥉','4️⃣','5️⃣','6️⃣'];
+    const rHtml=sorted.map(p=>{const _r=sorted.filter(q=>(nz-q.sectors.length)>(nz-p.sectors.length)).length+1;const sc=nz-p.sectors.length;const z=G.playerStats[p.name]||0;return`<div class="rank-row" style="border-color:${p.color}18;border-left-color:${p.color};"><div class="rank-medal">${medals[_r-1]||''}</div><div class="rank-name" style="color:${p.color}">${p.emoji} ${p.name}</div><div class="rank-info"><div class="rank-legs" style="color:${p.color}">${sc} / ${nz} zones</div><div class="rank-avg">${z} tir${z>1?'s':''}</div></div></div>`;}).join('');
+    showEnd('🏆 VICTOIRE !',rHtml,w.color);
+  } else {
+    const scA=nz-G.sectorsA.length,scB=nz-G.sectorsB.length;
+    if(scA===scB){G.overtimeCount++;G.maxRounds++;_showOvertimeDP(G.overtimeCount);return;}
+    const winTeam=scA>scB?'A':'B';
+    const loseTeam=winTeam==='A'?'B':'A';
+    G.gameStarted=false;
+    G._finalWinnerNames=[];
+    const wArr=winTeam==='A'?G.teamA:G.teamB;
+    if(wArr)wArr.forEach(n=>{if(profilePlayers.has(n))G._finalWinnerNames.push(n);});
+    _recordWins(G._finalWinnerNames);
+    (function(){var K='dartvault_game_stats';var gs;try{gs=JSON.parse(localStorage.getItem(K))||{};}catch(e){gs={};}G.players.forEach(function(p){if(!p.fromProfile&&!profilePlayers.has(p.name)&&!window.TournamentBridge)return;var k=p.name;if(!gs[k])gs[k]={};if(!gs[k]['dartspong'])gs[k]['dartspong']={zonesEliminated:0,totalDarts:0,games:0};var s=gs[k]['dartspong'];s.zonesEliminated+=(G.playerStats[p.name]||0);s.totalDarts+=(G.playerDarts[p.name]||0);s.games++;var _d=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();if(!s.daily)s.daily={};if(!s.weekly)s.weekly={};if(!s.monthly)s.monthly={};s.daily[_d.today]=(s.daily[_d.today]||0)+1;s.weekly[_d.week]=(s.weekly[_d.week]||0)+1;s.monthly[_d.month]=(s.monthly[_d.month]||0)+1;});localStorage.setItem(K,JSON.stringify(gs));})();
+    const names={A:'🔵 ÉQUIPE BLEUE',B:'🟡 ÉQUIPE JAUNE'};
+    const scW=winTeam==='A'?scA:scB,scL=winTeam==='A'?scB:scA;
+    const rHtml=`<div class="rank-row" style="border-color:${TC[winTeam]}18;border-left-color:${TC[winTeam]};"><div class="rank-medal">🏆</div><div class="rank-name" style="color:${TC[winTeam]}">${names[winTeam]}</div><div class="rank-info"><div class="rank-legs" style="color:${TC[winTeam]}">${scW} / ${nz} zones</div></div></div>`+`<div class="rank-row" style="border-color:${TC[loseTeam]}18;border-left-color:${TC[loseTeam]};"><div class="rank-medal">🥈</div><div class="rank-name" style="color:${TC[loseTeam]}">${names[loseTeam]}</div><div class="rank-info"><div class="rank-legs" style="color:${TC[loseTeam]}">${scL} / ${nz} zones</div></div></div>`;
+    showEnd('🏆 VICTOIRE !',rHtml,TC[winTeam]);
+  }
+}
+document.getElementById('btn-overtime-play').addEventListener('click',()=>{
+  closeModal('overtime-modal-dp');
+  G.gameStarted=true;
+  updateDisplay();
+});
 
 // ── END ───────────────────────────────────────────────
 function showEnd(title, rankingHtml, col) {
@@ -3281,7 +3364,7 @@ window.addEventListener('beforeinstallprompt', e => {
     var l3 = document.getElementById('ad-led-3');
     if (status === 'takeout') {
       adInTakeout = true;
-      setLed(l1, 'yellow'); setLed(l2, 'yellow'); setLed(l3, 'yellow');
+      setLed(l1, 'pulse'); setLed(l2, 'pulse'); setLed(l3, 'pulse');
     } else if (status === 'reconnecting') {
       setLed(l1, 'pulse');  setLed(l2, 'pulse');  setLed(l3, 'pulse');
     } else if (status === 'disconnected') {
@@ -3358,6 +3441,12 @@ window.addEventListener('beforeinstallprompt', e => {
       dartCount = 0;
       return;
     }
+    // Popup fermée avant le takeout (auto-close 2s) : dartsThrown a déjà été remis à 0
+    // → ne pas avancer le tour, laisser le joueur rejouer
+    if (G.dartsThrown === 0 && dartCount > 0) {
+      dartCount = 0;
+      return;
+    }
     if (typeof onValidate === 'function') setTimeout(function() { onValidate(); }, 300);
     dartCount = 0;
   }
@@ -3383,15 +3472,13 @@ window.addEventListener('beforeinstallprompt', e => {
     };
   }
 
-  var _origNext = window.nextPlayer;
-  if (_origNext) { window.nextPlayer = function() { dartCount = 0; _origNext.apply(this, arguments); }; }
-
   var _btnBack = document.getElementById('btn-back');
   if (_btnBack) _btnBack.addEventListener('click', function() { stopBridge(); adEnabled = false; updateDot('disconnected'); chkVal.disabled = false; chkVal.parentElement.style.opacity = ''; });
 
-  var _adDot = document.getElementById('ad-leds');
-  if (_adDot) _adDot.addEventListener('click', function() {
+  // ── Reset complet Autodarts (fetch API + flash LEDs + reconnect) ──
+  function triggerAdReset(silent) {
     if (!adEnabled) return;
+    if (adTurnResetTimer) { clearTimeout(adTurnResetTimer); adTurnResetTimer = null; }
     lastNumThrows = 0;
     adInTakeout = false;
     fetch('http://' + getIP() + ':3180/api/reset', { method: 'POST', mode: 'no-cors', targetAddressSpace: 'local' }).catch(function(){});
@@ -3399,9 +3486,34 @@ window.addEventListener('beforeinstallprompt', e => {
       var el = document.getElementById(id);
       if (el) { el.style.background = '#fff'; el.style.boxShadow = '0 0 8px rgba(255,255,255,.9)'; el.style.animation = ''; }
     });
-    setTimeout(function() { updateDot(ws && ws.readyState === WebSocket.OPEN ? 'connected' : 'disconnected'); }, 400);
-    if (typeof showToast === 'function') showToast('Autodarts reset');
+    setTimeout(function() { connect(); }, 300);
+    if (!silent && typeof showToast === 'function') showToast('Autodarts reset');
+  }
+
+  // ── Tap status dot = reset Autodarts (déblocage) ──
+  var _adDot = document.getElementById('ad-leds');
+  if (_adDot) _adDot.addEventListener('click', function() {
+    if (!adEnabled || typeof G === 'undefined' || !G.gameStarted) return;
+    triggerAdReset(false);
   });
+
+  // ── Reset automatique sur clic manuel Valider ──
+  var _adValBtn = document.getElementById('btn-val');
+  if (_adValBtn) _adValBtn.addEventListener('click', function() {
+    if (!adEnabled) return;
+    triggerAdReset(false);
+  });
+
+  // ── Auto-reset 1s après chaque début de tour (silencieux) ──
+  var _origNext = window.nextPlayer;
+  if (typeof _origNext === 'function') {
+    window.nextPlayer = function() {
+      _origNext.apply(this, arguments);
+      if (!adEnabled) return;
+      if (adTurnResetTimer) clearTimeout(adTurnResetTimer);
+      adTurnResetTimer = setTimeout(function() { triggerAdReset(true); }, 1000);
+    };
+  }
 })();
 </script>
 <script src="tournament-config.js"></script>

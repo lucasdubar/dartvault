@@ -1427,6 +1427,17 @@
   </div>
 </div>
 
+<!-- Modal prolongation -->
+<div class="modal-ov" id="overtime-modal">
+  <div class="modal">
+    <div class="modal-title" style="color:var(--warn);font-size:1.15rem;">🤝 Égalité parfaite !</div>
+    <div class="modal-sub" id="overtime-sub" style="text-align:center;margin-bottom:12px;font-family:'Rajdhani',sans-serif;font-size:.95rem;color:var(--dim);"></div>
+    <div class="modal-btns">
+      <button class="btn-modal btn-gold" id="btn-overtime-play">⚡ Jouer la prolongation</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════════════════════════════════════════════
      RULES MODAL
 ═══════════════════════════════════════════════════ -->
@@ -1709,6 +1720,7 @@ function startGame() {
   state.gameMode = m;
   state.numZones = getZones();
   state.maxRounds = getRounds();
+  state.overtimeCount = 0;
   state.difficulty = getDifficulty();
 
   // Build players array
@@ -2523,8 +2535,17 @@ function checkVictory() {
   return false;
 }
 
+function _showOvertimeTer(n) {
+  const sub = DV_LANG.get() === 'en'
+    ? `Territories are equal — playing overtime${n > 1 ? ' #' + n : ''}!`
+    : `Territoires à égalité — prolongation${n > 1 ? ' n°' + n : ''} !`;
+  document.getElementById('overtime-sub').textContent = sub;
+  document.getElementById('overtime-modal').classList.add('open');
+}
+
 function endGame() {
-  state.gameStarted = false;
+  // Note : state.gameStarted = false est géré par showEndMessage() uniquement si vrai vainqueur
+  // Pour la prolongation on laisse le jeu actif
   const cA = Object.values(state.territories).filter(t => t.owner === 'A').length;
   const cB = Object.values(state.territories).filter(t => t.owner === 'B').length;
   const cC = Object.values(state.territories).filter(t => t.owner === 'C').length;
@@ -2534,15 +2555,20 @@ function endGame() {
     const maxScore = Math.max(cA, cB, cC);
     const winners = scores.filter(s => s[1] === maxScore);
     if (winners.length > 1) {
-      if (window.TournamentBridge) TournamentBridge.onGameEnd([]);
-      showEndMessage('🤝 ' + DV_LANG.t('ter_draw'), `${cA}🔵 / ${cB}🔴 / ${cC}🟡`, '#C8860A');
+      state.overtimeCount = (state.overtimeCount || 0) + 1;
+      state.maxRounds += 1;
+      _showOvertimeTer(state.overtimeCount);
     } else {
       showEnd(winners[0][0], false);
     }
   } else {
     if (cA > cB) showEnd('A', false, cA, cB);
     else if (cB > cA) showEnd('B', false, cA, cB);
-    else { if (window.TournamentBridge) TournamentBridge.onGameEnd([[], []]); showEndMessage('🤝 ' + DV_LANG.t('ter_draw'), `${cA} - ${cB}`, '#C8860A'); }
+    else {
+      state.overtimeCount = (state.overtimeCount || 0) + 1;
+      state.maxRounds += 1;
+      _showOvertimeTer(state.overtimeCount);
+    }
   }
 }
 
@@ -2831,11 +2857,17 @@ document.getElementById('btn-end-close').addEventListener('click', () => {
   }
 });
 
+document.getElementById('btn-overtime-play').addEventListener('click', () => {
+  document.getElementById('overtime-modal').classList.remove('open');
+  state.gameStarted = true;
+  updateDisplay();
+});
+
 // Sons UI : config pills + boutons bas alignés sur le 501
 document.addEventListener('click', e => {
   const el = e.target.closest('button, label, .pill-label, .option-btn');
   if (!el) return;
-  const skipIds = ['btn-start','btn-out','btn-undo','btn-history','btn-rematch','btn-end-back','btn-end-menu','btn-end-close'];
+  const skipIds = ['btn-start','btn-out','btn-undo','btn-history','btn-rematch','btn-end-back','btn-end-menu','btn-end-close','btn-overtime-play'];
   if (skipIds.includes(el.id)) return;
   feedbackKey();
 });
@@ -3493,7 +3525,7 @@ renderTeams();
     var l3 = document.getElementById('ad-led-3');
     if (status === 'takeout') {
       adInTakeout = true;
-      setLed(l1, 'yellow'); setLed(l2, 'yellow'); setLed(l3, 'yellow');
+      setLed(l1, 'pulse'); setLed(l2, 'pulse'); setLed(l3, 'pulse');
     } else if (status === 'reconnecting') {
       setLed(l1, 'pulse');  setLed(l2, 'pulse');  setLed(l3, 'pulse');
     } else if (status === 'disconnected') {
@@ -3589,15 +3621,13 @@ renderTeams();
     }
   }, 500);
 
-  var _origNext = window.nextPlayer;
-  if (_origNext) { window.nextPlayer = function() { dartCount = 0; _origNext.apply(this, arguments); }; }
-
   var _btnBack = document.getElementById('btn-menu-back');
   if (_btnBack) _btnBack.addEventListener('click', function() { stopBridge(); adEnabled = false; updateDot('disconnected'); chkVal.disabled = false; chkVal.parentElement.style.opacity = ''; });
 
-  var _adDot = document.getElementById('ad-leds');
-  if (_adDot) _adDot.addEventListener('click', function() {
+  // ── Reset complet Autodarts (fetch API + flash LEDs + reconnect) ──
+  function triggerAdReset(silent) {
     if (!adEnabled) return;
+    if (adTurnResetTimer) { clearTimeout(adTurnResetTimer); adTurnResetTimer = null; }
     lastNumThrows = 0;
     adInTakeout = false;
     fetch('http://' + getIP() + ':3180/api/reset', { method: 'POST', mode: 'no-cors', targetAddressSpace: 'local' }).catch(function(){});
@@ -3605,9 +3635,39 @@ renderTeams();
       var el = document.getElementById(id);
       if (el) { el.style.background = '#fff'; el.style.boxShadow = '0 0 8px rgba(255,255,255,.9)'; el.style.animation = ''; }
     });
-    setTimeout(function() { updateDot(ws && ws.readyState === WebSocket.OPEN ? 'connected' : 'disconnected'); }, 400);
-    if (typeof showToast === 'function') showToast('Autodarts reset');
+    setTimeout(function() { connect(); }, 300);
+    if (!silent && typeof showToast === 'function') showToast('Autodarts reset');
+  }
+
+  // ── Tap status dot = reset Autodarts (déblocage) ──
+  var _adDot = document.getElementById('ad-leds');
+  if (_adDot) _adDot.addEventListener('click', function() {
+    if (!adEnabled || typeof state === 'undefined' || !state.gameStarted) return;
+    triggerAdReset(false);
   });
+
+  // ── Reset automatique sur clic manuel Valider ──
+  var _adValBtn = document.getElementById('btn-val');
+  if (_adValBtn) _adValBtn.addEventListener('click', function() {
+    if (!adEnabled) return;
+    triggerAdReset(false);
+  });
+  var _adValBtnA = document.getElementById('score-a-val');
+  if (_adValBtnA) _adValBtnA.addEventListener('click', function() {
+    if (!adEnabled) return;
+    triggerAdReset(false);
+  });
+
+  // ── Auto-reset 1s après chaque début de tour (silencieux) ──
+  var _origNext = window.nextPlayer;
+  if (typeof _origNext === 'function') {
+    window.nextPlayer = function() {
+      _origNext.apply(this, arguments);
+      if (!adEnabled) return;
+      if (adTurnResetTimer) clearTimeout(adTurnResetTimer);
+      adTurnResetTimer = setTimeout(function() { triggerAdReset(true); }, 1000);
+    };
+  }
 })();
 </script>
 <script src="tournament-config.js"></script>

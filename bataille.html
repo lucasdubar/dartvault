@@ -1117,6 +1117,15 @@ body { font-family:'Exo 2',sans-serif; background:var(--bg); color:var(--text); 
         </div>
       </div>
       <div>
+        <div class="card-title">⏱ Tours max / manche</div>
+        <div class="pill-group">
+          <label class="pill-label"><input type="radio" name="maxrounds-bt" value="0" checked><span class="pill">∞</span></label>
+          <label class="pill-label"><input type="radio" name="maxrounds-bt" value="10"><span class="pill">10</span></label>
+          <label class="pill-label"><input type="radio" name="maxrounds-bt" value="15"><span class="pill">15</span></label>
+          <label class="pill-label"><input type="radio" name="maxrounds-bt" value="20"><span class="pill">20</span></label>
+        </div>
+      </div>
+      <div>
         <label style="display:flex;align-items:center;gap:10px;padding:4px 0;cursor:pointer;">
           <input type="checkbox" id="chk-validate" style="width:18px;height:18px;accent-color:var(--accent);">
           <span style="font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;color:var(--accent);" data-i18n="require_validate">✅ Validation nécessaire</span>
@@ -1311,6 +1320,17 @@ body { font-family:'Exo 2',sans-serif; background:var(--bg); color:var(--text); 
       <button class="btn-modal btn-gray" id="btn-end-config" data-i18n="config">⚙️ Configuration</button>
       <button class="btn-modal btn-gray" id="btn-end-menu">🏠 Menu</button>
       <button class="btn-modal btn-gray" id="btn-end-close" data-i18n="undo_last">↩ Retour</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal prolongation -->
+<div class="modal-ov" id="overtime-modal">
+  <div class="modal">
+    <div class="modal-title" style="color:var(--warn);font-size:1.15rem;">🤝 Égalité parfaite !</div>
+    <div class="modal-sub" id="overtime-sub" style="text-align:center;margin-bottom:12px;font-family:'Rajdhani',sans-serif;font-size:.95rem;color:var(--dim);"></div>
+    <div class="modal-btns">
+      <button class="btn-modal btn-gold" id="btn-overtime-play">⚡ Jouer la prolongation</button>
     </div>
   </div>
 </div>
@@ -2103,6 +2123,8 @@ function startGame() {
     playerStats,
     turnDarts: [],
     requireValidate: document.getElementById('chk-validate') ? document.getElementById('chk-validate').checked : false,
+    maxRounds: parseInt(document.querySelector('input[name="maxrounds-bt"]:checked').value),
+    overtimeCount: 0,
   };
   histLog = []; undoStack = [];
   const _il = document.getElementById('hist-inline-list');
@@ -2241,10 +2263,21 @@ function handleShot(num, ring, label) {
 function advanceTurn() {
   const prev = G.currentTeam;
   G.currentTeam = prev === 'A' ? 'B' : 'A';
-  if (G.currentTeam === 'A') G.turn++;
+  if (G.currentTeam === 'A') {
+    G.turn++;
+    if (G.maxRounds > 0 && G.turn > G.maxRounds) {
+      G.dartsLeft = 0;
+      G.lastShots = [];
+      G.turnDarts = [];
+      G.playerIdx[prev] = (G.playerIdx[prev] + 1) % teams[prev].length;
+      renderGameBoard(); renderFleetStatus(); renderTopBar();
+      setTimeout(_endByMaxRoundsBT, 800);
+      return;
+    }
+  }
   G.dartsLeft = 3;
-  G.lastShots = []; // Effacer surbrillance au changement d'équipe
-  G.turnDarts = []; // Reset des slots fléchettes
+  G.lastShots = [];
+  G.turnDarts = [];
   G.playerIdx[prev] = (G.playerIdx[prev] + 1) % teams[prev].length;
 
   renderGameBoard(); renderFleetStatus(); renderTopBar();
@@ -2377,7 +2410,12 @@ function renderTopBar() {
   document.getElementById('cur-player').style.color = color;
   const dot = document.getElementById('player-dot');
   if(dot){ dot.style.background = color; dot.style.boxShadow = `0 0 8px ${color}`; }
-  document.getElementById('turn-badge').textContent = DV_LANG.t('tour_label').replace('{n}',G.turn);
+  const _turnTxt = G.maxRounds > 0
+    ? DV_LANG.t('tour_label').replace('{n}', G.turn) + ' / ' + G.maxRounds
+    : DV_LANG.t('tour_label').replace('{n}', G.turn);
+  const _tb = document.getElementById('turn-badge');
+  _tb.textContent = _turnTxt;
+  _tb.style.color = (G.maxRounds > 0 && G.turn >= G.maxRounds) ? 'var(--danger)' : '';
 
   // Glow sur le score-block de l'équipe active
   ['A','B'].forEach(team => {
@@ -2524,6 +2562,95 @@ function renderGameBoard() {
 // ════════════════════════════════════════════════
 // FIN DE PARTIE
 // ════════════════════════════════════════════════
+function _endByMaxRoundsBT() {
+  // Compter les bateaux coulés : A a coulé des bateaux de B, et vice-versa
+  const sunkByA = G.ships.B.filter(s => s.cells.every(c => c.hit)).length;
+  const sunkByB = G.ships.A.filter(s => s.cells.every(c => c.hit)).length;
+  // Départage 1 : total de cases touchées sur les bateaux adverses
+  const hitsOnB = G.ships.B.reduce((n, s) => n + s.cells.filter(c => c.hit).length, 0);
+  const hitsOnA = G.ships.A.reduce((n, s) => n + s.cells.filter(c => c.hit).length, 0);
+  const isTie = sunkByA === sunkByB && hitsOnB === hitsOnA;
+  const winner = sunkByA !== sunkByB
+    ? (sunkByA > sunkByB ? 'A' : 'B')
+    : hitsOnB !== hitsOnA
+      ? (hitsOnB > hitsOnA ? 'A' : 'B')
+      : null;
+
+  // Égalité parfaite → prolongation
+  if (isTie) {
+    G.overtimeCount = (G.overtimeCount || 0) + 1;
+    G.maxRounds += 1;
+    const sub = DV_LANG.get() === 'en'
+      ? `Ships sunk and hits are equal — overtime${G.overtimeCount > 1 ? ' #' + G.overtimeCount : ''}!`
+      : `Bateaux coulés et touches à égalité — prolongation${G.overtimeCount > 1 ? ' n°' + G.overtimeCount : ''} !`;
+    document.getElementById('overtime-sub').textContent = sub;
+    document.getElementById('overtime-modal').classList.add('open');
+    return;
+  }
+
+  G.started = false;
+  feedbackVictory();
+
+  const loser = winner === 'A' ? 'B' : 'A';
+  if (winner) {
+    const _winTeam = teams[winner] || [];
+    _recordWins(_winTeam.filter(n => profilePlayers.has(n)));
+  }
+
+  const winnerName = winner ? (winner === 'A' ? DV_LANG.t('bt_blue_team') : DV_LANG.t('bt_yellow_team')) : null;
+  document.getElementById('end-title').textContent = isTie
+    ? '🤝 ' + (DV_LANG.get() === 'en' ? 'Tie game!' : 'Égalité !')
+    : `🏆 ${DV_LANG.t('bt_team_wins').replace('{team}', winnerName)}`;
+
+  const teamOrder = winner ? [winner, loser] : ['A', 'B'];
+  const sunkCount = { A: sunkByA, B: sunkByB };
+  const hitsCount = { A: hitsOnB, B: hitsOnA }; // hits de A = cases touchées sur B
+  const tiedOnSunk = sunkByA === sunkByB;
+  const podiumHTML = teamOrder.map((team, rank) => {
+    const medal = rank === 0 ? (isTie ? '🤝' : '🥇') : '🥈';
+    const col = TEAM_COLOR[team];
+    const tLabel = team === 'A' ? DV_LANG.t('bt_blue_team') : DV_LANG.t('bt_yellow_team');
+    const tiebreaker = tiedOnSunk
+      ? `<span style="font-family:Rajdhani,sans-serif;font-size:.8rem;color:var(--dim);">${hitsCount[team]} touches</span>`
+      : '';
+    return `<div class="podium-row" style="border-left-color:${col}">
+      <span style="font-size:1.3rem">${medal}</span>
+      <span style="font-family:Rajdhani,sans-serif;font-size:1rem;font-weight:700;color:${col};flex:1;">Équipe ${tLabel} — ${teams[team].join(', ')}</span>
+      <span style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
+        <span style="font-family:Rajdhani,sans-serif;font-size:.9rem;font-weight:700;color:${col};">💥 ${sunkCount[team]} coulés</span>
+        ${tiebreaker}
+      </span>
+    </div>`;
+  }).join('');
+
+  const allStats = Object.values(G.playerStats);
+  const statsHTML = allStats.length > 0 ? `
+    <div style="margin-top:12px;border-top:1px solid rgba(255,255,255,0.08);padding-top:10px;">
+      <div style="font-family:Rajdhani,sans-serif;font-size:0.75rem;font-weight:700;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">📊 Stats joueurs</div>
+      ${allStats.map(s => {
+        const total = s.hits + s.misses;
+        const pct = total > 0 ? Math.round(s.hits / total * 100) : 0;
+        const col = TEAM_COLOR[s.team];
+        return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--bg3);border-radius:8px;margin-bottom:5px;border-left:3px solid ${col}">
+          <span style="font-family:Rajdhani,sans-serif;font-size:0.9rem;font-weight:700;color:${col};flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.name}</span>
+          <span style="font-size:0.8rem;color:#F44336;font-weight:700;white-space:nowrap;">💥 ${s.hits}</span>
+          <span style="font-size:0.8rem;color:var(--dim);font-weight:700;white-space:nowrap;">💧 ${s.misses}</span>
+          <span style="font-size:0.8rem;color:var(--accent);font-weight:700;white-space:nowrap;">${pct}%</span>
+        </div>`;
+      }).join('')}
+    </div>` : '';
+
+  document.getElementById('end-ranking').innerHTML = podiumHTML + statsHTML;
+  document.getElementById('btn-rematch').textContent = DV_LANG.t('rematch');
+  document.getElementById('btn-end-back').textContent = DV_LANG.t('config');
+  document.getElementById('btn-end-close').textContent = '↩ ' + DV_LANG.t('cancel');
+  document.getElementById('end-modal').classList.add('open');
+  if (window.TournamentBridge) {
+    const ranked = winner ? [teams[winner], teams[loser]] : [[...teams.A, ...teams.B]];
+    TournamentBridge.onGameEnd(ranked.map(t => t.length === 1 ? t[0] : t));
+  }
+}
+
 function showEnd() {
   G.started = false;
   feedbackVictory();
@@ -2756,6 +2883,11 @@ document.getElementById('btn-end-menu').addEventListener('click', () => {
   G._finalWinnerNames = null;
   window.location.href = 'index.html';
 });
+document.getElementById('btn-overtime-play').addEventListener('click', () => {
+  document.getElementById('overtime-modal').classList.remove('open');
+  renderGameBoard(); renderFleetStatus(); renderTopBar();
+});
+
 document.getElementById('btn-end-close').addEventListener('click', () => {
   _undoWins(G._finalWinnerNames || []);
   G._finalWinnerNames = null;
@@ -2780,7 +2912,7 @@ document.getElementById('btn-end-close').addEventListener('click', () => {
 document.addEventListener('click', e => {
   const el = e.target.closest('button, label, .pill-label, .option-btn');
   if (!el) return;
-  const skipIds = ['btn-start','btn-out','btn-undo','btn-val','btn-hist','btn-rematch','btn-end-config','btn-end-menu','btn-end-close','btn-undo-place'];
+  const skipIds = ['btn-start','btn-out','btn-undo','btn-val','btn-hist','btn-rematch','btn-end-config','btn-end-menu','btn-end-close','btn-undo-place','btn-overtime-play'];
   if (skipIds.includes(el.id)) return;
   feedbackKey();
 });
@@ -3380,7 +3512,7 @@ history.pushState(null,'',window.location.href);
     var l3 = document.getElementById('ad-led-3');
     if (status === 'takeout') {
       adInTakeout = true;
-      setLed(l1, 'yellow'); setLed(l2, 'yellow'); setLed(l3, 'yellow');
+      setLed(l1, 'pulse'); setLed(l2, 'pulse'); setLed(l3, 'pulse');
     } else if (status === 'reconnecting') {
       setLed(l1, 'pulse');  setLed(l2, 'pulse');  setLed(l3, 'pulse');
     } else if (status === 'disconnected') {
@@ -3485,15 +3617,13 @@ history.pushState(null,'',window.location.href);
     };
   }
 
-  var _origAdvance = window.advanceTurn;
-  if (_origAdvance) { window.advanceTurn = function() { dartCount = 0; _origAdvance.apply(this, arguments); }; }
-
   var _btnBack = document.getElementById('btn-back');
   if (_btnBack) _btnBack.addEventListener('click', function() { stopBridge(); adEnabled = false; updateDot('disconnected'); chkVal.disabled = false; chkVal.parentElement.style.opacity = ''; });
 
-  var _adDot = document.getElementById('ad-leds');
-  if (_adDot) _adDot.addEventListener('click', function() {
+  // ── Reset complet Autodarts (fetch API + flash LEDs + reconnect) ──
+  function triggerAdReset(silent) {
     if (!adEnabled) return;
+    if (adTurnResetTimer) { clearTimeout(adTurnResetTimer); adTurnResetTimer = null; }
     lastNumThrows = 0;
     adInTakeout = false;
     fetch('http://' + getIP() + ':3180/api/reset', { method: 'POST', mode: 'no-cors', targetAddressSpace: 'local' }).catch(function(){});
@@ -3501,9 +3631,34 @@ history.pushState(null,'',window.location.href);
       var el = document.getElementById(id);
       if (el) { el.style.background = '#fff'; el.style.boxShadow = '0 0 8px rgba(255,255,255,.9)'; el.style.animation = ''; }
     });
-    setTimeout(function() { updateDot(ws && ws.readyState === WebSocket.OPEN ? 'connected' : 'disconnected'); }, 400);
-    if (typeof showToast === 'function') showToast('Autodarts reset');
+    setTimeout(function() { connect(); }, 300);
+    if (!silent && typeof showToast === 'function') showToast('Autodarts reset');
+  }
+
+  // ── Tap status dot = reset Autodarts (déblocage) ──
+  var _adDot = document.getElementById('ad-leds');
+  if (_adDot) _adDot.addEventListener('click', function() {
+    if (!adEnabled || typeof G === 'undefined' || !G.started) return;
+    triggerAdReset(false);
   });
+
+  // ── Reset automatique sur clic manuel Valider ──
+  var _adValBtn = document.getElementById('btn-val');
+  if (_adValBtn) _adValBtn.addEventListener('click', function() {
+    if (!adEnabled) return;
+    triggerAdReset(false);
+  });
+
+  // ── Auto-reset 1s après chaque début de tour (silencieux) ──
+  var _origAdvance = window.advanceTurn;
+  if (typeof _origAdvance === 'function') {
+    window.advanceTurn = function() {
+      _origAdvance.apply(this, arguments);
+      if (!adEnabled) return;
+      if (adTurnResetTimer) clearTimeout(adTurnResetTimer);
+      adTurnResetTimer = setTimeout(function() { triggerAdReset(true); }, 1000);
+    };
+  }
 })();
 </script>
 <script src="tournament-config.js"></script>

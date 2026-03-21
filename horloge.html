@@ -501,6 +501,16 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
     </div>
 
     <div class="opt-section">
+      <div class="opt-label">🔢 TOURS MAX</div>
+      <div class="option-grid" style="grid-template-columns:1fr 1fr 1fr 1fr;">
+        <div class="option-btn selected" id="opt-maxrounds-inf" onclick="selectOpt('maxrounds',0)">∞</div>
+        <div class="option-btn" id="opt-maxrounds-10" onclick="selectOpt('maxrounds',10)">10</div>
+        <div class="option-btn" id="opt-maxrounds-15" onclick="selectOpt('maxrounds',15)">15</div>
+        <div class="option-btn" id="opt-maxrounds-20" onclick="selectOpt('maxrounds',20)">20</div>
+      </div>
+    </div>
+
+    <div class="opt-section">
       <label style="display:flex;align-items:center;gap:10px;padding:4px 0;cursor:pointer;">
         <input type="checkbox" id="chk-replay" style="width:18px;height:18px;accent-color:var(--accent);">
         <span style="font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;color:var(--accent);" data-i18n="cl_replay_lbl">🔁 3 réussites = Rejoue</span>
@@ -633,6 +643,15 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
   </div>
 </div>
 
+<!-- Modal prolongation -->
+<div class="modal-ov" id="overtime-modal-hl">
+  <div class="modal" style="max-width:320px;text-align:center;">
+    <div class="modal-title" id="overtime-title-hl" style="font-size:1.3rem;color:var(--warn);">🤝 Égalité !</div>
+    <p id="overtime-sub-hl" style="font-size:.9rem;opacity:.8;margin-bottom:16px;"></p>
+    <button class="btn-modal btn-gold" id="btn-overtime-play">▶️ Jouer la prolongation</button>
+  </div>
+</div>
+
 <!-- Modal abandon -->
 <div class="modal-ov" id="quit-modal">
   <div class="modal" style="max-width:320px;text-align:center;">
@@ -716,7 +735,7 @@ let G={
   currentIdx:0,
   dartsThrown:0,
   sequence:[],
-  options:{ ordre:'asc', bull:'none', hits:1, skip:'normal' },
+  options:{ ordre:'asc', bull:'none', hits:1, skip:'normal', maxrounds:0 },
   history:[],
   actionHistory:[],
   gameStarted:false,
@@ -757,6 +776,7 @@ const OPT_IDS={
   bull:{none:'opt-bull-none',bull:'opt-bull-bull',bulleye:'opt-bull-bulleye'},
   hits:{1:'opt-hits-1',2:'opt-hits-2',3:'opt-hits-3'},
   skip:{normal:'opt-skip-normal',skip:'opt-skip-skip'},
+  maxrounds:{0:'opt-maxrounds-inf',10:'opt-maxrounds-10',15:'opt-maxrounds-15',20:'opt-maxrounds-20'},
 };
 function selectOpt(group,val){
   G.options[group]=val;
@@ -803,6 +823,7 @@ document.getElementById('btn-start').addEventListener('click',()=>{
   G.bonusReplay=document.getElementById('chk-replay')?document.getElementById('chk-replay').checked:false;
   G._waitingValidate=false;
   G.replayHits=0;G.turnDarts=[];
+  G.maxRounds=G.options.maxrounds||0;G.round=1;G.overtimeCount=0;
   G.gameStarted=true;G._finalWinnerNames=[];
   feedbackStart();showScreen('game');updateButtonLabels();renderGame();updateDarts();renderTurnDarts();
   // TTS : annonce premier joueur + zone
@@ -943,6 +964,15 @@ function nextPlayer(){
   const _np=G.players[G.currentIdx];if(_np)_np.lastTurnDarts=[...G.turnDarts];
   G.dartsThrown=0;G._waitingValidate=false;G.replayHits=0;G.turnDarts=[];
   G.currentIdx=(G.currentIdx+1)%G.players.length;
+  if(G.currentIdx===0&&G.maxRounds>0){
+    G.round++;
+    if(G.round>G.maxRounds){
+      G.gameStarted=false;
+      renderGame();updateDarts();
+      setTimeout(()=>_endByMaxRoundsHL(),300);
+      return;
+    }
+  }
   renderGame();updateDarts();switchBullBar();renderTurnDarts();
   // TTS : annonce joueur + zone
   var _cp=G.players[G.currentIdx];
@@ -1005,7 +1035,9 @@ function renderGame(){
   const tgt=currentTarget(p);
   const needed=G.options.hits;
 
-  document.getElementById('round-info').textContent=DV_LANG.t('cl_player_n').replace('{n}',G.currentIdx+1).replace('{t}',G.players.length);
+  var _ri=DV_LANG.t('cl_player_n').replace('{n}',G.currentIdx+1).replace('{t}',G.players.length);
+  if(G.maxRounds>0)_ri+=' — TOUR '+G.round+'/'+G.maxRounds;
+  document.getElementById('round-info').textContent=_ri;
   document.getElementById('target-big').textContent=tgt?tgt.label:'✓';
   document.getElementById('target-big').style.color=p.color;
   document.getElementById('target-big').style.textShadow=`0 0 30px ${p.color}88, 0 0 60px ${p.color}44`;
@@ -1256,6 +1288,27 @@ function renderHistInline(){
   if(ls)ls.innerHTML=html;if(dr)dr.innerHTML=html;
 }
 
+function _endByMaxRoundsHL(){
+  const sorted=[...G.players].sort((a,b)=>b.targetIdx-a.targetIdx);
+  const topScore=sorted[0].targetIdx;
+  const winners=sorted.filter(p=>p.targetIdx===topScore);
+  if(winners.length>1){
+    G.overtimeCount++;
+    G.maxRounds++;
+    _showOvertimeHL(G.overtimeCount);
+    return;
+  }
+  const w=winners[0];
+  G._finalWinnerNames=w.fromProfile?[w.name]:[];
+  if(typeof _recordWins==='function')_recordWins(G._finalWinnerNames);
+  showEnd(`🏆 ${w.name} ${DV_LANG.t('cl_wins')}`,DV_LANG.t('cl_finished'),w.color);
+}
+function _showOvertimeHL(n){
+  document.getElementById('overtime-title-hl').textContent='🤝 Égalité parfaite !';
+  document.getElementById('overtime-sub-hl').textContent='Prolongation n°'+n+' !';
+  document.getElementById('overtime-modal-hl').classList.add('open');
+}
+
 function showEnd(title,sub,color){
   document.getElementById('end-title').textContent=title;
   document.getElementById('end-title').style.color=color||'var(--accent)';
@@ -1443,8 +1496,16 @@ document.getElementById('btn-rematch').addEventListener('click',()=>{
   G.sequence=buildSequence(G.options);
   G.players.forEach(p=>{p.targetIdx=0;p.hitsOnCurrent=0;p.totalDarts=0;p.totalHits=0;});
   G.currentIdx=0;G.dartsThrown=0;G.history=[];G.actionHistory=[];
+  G.maxRounds=G.options.maxrounds||0;G.round=1;G.overtimeCount=0;
   G.gameStarted=true;G._finalWinnerNames=[];G.turnDarts=[];
   feedbackStart();updateButtonLabels();renderGame();updateDarts();
+});
+document.getElementById('btn-overtime-play').addEventListener('click',()=>{
+  document.getElementById('overtime-modal-hl').classList.remove('open');
+  G.gameStarted=true;
+  renderGame();updateDarts();switchBullBar();renderTurnDarts();
+  var _cp=G.players[G.currentIdx];var _ct=currentTarget(_cp);
+  if(_ct&&G.gameStarted)speak(_cp.name+', Zone '+_ct.label,2000);
 });
 document.getElementById('btn-end-back').addEventListener('click',()=>{document.getElementById('end-modal').classList.remove('open');showScreen('setup');});
 document.getElementById('btn-end-menu').addEventListener('click',()=>{location.href='index.html';});
@@ -1795,7 +1856,7 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     var l3 = document.getElementById('ad-led-3');
     if (status === 'takeout') {
       adInTakeout = true;
-      setLed(l1, 'yellow'); setLed(l2, 'yellow'); setLed(l3, 'yellow');
+      setLed(l1, 'pulse'); setLed(l2, 'pulse'); setLed(l3, 'pulse');
     } else if (status === 'reconnecting') {
       setLed(l1, 'pulse');  setLed(l2, 'pulse');  setLed(l3, 'pulse');
     } else if (status === 'disconnected') {
@@ -1888,6 +1949,12 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
       dartCount=0;
       return;
     }
+    // Popup fermée avant le takeout (auto-close 2s) : dartsThrown a déjà été remis à 0
+    // → ne pas avancer le tour, laisser le joueur rejouer
+    if(G.dartsThrown===0&&dartCount>0){
+      dartCount=0;
+      return;
+    }
     if(typeof handleValidate==='function') setTimeout(function(){handleValidate();},300);
     dartCount=0;
   }
@@ -1907,12 +1974,12 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     }
   },500);
 
-  var _origNextPlayer=window.nextPlayer;
-  if(_origNextPlayer){window.nextPlayer=function(){dartCount=0;_origNextPlayer.apply(this,arguments);};}
   var _btnBack=document.getElementById('btn-back');if(_btnBack)_btnBack.addEventListener('click',function(){stopBridge();adEnabled=false;updateDot('disconnected');chkVal.disabled=false;chkVal.parentElement.style.opacity='';});
-  var _adDot = document.getElementById('ad-leds');
-  if (_adDot) _adDot.addEventListener('click', function() {
+
+  // ── Reset complet Autodarts (fetch API + flash LEDs + reconnect) ──
+  function triggerAdReset(silent) {
     if (!adEnabled) return;
+    if (adTurnResetTimer) { clearTimeout(adTurnResetTimer); adTurnResetTimer = null; }
     lastNumThrows = 0;
     adInTakeout = false;
     fetch('http://' + getIP() + ':3180/api/reset', { method: 'POST', mode: 'no-cors', targetAddressSpace: 'local' }).catch(function(){});
@@ -1920,9 +1987,34 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
       var el = document.getElementById(id);
       if (el) { el.style.background = '#fff'; el.style.boxShadow = '0 0 8px rgba(255,255,255,.9)'; el.style.animation = ''; }
     });
-    setTimeout(function() { updateDot(ws && ws.readyState === WebSocket.OPEN ? 'connected' : 'disconnected'); }, 400);
-    if (typeof showToast === 'function') showToast('Autodarts reset');
+    setTimeout(function() { connect(); }, 300);
+    if (!silent && typeof showToast === 'function') showToast('Autodarts reset');
+  }
+
+  // ── Tap status dot = reset Autodarts (déblocage) ──
+  var _adDot = document.getElementById('ad-leds');
+  if (_adDot) _adDot.addEventListener('click', function() {
+    if (!adEnabled || typeof G === 'undefined' || !G.gameStarted) return;
+    triggerAdReset(false);
   });
+
+  // ── Reset automatique sur clic manuel Valider ──
+  var _adValBtn = document.getElementById('btn-val');
+  if (_adValBtn) _adValBtn.addEventListener('click', function() {
+    if (!adEnabled) return;
+    triggerAdReset(false);
+  });
+
+  // ── Auto-reset 1s après chaque début de tour (silencieux) ──
+  var _origNextPlayer=window.nextPlayer;
+  if (typeof _origNextPlayer === 'function') {
+    window.nextPlayer = function() {
+      _origNextPlayer.apply(this, arguments);
+      if (!adEnabled) return;
+      if (adTurnResetTimer) clearTimeout(adTurnResetTimer);
+      adTurnResetTimer = setTimeout(function() { triggerAdReset(true); }, 1000);
+    };
+  }
 })();
 </script>
 <script src="tournament-config.js"></script>
