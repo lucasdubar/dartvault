@@ -308,6 +308,7 @@
       _click(`#opt-hits-${cfg.hits}`);
       _click(`#opt-skip-${cfg.skip}`);
       _chk('#chk-replay', cfg.replay);
+      if (cfg.maxrounds != null) _click(`#opt-maxrounds-${cfg.maxrounds}`);
       _setInputMode(mode, payload.autodarts_ip);
     },
 
@@ -375,13 +376,18 @@
       }
       // Team mode
       _clickOpt('mode', cfg.mode || (tm === 'team' ? 'team' : 'solo'));
+      _clickOpt('maxrounds-sht', String(cfg['maxrounds-sht'] ?? 0));
       _setInputMode(mode, payload.autodarts_ip);
     },
 
     // ── Bataille Navale ───────────────────────────
     bataille(cfg, mode, tm, players, teams) {
-      _clickOpt('nb-ships', String(cfg.nbShips));
+      _clickOpt('difficulty', cfg.difficulty || 'easy');
+      if (cfg.difficulty !== 'normal' && cfg.difficulty !== 'hard') {
+        _clickOpt('nb-ships', String(cfg.nbShips ?? 3));
+      }
       _clickOpt('game-mode', cfg['game-mode'] || (tm === 'team' ? 'team' : 'solo'));
+      _clickOpt('maxrounds-bt', String(cfg['maxrounds-bt'] ?? 0));
       _setInputMode(mode, payload.autodarts_ip);
     },
   };

@@ -1102,6 +1102,14 @@ body { font-family:'Exo 2',sans-serif; background:var(--bg); color:var(--text); 
   <div class="card">
     <div style="display:flex;flex-direction:column;gap:14px;">
       <div>
+        <div class="card-title">⚓ Difficulté</div>
+        <div class="pill-group">
+          <label class="pill-label"><input type="radio" name="difficulty" value="easy" checked><span class="pill">Facile</span></label>
+          <label class="pill-label"><input type="radio" name="difficulty" value="normal"><span class="pill">Normal</span></label>
+          <label class="pill-label"><input type="radio" name="difficulty" value="hard"><span class="pill">Difficile</span></label>
+        </div>
+      </div>
+      <div id="ship-count-row">
         <div class="card-title" data-i18n="bt_ships">🚢 Nombre de bateaux</div>
         <div class="pill-group">
           <label class="pill-label"><input type="radio" name="nb-ships" value="2"><span class="pill">2</span></label>
@@ -1295,6 +1303,12 @@ body { font-family:'Exo 2',sans-serif; background:var(--bg); color:var(--text); 
           <radialGradient id="bG3" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#1a1a1a"/><stop offset="100%" stop-color="#0d0d0d"/></radialGradient>
           <filter id="glow_a" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
           <filter id="glow_b" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <pattern id="bt-hatch" patternUnits="userSpaceOnUse" width="9" height="9">
+            <line x1="0" y1="9" x2="9" y2="0" stroke="rgba(255,255,255,0.28)" stroke-width="2.5"/>
+          </pattern>
+          <filter id="bt-sunk-glow" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+            <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#FFFFFF" flood-opacity="0.9"/>
+          </filter>
         </defs>
         <circle cx="250" cy="250" r="246" fill="url(#bG3)" stroke="#222" stroke-width="5"/>
         <g id="game-sectors"></g>
@@ -1631,26 +1645,109 @@ const R_BULL_I=18, R_BULL_O=36, R_TRIPLE_I=118, R_TRIPLE_O=150, R_DOUBLE_I=202, 
 const TEAM_COLOR = { A:'#2196F3', B:'#FF9800' };
 const TEAM_EMOJI = { A:'🔵', B:'🟡' };
 const profilePlayers = new Set();
-// Ship defs selon nombre de bateaux choisi
-function getShipDefs(n) {
+// Ship defs selon nombre de bateaux choisi et difficulté
+let GAME_DIFFICULTY = 'easy'; // 'easy' | 'normal' | 'hard'
+
+function getShipDefs(n, difficulty) {
+  const diff = difficulty || GAME_DIFFICULTY;
+  if (diff === 'normal') return [
+    { id:'carrier',   type:'full_zone', label:'⚓ Porte-avion' },
+    { id:'submarine', type:'tri_sint',  label:'🤿 Sous-marin'  },
+    { id:'free',      type:'big3', ring:'any', label:'🚢 Bateau libre' },
+  ];
+  if (diff === 'hard') return [
+    { id:'carrier',    type:'full_zone', label:'⚓ Porte-avion' },
+    { id:'battleship', type:'big3', ring:'any', label:'🛳 Cuirassé'   },
+    { id:'submarine',  type:'tri_sint',  label:'🤿 Sous-marin'  },
+    { id:'cruiser',    type:'dbl3',      label:'⛵ Croiseur'    },
+  ];
+  // easy
   if (n === 2) return [
-    { id:'ext1', ring:'ext', label:'🚢 Ext. 1' },
-    { id:'any1', ring:'any', label:'🚢 Libre'  },
+    { id:'ext1', type:'big3', ring:'ext', label:'🚢 Ext. 1' },
+    { id:'any1', type:'big3', ring:'any', label:'🚢 Libre'  },
   ];
   if (n === 4) return [
-    { id:'ext1', ring:'ext', label:'🚢 Ext. 1' },
-    { id:'ext2', ring:'ext', label:'🚢 Ext. 2' },
-    { id:'any1', ring:'any', label:'🚢 Libre 1' },
-    { id:'any2', ring:'any', label:'🚢 Libre 2' },
+    { id:'ext1', type:'big3', ring:'ext', label:'🚢 Ext. 1' },
+    { id:'ext2', type:'big3', ring:'ext', label:'🚢 Ext. 2' },
+    { id:'any1', type:'big3', ring:'any', label:'🚢 Libre 1' },
+    { id:'any2', type:'big3', ring:'any', label:'🚢 Libre 2' },
   ];
-  // default 3
   return [
-    { id:'ext1', ring:'ext', label:'🚢 Ext. 1' },
-    { id:'ext2', ring:'ext', label:'🚢 Ext. 2' },
-    { id:'any1', ring:'any', label:'🚢 Libre'  },
+    { id:'ext1', type:'big3', ring:'ext', label:'🚢 Ext. 1' },
+    { id:'ext2', type:'big3', ring:'ext', label:'🚢 Ext. 2' },
+    { id:'any1', type:'big3', ring:'any', label:'🚢 Libre'  },
   ];
 }
 let SHIP_DEFS = getShipDefs(3); // sera mis à jour au démarrage
+
+// Ring radii helpers
+function getRingBounds(ring) {
+  switch(ring) {
+    case 'dbl':  return [R_DOUBLE_I, R_DOUBLE_O];
+    case 'sext': return [R_TRIPLE_O, R_DOUBLE_I];
+    case 'tri':  return [R_TRIPLE_I, R_TRIPLE_O];
+    case 'sint': return [R_BULL_O,   R_TRIPLE_I];
+    case 'ext':  return [R_TRIPLE_O, R_DOUBLE_O];
+    case 'int':  return [R_BULL_O,   R_TRIPLE_O];
+    default:     return [R_TRIPLE_O, R_DOUBLE_O];
+  }
+}
+function getRingMidRadius(ring) {
+  const [ir, or_] = getRingBounds(ring);
+  return (ir + or_) / 2;
+}
+
+// Check if a shot ring hits a cell ring (handles big-ring vs sub-ring)
+function cellRingMatch(cellRing, shotRing) {
+  if (cellRing === shotRing) return true;
+  if (cellRing === 'ext' && (shotRing === 'dbl' || shotRing === 'sext')) return true;
+  if (cellRing === 'int' && (shotRing === 'tri' || shotRing === 'sint')) return true;
+  return false;
+}
+
+// Expand a cell ring to all sub-ring keys (for overlap checking)
+function expandCellKeys(num, ring) {
+  if (ring === 'ext') return [`${num}_dbl`, `${num}_sext`];
+  if (ring === 'int') return [`${num}_tri`, `${num}_sint`];
+  return [`${num}_${ring}`];
+}
+
+// Compute cells for a ship based on its type and the clicked zone
+function computeShipCells(ship, clickedNum, clickedRing) {
+  const type = ship.type || 'big3';
+  if (type === 'full_zone') {
+    return [
+      { num: clickedNum, ring: 'dbl'  },
+      { num: clickedNum, ring: 'sext' },
+      { num: clickedNum, ring: 'tri'  },
+      { num: clickedNum, ring: 'sint' },
+    ];
+  }
+  if (type === 'tri_sint') {
+    return [
+      { num: clickedNum, ring: 'tri'  },
+      { num: clickedNum, ring: 'sint' },
+    ];
+  }
+  if (type === 'dbl3') {
+    const i = NUMBERS.indexOf(clickedNum);
+    const prev = NUMBERS[(i + NUMBERS.length - 1) % NUMBERS.length];
+    const next = NUMBERS[(i + 1) % NUMBERS.length];
+    return [
+      { num: prev,       ring: 'dbl' },
+      { num: clickedNum, ring: 'dbl' },
+      { num: next,       ring: 'dbl' },
+    ];
+  }
+  // big3: 3 adjacent cells, ring mapped to 'ext' or 'int'
+  let bigRing;
+  if (GAME_DIFFICULTY === 'easy') {
+    bigRing = clickedRing; // already 'ext' or 'int'
+  } else {
+    bigRing = (clickedRing === 'dbl' || clickedRing === 'sext') ? 'ext' : 'int';
+  }
+  return adjacent(clickedNum, bigRing);
+}
 
 // ════════════════════════════════════════════════
 // ÉTAT
@@ -1715,13 +1812,13 @@ function buildBoard(svgId, clickHandler) {
     const tcol = isBlack ? COLORS.red   : COLORS.green;
 
     // Simple int
-    secG.appendChild(svgEl('path',{d:sectorPath(sa,ea,R_BULL_O,R_TRIPLE_I),fill:wire,stroke:'#111','stroke-width':'0.5','data-num':num,'data-ring':'int'}));
-    // Triple → int
-    secG.appendChild(svgEl('path',{d:sectorPath(sa,ea,R_TRIPLE_I,R_TRIPLE_O),fill:tcol,stroke:'#111','stroke-width':'0.5','data-num':num,'data-ring':'int'}));
+    secG.appendChild(svgEl('path',{d:sectorPath(sa,ea,R_BULL_O,R_TRIPLE_I),fill:wire,stroke:'#111','stroke-width':'0.5','data-num':num,'data-ring':'sint'}));
+    // Triple → tri
+    secG.appendChild(svgEl('path',{d:sectorPath(sa,ea,R_TRIPLE_I,R_TRIPLE_O),fill:tcol,stroke:'#111','stroke-width':'0.5','data-num':num,'data-ring':'tri'}));
     // Simple ext
-    secG.appendChild(svgEl('path',{d:sectorPath(sa,ea,R_TRIPLE_O,R_DOUBLE_I),fill:wire,stroke:'#111','stroke-width':'0.5','data-num':num,'data-ring':'ext'}));
-    // Double → ext
-    secG.appendChild(svgEl('path',{d:sectorPath(sa,ea,R_DOUBLE_I,R_DOUBLE_O),fill:tcol,stroke:'#111','stroke-width':'0.5','data-num':num,'data-ring':'ext'}));
+    secG.appendChild(svgEl('path',{d:sectorPath(sa,ea,R_TRIPLE_O,R_DOUBLE_I),fill:wire,stroke:'#111','stroke-width':'0.5','data-num':num,'data-ring':'sext'}));
+    // Double → dbl
+    secG.appendChild(svgEl('path',{d:sectorPath(sa,ea,R_DOUBLE_I,R_DOUBLE_O),fill:tcol,stroke:'#111','stroke-width':'0.5','data-num':num,'data-ring':'dbl'}));
     // Border
     secG.appendChild(svgEl('path',{d:sectorPath(sa,ea,R_DOUBLE_O,R_DOUBLE_O+1),fill:'#111',stroke:'#333','stroke-width':'0.5'}));
 
@@ -1747,8 +1844,12 @@ function getClickZone(e) {
   let attempts = 0;
   while (tgt && !tgt.getAttribute('data-num') && attempts++ < 5) tgt = tgt.parentElement;
   const num  = parseInt(tgt?.getAttribute('data-num'));
-  const ring = tgt?.getAttribute('data-ring') || 'ext';
-  return { num, ring };
+  const rawRing = tgt?.getAttribute('data-ring') || 'sext';
+  if (GAME_DIFFICULTY === 'easy') {
+    const ring = (rawRing === 'dbl' || rawRing === 'sext') ? 'ext' : 'int';
+    return { num, ring };
+  }
+  return { num, ring: rawRing };
 }
 
 // ════════════════════════════════════════════════
@@ -2027,7 +2128,7 @@ function renderPlacementHighlights() {
     ship.cells.forEach(({num, ring}) => {
       const idx = NUMBERS.indexOf(num);
       const sa = idx*18-9, ea = sa+18;
-      const [ir, or_] = ring === 'ext' ? [R_TRIPLE_O, R_DOUBLE_O] : [R_BULL_O, R_TRIPLE_O];
+      const [ir, or_] = getRingBounds(ring);
       const bg = svgEl('path',{d:sectorPath(sa,ea,ir,or_),fill:color,'fill-opacity':'0.4','stroke':color,'stroke-width':'2'});
       hi.appendChild(bg);
     });
@@ -2047,18 +2148,29 @@ function onPlaceClick(e) {
 
   const currentShipIdx = computeShipIdx(team);
   const currentShip = SHIP_DEFS[currentShipIdx];
-  if (currentShip.ring !== 'any' && ring !== currentShip.ring) {
-    const targetLbl = currentShip.ring === 'ext' ? DV_LANG.t('bt_ring_ext') : DV_LANG.t('bt_ring_int');
-    showPlaceToast('→ ' + targetLbl + ' ←', '#F44336');
+  const shipType = currentShip.type || 'big3';
+
+  // Validate ring constraint per ship type
+  if (shipType === 'dbl3' && ring !== 'dbl') {
+    showPlaceToast('→ Zone Double ←', '#F44336');
     return;
   }
+  if (shipType === 'big3' && currentShip.ring !== 'any') {
+    const expectedBig = currentShip.ring; // 'ext' or 'int'
+    const clickedBig = (GAME_DIFFICULTY === 'easy') ? ring : ((ring === 'dbl' || ring === 'sext') ? 'ext' : 'int');
+    if (clickedBig !== expectedBig) {
+      const targetLbl = expectedBig === 'ext' ? DV_LANG.t('bt_ring_ext') : DV_LANG.t('bt_ring_int');
+      showPlaceToast('→ ' + targetLbl + ' ←', '#F44336');
+      return;
+    }
+  }
 
-  const cells = adjacent(num, ring);
-  const keys = cells.map(c => cellKey(c.num, c.ring));
+  const cells = computeShipCells(currentShip, num, ring);
 
-  // Vérifier superposition avec bateaux déjà placés pour CETTE équipe
-  const usedKeys = new Set(placementState.placed[team].flatMap(s => s.cells.map(c => cellKey(c.num, c.ring))));
-  if (keys.some(k => usedKeys.has(k))) {
+  // Vérifier superposition (expanded keys for big-ring vs sub-ring compatibility)
+  const usedExpanded = new Set(placementState.placed[team].flatMap(s => s.cells.flatMap(c => expandCellKeys(c.num, c.ring))));
+  const newExpanded = cells.flatMap(c => expandCellKeys(c.num, c.ring));
+  if (newExpanded.some(k => usedExpanded.has(k))) {
     showPlaceToast(DV_LANG.t('bt_overlap'), '#F44336');
     return;
   }
@@ -2179,7 +2291,7 @@ function resolveShot(num, ring, isDup = false) {
   // Chercher un bateau adverse non encore touché sur cette case
   let hitShip = null;
   for (const ship of G.ships[def]) {
-    const cell = ship.cells.find(c => c.num === num && c.ring === ring);
+    const cell = ship.cells.find(c => c.num === num && cellRingMatch(c.ring, ring));
     if (cell && !cell.hit) {
       cell.hit = true;
       hitShip = ship;
@@ -2191,7 +2303,7 @@ function resolveShot(num, ring, isDup = false) {
     const sunk = isShipSunk(def, hitShip.id);
     if (sunk) {
       G.markers = G.markers.filter(m =>
-        !(m.attackingTeam === atk && hitShip.cells.some(c => c.num === m.num && c.ring === m.ring))
+        !(m.attackingTeam === atk && hitShip.cells.some(c => c.num === m.num && cellRingMatch(c.ring, m.ring)))
       );
       hitShip.cells.forEach(c => {
         G.markers.push({ num:c.num, ring:c.ring, type:'sunk', attackingTeam:atk, team:def });
@@ -2231,7 +2343,7 @@ function handleShot(num, ring, label) {
   G.lastShots = [{ num, ring }];
 
   // Slot label pour les dart-slots
-  const ringShort = ring === 'ext' ? 'ext' : 'int';
+  const ringShort = {'ext':'ext','int':'int','dbl':'dbl','sext':'sext','tri':'tri','sint':'sint'}[ring] || ring;
   const slotLabel = `${num} ${ringShort}`;
   const slotType = result.type === 'miss' || result.type === 'dup' ? 'miss' : 'hit';
   G.turnDarts.push({ label: slotLabel, type: slotType, result: result.type });
@@ -2304,10 +2416,11 @@ function onGameClick(e) {
 
   const quickSelect = document.getElementById('quick-select-checkbox')?.checked;
   if (quickSelect) {
-    handleShot(num, ring, `${num} ${ring === 'ext' ? 'ext' : 'int'}`);
+    handleShot(num, ring, `${num} ${ring}`);
   } else {
-    const ringLabel = ring === 'ext' ? DV_LANG.t('bt_ring_ext_full') : DV_LANG.t('bt_ring_int_full');
-    _pendingShot = { num, ring, label: `${num} ${ring === 'ext' ? 'ext' : 'int'}` };
+    const ringLabelMap = { ext: DV_LANG.t('bt_ring_ext_full'), int: DV_LANG.t('bt_ring_int_full'), dbl: 'Double', sext: 'Simple ext', tri: 'Triple', sint: 'Simple int' };
+    const ringLabel = ringLabelMap[ring] || ring;
+    _pendingShot = { num, ring, label: `${num} ${ring}` };
     document.getElementById('confirm-shot-title').textContent = `🎯 ${num}`;
     document.getElementById('confirm-shot-sub').textContent = `${ringLabel} — ${DV_LANG.t('bt_confirm_q')}`;
     document.getElementById('modal-confirm-shot').classList.add('open');
@@ -2332,9 +2445,12 @@ function executeBull(val) {
   const atk = G.currentTeam;
   const label = val === 25 ? 'Small Bull (25)' : 'Bull (50)';
 
-  const allCells = NUMBERS.flatMap(n => [
-    { num:n, ring:'ext' }, { num:n, ring:'int' }
-  ]);
+  const allCells = GAME_DIFFICULTY === 'easy'
+    ? NUMBERS.flatMap(n => [{ num:n, ring:'ext' }, { num:n, ring:'int' }])
+    : NUMBERS.flatMap(n => [
+        { num:n, ring:'dbl' }, { num:n, ring:'sext' },
+        { num:n, ring:'tri' }, { num:n, ring:'sint' },
+      ]);
   const available = allCells.filter(c => !G.fired[atk].has(cellKey(c.num, c.ring)));
   // Mélange aléatoire des cases disponibles
   available.sort(() => Math.random() - 0.5);
@@ -2503,8 +2619,7 @@ function renderGameBoard() {
   (G.lastShots || []).forEach(({num, ring}) => {
     const idx = NUMBERS.indexOf(num);
     const sa = idx*18-9, ea = sa+18;
-    // ext = simple ext + double, int = simple int + triple
-    const [ir, or_] = ring === 'ext' ? [R_TRIPLE_O, R_DOUBLE_O] : [R_BULL_O, R_TRIPLE_O];
+    const [ir, or_] = getRingBounds(ring);
     const hl = svgEl('path', {
       d: sectorPath(sa, ea, ir, or_),
       fill: 'rgba(255,255,255,0.55)',
@@ -2521,40 +2636,66 @@ function renderGameBoard() {
   // Uniquement les marqueurs de tir de l'équipe qui joue
   const myMarkers = G.markers.filter(m => m.attackingTeam === atk);
 
-  myMarkers.forEach(({num, ring, type}) => {
+  // ── Marqueurs coulés : groupés par bateau → glow autour de la zone complète ──
+  const sunkByShip = new Map();
+  myMarkers.filter(m => m.type === 'sunk').forEach(m => {
+    const ship = G.ships[m.team].find(s => s.cells.some(c => c.num === m.num && c.ring === m.ring));
+    if (!ship) return;
+    if (!sunkByShip.has(ship.id)) sunkByShip.set(ship.id, { cells: [], team: m.team });
+    sunkByShip.get(ship.id).cells.push(m);
+  });
+
+  sunkByShip.forEach(({ cells }) => {
+    // <g> avec filtre feDropShadow → le glow se calcule sur la bitmap du groupe entier
+    const glowG = svgEl('g', { filter: 'url(#bt-sunk-glow)', 'pointer-events': 'none' });
+    cells.forEach(({ num, ring }) => {
+      const idx = NUMBERS.indexOf(num);
+      const sa = idx*18-9, ea = sa+18;
+      const [ir, or_] = getRingBounds(ring);
+      glowG.appendChild(svgEl('path', { d: sectorPath(sa, ea, ir, or_), fill: '#7B1FA2', 'fill-opacity': '0.72' }));
+    });
+    mk.appendChild(glowG);
+
+    // Hachurage + tête de mort par-dessus (hors du groupe filtré)
+    cells.forEach(({ num, ring }) => {
+      const idx = NUMBERS.indexOf(num);
+      const sa = idx*18-9, ea = sa+18;
+      const [ir, or_] = getRingBounds(ring);
+      const simpleR = getRingMidRadius(ring);
+      const d = sectorPath(sa, ea, ir, or_);
+
+      mk.appendChild(svgEl('path', { d, fill: 'url(#bt-hatch)', 'pointer-events': 'none' }));
+
+      const mid = polarToXY(sa + 9, simpleR);
+      const ringWidth = or_ - ir;
+      const emojiSize = ringWidth < 40 ? 13 : ringWidth < 60 ? 16 : 20;
+      const txt = svgEl('text', {
+        x: mid.x, y: mid.y + (emojiSize * 0.4),
+        'text-anchor': 'middle', 'font-size': String(emojiSize), 'pointer-events': 'none'
+      });
+      txt.textContent = '💀';
+      mk.appendChild(txt);
+    });
+  });
+
+  // ── Marqueurs touché / raté ──
+  myMarkers.filter(m => m.type !== 'sunk').forEach(({num, ring, type}) => {
     const idx = NUMBERS.indexOf(num);
     const sa = idx*18-9, ea = sa+18;
-
-    const simpleR = ring === 'ext'
-      ? (R_TRIPLE_O + R_DOUBLE_I) / 2   // centre du simple ext uniquement
-      : (R_BULL_O   + R_TRIPLE_O) / 2;
-    const [ir, or_] = ring === 'ext' ? [R_TRIPLE_O, R_DOUBLE_O] : [R_BULL_O, R_TRIPLE_O];
-
-    let emoji, bgFill, bgOpacity, strokeCol, strokeOpacity;
-    if (type === 'sunk') {
-      emoji = '💀'; bgFill = '#7B1FA2'; bgOpacity = '0.55'; strokeCol = '#CE93D8'; strokeOpacity = '0.9';
-    } else if (type === 'hit') {
-      emoji = '💥'; bgFill = '#C62828'; bgOpacity = '0.55'; strokeCol = '#EF9A9A'; strokeOpacity = '0.9';
-    } else {
-      emoji = '💧'; bgFill = '#1565C0'; bgOpacity = '0.40'; strokeCol = '#90CAF9'; strokeOpacity = '0.7';
-    }
-
-    const bg = svgEl('path',{
+    const simpleR = getRingMidRadius(ring);
+    const [ir, or_] = getRingBounds(ring);
+    const isHit = type === 'hit';
+    mk.appendChild(svgEl('path', {
       d: sectorPath(sa, ea, ir, or_),
-      fill: bgFill,
-      'fill-opacity': bgOpacity,
-      stroke: strokeCol, 'stroke-width':'1.5', 'stroke-opacity': strokeOpacity,
-      'pointer-events':'none'
-    });
-    mk.appendChild(bg);
-
+      fill: isHit ? '#C62828' : '#1565C0', 'fill-opacity': isHit ? '0.55' : '0.40',
+      stroke: isHit ? '#EF9A9A' : '#90CAF9', 'stroke-width': '1.5', 'stroke-opacity': isHit ? '0.9' : '0.7',
+      'pointer-events': 'none'
+    }));
     const mid = polarToXY(sa + 9, simpleR);
-    const txt = svgEl('text',{
-      x: mid.x, y: mid.y + 8,
-      'text-anchor':'middle', 'font-size':'20',
-      'pointer-events':'none'
+    const txt = svgEl('text', {
+      x: mid.x, y: mid.y + 8, 'text-anchor': 'middle', 'font-size': '20', 'pointer-events': 'none'
     });
-    txt.textContent = emoji;
+    txt.textContent = isHit ? '💥' : '💧';
     mk.appendChild(txt);
   });
 }
@@ -2778,6 +2919,16 @@ function goSetup() {
 // ════════════════════════════════════════════════
 // EVENTS
 // ════════════════════════════════════════════════
+// Show/hide ship count row based on difficulty
+document.querySelectorAll('input[name="difficulty"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    const diff = document.querySelector('input[name="difficulty"]:checked')?.value || 'easy';
+    GAME_DIFFICULTY = diff;
+    const row = document.getElementById('ship-count-row');
+    if (row) row.style.display = diff === 'easy' ? '' : 'none';
+  });
+});
+
 document.getElementById('btn-start').addEventListener('click', () => {
   haptic('success');
   const mode = getSelectedMode();
@@ -2788,7 +2939,9 @@ document.getElementById('btn-start').addEventListener('click', () => {
     showSetupToast(DV_LANG.t('err_solo1b'), '#F44336'); return;
   }
   // Appliquer la config choisie
-  SHIP_DEFS = getShipDefs(getSelectedShipCount());
+  const n = parseInt(document.querySelector('input[name="nb-ships"]:checked').value);
+  GAME_DIFFICULTY = document.querySelector('input[name="difficulty"]:checked')?.value || 'easy';
+  SHIP_DEFS = getShipDefs(n, GAME_DIFFICULTY);
   setupMode = mode;
   startPlacement();
   showScreen('handoff');

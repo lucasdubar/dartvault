@@ -52,19 +52,15 @@ const TOURNAMENT_GAMES = [
     configs: {
       easy: [
         { mode: 'standard',  rounds: 10, _for2: true  },
-        { mode: 'standard',  rounds: 15, _for2: true  },
         { mode: 'cutthroat', rounds: 10, _for2: true  },
-        { mode: 'cutthroat', rounds: 15, _for2: true  },
         { mode: 'noscore',   rounds: 10, _for2: false },
-        { mode: 'noscore',   rounds: 15, _for2: false },
         { mode: 'cutthroat', rounds: 10, _for2: false },
-        { mode: 'cutthroat', rounds: 15, _for2: false },
       ],
       normal: [
-        { mode: 'standard',  rounds: 0, _for2: true  },
-        { mode: 'cutthroat', rounds: 0, _for2: true  },
-        { mode: 'noscore',   rounds: 0, _for2: false },
-        { mode: 'cutthroat', rounds: 0, _for2: false },
+        { mode: 'standard',  rounds: 20, _for2: true  },
+        { mode: 'cutthroat', rounds: 20, _for2: true  },
+        { mode: 'noscore',   rounds: 20, _for2: false },
+        { mode: 'cutthroat', rounds: 20, _for2: false },
       ],
     },
   },
@@ -107,10 +103,10 @@ const TOURNAMENT_GAMES = [
     maxPlayers: 6,
     configs: {
       easy: [
-        { ordre: 'asc',  bull: 'none', hits: 1, skip: 'normal', replay: true },
-        { ordre: 'asc',  bull: 'none', hits: 1, skip: 'skip',   replay: true },
-        { ordre: 'desc', bull: 'none', hits: 1, skip: 'normal', replay: true },
-        { ordre: 'desc', bull: 'none', hits: 1, skip: 'skip',   replay: true },
+        { ordre: 'asc',  bull: 'none', hits: 1, skip: 'normal', replay: true, maxrounds: 10 },
+        { ordre: 'asc',  bull: 'none', hits: 1, skip: 'skip',   replay: true, maxrounds: 10 },
+        { ordre: 'desc', bull: 'none', hits: 1, skip: 'normal', replay: true, maxrounds: 10 },
+        { ordre: 'desc', bull: 'none', hits: 1, skip: 'skip',   replay: true, maxrounds: 10 },
       ],
       normal: [
         { ordre: 'asc',  bull: 'bull',    hits: 1, skip: 'normal', replay: true },
@@ -137,11 +133,9 @@ const TOURNAMENT_GAMES = [
     maxPlayers: 6,
     configs: {
       easy: [
-        { tgt: '300', steal: '10' },
         { tgt: '300', steal: '25' },
       ],
       normal: [
-        { tgt: '500', steal: '10' },
         { tgt: '500', steal: '25' },
         { tgt: '500', steal: '50' },
       ],
@@ -189,10 +183,10 @@ const TOURNAMENT_GAMES = [
         { zones: 7, rounds: 7, difficulty: 'easy' },
       ],
       normal: [
-        { zones: 5, rounds: 5, difficulty: 'normal' },
-        { zones: 5, rounds: 7, difficulty: 'normal' },
-        { zones: 7, rounds: 5, difficulty: 'normal' },
-        { zones: 7, rounds: 7, difficulty: 'normal' },
+        { zones: 5, rounds: 7,  difficulty: 'normal' },
+        { zones: 5, rounds: 10, difficulty: 'normal' },
+        { zones: 7, rounds: 7,  difficulty: 'normal' },
+        { zones: 7, rounds: 10, difficulty: 'normal' },
       ],
     },
   },
@@ -236,19 +230,22 @@ const TOURNAMENT_GAMES = [
     maxPlayers: 4,
     configs: {
       easy: [
-        { hp: 3, difficulty: 'easy' },
-        { hp: 5, difficulty: 'easy' },
+        { hp: 3, difficulty: 'easy', 'maxrounds-sht': 10 },
+        { hp: 5, difficulty: 'easy', 'maxrounds-sht': 10 },
       ],
       normal: [
-        { hp: 5, difficulty: 'hard' },
+        { hp: 5, difficulty: 'hard', 'maxrounds-sht': 10 },
       ],
     },
   },
 
   // ── BATAILLE NAVALE ────────────────────────────────────────────────────────
-  // input[name="nb-ships"]  → 2 | 3 | 4
-  // input[name="game-mode"] → "solo" | "team"
+  // input[name="nb-ships"]    → 2 | 3 | 4  (easy only)
+  // input[name="difficulty"]  → "easy" | "normal"
+  // input[name="game-mode"]   → "solo" | "team"
   // 2 joueurs : solo | 3 joueurs : indisponible | 4 ou 6 joueurs : team
+  // Tournoi facile  → difficulté easy, 10 tours max
+  // Tournoi normal  → difficulté normal (bateaux fixes), 15 tours max
   {
     id: 'bataille',
     name: 'Bataille Navale',
@@ -258,12 +255,11 @@ const TOURNAMENT_GAMES = [
     maxPlayers: 6,
     configs: {
       easy: [
-        { nbShips: 2 },
-        { nbShips: 3 },
+        { difficulty: 'easy', nbShips: 2, 'maxrounds-bt': 10 },
+        { difficulty: 'easy', nbShips: 3, 'maxrounds-bt': 10 },
       ],
       normal: [
-        { nbShips: 3 },
-        { nbShips: 4 },
+        { difficulty: 'normal', 'maxrounds-bt': 15 },
       ],
     },
   },
