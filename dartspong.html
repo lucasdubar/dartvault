@@ -32,7 +32,7 @@
 <meta name="twitter:description" content="DartPong sur DartVault. Éliminez toutes vos zones pour gagner !">
 <meta name="twitter:image" content="https://dartvault.app/icons/logo-hub.png">
 <style>
-:root{--bg:#0E0F10;--bg2:#161718;--bg3:#1C1E20;--bg4:#242628;--accent:#E8E8E8;--ok:#28C76F;--warn:#FF9F43;--danger:#DC3545;--text:#F0F0F0;--dim:#606468;--a:#3B6EE8;--b:#D4A017;--c:#C934C9;--blue2:#1A4FCC;}
+:root{--bg:#0E0F10;--bg2:#161718;--bg3:#1C1E20;--bg4:#242628;--accent:#E8E8E8;--ok:#28C76F;--warn:#FF9F43;--danger:#DC3545;--text:#F0F0F0;--dim:#606468;--a:#3B6EE8;--b:#8B6914;--c:#C934C9;--blue2:#1A4FCC;}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;overflow:hidden;height:var(--real-vh,100dvh);display:flex;flex-direction:column;}
 .header{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);padding:10px 14px;border-bottom:1px solid rgba(61,142,255,.2);flex-shrink:0;z-index:100;position:relative;}
@@ -1008,6 +1008,12 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;overf
         <div id="autodarts-ip-row" style="display:none;padding:2px 0 2px 0;">
           <input type="text" id="autodarts-ip" value="192.168.1.37" placeholder="IP du T630" style="width:100%;background:var(--bg3);border:1.5px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 8px;color:var(--text);font-family:'Exo 2',monospace;font-size:.78rem;text-align:center;outline:none;">
         </div>
+        <div id="autodarts-apk-row" style="display:none;padding:2px 0 2px 28px;">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <input type="checkbox" id="chk-autodarts-apk" style="width:15px;height:15px;accent-color:var(--warn);">
+            <span style="font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;color:var(--warn);">Mode APK (ws://)</span>
+          </label>
+        </div>
       </div>
     </div>
   </div>
@@ -1109,7 +1115,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;overf
         </filter>
         <filter id="glow_C" x="-20%" y="-20%" width="140%" height="140%">
           <feGaussianBlur stdDeviation="3" result="blur"/>
-          <feFlood flood-color="#D4A017" flood-opacity="0.9" result="color"/>
+          <feFlood flood-color="#8B6914" flood-opacity="0.9" result="color"/>
           <feComposite in="color" in2="blur" operator="in" result="glow"/>
           <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
         </filter>
@@ -1414,10 +1420,10 @@ function feedbackVictory() {
 }
 
 
-const TC = {A:'#3B6EE8', B:'#D4A017', C:'#C934C9'};
+const TC = {A:'#3B6EE8', B:'#8B6914', C:'#C934C9'};
 const TE = {A:'🔵', B:'🟡', C:'🟣'};
 // Couleurs individuelles pour le mode Duel (mêmes que Shanghai)
-const PLAYER_COLORS = ['#3B6EE8','#D4A017','#C934C9','#8B4513','#28A745','#DC3545'];
+const PLAYER_COLORS = ['#3B6EE8','#8B6914','#C934C9','#8B4513','#28A745','#DC3545'];
 const profilePlayers = new Set();
 const PLAYER_EMOJIS = ['🔵','🟡','🟣','🟤','🟢','🔴'];
 function getNextColor(players) {
@@ -1842,11 +1848,11 @@ function updateDisplay() {
       }
     });
   } else {
-    const curTeam = G.currentIdx < (G.teamAPlayers||[]).length ? 'A' : 'B';
+    const curTeam = G.currentTeam;
     ['A','B'].forEach(t => {
       const el = document.getElementById(`score-dp-${t}`);
       if(!el) return;
-      const tc = t === 'A' ? '#2196F3' : '#FF9800';
+      const tc = t === 'A' ? TC.A : TC.B;
       if(t === curTeam) {
         el.style.boxShadow = `0 0 0 1.5px ${tc}, 0 0 12px ${tc}, 0 0 24px ${tc}`;
         el.style.borderColor = tc;
@@ -2173,6 +2179,7 @@ function confirmZoneHit(idx) {
   feedbackHit();
   addHist(`${em} ${cur.name} élimine ${tl[sector.type]} ${sector.number}`, col);
   if(sectors.length===0){ G.playerDarts[cur.name]++; victory(G.gameMode === 'duel' ? G.currentIdx : G.currentTeam); return; }
+  G.playerDarts[cur.name]++; G.dartsThrown++;
   if(G.streak===3){
     feedbackPoint();
     const spEl1 = document.getElementById('streak-player');
@@ -2182,7 +2189,6 @@ function confirmZoneHit(idx) {
     G._streakTimer=setTimeout(function(){ if(document.getElementById('streak-modal').classList.contains('open')) closeStreakPopup(); },2000);
     return;
   }
-  G.playerDarts[cur.name]++; G.dartsThrown++;
   updateDisplay();
   autoNextIfNeeded();
 }
@@ -2518,9 +2524,7 @@ function victory(winnerIdxOrTeam) {
       s.games++;
       var _dkdp=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();
       if(!s.daily)s.daily={};if(!s.weekly)s.weekly={};if(!s.monthly)s.monthly={};
-      s.daily[_dkdp.today]=(s.daily[_dkdp.today]||0)+1;
-      s.weekly[_dkdp.week]=(s.weekly[_dkdp.week]||0)+1;
-      s.monthly[_dkdp.month]=(s.monthly[_dkdp.month]||0)+1;
+      (function(_i){[['daily',_dkdp.today],['weekly',_dkdp.week],['monthly',_dkdp.month]].forEach(function(e){var b=s[e[0]][e[1]];b=typeof b==='number'?{games:b}:(b||{});Object.keys(_i).forEach(function(k){b[k]=(b[k]||0)+_i[k];});s[e[0]][e[1]]=b;});})({games:1,zonesEliminated:G.playerStats[p.name]||0,totalDarts:G.playerDarts[p.name]||0});
     });
     localStorage.setItem(STATS_KEY, JSON.stringify(gstats));
   })();
@@ -2636,7 +2640,7 @@ function _endByMaxRoundsDP(){
     G.gameStarted=false;
     G._finalWinnerNames=w.fromProfile?[w.name]:[];
     _recordWins(G._finalWinnerNames);
-    (function(){var K='dartvault_game_stats';var gs;try{gs=JSON.parse(localStorage.getItem(K))||{};}catch(e){gs={};}G.players.forEach(function(p){if(!p.fromProfile&&!profilePlayers.has(p.name)&&!window.TournamentBridge)return;var k=p.name;if(!gs[k])gs[k]={};if(!gs[k]['dartspong'])gs[k]['dartspong']={zonesEliminated:0,totalDarts:0,games:0};var s=gs[k]['dartspong'];s.zonesEliminated+=(G.playerStats[p.name]||0);s.totalDarts+=(G.playerDarts[p.name]||0);s.games++;var _d=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();if(!s.daily)s.daily={};if(!s.weekly)s.weekly={};if(!s.monthly)s.monthly={};s.daily[_d.today]=(s.daily[_d.today]||0)+1;s.weekly[_d.week]=(s.weekly[_d.week]||0)+1;s.monthly[_d.month]=(s.monthly[_d.month]||0)+1;});localStorage.setItem(K,JSON.stringify(gs));})();
+    (function(){var K='dartvault_game_stats';var gs;try{gs=JSON.parse(localStorage.getItem(K))||{};}catch(e){gs={};}G.players.forEach(function(p){if(!p.fromProfile&&!profilePlayers.has(p.name)&&!window.TournamentBridge)return;var k=p.name;if(!gs[k])gs[k]={};if(!gs[k]['dartspong'])gs[k]['dartspong']={zonesEliminated:0,totalDarts:0,games:0};var s=gs[k]['dartspong'];s.zonesEliminated+=(G.playerStats[p.name]||0);s.totalDarts+=(G.playerDarts[p.name]||0);s.games++;var _d=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();if(!s.daily)s.daily={};if(!s.weekly)s.weekly={};if(!s.monthly)s.monthly={};(function(_i){[['daily',_d.today],['weekly',_d.week],['monthly',_d.month]].forEach(function(e){var b=s[e[0]][e[1]];b=typeof b==='number'?{games:b}:(b||{});Object.keys(_i).forEach(function(k){b[k]=(b[k]||0)+_i[k];});s[e[0]][e[1]]=b;});})({games:1,zonesEliminated:G.playerStats[p.name]||0,totalDarts:G.playerDarts[p.name]||0});});localStorage.setItem(K,JSON.stringify(gs));})();
     const medals=['🏆','🥈','🥉','4️⃣','5️⃣','6️⃣'];
     const rHtml=sorted.map(p=>{const _r=sorted.filter(q=>(nz-q.sectors.length)>(nz-p.sectors.length)).length+1;const sc=nz-p.sectors.length;const z=G.playerStats[p.name]||0;return`<div class="rank-row" style="border-color:${p.color}18;border-left-color:${p.color};"><div class="rank-medal">${medals[_r-1]||''}</div><div class="rank-name" style="color:${p.color}">${p.emoji} ${p.name}</div><div class="rank-info"><div class="rank-legs" style="color:${p.color}">${sc} / ${nz} zones</div><div class="rank-avg">${z} tir${z>1?'s':''}</div></div></div>`;}).join('');
     showEnd('🏆 VICTOIRE !',rHtml,w.color);
@@ -2650,7 +2654,7 @@ function _endByMaxRoundsDP(){
     const wArr=winTeam==='A'?G.teamA:G.teamB;
     if(wArr)wArr.forEach(n=>{if(profilePlayers.has(n))G._finalWinnerNames.push(n);});
     _recordWins(G._finalWinnerNames);
-    (function(){var K='dartvault_game_stats';var gs;try{gs=JSON.parse(localStorage.getItem(K))||{};}catch(e){gs={};}G.players.forEach(function(p){if(!p.fromProfile&&!profilePlayers.has(p.name)&&!window.TournamentBridge)return;var k=p.name;if(!gs[k])gs[k]={};if(!gs[k]['dartspong'])gs[k]['dartspong']={zonesEliminated:0,totalDarts:0,games:0};var s=gs[k]['dartspong'];s.zonesEliminated+=(G.playerStats[p.name]||0);s.totalDarts+=(G.playerDarts[p.name]||0);s.games++;var _d=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();if(!s.daily)s.daily={};if(!s.weekly)s.weekly={};if(!s.monthly)s.monthly={};s.daily[_d.today]=(s.daily[_d.today]||0)+1;s.weekly[_d.week]=(s.weekly[_d.week]||0)+1;s.monthly[_d.month]=(s.monthly[_d.month]||0)+1;});localStorage.setItem(K,JSON.stringify(gs));})();
+    (function(){var K='dartvault_game_stats';var gs;try{gs=JSON.parse(localStorage.getItem(K))||{};}catch(e){gs={};}G.players.forEach(function(p){if(!p.fromProfile&&!profilePlayers.has(p.name)&&!window.TournamentBridge)return;var k=p.name;if(!gs[k])gs[k]={};if(!gs[k]['dartspong'])gs[k]['dartspong']={zonesEliminated:0,totalDarts:0,games:0};var s=gs[k]['dartspong'];s.zonesEliminated+=(G.playerStats[p.name]||0);s.totalDarts+=(G.playerDarts[p.name]||0);s.games++;var _d=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();if(!s.daily)s.daily={};if(!s.weekly)s.weekly={};if(!s.monthly)s.monthly={};(function(_i){[['daily',_d.today],['weekly',_d.week],['monthly',_d.month]].forEach(function(e){var b=s[e[0]][e[1]];b=typeof b==='number'?{games:b}:(b||{});Object.keys(_i).forEach(function(k){b[k]=(b[k]||0)+_i[k];});s[e[0]][e[1]]=b;});})({games:1,zonesEliminated:G.playerStats[p.name]||0,totalDarts:G.playerDarts[p.name]||0});});localStorage.setItem(K,JSON.stringify(gs));})();
     const names={A:'🔵 ÉQUIPE BLEUE',B:'🟡 ÉQUIPE JAUNE'};
     const scW=winTeam==='A'?scA:scB,scL=winTeam==='A'?scB:scA;
     const rHtml=`<div class="rank-row" style="border-color:${TC[winTeam]}18;border-left-color:${TC[winTeam]};"><div class="rank-medal">🏆</div><div class="rank-name" style="color:${TC[winTeam]}">${names[winTeam]}</div><div class="rank-info"><div class="rank-legs" style="color:${TC[winTeam]}">${scW} / ${nz} zones</div></div></div>`+`<div class="rank-row" style="border-color:${TC[loseTeam]}18;border-left-color:${TC[loseTeam]};"><div class="rank-medal">🥈</div><div class="rank-name" style="color:${TC[loseTeam]}">${names[loseTeam]}</div><div class="rank-info"><div class="rank-legs" style="color:${TC[loseTeam]}">${scL} / ${nz} zones</div></div></div>`;
@@ -2757,11 +2761,11 @@ function renderZonesRemaining() {
   } else {
     teams = [
       {id:'A',label:'🔵 ÉQUIPE BLEUE',col:'#3B6EE8',sectors:G.sectorsA},
-      {id:'B',label:'🟡 ÉQUIPE JAUNE',col:'#D4A017',sectors:G.sectorsB},
+      {id:'B',label:'🟡 ÉQUIPE JAUNE',col:'#8B6914',sectors:G.sectorsB},
     ];
   }
   const typeLabel={full_sector:DV_LANG.t('dp_sector'),simple_outer:DV_LANG.t('single'),simple_inner:DV_LANG.t('dp_simple_int'),double:DV_LANG.t('double'),triple:DV_LANG.t('triple')};
-  const colToRgba = {'#3B6EE8':'59,110,232','#D4A017':'212,160,23','#C934C9':'201,52,201','#8B4513':'139,69,19','#28A745':'40,167,69','#DC3545':'220,53,69'};
+  const colToRgba = {'#3B6EE8':'59,110,232','#8B6914':'139,105,20','#C934C9':'201,52,201','#8B4513':'139,69,19','#28A745':'40,167,69','#DC3545':'220,53,69'};
   
   // Fonction de tri : numéro croissant, puis type (simple < double < triple)
   const typeOrder = {full_sector:0, simple_outer:1, simple_inner:2, double:3, triple:4};
@@ -3409,12 +3413,13 @@ window.addEventListener('beforeinstallprompt', e => {
 (function() {
   'use strict';
   const STORAGE_KEY='dartvault_autodarts_ip',DEFAULT_IP='192.168.1.37',PORT_WS=3180,PORT_WSS=3181,RECONNECT_DELAY=3000;
+  const APK_MODE_KEY='dartvault_autodarts_apk_mode';function getAPKMode(){return localStorage.getItem(APK_MODE_KEY)==='1';}
   let ws=null,active=false,reconnectTimer=null,lastNumThrows=0,adEnabled=false,dartCount=0;
   let adInTakeout = false;
   let adTurnResetTimer = null;
   function getIP(){return localStorage.getItem(STORAGE_KEY)||DEFAULT_IP;}
   function setIP(ip){localStorage.setItem(STORAGE_KEY,ip);}
-  function getWSUrl(){var ip=getIP(),sec=window.location.protocol==='https:';return(sec?'wss':'ws')+'://'+ip+':'+(sec?PORT_WSS:PORT_WS)+'/api/events';}
+  function getWSUrl(){var ip=getIP(),sec=window.location.protocol==='https:'&&!getAPKMode();return(sec?'wss':'ws')+'://'+ip+':'+(sec?PORT_WSS:PORT_WS)+'/api/events';}
   function setLed(el, state) {
     if (!el) return;
     var bg, sh, anim;
@@ -3457,6 +3462,7 @@ window.addEventListener('beforeinstallprompt', e => {
   var chkVal = document.getElementById('chk-validate');
   chkAD.addEventListener('change', function() {
     document.getElementById('autodarts-ip-row').style.display = this.checked ? '' : 'none';
+    document.getElementById('autodarts-apk-row').style.display = this.checked ? '' : 'none';
     localStorage.setItem('dartvault_autodarts_enabled', this.checked ? '1' : '0');
     if (this.checked) {
       setIP(document.getElementById('autodarts-ip').value.trim() || DEFAULT_IP);
@@ -3471,11 +3477,13 @@ window.addEventListener('beforeinstallprompt', e => {
   if (localStorage.getItem('dartvault_autodarts_enabled') === '1') {
     chkAD.checked = true;
     document.getElementById('autodarts-ip-row').style.display = '';
+    document.getElementById('autodarts-apk-row').style.display = '';
     chkVal.checked = true;
     chkVal.disabled = true;
     chkVal.parentElement.style.opacity = '.5';
   }
   document.getElementById('autodarts-ip').value = getIP();
+  var _adApkChk=document.getElementById('chk-autodarts-apk');if(_adApkChk){_adApkChk.checked=getAPKMode();_adApkChk.addEventListener('change',function(){localStorage.setItem(APK_MODE_KEY,this.checked?'1':'0');});}
   document.getElementById('autodarts-ip').addEventListener('change', function() { var v = this.value.trim(); if (v) setIP(v); });
 
   function adBedToZone(bed) {

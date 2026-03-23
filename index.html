@@ -7,7 +7,7 @@
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="description" content="DartVault — 501, Cricket mais aussi Bataille Navale, BlackDart, Territoire, Battle Royal et 6 autres jeux de fléchettes gratuits entre amis. Sans inscription.">
   <meta name="theme-color" content="#0A0A0A">
   <title>DartVault — Jeux de fléchettes gratuits en ligne</title>
@@ -1035,6 +1035,7 @@
       animation-delay:.45s;
     }
     .welcome-step:nth-child(2) .welcome-step-title { color:#FBBF24; }
+    [data-theme="light"] .welcome-step:nth-child(2) .welcome-step-title { color:#7A5A00; }
     .welcome-step:nth-child(2) .welcome-step-icon { filter:drop-shadow(0 0 10px rgba(245,158,11,.6)); }
 
     /* Step 3 — emerald */
@@ -2967,7 +2968,7 @@
       // Fallback if SW never responds (local dev)
       setTimeout(function() {
         var el = document.getElementById('app-version');
-        if (el && !el.textContent) el.textContent = 'v2.28';
+        if (el && !el.textContent) el.textContent = 'v2.30';
       }, 2000);
     }, 2000);
 

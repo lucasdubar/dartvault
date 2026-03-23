@@ -6,7 +6,7 @@
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0A0A0A">
   <title>DartVault — Profils</title>
   <meta name="description" content="Gérez vos profils joueurs sur DartVault.">
@@ -703,6 +703,7 @@
 // ══════════════════════════════════════════════════════════════════════
 const PROFILES_KEY = 'dartvault_profiles';
 const WINS_KEY     = 'dartvault_wins';
+const STATS_KEY    = 'dartvault_game_stats';
 
 function getProfiles() {
   try { return JSON.parse(localStorage.getItem(PROFILES_KEY)) || []; }
@@ -727,11 +728,19 @@ function downloadProfiles() {
     if (profileNames.has(name)) filteredWins[name] = data;
   });
 
+  let gameStats = {};
+  try { gameStats = JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch(e) {}
+  const filteredStats = {};
+  Object.entries(gameStats).forEach(([name, data]) => {
+    if (profileNames.has(name)) filteredStats[name] = data;
+  });
+
   const payload = {
     version: 1,
     exportedAt: new Date().toISOString(),
     profiles,
-    wins: filteredWins
+    wins: filteredWins,
+    stats: filteredStats
   };
 
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
@@ -797,6 +806,42 @@ function importProfiles(event) {
           }
         });
         localStorage.setItem(WINS_KEY, JSON.stringify(currentWins));
+      }
+
+      // Fusionner les stats détaillées
+      if (payload.stats && typeof payload.stats === 'object') {
+        let currentStats = {};
+        try { currentStats = JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch(ex) {}
+        Object.entries(payload.stats).forEach(([name, playerData]) => {
+          if (!currentStats[name]) {
+            currentStats[name] = playerData;
+          } else {
+            Object.entries(playerData).forEach(([game, gameData]) => {
+              if (!currentStats[name][game]) {
+                currentStats[name][game] = gameData;
+              } else {
+                const eg = currentStats[name][game];
+                Object.entries(gameData).forEach(([k, v]) => {
+                  if (['daily','weekly','monthly'].includes(k)) {
+                    if (!eg[k]) eg[k] = {};
+                    Object.entries(v || {}).forEach(([date, ds]) => {
+                      if (!eg[k][date]) {
+                        eg[k][date] = ds;
+                      } else if (typeof ds === 'object' && ds) {
+                        Object.keys(ds).forEach(sk => { eg[k][date][sk] = (eg[k][date][sk]||0) + (ds[sk]||0); });
+                      } else {
+                        eg[k][date] = (eg[k][date]||0) + (ds||0);
+                      }
+                    });
+                  } else if (typeof v === 'number') {
+                    eg[k] = (eg[k]||0) + v;
+                  }
+                });
+              }
+            });
+          }
+        });
+        localStorage.setItem(STATS_KEY, JSON.stringify(currentStats));
       }
 
       renderProfiles();

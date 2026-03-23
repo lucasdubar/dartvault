@@ -38,7 +38,7 @@
 [data-theme="dark"] .abar,[data-theme="dark"] .game-topbar,[data-theme="dark"] .active-zone{background:#1C1E20!important;border-bottom-color:rgba(255,255,255,.12)!important;}
 [data-theme="dark"] .round-info{background:rgba(232,232,232,.07)!important;border-color:rgba(232,232,232,.18)!important;color:var(--dim)!important;}
 [data-theme="light"] .round-info{background:rgba(22,23,24,.06)!important;border-color:rgba(22,23,24,.15)!important;color:var(--dim)!important;}
-[data-theme="colored"]{--bg:#06070F!important;--bg2:#0A0C18!important;--bg3:#0F1222!important;--bg4:#141828!important;--accent:#818CF8!important;--ok:#4ADE80!important;--warn:#FBBF24!important;--danger:#F87171!important;--text:#EEF2FF!important;--dim:#5C6BC0!important;--text-dim:#5C6BC0!important;}
+[data-theme="colored"]{--bg:#06070F!important;--bg2:#0A0C18!important;--bg3:#0F1222!important;--bg4:#141828!important;--accent:#818CF8!important;--ok:#4ADE80!important;--warn:#E2E8F0!important;--danger:#F87171!important;--text:#EEF2FF!important;--dim:#5C6BC0!important;--text-dim:#5C6BC0!important;}
 
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;height:var(--real-vh,100dvh);max-height:var(--real-vh,100dvh);display:flex;flex-direction:column;overflow:hidden;}
@@ -529,6 +529,12 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
       <div id="autodarts-ip-row" style="display:none;padding:2px 0 2px 28px;">
         <input type="text" id="autodarts-ip" value="192.168.1.37" placeholder="IP du T630" style="width:160px;background:var(--bg3);border:1.5px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 10px;color:var(--text);font-family:'Exo 2',monospace;font-size:.82rem;text-align:center;outline:none;">
       </div>
+      <div id="autodarts-apk-row" style="display:none;padding:2px 0 2px 28px;">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+          <input type="checkbox" id="chk-autodarts-apk" style="width:15px;height:15px;accent-color:var(--warn);">
+          <span style="font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;color:var(--warn);">Mode APK (ws://)</span>
+        </label>
+      </div>
     </div>
 
   </div>
@@ -727,7 +733,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
   </div>
 </div>
 <script>
-const PLAYER_COLORS=['#3B6EE8','#D4A017','#C934C9','#8B4513','#28A745','#DC3545'];
+const PLAYER_COLORS=['#3B6EE8','#8B6914','#C934C9','#8B4513','#28A745','#DC3545'];
 const PLAYER_EMOJIS=['🔵','🟡','🟣','🟤','🟢','🔴'];
 function getNextColor(players) {
   const used = new Set(players.map(p => p.color));
@@ -889,7 +895,7 @@ function renderSetupList(){
 document.getElementById('btn-start').addEventListener('click',()=>{
   if(G.players.length<1){showToast('Ajoutez au moins 1 joueur');return;}
   G.sequence=buildSequence(G.options);
-  G.players.forEach(p=>{p.targetIdx=0;p.hitsOnCurrent=0;p.totalDarts=0;p.totalHits=0;});
+  G.players.forEach(p=>{p.targetIdx=0;p.hitsOnCurrent=0;p.totalDarts=0;p.totalHits=0;p.lastTurnDarts=[];});
   G.currentIdx=0;G.dartsThrown=0;G.history=[];G.actionHistory=[];
   G.requireValidate=document.getElementById('chk-validate')?document.getElementById('chk-validate').checked:false;
   G.bonusReplay=document.getElementById('chk-replay')?document.getElementById('chk-replay').checked:false;
@@ -1422,9 +1428,7 @@ function showEnd(title,sub,color){
       s.games++;
       var _dkhl=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();
       if(!s.daily)s.daily={};if(!s.weekly)s.weekly={};if(!s.monthly)s.monthly={};
-      s.daily[_dkhl.today]=(s.daily[_dkhl.today]||0)+1;
-      s.weekly[_dkhl.week]=(s.weekly[_dkhl.week]||0)+1;
-      s.monthly[_dkhl.month]=(s.monthly[_dkhl.month]||0)+1;
+      (function(_i){[['daily',_dkhl.today],['weekly',_dkhl.week],['monthly',_dkhl.month]].forEach(function(e){var b=s[e[0]][e[1]];b=typeof b==='number'?{games:b}:(b||{});Object.keys(_i).forEach(function(k){b[k]=(b[k]||0)+_i[k];});s[e[0]][e[1]]=b;});})({games:1,zonesHit:p.totalHits||0,totalDarts:p.totalDarts||0});
     });
     localStorage.setItem(STATS_KEY, JSON.stringify(gstats));
   })();
@@ -1566,7 +1570,7 @@ document.getElementById('btn-rematch').addEventListener('click',()=>{
     }
   }
   G.sequence=buildSequence(G.options);
-  G.players.forEach(p=>{p.targetIdx=0;p.hitsOnCurrent=0;p.totalDarts=0;p.totalHits=0;});
+  G.players.forEach(p=>{p.targetIdx=0;p.hitsOnCurrent=0;p.totalDarts=0;p.totalHits=0;p.lastTurnDarts=[];});
   G.currentIdx=0;G.dartsThrown=0;G.history=[];G.actionHistory=[];
   G.maxRounds=G.options.maxrounds||0;G.round=1;G.overtimeCount=0;
   G.gameStarted=true;G._finalWinnerNames=[];G.turnDarts=[];
@@ -1900,12 +1904,13 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
 (function() {
   'use strict';
   const STORAGE_KEY='dartvault_autodarts_ip',DEFAULT_IP='192.168.1.37',PORT_WS=3180,PORT_WSS=3181,RECONNECT_DELAY=3000;
+  const APK_MODE_KEY='dartvault_autodarts_apk_mode';function getAPKMode(){return localStorage.getItem(APK_MODE_KEY)==='1';}
   let ws=null,active=false,reconnectTimer=null,lastNumThrows=0,adEnabled=false,dartCount=0;
   let adInTakeout = false;
   let adTurnResetTimer = null;
   function getIP(){return localStorage.getItem(STORAGE_KEY)||DEFAULT_IP;}
   function setIP(ip){localStorage.setItem(STORAGE_KEY,ip);}
-  function getWSUrl(){var ip=getIP(),sec=window.location.protocol==='https:';return(sec?'wss':'ws')+'://'+ip+':'+(sec?PORT_WSS:PORT_WS)+'/api/events';}
+  function getWSUrl(){var ip=getIP(),sec=window.location.protocol==='https:'&&!getAPKMode();return(sec?'wss':'ws')+'://'+ip+':'+(sec?PORT_WSS:PORT_WS)+'/api/events';}
   function setLed(el, state) {
     if (!el) return;
     var bg, sh, anim;
@@ -1948,6 +1953,7 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
   var chkVal = document.getElementById('chk-validate');
   chkAD.addEventListener('change', function() {
     document.getElementById('autodarts-ip-row').style.display = this.checked ? '' : 'none';
+    document.getElementById('autodarts-apk-row').style.display = this.checked ? '' : 'none';
     localStorage.setItem('dartvault_autodarts_enabled', this.checked ? '1' : '0');
     if (this.checked) {
       setIP(document.getElementById('autodarts-ip').value.trim() || DEFAULT_IP);
@@ -1962,11 +1968,13 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
   if (localStorage.getItem('dartvault_autodarts_enabled') === '1') {
     chkAD.checked = true;
     document.getElementById('autodarts-ip-row').style.display = '';
+    document.getElementById('autodarts-apk-row').style.display = '';
     chkVal.checked = true;
     chkVal.disabled = true;
     chkVal.parentElement.style.opacity = '.5';
   }
   document.getElementById('autodarts-ip').value = getIP();
+  var _adApkChk=document.getElementById('chk-autodarts-apk');if(_adApkChk){_adApkChk.checked=getAPKMode();_adApkChk.addEventListener('change',function(){localStorage.setItem(APK_MODE_KEY,this.checked?'1':'0');});}
   document.getElementById('autodarts-ip').addEventListener('change', function() { var v = this.value.trim(); if (v) setIP(v); });
 
   function injectDart(throwData){

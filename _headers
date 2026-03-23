@@ -11,3 +11,10 @@
 /*.html
   Cache-Control: no-cache
   X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+/.well-known/assetlinks.json
+  Content-Type: application/json
+  Cache-Control: no-cache

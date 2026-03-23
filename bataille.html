@@ -910,7 +910,7 @@ body { font-family:'Exo 2',sans-serif; background:var(--bg); color:var(--text); 
 [data-theme="dark"] .abar,[data-theme="dark"] .game-topbar,[data-theme="dark"] .active-zone{background:#1C1E20!important;border-bottom-color:rgba(255,255,255,.12)!important;}
 [data-theme="dark"] .turn-badge{background:rgba(232,232,232,.07)!important;border-color:rgba(232,232,232,.18)!important;color:var(--dim)!important;}
 [data-theme="light"] .turn-badge{background:rgba(22,23,24,.06)!important;border-color:rgba(22,23,24,.15)!important;color:var(--dim)!important;}
-[data-theme="colored"]{--bg:#030810!important;--bg2:#060D18!important;--bg3:#0A1420!important;--bg4:#0E1B28!important;--accent:#38BDF8!important;--ok:#4ADE80!important;--warn:#FBBF24!important;--danger:#F87171!important;--text:#F0F9FF!important;--dim:#2E78A0!important;--text-dim:#2E78A0!important;}
+[data-theme="colored"]{--bg:#030810!important;--bg2:#060D18!important;--bg3:#0A1420!important;--bg4:#0E1B28!important;--accent:#38BDF8!important;--ok:#4ADE80!important;--warn:#E2E8F0!important;--danger:#F87171!important;--text:#F0F9FF!important;--dim:#2E78A0!important;--text-dim:#2E78A0!important;}
 
 /* Surfaces */
 [data-theme="dark"] body,[data-theme="light"] body{background:var(--bg)!important;color:var(--text)!important;}
@@ -1147,6 +1147,12 @@ body { font-family:'Exo 2',sans-serif; background:var(--bg); color:var(--text); 
         </label>
         <div id="autodarts-ip-row" style="display:none;padding:2px 0 2px 28px;">
           <input type="text" id="autodarts-ip" value="192.168.1.37" placeholder="IP du T630" style="width:160px;background:var(--bg3);border:1.5px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 10px;color:var(--text);font-family:'Exo 2',monospace;font-size:.82rem;text-align:center;outline:none;">
+        </div>
+        <div id="autodarts-apk-row" style="display:none;padding:2px 0 2px 28px;">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <input type="checkbox" id="chk-autodarts-apk" style="width:15px;height:15px;accent-color:var(--warn);">
+            <span style="font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;color:var(--warn);">Mode APK (ws://)</span>
+          </label>
         </div>
       </div>
     </div>
@@ -2555,7 +2561,7 @@ function executeBull(val) {
   document.getElementById('btn-undo').classList.remove('disabled');
 
   // Slot fléchette
-  G.turnDarts.push({ label: label, type: 'hit' });
+  G.turnDarts.push({ label: label, type: 'hit', result: 'hit' });
 
   feedbackBull();
   showToast(`${label} → ${picks.length} cases`, TEAM_COLOR[atk]);
@@ -2894,9 +2900,7 @@ function showEnd() {
       s.games += 1;
       var _dkba=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();
       if(!s.daily)s.daily={};if(!s.weekly)s.weekly={};if(!s.monthly)s.monthly={};
-      s.daily[_dkba.today]=(s.daily[_dkba.today]||0)+1;
-      s.weekly[_dkba.week]=(s.weekly[_dkba.week]||0)+1;
-      s.monthly[_dkba.month]=(s.monthly[_dkba.month]||0)+1;
+      (function(_i){[['daily',_dkba.today],['weekly',_dkba.week],['monthly',_dkba.month]].forEach(function(e){var b=s[e[0]][e[1]];b=typeof b==='number'?{games:b}:(b||{});Object.keys(_i).forEach(function(k){b[k]=(b[k]||0)+_i[k];});s[e[0]][e[1]]=b;});})({games:1,hits:ps.hits||0,totalShots:(ps.hits||0)+(ps.misses||0)});
     });
     localStorage.setItem(STATS_KEY, JSON.stringify(stats));
   })();
@@ -3188,8 +3192,14 @@ const _RULES_DATA = {
               <div class="rules-row"><span class="rules-arrow">→</span><span>2 bateaux : 1 ext. + 1 libre · 3 bateaux : 2 ext. + 1 libre · 4 bateaux : 2 ext. + 2 libres</span></div>
             </div>
             <div class="rules-section">
+              <div class="rules-section-title">🎯 Difficultés</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Facile</strong> : 2 anneaux (Ext · Int) — chaque case = anneau entier · 2 à 4 bateaux de 3 numéros adjacents</span></div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Normal</strong> : 4 anneaux distincts (Double · Simple ext · Triple · Simple int) · 3 bateaux fixes : ⚓ Porte-avion (4 anneaux d'un même numéro) · 🤿 Sous-marin (Triple+Simple int d'un numéro) · 🚢 Libre (3 numéros adjacents)</span></div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Difficile</strong> : 4 anneaux distincts · 4 bateaux fixes : ajoute 🛳 Cuirassé (3 numéros adjacents) et ⛵ Croiseur (Double sur 3 numéros adjacents) — placement et tir ultra-précis</span></div>
+            </div>
+            <div class="rules-section">
               <div class="rules-section-title">⚙️ Variantes</div>
-              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bateaux</strong> : 2 · 3 · 4 bateaux par équipe</span></div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bateaux</strong> : 2 · 3 · 4 bateaux par équipe (mode Facile uniquement)</span></div>
               <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Mode</strong> : Solo (1v1) · Équipe (2-6 joueurs)</span></div>
             </div>`
   },
@@ -3214,8 +3224,14 @@ const _RULES_DATA = {
               <div class="rules-row"><span class="rules-arrow">→</span><span>2 ships: 1 outer + 1 free · 3 ships: 2 outer + 1 free · 4 ships: 2 outer + 2 free</span></div>
             </div>
             <div class="rules-section">
+              <div class="rules-section-title">🎯 Difficulties</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Easy</strong>: 2 rings (Outer · Inner) — each cell = full ring · 2 to 4 ships of 3 adjacent numbers</span></div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Normal</strong>: 4 distinct rings (Double · Single outer · Triple · Single inner) · 3 fixed ships: ⚓ Carrier (4 rings of the same number) · 🤿 Submarine (Triple+Single inner of one number) · 🚢 Free (3 adjacent numbers)</span></div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Hard</strong>: 4 distinct rings · 4 fixed ships: adds 🛳 Battleship (3 adjacent numbers) and ⛵ Cruiser (Double across 3 adjacent numbers) — ultra-precise placement and firing</span></div>
+            </div>
+            <div class="rules-section">
               <div class="rules-section-title">⚙️ Variants</div>
-              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Ships</strong>: 2 · 3 · 4 ships per team</span></div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Ships</strong>: 2 · 3 · 4 ships per team (Easy mode only)</span></div>
               <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Mode</strong>: Solo (1v1) · Team (2-6 players)</span></div>
             </div>`
   }
@@ -3715,12 +3731,13 @@ history.pushState(null,'',window.location.href);
 (function() {
   'use strict';
   const STORAGE_KEY='dartvault_autodarts_ip',DEFAULT_IP='192.168.1.37',PORT_WS=3180,PORT_WSS=3181,RECONNECT_DELAY=3000;
+  const APK_MODE_KEY='dartvault_autodarts_apk_mode';function getAPKMode(){return localStorage.getItem(APK_MODE_KEY)==='1';}
   let ws=null,active=false,reconnectTimer=null,lastNumThrows=0,adEnabled=false,dartCount=0;
   let adInTakeout = false;
   let adTurnResetTimer = null;
   function getIP(){return localStorage.getItem(STORAGE_KEY)||DEFAULT_IP;}
   function setIP(ip){localStorage.setItem(STORAGE_KEY,ip);}
-  function getWSUrl(){var ip=getIP(),sec=window.location.protocol==='https:';return(sec?'wss':'ws')+'://'+ip+':'+(sec?PORT_WSS:PORT_WS)+'/api/events';}
+  function getWSUrl(){var ip=getIP(),sec=window.location.protocol==='https:'&&!getAPKMode();return(sec?'wss':'ws')+'://'+ip+':'+(sec?PORT_WSS:PORT_WS)+'/api/events';}
   function setLed(el, state) {
     if (!el) return;
     var bg, sh, anim;
@@ -3763,6 +3780,7 @@ history.pushState(null,'',window.location.href);
   var chkVal = document.getElementById('chk-validate');
   chkAD.addEventListener('change', function() {
     document.getElementById('autodarts-ip-row').style.display = this.checked ? '' : 'none';
+    document.getElementById('autodarts-apk-row').style.display = this.checked ? '' : 'none';
     localStorage.setItem('dartvault_autodarts_enabled', this.checked ? '1' : '0');
     if (this.checked) {
       setIP(document.getElementById('autodarts-ip').value.trim() || DEFAULT_IP);
@@ -3777,11 +3795,13 @@ history.pushState(null,'',window.location.href);
   if (localStorage.getItem('dartvault_autodarts_enabled') === '1') {
     chkAD.checked = true;
     document.getElementById('autodarts-ip-row').style.display = '';
+    document.getElementById('autodarts-apk-row').style.display = '';
     chkVal.checked = true;
     chkVal.disabled = true;
     chkVal.parentElement.style.opacity = '.5';
   }
   document.getElementById('autodarts-ip').value = getIP();
+  var _adApkChk=document.getElementById('chk-autodarts-apk');if(_adApkChk){_adApkChk.checked=getAPKMode();_adApkChk.addEventListener('change',function(){localStorage.setItem(APK_MODE_KEY,this.checked?'1':'0');});}
   document.getElementById('autodarts-ip').addEventListener('change', function() { var v = this.value.trim(); if (v) setIP(v); });
 
   function adBedToRing(bed) {

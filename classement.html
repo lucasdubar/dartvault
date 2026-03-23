@@ -6,7 +6,7 @@
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0A0A0A">
   <title>DartVault — Classement</title>
   <meta name="description" content="Classement et statistiques de tous vos jeux de fléchettes sur DartVault.">
@@ -47,6 +47,7 @@
       --text:#1A0A0E; --dim:#8A6070; --dim2:#C8A0B0;
       --accent:#2A1018; --accent-glow:rgba(22,23,24,.15);
       --border:rgba(22,23,24,.10);
+      --gold:#7A5A00; --silver:#4A5A6A; --bronze:#7A4010;
     }
     [data-theme="colored"] {
       --bg:#050D1A; --bg2:#0A1628; --bg3:#102035; --bg4:#162840;
@@ -328,6 +329,9 @@
     .rank-row:nth-child(1) .rank-pos { color:#E8C547; text-shadow:0 0 10px rgba(232,197,71,.5); }
     .rank-row:nth-child(2) .rank-pos { color:#B0B8C8; }
     .rank-row:nth-child(3) .rank-pos { color:#CD7F32; }
+    [data-theme="light"] .rank-row:nth-child(1) .rank-pos { color:#7A5A00; text-shadow:none; }
+    [data-theme="light"] .rank-row:nth-child(2) .rank-pos { color:#4A5A6A; }
+    [data-theme="light"] .rank-row:nth-child(3) .rank-pos { color:#7A4010; }
     .rank-row:nth-child(1) { background:rgba(232,197,71,.04); }
 
     /* Empty state */
@@ -585,7 +589,7 @@ function getActiveProfileNames() {
 // ══════════════════════════════════════════════════════════════════════
 // RENDU
 // ══════════════════════════════════════════════════════════════════════
-let currentPeriod = 'daily';
+let currentPeriod = localStorage.getItem('dartvault_period_filter') || 'daily';
 let currentGame   = '_total';
 let currentLang   = localStorage.getItem('dartvault_lang') || 'fr';
 
@@ -694,10 +698,13 @@ function getGameStats() {
 function getGamesForPeriod(s) {
   if (!s) return 0;
   if (currentPeriod === 'alltime') return s.games || 0;
-  if (currentPeriod === 'daily')   return (s.daily   || {})[todayKey()] || 0;
-  if (currentPeriod === 'weekly')  return (s.weekly  || {})[weekKey()]  || 0;
-  if (currentPeriod === 'monthly') return (s.monthly || {})[monthKey()] || 0;
-  return 0;
+  const _pv = currentPeriod === 'daily' ? (s.daily||{})[todayKey()] : currentPeriod === 'weekly' ? (s.weekly||{})[weekKey()] : (s.monthly||{})[monthKey()];
+  return typeof _pv === 'number' ? _pv : (_pv && _pv.games) || 0;
+}
+function getPeriodStatsObj(s) {
+  if (!s || currentPeriod === 'alltime') return s || null;
+  const _pv = currentPeriod === 'daily' ? (s.daily||{})[todayKey()] : currentPeriod === 'weekly' ? (s.weekly||{})[weekKey()] : (s.monthly||{})[monthKey()];
+  return (_pv && typeof _pv === 'object') ? _pv : null;
 }
 
 function renderRanking() {
@@ -762,85 +769,95 @@ function renderRanking() {
 
     if (currentGame === '501' && ps['501']) {
       const s = ps['501'];
+      const _pst = getPeriodStatsObj(s) || s;
       gamesPlayed = getGamesForPeriod(s);
-      const avg = (s.totalThrows || 0) > 0 ? ((s.totalScore || 0) / s.totalThrows).toFixed(1) : '0.0';
-      const dblHtml = (s.doubleAttempts || 0) > 0 ? `<span>D% <span class="rank-stat-val">${Math.round((s.doubleHits||0)/s.doubleAttempts*100)}%</span></span>` : '';
+      const avg = (_pst.totalThrows || 0) > 0 ? ((_pst.totalScore || 0) / _pst.totalThrows).toFixed(1) : '0.0';
+      const dblHtml = (_pst.doubleAttempts || 0) > 0 ? `<span>D% <span class="rank-stat-val">${Math.round((_pst.doubleHits||0)/_pst.doubleAttempts*100)}%</span></span>` : '';
       statsHtml = `<div class="rank-stats">
         <span>${currentLang==='fr'?'Moy':'Avg'} : <span class="rank-stat-val">${avg}</span></span>
-        <span>${currentLang==='fr'?'Flé':'Drt'} : <span class="rank-stat-val">${s.totalDarts||0}</span></span>
+        <span>${currentLang==='fr'?'Flé':'Drt'} : <span class="rank-stat-val">${_pst.totalDarts||0}</span></span>
         ${dblHtml}
       </div>`;
     } else if (currentGame === 'territoire' && ps['territoire']) {
       const s = ps['territoire'];
+      const _pst = getPeriodStatsObj(s) || s;
       gamesPlayed = getGamesForPeriod(s);
       statsHtml = `<div class="rank-stats">
-        <span>✓<span class="rank-stat-val">${s.captures||0}</span></span>
-        <span>🛡️<span class="rank-stat-val">${s.shields||0}</span></span>
-        <span>✗<span class="rank-stat-val">${s.neutralized||0}</span></span>
+        <span>✓<span class="rank-stat-val">${_pst.captures||0}</span></span>
+        <span>🛡️<span class="rank-stat-val">${_pst.shields||0}</span></span>
+        <span>✗<span class="rank-stat-val">${_pst.neutralized||0}</span></span>
       </div>`;
     } else if (currentGame === 'cricket' && ps['cricket']) {
       const s = ps['cricket'];
+      const _pst = getPeriodStatsObj(s) || s;
       gamesPlayed = getGamesForPeriod(s);
       statsHtml = `<div class="rank-stats">
-        <span>${currentLang==='fr'?'Zones':'Zones'} : <span class="rank-stat-val">${s.closedZones||0}</span></span>
-        <span>${currentLang==='fr'?'Flé':'Drt'} : <span class="rank-stat-val">${s.totalDarts||0}</span></span>
+        <span>${currentLang==='fr'?'Zones':'Zones'} : <span class="rank-stat-val">${_pst.closedZones||0}</span></span>
+        <span>${currentLang==='fr'?'Flé':'Drt'} : <span class="rank-stat-val">${_pst.totalDarts||0}</span></span>
       </div>`;
     } else if (currentGame === 'shanghai' && ps['shanghai']) {
       const s = ps['shanghai'];
+      const _pst = getPeriodStatsObj(s) || s;
       gamesPlayed = getGamesForPeriod(s);
-      const pct = (s.totalDarts||0) > 0 ? Math.round((s.zonesHit||0) / s.totalDarts * 100) : 0;
+      const pct = (_pst.totalDarts||0) > 0 ? Math.round((_pst.zonesHit||0) / _pst.totalDarts * 100) : 0;
       statsHtml = `<div class="rank-stats">
         <span>🎯 <span class="rank-stat-val">${pct}%</span></span>
-        <span>🗼 <span class="rank-stat-val">${s.shanghais||0}</span></span>
+        <span>🗼 <span class="rank-stat-val">${_pst.shanghais||0}</span></span>
       </div>`;
     } else if (currentGame === 'blackjack' && ps['blackjack']) {
       const s = ps['blackjack'];
+      const _pst = getPeriodStatsObj(s) || s;
       gamesPlayed = getGamesForPeriod(s);
-      const avgMoney = (s.games||0) > 0 ? ((s.moneyDelta||0) / s.games).toFixed(1) : '0.0';
+      const avgMoney = (_pst.games||0) > 0 ? ((_pst.moneyDelta||0) / _pst.games).toFixed(1) : '0.0';
       const sign = parseFloat(avgMoney) >= 0 ? '+' : '';
       const moneyColor = parseFloat(avgMoney) >= 0 ? '#4CAF50' : '#F44336';
       statsHtml = `<div class="rank-stats">
         <span style="color:${moneyColor}">💰 <span class="rank-stat-val">${sign}${avgMoney}€</span></span>
-        <span>🃏 <span class="rank-stat-val">${s.blackdarts||0}</span></span>
+        <span>🃏 <span class="rank-stat-val">${_pst.blackdarts||0}</span></span>
       </div>`;
     } else if (currentGame === 'race500' && ps['race500']) {
       const s = ps['race500'];
+      const _pst = getPeriodStatsObj(s) || s;
       gamesPlayed = getGamesForPeriod(s);
       statsHtml = `<div class="rank-stats">
-        <span style="color:#4CAF50">+<span class="rank-stat-val">${s.pointsStolen||0}</span></span>
-        <span style="color:#F44336">-<span class="rank-stat-val">${s.pointsLost||0}</span></span>
+        <span style="color:#4CAF50">+<span class="rank-stat-val">${_pst.pointsStolen||0}</span></span>
+        <span style="color:#F44336">-<span class="rank-stat-val">${_pst.pointsLost||0}</span></span>
       </div>`;
     } else if (currentGame === 'horloge' && ps['horloge']) {
       const s = ps['horloge'];
+      const _pst = getPeriodStatsObj(s) || s;
       gamesPlayed = getGamesForPeriod(s);
-      const pct = (s.totalDarts||0) > 0 ? Math.round((s.zonesHit||0) / s.totalDarts * 100) : 0;
+      const pct = (_pst.totalDarts||0) > 0 ? Math.round((_pst.zonesHit||0) / _pst.totalDarts * 100) : 0;
       statsHtml = `<div class="rank-stats">
         <span>🎯 <span class="rank-stat-val">${pct}%</span></span>
-        <span>${currentLang==='fr'?'Flé':'Drt'} : <span class="rank-stat-val">${s.totalDarts||0}</span></span>
+        <span>${currentLang==='fr'?'Flé':'Drt'} : <span class="rank-stat-val">${_pst.totalDarts||0}</span></span>
       </div>`;
     } else if (currentGame === 'dartspong' && ps['dartspong']) {
       const s = ps['dartspong'];
+      const _pst = getPeriodStatsObj(s) || s;
       gamesPlayed = getGamesForPeriod(s);
-      const pct = (s.totalDarts||0) > 0 ? Math.round((s.zonesEliminated||0) / s.totalDarts * 100) : 0;
+      const pct = (_pst.totalDarts||0) > 0 ? Math.round((_pst.zonesEliminated||0) / _pst.totalDarts * 100) : 0;
       statsHtml = `<div class="rank-stats">
         <span>🎯 <span class="rank-stat-val">${pct}%</span></span>
-        <span>${currentLang==='fr'?'Flé':'Drt'} : <span class="rank-stat-val">${s.totalDarts||0}</span></span>
+        <span>${currentLang==='fr'?'Flé':'Drt'} : <span class="rank-stat-val">${_pst.totalDarts||0}</span></span>
       </div>`;
     } else if (currentGame === 'shooter' && ps['shooter']) {
       const s = ps['shooter'];
+      const _pst = getPeriodStatsObj(s) || s;
       gamesPlayed = getGamesForPeriod(s);
       statsHtml = `<div class="rank-stats">
-        <span>❤️<span class="rank-stat-val">${s.hpDealt||0}</span></span>
-        <span>🔫<span class="rank-stat-val">${s.bulletsGained||0}</span></span>
-        <span>💚<span class="rank-stat-val">${s.hpHealed||0}</span></span>
+        <span>❤️<span class="rank-stat-val">${_pst.hpDealt||0}</span></span>
+        <span>🔫<span class="rank-stat-val">${_pst.bulletsGained||0}</span></span>
+        <span>💚<span class="rank-stat-val">${_pst.hpHealed||0}</span></span>
       </div>`;
     } else if (currentGame === 'bataille' && ps['bataille']) {
       const s = ps['bataille'];
+      const _pst = getPeriodStatsObj(s) || s;
       gamesPlayed = getGamesForPeriod(s);
-      const pct = (s.totalShots||0) > 0 ? Math.round((s.hits||0) / s.totalShots * 100) : 0;
+      const pct = (_pst.totalShots||0) > 0 ? Math.round((_pst.hits||0) / _pst.totalShots * 100) : 0;
       statsHtml = `<div class="rank-stats">
-        <span>💥<span class="rank-stat-val">${s.hits||0}</span></span>
-        <span>💧<span class="rank-stat-val">${(s.totalShots||0) - (s.hits||0)}</span></span>
+        <span>💥<span class="rank-stat-val">${_pst.hits||0}</span></span>
+        <span>💧<span class="rank-stat-val">${(_pst.totalShots||0) - (_pst.hits||0)}</span></span>
         <span>🎯 <span class="rank-stat-val">${pct}%</span></span>
       </div>`;
     }
@@ -900,6 +917,7 @@ dropdown.querySelectorAll('.period-option').forEach(opt => {
   opt.addEventListener('click', e => {
     e.stopPropagation();
     currentPeriod = opt.dataset.period;
+    localStorage.setItem('dartvault_period_filter', currentPeriod);
     dropdown.querySelectorAll('.period-option').forEach(o => o.classList.remove('active'));
     opt.classList.add('active');
     periodLabel.textContent = opt.textContent;
@@ -927,6 +945,7 @@ function applyPageLang(lang) {
   // Mettre à jour les options du dropdown
   dropdown.querySelectorAll('.period-option').forEach(opt => {
     opt.textContent = P[opt.dataset.period];
+    opt.classList.toggle('active', opt.dataset.period === currentPeriod);
     if (opt.dataset.period === currentPeriod) periodLabel.textContent = P[opt.dataset.period];
   });
   updateGamePills(lang);

@@ -14,7 +14,7 @@
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0E0F10">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -41,7 +41,7 @@
     --text:#F0F0F0; --dim:#606468; --text-dim:#777777;
     --team-a: #3B6EE8;
     --team-a-glow: rgba(59,110,232,0.4);
-    --team-b: #D4A017;
+    --team-b: #8B6914;
     --team-b-glow: rgba(212,160,23,0.4);
     --team-c: #C934C9;
     --team-c-glow: rgba(201,52,201,0.4);
@@ -997,7 +997,7 @@
 [data-theme="dark"] .abar,[data-theme="dark"] .game-topbar,[data-theme="dark"] .active-zone{background:#1C1E20!important;border-bottom-color:rgba(255,255,255,.12)!important;}
 [data-theme="dark"] .round-badge{background:rgba(232,232,232,.07)!important;border-color:rgba(232,232,232,.18)!important;color:var(--dim)!important;}
 [data-theme="light"] .round-badge{background:rgba(22,23,24,.06)!important;border-color:rgba(22,23,24,.15)!important;color:var(--dim)!important;}
-[data-theme="colored"]{--bg:#0C0703!important;--bg2:#120B05!important;--bg3:#191008!important;--bg4:#20150A!important;--accent:#FB923C!important;--ok:#4ADE80!important;--warn:#FBBF24!important;--danger:#F87171!important;--text:#FFF7ED!important;--dim:#C88040!important;--text-dim:#C88040!important;}
+[data-theme="colored"]{--bg:#0C0703!important;--bg2:#120B05!important;--bg3:#191008!important;--bg4:#20150A!important;--accent:#FB923C!important;--ok:#4ADE80!important;--warn:#E2E8F0!important;--danger:#F87171!important;--text:#FFF7ED!important;--dim:#C88040!important;--text-dim:#C88040!important;}
 
 /* Surfaces */
 [data-theme="dark"] body,[data-theme="light"] body{background:var(--bg)!important;color:var(--text)!important;}
@@ -1225,6 +1225,12 @@
         <div id="autodarts-ip-row" style="display:none;padding:4px 0 2px 28px;">
           <input type="text" id="autodarts-ip" value="192.168.1.37" placeholder="IP du T630" style="width:160px;background:var(--bg3);border:1.5px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 10px;color:var(--text);font-family:'Exo 2',monospace;font-size:.82rem;text-align:center;outline:none;">
         </div>
+        <div id="autodarts-apk-row" style="display:none;padding:2px 0 2px 28px;">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <input type="checkbox" id="chk-autodarts-apk" style="width:15px;height:15px;accent-color:var(--warn);">
+            <span style="font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;color:var(--warn);">Mode APK (ws://)</span>
+          </label>
+        </div>
       </div>
     </div>
     </div><!-- /setup-col-config -->
@@ -1281,7 +1287,7 @@
       </div>
       <div class="score-dp team-b" id="score-b">
         <div class="score-dp-lbl" id="score-b-lbl">🟡 JAUNE</div>
-        <div class="score-dp-val" style="color:#D4A017" id="score-b-val">0</div>
+        <div class="score-dp-val" style="color:#8B6914" id="score-b-val">0</div>
         <div class="score-dp-name" id="score-b-name"></div>
       </div>
       <div class="score-dp team-c hidden" id="score-c">
@@ -1740,7 +1746,7 @@ function renderTeams() {
   const m = getMode();
   const isSolo = m === 'solo';
   renderList('team-a-list', state.teamA, 'A', '#3B6EE8');
-  renderList('team-b-list', state.teamB, 'B', '#D4A017');
+  renderList('team-b-list', state.teamB, 'B', '#8B6914');
   renderList('team-c-list', state.teamC, 'C', '#C934C9');
   const la = document.getElementById('label-team-a');
   const lb = document.getElementById('label-team-b');
@@ -1854,7 +1860,7 @@ function startGame() {
 // ═══════════════════════════════════════════════════════════════════
 // GAME DISPLAY
 // ═══════════════════════════════════════════════════════════════════
-const TEAM_COLORS = { A: '#3B6EE8', B: '#D4A017', C: '#C934C9' };
+const TEAM_COLORS = { A: '#3B6EE8', B: '#8B6914', C: '#C934C9' };
 const TEAM_EMOJI  = { A: '🔵', B: '🟡', C: '🟣' };
 
 // ── AUDIO + HAPTIC ──────────────────────────────────────────────
@@ -2102,7 +2108,7 @@ function renderBoard() {
   hi.innerHTML = ''; shields.innerHTML = '';
 
   // Filtres glow par équipe
-  const TEAM_GLOW = { A: '#3B6EE8', B: '#D4A017', C: '#C934C9' };
+  const TEAM_GLOW = { A: '#3B6EE8', B: '#8B6914', C: '#C934C9' };
   ['A','B','C'].forEach(team => {
     const f = document.createElementNS('http://www.w3.org/2000/svg','filter');
     f.setAttribute('id', `glow_T${team}`);
@@ -2662,7 +2668,7 @@ function showEnd(team, byDomination, cA, cB) {
     const cA2 = Object.values(state.territories).filter(t => t.owner === 'A').length;
     const cB2 = Object.values(state.territories).filter(t => t.owner === 'B').length;
     const cC2 = Object.values(state.territories).filter(t => t.owner === 'C').length;
-    sub = `${cA2}🔵 / ${cB2}🔴 / ${cC2}🟡`;
+    sub = `${cA2}🔵 / ${cB2}🟡 / ${cC2}🟣`;
   }
   if (window.TournamentBridge) {
     if (state.gameMode === 'equipe') {
@@ -2674,7 +2680,7 @@ function showEnd(team, byDomination, cA, cB) {
       Object.values(state.territories).forEach(t => { if (_counts[t.owner] !== undefined) _counts[t.owner]++; });
       const _teams = ['A', 'B', 'C'].filter(t => (t === 'A' ? state.teamA : t === 'B' ? state.teamB : state.teamC).length > 0);
       _teams.sort((a, b) => _counts[b] - _counts[a]);
-      TournamentBridge.onGameEnd(_teams.map(t => (t === 'A' ? state.teamA[0] : t === 'B' ? state.teamB[0] : state.teamC[0])));
+      TournamentBridge.onGameEnd(_teams.map(t => (t === 'A' ? state.teamA : t === 'B' ? state.teamB : state.teamC)));
     }
   }
   showEndMessage(`🏆 ${DV_LANG.t('ter_victory')}`, `${names[team]}\n${sub}`, col);
@@ -2741,9 +2747,7 @@ function showEndMessage(title, sub, col) {
       gs.games++;
       var _dkte=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();
       if(!gs.daily)gs.daily={};if(!gs.weekly)gs.weekly={};if(!gs.monthly)gs.monthly={};
-      gs.daily[_dkte.today]=(gs.daily[_dkte.today]||0)+1;
-      gs.weekly[_dkte.week]=(gs.weekly[_dkte.week]||0)+1;
-      gs.monthly[_dkte.month]=(gs.monthly[_dkte.month]||0)+1;
+      (function(_i){[['daily',_dkte.today],['weekly',_dkte.week],['monthly',_dkte.month]].forEach(function(e){var b=gs[e[0]][e[1]];b=typeof b==='number'?{games:b}:(b||{});Object.keys(_i).forEach(function(k){b[k]=(b[k]||0)+_i[k];});gs[e[0]][e[1]]=b;});})({games:1,captures:ps.captures||0,shields:ps.shields||0,neutralized:ps.neutralized||0});
     });
     localStorage.setItem(STATS_KEY, JSON.stringify(gstats));
   }
@@ -2759,7 +2763,8 @@ function saveState() {
     darts: state.dartsThrown,
     turnDarts: [...(state.turnDarts||[])],
     lastShot: state.lastShot ? JSON.parse(JSON.stringify(state.lastShot)) : null,
-    territories: JSON.parse(JSON.stringify(state.territories))
+    territories: JSON.parse(JSON.stringify(state.territories)),
+    playerStats: JSON.parse(JSON.stringify(state.playerStats))
   });
 }
 
@@ -2775,6 +2780,7 @@ document.getElementById('btn-undo').addEventListener('click', () => {
   state.turnDarts = saved.turnDarts ? [...saved.turnDarts] : [];
   state.lastShot = saved.lastShot ? JSON.parse(JSON.stringify(saved.lastShot)) : null;
   state.territories = saved.territories;
+  if (saved.playerStats) state.playerStats = saved.playerStats;
   if (state.historyEntries.length) state.historyEntries.shift();
   // Refresh hist inline
   const il = document.getElementById('hist-inline-list');
@@ -2818,7 +2824,7 @@ document.getElementById('history-drawer').addEventListener('click', e => { if (e
 // ── ZONES DRAWER ──
 document.getElementById('btn-zones').addEventListener('click', () => {
   const drawer = document.getElementById('zones-remaining');
-  const COLORS = { A: '#3B6EE8', B: '#D4A017', C: '#C934C9' };
+  const COLORS = { A: '#3B6EE8', B: '#8B6914', C: '#C934C9' };
   const teams = state.gameMode === 'solo' && state.teamC.length > 0
     ? ['A','B','C'] : ['A','B'];
 
@@ -3573,12 +3579,13 @@ renderTeams();
 (function() {
   'use strict';
   const STORAGE_KEY='dartvault_autodarts_ip',DEFAULT_IP='192.168.1.37',PORT_WS=3180,PORT_WSS=3181,RECONNECT_DELAY=3000;
+  const APK_MODE_KEY='dartvault_autodarts_apk_mode';function getAPKMode(){return localStorage.getItem(APK_MODE_KEY)==='1';}
   let ws=null,active=false,reconnectTimer=null,lastNumThrows=0,adEnabled=false,dartCount=0;
   let adInTakeout = false;
   let adTurnResetTimer = null;
   function getIP(){return localStorage.getItem(STORAGE_KEY)||DEFAULT_IP;}
   function setIP(ip){localStorage.setItem(STORAGE_KEY,ip);}
-  function getWSUrl(){var ip=getIP(),sec=window.location.protocol==='https:';return(sec?'wss':'ws')+'://'+ip+':'+(sec?PORT_WSS:PORT_WS)+'/api/events';}
+  function getWSUrl(){var ip=getIP(),sec=window.location.protocol==='https:'&&!getAPKMode();return(sec?'wss':'ws')+'://'+ip+':'+(sec?PORT_WSS:PORT_WS)+'/api/events';}
   function setLed(el, state) {
     if (!el) return;
     var bg, sh, anim;
@@ -3621,6 +3628,7 @@ renderTeams();
   var chkVal = document.getElementById('chk-validate');
   chkAD.addEventListener('change', function() {
     document.getElementById('autodarts-ip-row').style.display = this.checked ? '' : 'none';
+    document.getElementById('autodarts-apk-row').style.display = this.checked ? '' : 'none';
     localStorage.setItem('dartvault_autodarts_enabled', this.checked ? '1' : '0');
     if (this.checked) {
       setIP(document.getElementById('autodarts-ip').value.trim() || DEFAULT_IP);
@@ -3635,11 +3643,13 @@ renderTeams();
   if (localStorage.getItem('dartvault_autodarts_enabled') === '1') {
     chkAD.checked = true;
     document.getElementById('autodarts-ip-row').style.display = '';
+    document.getElementById('autodarts-apk-row').style.display = '';
     chkVal.checked = true;
     chkVal.disabled = true;
     chkVal.parentElement.style.opacity = '.5';
   }
   document.getElementById('autodarts-ip').value = getIP();
+  var _adApkChk=document.getElementById('chk-autodarts-apk');if(_adApkChk){_adApkChk.checked=getAPKMode();_adApkChk.addEventListener('change',function(){localStorage.setItem(APK_MODE_KEY,this.checked?'1':'0');});}
   document.getElementById('autodarts-ip').addEventListener('change', function() { var v = this.value.trim(); if (v) setIP(v); });
 
   function injectDart(throwData) {

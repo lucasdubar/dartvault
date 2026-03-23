@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Tournoi — DartVault</title>
   <link rel="icon" href="favicon.ico">
   <link rel="stylesheet" href="/fonts/fonts.css">
@@ -607,7 +607,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;
   <style id="theme-overrides">
 /* ── Exact 501 theme values ── */
 [data-theme="dark"]{--bg:#0E0F10!important;--bg2:#161718!important;--bg3:#1C1E20!important;--bg4:#242628!important;--text:#F0F0F0!important;--dim:#606468!important;--accent:#E8E8E8!important;--ok:#28C76F!important;--warn:#FF9F43!important;--danger:#DC3545!important;}
-[data-theme="light"]{--bg:#F7F0F2!important;--bg2:#FFFFFF!important;--bg3:#EDE4E7!important;--bg4:#E2D6DA!important;--text:#111213!important;--dim:#8A6070!important;--accent:#1A1A1A!important;--ok:#1A8A4A!important;--warn:#C06000!important;--danger:#C8272B!important;}
+[data-theme="light"]{--bg:#F7F0F2!important;--bg2:#FFFFFF!important;--bg3:#EDE4E7!important;--bg4:#E2D6DA!important;--text:#111213!important;--dim:#8A6070!important;--accent:#1A1A1A!important;--ok:#1A8A4A!important;--warn:#C06000!important;--danger:#C8272B!important;--gold:#7A5A00!important;--gold2:#8B4A00!important;}
 [data-theme="colored"]{--bg:#07080F!important;--bg2:#0C0E1A!important;--bg3:#131628!important;--bg4:#1B1F38!important;--accent:#E8C547!important;--ok:#28C76F!important;--warn:#FF9F43!important;--danger:#DC3545!important;--text:#F0EDD8!important;--dim:#7A7048!important;--gold:#E8C547!important;--gold2:#F0A040!important;}
 
 /* ── Colored: fond global ── */
@@ -777,6 +777,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;
 .t-rqp-desc{font-size:.8rem;line-height:1.45;color:rgba(240,240,240,.75);}
 .t-rules-expand-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-bottom:10px;padding:9px 14px;background:transparent;border:1px dashed rgba(255,255,255,.2);border-radius:10px;color:rgba(255,255,255,.5);font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;letter-spacing:1px;cursor:pointer;touch-action:manipulation;transition:all .2s;}
 .t-rules-expand-btn:active{background:rgba(255,255,255,.05);color:#E8C547;border-color:rgba(232,197,71,.4);border-style:solid;}
+[data-theme="light"] .t-rules-expand-btn:active{color:#7A5A00;border-color:rgba(122,90,0,.4);}
 .t-rules-expand-arrow{transition:transform .25s;display:inline-block;font-style:normal;}
 .t-rules-expand-btn.open .t-rules-expand-arrow{transform:rotate(90deg);}
 .t-rules-detail{margin-bottom:10px;}

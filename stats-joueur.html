@@ -6,7 +6,7 @@
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0A0A0A">
   <title>DartVault — Stats Joueur</title>
   <script>
@@ -719,7 +719,7 @@ function todayKey()  { return new Date().toISOString().slice(0,10); }
 function weekKey()   { const d=new Date(),day=d.getDay()||7; d.setDate(d.getDate()-day+1); return d.toISOString().slice(0,10); }
 function monthKey()  { return new Date().toISOString().slice(0,7); }
 
-let currentPeriod = 'daily';
+let currentPeriod = localStorage.getItem('dartvault_period_filter') || 'daily';
 let playerWins  = {};
 let playerStats = {};
 
@@ -736,10 +736,14 @@ function getGamesForPeriod(key) {
   const ps = playerStats[key];
   if (!ps) return 0;
   if (currentPeriod === 'alltime') return ps.games || 0;
-  if (currentPeriod === 'daily')   return (ps.daily  ||{})[todayKey()] || 0;
-  if (currentPeriod === 'weekly')  return (ps.weekly ||{})[weekKey()]  || 0;
-  if (currentPeriod === 'monthly') return (ps.monthly||{})[monthKey()] || 0;
-  return 0;
+  const _pv = currentPeriod === 'daily' ? (ps.daily||{})[todayKey()] : currentPeriod === 'weekly' ? (ps.weekly||{})[weekKey()] : (ps.monthly||{})[monthKey()];
+  return typeof _pv === 'number' ? _pv : (_pv && _pv.games) || 0;
+}
+function getPeriodStats(key) {
+  const ps = playerStats[key];
+  if (!ps || currentPeriod === 'alltime') return ps || null;
+  const _pv = currentPeriod === 'daily' ? (ps.daily||{})[todayKey()] : currentPeriod === 'weekly' ? (ps.weekly||{})[weekKey()] : (ps.monthly||{})[monthKey()];
+  return (_pv && typeof _pv === 'object') ? _pv : null;
 }
 
 // ══════════════════════════════════════════════════════════════════════
@@ -880,47 +884,48 @@ function renderDetail(key) {
 // ── Chips par jeu ───────────────────────────────────────────────────
 function buildChips(key, ps) {
   if (!ps) return [];
+  const pst = getPeriodStats(key) || ps;
   const c = [];
   const d = L.drt;
   if (key==='501') {
-    const avg = (ps.totalThrows||0)>0 ? ((ps.totalScore||0)/ps.totalThrows).toFixed(1) : '—';
+    const avg = (pst.totalThrows||0)>0 ? ((pst.totalScore||0)/pst.totalThrows).toFixed(1) : '—';
     c.push(`${L.avg}: <strong>${avg}</strong>`);
-    c.push(`${d}: <strong>${ps.totalDarts||0}</strong>`);
-    if ((ps.doubleAttempts||0)>0) c.push(`D%: <strong>${Math.round((ps.doubleHits||0)/ps.doubleAttempts*100)}%</strong>`);
+    c.push(`${d}: <strong>${pst.totalDarts||0}</strong>`);
+    if ((pst.doubleAttempts||0)>0) c.push(`D%: <strong>${Math.round((pst.doubleHits||0)/pst.doubleAttempts*100)}%</strong>`);
   } else if (key==='cricket') {
-    c.push(`Zones: <strong>${ps.closedZones||0}</strong>`);
-    c.push(`${d}: <strong>${ps.totalDarts||0}</strong>`);
+    c.push(`Zones: <strong>${pst.closedZones||0}</strong>`);
+    c.push(`${d}: <strong>${pst.totalDarts||0}</strong>`);
   } else if (key==='blackjack') {
-    const avg = ((ps.moneyDelta||0)/(ps.games||1)).toFixed(1);
+    const avg = ((pst.moneyDelta||0)/(pst.games||1)).toFixed(1);
     const sign = parseFloat(avg)>=0?'+':'';
     const col  = parseFloat(avg)>=0?'#4CAF50':'#F44336';
     c.push(`${L.avgGame}: <strong style="color:${col}">${sign}${avg}€</strong>`);
-    c.push(`🃏 Blackdarts: <strong>${ps.blackdarts||0}</strong>`);
+    c.push(`🃏 Blackdarts: <strong>${pst.blackdarts||0}</strong>`);
   } else if (key==='bataille') {
-    const acc = (ps.totalShots||0)>0 ? Math.round((ps.hits||0)/ps.totalShots*100) : 0;
-    c.push(`💥 ${L.hits}: <strong>${ps.hits||0}</strong>`);
-    c.push(`💧 ${L.misses}: <strong>${(ps.totalShots||0)-(ps.hits||0)}</strong>`);
+    const acc = (pst.totalShots||0)>0 ? Math.round((pst.hits||0)/pst.totalShots*100) : 0;
+    c.push(`💥 ${L.hits}: <strong>${pst.hits||0}</strong>`);
+    c.push(`💧 ${L.misses}: <strong>${(pst.totalShots||0)-(pst.hits||0)}</strong>`);
     c.push(`🎯 ${acc}%`);
   } else if (key==='territoire') {
-    c.push(`✓ ${L.captures}: <strong>${ps.captures||0}</strong>`);
-    c.push(`🛡️ ${L.shields}: <strong>${ps.shields||0}</strong>`);
-    c.push(`✗ ${L.neutralized}: <strong>${ps.neutralized||0}</strong>`);
+    c.push(`✓ ${L.captures}: <strong>${pst.captures||0}</strong>`);
+    c.push(`🛡️ ${L.shields}: <strong>${pst.shields||0}</strong>`);
+    c.push(`✗ ${L.neutralized}: <strong>${pst.neutralized||0}</strong>`);
   } else if (key==='shooter') {
-    c.push(`❤️ ${L.dmg}: <strong>${ps.hpDealt||0}</strong>`);
-    c.push(`🔫 ${L.bullets}: <strong>${ps.bulletsGained||0}</strong>`);
-    c.push(`💚 ${L.heals}: <strong>${ps.hpHealed||0}</strong>`);
+    c.push(`❤️ ${L.dmg}: <strong>${pst.hpDealt||0}</strong>`);
+    c.push(`🔫 ${L.bullets}: <strong>${pst.bulletsGained||0}</strong>`);
+    c.push(`💚 ${L.heals}: <strong>${pst.hpHealed||0}</strong>`);
   } else if (key==='race500') {
-    c.push(`<strong style="color:#4CAF50">+${ps.pointsStolen||0}</strong> ${L.stolen}`);
-    c.push(`<strong style="color:#F44336">-${ps.pointsLost||0}</strong> ${L.lost}`);
+    c.push(`<strong style="color:#4CAF50">+${pst.pointsStolen||0}</strong> ${L.stolen}`);
+    c.push(`<strong style="color:#F44336">-${pst.pointsLost||0}</strong> ${L.lost}`);
   } else if (key==='dartspong') {
-    const acc = (ps.totalDarts||0)>0 ? Math.round((ps.zonesEliminated||0)/ps.totalDarts*100) : 0;
-    c.push(`🎯 ${acc}%`); c.push(`${d}: <strong>${ps.totalDarts||0}</strong>`);
+    const acc = (pst.totalDarts||0)>0 ? Math.round((pst.zonesEliminated||0)/pst.totalDarts*100) : 0;
+    c.push(`🎯 ${acc}%`); c.push(`${d}: <strong>${pst.totalDarts||0}</strong>`);
   } else if (key==='shanghai') {
-    const acc = (ps.totalDarts||0)>0 ? Math.round((ps.zonesHit||0)/ps.totalDarts*100) : 0;
-    c.push(`🎯 ${acc}%`); c.push(`🗼 Shanghais: <strong>${ps.shanghais||0}</strong>`);
+    const acc = (pst.totalDarts||0)>0 ? Math.round((pst.zonesHit||0)/pst.totalDarts*100) : 0;
+    c.push(`🎯 ${acc}%`); c.push(`🗼 Shanghais: <strong>${pst.shanghais||0}</strong>`);
   } else if (key==='horloge') {
-    const acc = (ps.totalDarts||0)>0 ? Math.round((ps.zonesHit||0)/ps.totalDarts*100) : 0;
-    c.push(`🎯 ${acc}%`); c.push(`${d}: <strong>${ps.totalDarts||0}</strong>`);
+    const acc = (pst.totalDarts||0)>0 ? Math.round((pst.zonesHit||0)/pst.totalDarts*100) : 0;
+    c.push(`🎯 ${acc}%`); c.push(`${d}: <strong>${pst.totalDarts||0}</strong>`);
   }
   return c;
 }
@@ -946,6 +951,7 @@ render();
     opt.textContent = PERIODS[opt.dataset.period] || opt.dataset.period;
   });
   label.textContent = PERIODS[currentPeriod];
+  document.querySelectorAll('.period-option').forEach(o => o.classList.toggle('active', o.dataset.period === currentPeriod));
 
   btn.addEventListener('click', e => {
     e.stopPropagation();
@@ -960,6 +966,7 @@ render();
     opt.addEventListener('click', e => {
       e.stopPropagation();
       currentPeriod = opt.dataset.period;
+      localStorage.setItem('dartvault_period_filter', currentPeriod);
       label.textContent = PERIODS[currentPeriod];
       document.querySelectorAll('.period-option').forEach(o => o.classList.toggle('active', o.dataset.period === currentPeriod));
       btn.classList.remove('open');

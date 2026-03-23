@@ -582,7 +582,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
 <style id="theme-overrides">
 [data-theme="dark"]{--bg:#0E0F10!important;--bg2:#161718!important;--bg3:#1C1E20!important;--bg4:#242628!important;--text:#F0F0F0!important;--dim:#606468!important;--text-dim:#606468!important;--accent:#E8E8E8!important;--ok:#28C76F!important;--warn:#FF9F43!important;--danger:#DC3545!important;}
 [data-theme="light"]{--bg:#F7F0F2!important;--bg2:#FFFFFF!important;--bg3:#EDE4E7!important;--bg4:#E2D6DA!important;--text:#111213!important;--dim:#8A6070!important;--text-dim:#8A6070!important;--accent:#1A1A1A!important;--ok:#1A8A4A!important;--warn:#C06000!important;--danger:#C8272B!important;}
-[data-theme="colored"]{--bg:#0C0603!important;--bg2:#120905!important;--bg3:#190D07!important;--bg4:#1F120A!important;--accent:#F97316!important;--ok:#4ADE80!important;--warn:#FBBF24!important;--danger:#F87171!important;--text:#FFF7ED!important;--dim:#C07830!important;--text-dim:#C07830!important;}
+[data-theme="colored"]{--bg:#0C0603!important;--bg2:#120905!important;--bg3:#190D07!important;--bg4:#1F120A!important;--accent:#F97316!important;--ok:#4ADE80!important;--warn:#E2E8F0!important;--danger:#F87171!important;--text:#FFF7ED!important;--dim:#C07830!important;--text-dim:#C07830!important;}
 
 /* Surfaces */
 [data-theme="dark"] body,[data-theme="light"] body{background:var(--bg)!important;color:var(--text)!important;}
@@ -1069,6 +1069,12 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
     <div id="autodarts-ip-row" style="display:none;padding:2px 0 2px 28px;">
       <input type="text" id="autodarts-ip" value="192.168.1.37" placeholder="IP du T630" style="width:160px;background:var(--bg3);border:1.5px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 10px;color:var(--text);font-family:'Exo 2',monospace;font-size:.82rem;text-align:center;outline:none;">
     </div>
+    <div id="autodarts-apk-row" style="display:none;padding:2px 0 2px 28px;">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <input type="checkbox" id="chk-autodarts-apk" style="width:15px;height:15px;accent-color:var(--warn);">
+        <span style="font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;color:var(--warn);">Mode APK (ws://)</span>
+      </label>
+    </div>
   </div>
   </div><!-- /setup-col-config -->
 
@@ -1240,7 +1246,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
   </div>
 </div>
 <script>
-const PC=['#3B6EE8','#D4A017','#C934C9','#8B4513','#28A745','#DC3545'];
+const PC=['#3B6EE8','#8B6914','#C934C9','#8B4513','#28A745','#DC3545'];
 const profilePlayers=new Set();
 const PE=['🔵','🟡','🟣','🟤','🟢','🔴'];
 function getNextColor(players) {
@@ -1569,13 +1575,13 @@ function hit(n){
       if(oi!==G.i&&o.s===p.s&&p.s>0){
         const actualSteal = Math.min(G.stealAmt, o.s);
         const scoreBeforeSteal = p.s;
-        o.s=Math.max(0,o.s-G.stealAmt);
-        p.s+=G.stealAmt;
-        p.stolen+=G.stealAmt;
+        o.s=Math.max(0,o.s-actualSteal);
+        p.s+=actualSteal;
+        p.stolen+=actualSteal;
         o.lost+=actualSteal;
         feedbackSteal();
         speak((DV_LANG.get()==='en'?'Steals ':'Vole ')+actualSteal+(DV_LANG.get()==='en'?' points from ':' points à ')+o.n);
-        G.log.push({who:p.n,color:p.c,turn:G.turn,label:DV_LANG.t('rc_steal_lbl'),pts:G.stealAmt,from:scoreBeforeSteal,to:p.s,steal:o.n,bust:false});
+        G.log.push({who:p.n,color:p.c,turn:G.turn,label:DV_LANG.t('rc_steal_lbl'),pts:actualSteal,from:scoreBeforeSteal,to:p.s,steal:o.n,bust:false});
     renderHistInline();
         T(DV_LANG.t('rc_steal_toast').replace('{p}',p.n).replace('{pts}',G.stealAmt).replace('{o}',o.n));
         stolen=true;
@@ -1625,7 +1631,7 @@ function hit(n){
 }
 
 function nxt(){
-  G.d=0;G.i=(G.i+1)%G.pl.length;
+  G.d=0;G.i=(G.i+1)%G.pl.length;M='s';sM('s');
   if(G.i===0)G.turn++;
   G.ts=cp().s;draw();renderTurnDarts();
   // TTS : annonce début de tour
@@ -1663,9 +1669,7 @@ function showWin(w){
       s.games++;
       var _dkrc=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();
       if(!s.daily)s.daily={};if(!s.weekly)s.weekly={};if(!s.monthly)s.monthly={};
-      s.daily[_dkrc.today]=(s.daily[_dkrc.today]||0)+1;
-      s.weekly[_dkrc.week]=(s.weekly[_dkrc.week]||0)+1;
-      s.monthly[_dkrc.month]=(s.monthly[_dkrc.month]||0)+1;
+      (function(_i){[['daily',_dkrc.today],['weekly',_dkrc.week],['monthly',_dkrc.month]].forEach(function(e){var b=s[e[0]][e[1]];b=typeof b==='number'?{games:b}:(b||{});Object.keys(_i).forEach(function(k){b[k]=(b[k]||0)+_i[k];});s[e[0]][e[1]]=b;});})({games:1,pointsStolen:p.stolen||0,pointsLost:p.lost||0});
     });
     localStorage.setItem(STATS_KEY, JSON.stringify(stats));
   })();
@@ -2392,12 +2396,13 @@ window.addEventListener('resize',adjustSlistPadding);
 (function() {
   'use strict';
   const STORAGE_KEY='dartvault_autodarts_ip',DEFAULT_IP='192.168.1.37',PORT_WS=3180,PORT_WSS=3181,RECONNECT_DELAY=3000;
+  const APK_MODE_KEY='dartvault_autodarts_apk_mode';function getAPKMode(){return localStorage.getItem(APK_MODE_KEY)==='1';}
   let ws=null,active=false,reconnectTimer=null,lastNumThrows=0,adEnabled=false,dartCount=0;
   let adInTakeout = false;
   let adTurnResetTimer = null;
   function getIP(){return localStorage.getItem(STORAGE_KEY)||DEFAULT_IP;}
   function setIP(ip){localStorage.setItem(STORAGE_KEY,ip);}
-  function getWSUrl(){var ip=getIP(),sec=window.location.protocol==='https:';return(sec?'wss':'ws')+'://'+ip+':'+(sec?PORT_WSS:PORT_WS)+'/api/events';}
+  function getWSUrl(){var ip=getIP(),sec=window.location.protocol==='https:'&&!getAPKMode();return(sec?'wss':'ws')+'://'+ip+':'+(sec?PORT_WSS:PORT_WS)+'/api/events';}
   function setLed(el, state) {
     if (!el) return;
     var bg, sh, anim;
@@ -2440,6 +2445,7 @@ window.addEventListener('resize',adjustSlistPadding);
   var chkVal = document.getElementById('chk-validate');
   chkAD.addEventListener('change', function() {
     document.getElementById('autodarts-ip-row').style.display = this.checked ? '' : 'none';
+    document.getElementById('autodarts-apk-row').style.display = this.checked ? '' : 'none';
     localStorage.setItem('dartvault_autodarts_enabled', this.checked ? '1' : '0');
     if (this.checked) {
       setIP(document.getElementById('autodarts-ip').value.trim() || DEFAULT_IP);
@@ -2454,11 +2460,13 @@ window.addEventListener('resize',adjustSlistPadding);
   if (localStorage.getItem('dartvault_autodarts_enabled') === '1') {
     chkAD.checked = true;
     document.getElementById('autodarts-ip-row').style.display = '';
+    document.getElementById('autodarts-apk-row').style.display = '';
     chkVal.checked = true;
     chkVal.disabled = true;
     chkVal.parentElement.style.opacity = '.5';
   }
   document.getElementById('autodarts-ip').value = getIP();
+  var _adApkChk=document.getElementById('chk-autodarts-apk');if(_adApkChk){_adApkChk.checked=getAPKMode();_adApkChk.addEventListener('change',function(){localStorage.setItem(APK_MODE_KEY,this.checked?'1':'0');});}
   document.getElementById('autodarts-ip').addEventListener('change', function() { var v = this.value.trim(); if (v) setIP(v); });
 
   function injectDart(throwData) {

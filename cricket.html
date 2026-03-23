@@ -876,7 +876,7 @@ body {
 [data-theme="dark"] .game-topbar{background:#1C1E20!important;border-bottom-color:rgba(255,255,255,.12)!important;}
 [data-theme="dark"] .round-label{background:rgba(232,232,232,.07)!important;border-color:rgba(232,232,232,.18)!important;color:var(--dim)!important;}
 [data-theme="light"] .round-label{background:rgba(22,23,24,.06)!important;border-color:rgba(22,23,24,.15)!important;color:var(--dim)!important;}
-[data-theme="colored"]{--bg:#040C06!important;--bg2:#071209!important;--bg3:#0C1A0E!important;--bg4:#112015!important;--accent:#4ADE80!important;--ok:#4ADE80!important;--warn:#FFD700!important;--danger:#FF4040!important;--text:#F0FFF4!important;--dim:#6BBF87!important;--text-dim:#6BBF87!important;}
+[data-theme="colored"]{--bg:#040C06!important;--bg2:#071209!important;--bg3:#0C1A0E!important;--bg4:#112015!important;--accent:#4ADE80!important;--ok:#4ADE80!important;--warn:#E2E8F0!important;--danger:#FF4040!important;--text:#F0FFF4!important;--dim:#6BBF87!important;--text-dim:#6BBF87!important;}
 
 /* Surfaces */
 [data-theme="dark"] body,[data-theme="light"] body{background:var(--bg)!important;color:var(--text)!important;}
@@ -1116,6 +1116,12 @@ if (screen.orientation && screen.orientation.lock) {
     </label>
     <div id="autodarts-ip-row" style="display:none;padding:2px 0 2px 28px;">
       <input type="text" id="autodarts-ip" value="192.168.1.37" placeholder="IP du T630" style="width:160px;background:var(--bg3);border:1.5px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 10px;color:var(--text);font-family:'Exo 2',monospace;font-size:.82rem;text-align:center;outline:none;">
+    </div>
+    <div id="autodarts-apk-row" style="display:none;padding:2px 0 2px 28px;">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <input type="checkbox" id="chk-autodarts-apk" style="width:15px;height:15px;accent-color:var(--warn);">
+        <span style="font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;color:var(--warn);">Mode APK (ws://)</span>
+      </label>
     </div>
   </div>
 
@@ -1414,7 +1420,7 @@ const ALL_NUMS      = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,'B'];
 const DEFAULT_NUMS  = [20, 19, 18, 17, 16, 15, 'B'];
 const NUM_LABELS    = { 20:'20', 19:'19', 18:'18', 17:'17', 16:'16', 15:'15', 14:'14', 13:'13', 12:'12', 11:'11', 10:'10', 9:'9', 8:'8', 7:'7', 6:'6', 5:'5', 4:'4', 3:'3', 2:'2', 1:'1', B:'BULL' };
 let CRICKET_NUMS    = [...DEFAULT_NUMS];
-const TEAM_COLORS   = ['#3B6EE8','#D4A017','#C934C9','#28C76F','#FF6B6B','#FF9F43'];
+const TEAM_COLORS   = ['#3B6EE8','#8B6914','#C934C9','#28C76F','#FF6B6B','#FF9F43'];
 const TEAM_EMOJIS   = ['🔵','🟡','🟣','🟢','🔴','🟠'];
 const PODIUM_ICONS  = ['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣'];
 
@@ -1864,9 +1870,7 @@ function showFinalEnd() {
       s.games++;
       var _dkcr=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();
       if(!s.daily)s.daily={};if(!s.weekly)s.weekly={};if(!s.monthly)s.monthly={};
-      s.daily[_dkcr.today]=(s.daily[_dkcr.today]||0)+1;
-      s.weekly[_dkcr.week]=(s.weekly[_dkcr.week]||0)+1;
-      s.monthly[_dkcr.month]=(s.monthly[_dkcr.month]||0)+1;
+      (function(_i){[['daily',_dkcr.today],['weekly',_dkcr.week],['monthly',_dkcr.month]].forEach(function(e){var b=s[e[0]][e[1]];b=typeof b==='number'?{games:b}:(b||{});Object.keys(_i).forEach(function(k){b[k]=(b[k]||0)+_i[k];});s[e[0]][e[1]]=b;});})({games:1,closedZones:closed,totalDarts:p.totalDarts||0});
     });
     localStorage.setItem(STATS_KEY, JSON.stringify(stats));
   })();
@@ -3186,12 +3190,13 @@ history.pushState(null, '', window.location.href);
 (function() {
   'use strict';
   const STORAGE_KEY='dartvault_autodarts_ip',DEFAULT_IP='192.168.1.37',PORT_WS=3180,PORT_WSS=3181,RECONNECT_DELAY=3000;
+  const APK_MODE_KEY='dartvault_autodarts_apk_mode';function getAPKMode(){return localStorage.getItem(APK_MODE_KEY)==='1';}
   let ws=null,active=false,reconnectTimer=null,lastNumThrows=0,adEnabled=false,dartCount=0;
   let adInTakeout = false;
   let adTurnResetTimer = null;
   function getIP(){return localStorage.getItem(STORAGE_KEY)||DEFAULT_IP;}
   function setIP(ip){localStorage.setItem(STORAGE_KEY,ip);}
-  function getWSUrl(){var ip=getIP(),sec=window.location.protocol==='https:';return(sec?'wss':'ws')+'://'+ip+':'+(sec?PORT_WSS:PORT_WS)+'/api/events';}
+  function getWSUrl(){var ip=getIP(),sec=window.location.protocol==='https:'&&!getAPKMode();return(sec?'wss':'ws')+'://'+ip+':'+(sec?PORT_WSS:PORT_WS)+'/api/events';}
   function setLed(el, state) {
     if (!el) return;
     var bg, sh, anim;
@@ -3234,6 +3239,7 @@ history.pushState(null, '', window.location.href);
   var chkVal = document.getElementById('chk-validate');
   chkAD.addEventListener('change', function() {
     document.getElementById('autodarts-ip-row').style.display = this.checked ? '' : 'none';
+    document.getElementById('autodarts-apk-row').style.display = this.checked ? '' : 'none';
     localStorage.setItem('dartvault_autodarts_enabled', this.checked ? '1' : '0');
     if (this.checked) {
       setIP(document.getElementById('autodarts-ip').value.trim() || DEFAULT_IP);
@@ -3248,11 +3254,13 @@ history.pushState(null, '', window.location.href);
   if (localStorage.getItem('dartvault_autodarts_enabled') === '1') {
     chkAD.checked = true;
     document.getElementById('autodarts-ip-row').style.display = '';
+    document.getElementById('autodarts-apk-row').style.display = '';
     chkVal.checked = true;
     chkVal.disabled = true;
     chkVal.parentElement.style.opacity = '.5';
   }
   document.getElementById('autodarts-ip').value = getIP();
+  var _adApkChk=document.getElementById('chk-autodarts-apk');if(_adApkChk){_adApkChk.checked=getAPKMode();_adApkChk.addEventListener('change',function(){localStorage.setItem(APK_MODE_KEY,this.checked?'1':'0');});}
   document.getElementById('autodarts-ip').addEventListener('change', function() { var v = this.value.trim(); if (v) setIP(v); });
 
   function injectDart(throwData){

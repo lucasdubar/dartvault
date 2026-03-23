@@ -8,8 +8,8 @@
 //  pour forcer le rechargement complet sur tous les appareils.
 // ═══════════════════════════════════════════════════════════
 
-const CACHE_VERSION = '2.28'; // ← incrémenter à chaque déploiement
-const CACHE_DATE = '23/03/2026 16:30'; // ← mettre à jour à chaque déploiement (heure FR)
+const CACHE_VERSION = '2.30'; // ← incrémenter à chaque déploiement
+const CACHE_DATE = '23/03/2026 19:01'; // ← mettre à jour à chaque déploiement (heure FR)
 const CACHE = 'dartvault-v' + CACHE_VERSION;
 
 const PRECACHE = [
@@ -28,6 +28,8 @@ const PRECACHE = [
   '/territoire.html',
   '/profil.html',
   '/classement.html',
+  '/stats-joueur.html',
+  '/tournament.html',
   '/privacy.html',
   '/blog.html',
   '/robots.txt',
