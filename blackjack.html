@@ -70,6 +70,9 @@ input[type=number]{-moz-appearance:textfield;}
 .dealer-badge{font-size:.7rem;font-weight:700;color:var(--gold);background:rgba(139,0,0,.5);border:1px solid rgba(255,215,0,.4);border-radius:4px;padding:2px 6px;margin-left:6px;}
 .btn-del{background:rgba(139,0,0,.3);border:none;color:var(--red2);border-radius:6px;width:44px;height:44px;cursor:pointer;font-size:.75rem;display:flex;align-items:center;justify-content:center;touch-action:manipulation;}
 .btn-del:active{background:rgba(139,0,0,.6);}
+.drag-handle{color:var(--dim);font-size:.85rem;padding:0 8px 0 2px;touch-action:none;user-select:none;-webkit-user-select:none;display:flex;align-items:center;height:44px;flex-shrink:0;cursor:grab;letter-spacing:1px;}
+.drag-handle:active{cursor:grabbing;color:var(--text);}
+.player-row.dragging{opacity:.25;}
 .btn-set-dealer{background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);color:var(--gold);border-radius:6px;padding:3px 8px;cursor:pointer;font-size:.7rem;font-weight:700;touch-action:manipulation;margin-left:6px;}
 .btn-set-dealer:active{background:rgba(255,215,0,.25);}
 .btn-main{width:100%;padding:13px;border-radius:12px;border:none;font-family:'Rajdhani',sans-serif;font-size:1.15rem;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:all .2s;touch-action:manipulation;margin-bottom:8px;}
@@ -1501,6 +1504,73 @@ function setDealer(i) {
   renderSetupList();
 }
 
+let _drag = null;
+function _startDrag(e, idx) {
+  if (_drag) return;
+  const isTouch = e.type === 'touchstart';
+  e.preventDefault();
+  const clientY = isTouch ? e.touches[0].clientY : e.clientY;
+  const list = document.getElementById('players-list');
+  const rows = Array.from(list.querySelectorAll('.player-row'));
+  const srcRow = rows[idx];
+  const rect = srcRow.getBoundingClientRect();
+  const ghost = srcRow.cloneNode(true);
+  Object.assign(ghost.style, {
+    position:'fixed', left:rect.left+'px', top:rect.top+'px',
+    width:rect.width+'px', height:rect.height+'px',
+    pointerEvents:'none', zIndex:'9999', opacity:'.9',
+    boxShadow:'0 8px 32px rgba(0,0,0,.7)', borderRadius:'8px',
+    background:'var(--bg3)', margin:'0',
+  });
+  document.body.appendChild(ghost);
+  srcRow.classList.add('dragging');
+  const indicator = document.createElement('div');
+  Object.assign(indicator.style, {
+    position:'fixed', left:rect.left+'px', width:rect.width+'px',
+    height:'2px', borderRadius:'2px', background:'var(--accent)',
+    zIndex:'9998', pointerEvents:'none', display:'none',
+  });
+  document.body.appendChild(indicator);
+  _drag = { idx, gap: idx, ghost, indicator, rows, offsetY: clientY - rect.top, isTouch };
+  document.addEventListener(isTouch ? 'touchmove' : 'mousemove', _onDragMove, { passive: false });
+  document.addEventListener(isTouch ? 'touchend' : 'mouseup', _onDragEnd, { once: true });
+  if (isTouch) document.addEventListener('touchcancel', _onDragEnd, { once: true });
+}
+function _onDragMove(e) {
+  if (!_drag) return;
+  e.preventDefault();
+  const clientY = _drag.isTouch ? e.touches[0].clientY : e.clientY;
+  _drag.ghost.style.top = (clientY - _drag.offsetY) + 'px';
+  const n = _drag.rows.length;
+  let gap = n;
+  for (let j = 0; j < n; j++) {
+    const r = _drag.rows[j].getBoundingClientRect();
+    if (clientY < r.top + r.height / 2) { gap = j; break; }
+  }
+  _drag.gap = gap;
+  const indicatorY = gap < n
+    ? _drag.rows[gap].getBoundingClientRect().top
+    : _drag.rows[n - 1].getBoundingClientRect().bottom;
+  _drag.indicator.style.display = 'block';
+  _drag.indicator.style.top = (indicatorY - 1) + 'px';
+}
+function _onDragEnd() {
+  if (!_drag) return;
+  document.removeEventListener(_drag.isTouch ? 'touchmove' : 'mousemove', _onDragMove);
+  document.removeEventListener(_drag.isTouch ? 'touchend' : 'mouseup', _onDragEnd);
+  if (_drag.isTouch) document.removeEventListener('touchcancel', _onDragEnd);
+  const { idx, gap } = _drag;
+  _drag.ghost.remove();
+  _drag.indicator.remove();
+  _drag.rows[idx].classList.remove('dragging');
+  _drag = null;
+  const newPos = gap > idx ? gap - 1 : gap;
+  if (newPos !== idx) {
+    const moved = B.players.splice(idx, 1)[0];
+    B.players.splice(newPos, 0, moved);
+  }
+  renderSetupList();
+}
 function renderSetupList() {
   const list = document.getElementById('players-list');
   const hint = document.getElementById('dealer-hint');
@@ -1516,8 +1586,10 @@ function renderSetupList() {
   hint.style.display = 'block';
   randBtn.style.display = 'block';
 
+  const n = B.players.length;
   list.innerHTML = B.players.map((p, i) => `
     <div class="player-row ${p.is_dealer ? 'is-dealer' : ''}">
+      ${n >= 2 ? `<span class="drag-handle" onmousedown="_startDrag(event,${i})" ontouchstart="_startDrag(event,${i})">⣿</span>` : ''}
       <span class="player-name" style="color:${p.color}">${p.fromProfile ? '' : p.emoji + ' '}${p.name}${p.is_dealer ? '<span class="dealer-badge">🎩 Croupier</span>' : ''}</span>
       <div style="display:flex;align-items:center;gap:4px;">
         ${!p.is_dealer ? `<button class="btn-set-dealer" onclick="setDealer(${i})">${DV_LANG.t('bj_dealer_btn')}</button>` : ''}
@@ -1581,7 +1653,7 @@ function bjToggleInputMode() {
 
 function dResetState() {
   if (dartState.autoNextTimer) { clearTimeout(dartState.autoNextTimer); dartState.autoNextTimer = null; }
-  dartState = { mult: 's', darts: [], dartIdx: 0, autoNextTimer: null };
+  dartState = { mult: 's', darts: [], dartIdx: 0, autoNextTimer: null, spoken: false };
   dRefreshSlots();
   dRefreshMult();
 }
@@ -1688,7 +1760,7 @@ function dHit(n) {
   dRefreshMult();
 
   if (bust) {
-    feedbackOver();speak(DV_LANG.get()==='en'?'Bust':'Dépasse');
+    feedbackOver(); speak(DV_LANG.get()==='en'?'Bust':'Dépasse'); dartState.spoken = true;
     if (!B.requireValidate) {
       dartState.autoNextTimer = setTimeout(() => { dartState.autoNextTimer = null; dCommit(total); }, 400);
     } else {
@@ -1705,7 +1777,7 @@ function dHit(n) {
       document.getElementById('blackjack-player').textContent = p.name + ' atteint ' + B.targetScore + ' !';
       openModal('blackjack-modal');
       B._bjTimer=setTimeout(function(){ if(document.getElementById('blackjack-modal').classList.contains('open')) closeModal('blackjack-modal'); B._bjTimer=null; },2000);
-    } else { feedbackValidate(); speak(String(total)); }
+    } else { feedbackValidate(); speak(String(total)); dartState.spoken = true; }
     if (!B.requireValidate) {
       dartState.autoNextTimer = setTimeout(() => { dartState.autoNextTimer = null; dCommit(total); }, 300);
     } else {
@@ -1765,8 +1837,8 @@ document.getElementById('pad-dart').addEventListener('click', e => {
       document.getElementById('blackjack-player').textContent = p.name + ' atteint ' + B.targetScore + ' !';
       openModal('blackjack-modal');
       B._bjTimer=setTimeout(function(){ if(document.getElementById('blackjack-modal').classList.contains('open')) closeModal('blackjack-modal'); B._bjTimer=null; },2000);
-    } else if (total > B.targetScore) { speak(DV_LANG.get()==='en'?'Bust':'Dépasse'); }
-    else { speak(String(total)); }
+    } else if (total > B.targetScore) { if (!dartState.spoken) speak(DV_LANG.get()==='en'?'Bust':'Dépasse'); }
+    else { if (!dartState.spoken) speak(String(total)); }
     dCommit(total);
     return;
   }

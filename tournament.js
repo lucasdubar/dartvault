@@ -55,14 +55,15 @@ const TournamentManager = {
    *   selectionMode 'manual'|'random'
    *   selectedGames string[]|null      game IDs if manual, null if random
    */
-  create({ players, nbGames, difficulty, inputMode, autodarts_ip, selectionMode, selectedGames }) {
+  create({ players, nbGames, difficulty, inputMode, autodarts_ip, selectionMode, selectedGames, configMode }) {
     // Build the ordered game list with configs + team assignments
     const games = this._buildGameList(
       selectedGames,
       nbGames,
       players,
       difficulty,
-      selectionMode
+      selectionMode,
+      configMode || 'random'
     );
 
     // Initial scores
@@ -76,6 +77,7 @@ const TournamentManager = {
       inputMode,
       autodarts_ip:  autodarts_ip || '192.168.1.37',
       selectionMode,
+      configMode:    configMode || 'random',
       players,
       scores,
       games,          // array of game objects (see _makeGameEntry)
@@ -91,7 +93,7 @@ const TournamentManager = {
   // Game list builder
   // ─────────────────────────────────────────────
 
-  _buildGameList(selectedGames, nbGames, players, difficulty, selectionMode) {
+  _buildGameList(selectedGames, nbGames, players, difficulty, selectionMode, configMode) {
     let gameIds;
 
     if (selectionMode === 'manual') {
@@ -102,13 +104,14 @@ const TournamentManager = {
       gameIds = this._shuffleArray([...pool]).slice(0, nbGames);
     }
 
-    return gameIds.map(id => this._makeGameEntry(id, players, difficulty));
+    return gameIds.map(id => this._makeGameEntry(id, players, difficulty, configMode));
   },
 
-  _makeGameEntry(gameId, players, difficulty) {
+  _makeGameEntry(gameId, players, difficulty, configMode) {
     const gameDef  = TOURNAMENT_GAMES.find(g => g.id === gameId);
     const teamMode = resolveTeamMode(gameDef, players.length);
-    const config   = pickConfig(gameId, difficulty, players.length);
+    // In manual config mode, the player will choose params themselves
+    const config   = (configMode === 'manual') ? null : pickConfig(gameId, difficulty, players.length);
     const teams    = teamMode === 'team' ? this._assignTeams(players) : null;
 
     // In team mode, add the resolved mode to config
@@ -266,6 +269,7 @@ const TournamentManager = {
       inputMode:   this.state.inputMode,
       autodarts_ip:this.state.autodarts_ip,
       difficulty:  this.state.difficulty,
+      configMode:  this.state.configMode || 'random',
       players:     this.state.players,
       gameIndex:   this.state.gameIndex,
       totalGames:  this.state.games.length,
@@ -291,44 +295,52 @@ const TournamentManager = {
     switch (game.id) {
       case 'g501':
         parts.push(c.gamemode + ' pts');
-        parts.push(c.endMode === 'doubleout' ? 'Sortie double' : 'Sortie libre');
+        parts.push('Sortie : ' + (c.endMode === 'doubleout' ? 'Double' : 'Libre'));
         break;
       case 'cricket':
-        parts.push(c.mode === 'noscore' ? 'Sans score' : c.mode === 'cutthroat' ? 'Cut-Throat' : 'Standard');
-        parts.push(c.rounds === 0 ? 'Infini' : c.rounds + ' tours');
+        parts.push('Mode : ' + (c.mode === 'noscore' ? 'Sans score' : c.mode === 'cutthroat' ? 'Cut-Throat' : 'Standard'));
+        parts.push(c.rounds === 0 ? 'Manches : illimitées' : c.rounds + ' manches');
         break;
       case 'shanghai':
-        parts.push(c.mode === 'random' ? 'Zones aléatoires' : 'Standard');
+        parts.push('Mode : ' + (c.mode === 'random' ? 'Zones aléatoires' : 'Standard'));
         parts.push('7 zones');
         break;
       case 'horloge':
-        parts.push(c.ordre === 'asc' ? '1 → 20' : '20 → 1');
-        parts.push(c.bull === 'none' ? 'Sans bull' : c.bull === 'bulleye' ? 'Avec bull + eye' : 'Avec bull');
-        parts.push(c.skip === 'skip' ? 'Saut activé' : '');
+        parts.push('Ordre : ' + (c.ordre === 'asc' ? '1 → 20' : '20 → 1'));
+        parts.push('Bull : ' + (c.bull === 'none' ? 'Non' : c.bull === 'bulleye' ? 'Bull + œil' : 'Oui'));
+        parts.push('Saut : ' + (c.skip === 'skip' ? 'Activé' : 'Désactivé'));
+        if (c.maxrounds) parts.push(c.maxrounds + ' manches max');
         break;
       case 'race500':
-        parts.push('Cible ' + c.tgt + ' pts');
-        parts.push('Vol ' + c.steal + ' pts');
+        parts.push('Objectif : ' + c.tgt + ' pts');
+        parts.push('Vol : ' + c.steal + ' pts');
         break;
       case 'blackdart':
         parts.push(c.rounds + ' manches');
-        parts.push('Cibles ' + c.tgtMin + '–' + c.tgtMax);
+        parts.push('Cible : ' + c.tgtMin + ' – ' + c.tgtMax);
         break;
       case 'territoire':
         parts.push(c.zones + ' zones');
-        parts.push(c.rounds + ' tours');
-        parts.push(c.difficulty === 'easy' ? 'Facile' : 'Normal');
+        parts.push(c.rounds + ' manches');
+        parts.push('Difficulté : ' + (c.difficulty === 'easy' ? 'Facile' : 'Normal'));
+        parts.push('Mode : ' + (c.mode === 'equipe' ? 'Équipe' : 'Solo'));
         break;
       case 'dartspong':
         parts.push(c.zones + ' zones');
-        parts.push(c.difficulty === 'easy' ? 'Facile' : 'Difficile');
+        parts.push('Difficulté : ' + (c.difficulty === 'easy' ? 'Facile' : 'Difficile'));
+        parts.push('Mode : ' + (c.mode === 'equipe' ? 'Équipe' : 'Duel'));
         break;
       case 'shooter':
         parts.push(c.hp + ' vies');
-        parts.push(c.difficulty === 'easy' ? 'Facile' : 'Normal');
+        parts.push('Difficulté : ' + (c.difficulty === 'easy' ? 'Facile' : 'Normal'));
+        parts.push('Mode : ' + (c.mode === 'team' ? 'Équipe' : 'Solo'));
+        if (c['maxrounds-sht']) parts.push(c['maxrounds-sht'] + ' manches max');
         break;
       case 'bataille':
-        parts.push(c.nbShips + ' bateaux');
+        parts.push('Difficulté : ' + (c.difficulty === 'easy' ? 'Facile' : 'Normal'));
+        if (c.nbShips) parts.push(c.nbShips + ' bateaux');
+        parts.push(c['maxrounds-bt'] + ' manches max');
+        parts.push('Mode : ' + (c['game-mode'] === 'team' ? 'Équipe' : 'Solo'));
         break;
     }
 

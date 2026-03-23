@@ -71,6 +71,9 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
 .player-name-setup{font-size:.9rem;font-weight:600;}
 .btn-del{background:rgba(220,53,69,.2);border:none;color:var(--danger);border-radius:6px;width:44px;height:44px;cursor:pointer;font-size:.75rem;display:flex;align-items:center;justify-content:center;touch-action:manipulation;}
 .btn-del:active{background:rgba(220,53,69,.5);}
+.drag-handle{color:var(--dim);font-size:.85rem;padding:0 8px 0 2px;touch-action:none;user-select:none;-webkit-user-select:none;display:flex;align-items:center;height:44px;flex-shrink:0;cursor:grab;letter-spacing:1px;}
+.drag-handle:active{cursor:grabbing;color:var(--text);}
+.player-row.dragging{opacity:.25;}
 .btn-main{width:100%;padding:13px;border-radius:12px;border:none;font-family:'Rajdhani',sans-serif;font-size:1.15rem;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:all .2s;touch-action:manipulation;}
 .btn-start{background:linear-gradient(135deg,var(--accent),#c9a830);color:#000;box-shadow:0 4px 18px rgba(232,232,232,.3);}
 .btn-start:active{transform:scale(.97);}
@@ -1796,10 +1799,91 @@ function removePlayer(i) {
   renderSetupList();
 }
 
+let _drag = null;
+
+function _startDrag(e, idx) {
+  if (_drag) return;
+  const isTouch = e.type === 'touchstart';
+  e.preventDefault();
+  const clientY = isTouch ? e.touches[0].clientY : e.clientY;
+  const list = document.getElementById('players-list');
+  const rows = Array.from(list.querySelectorAll('.player-row'));
+  const srcRow = rows[idx];
+  const rect = srcRow.getBoundingClientRect();
+
+  const ghost = srcRow.cloneNode(true);
+  Object.assign(ghost.style, {
+    position:'fixed', left:rect.left+'px', top:rect.top+'px',
+    width:rect.width+'px', height:rect.height+'px',
+    pointerEvents:'none', zIndex:'9999', opacity:'.9',
+    boxShadow:'0 8px 32px rgba(0,0,0,.7)', borderRadius:'8px',
+    background:'var(--bg3)', margin:'0',
+  });
+  document.body.appendChild(ghost);
+  srcRow.classList.add('dragging');
+
+  const indicator = document.createElement('div');
+  Object.assign(indicator.style, {
+    position:'fixed', left:rect.left+'px', width:rect.width+'px',
+    height:'2px', borderRadius:'2px', background:'var(--accent)',
+    zIndex:'9998', pointerEvents:'none', display:'none',
+  });
+  document.body.appendChild(indicator);
+
+  _drag = { idx, gap: idx, ghost, indicator, rows, offsetY: clientY - rect.top, isTouch };
+
+  document.addEventListener(isTouch ? 'touchmove' : 'mousemove', _onDragMove, { passive: false });
+  document.addEventListener(isTouch ? 'touchend' : 'mouseup', _onDragEnd, { once: true });
+  if (isTouch) document.addEventListener('touchcancel', _onDragEnd, { once: true });
+}
+
+function _onDragMove(e) {
+  if (!_drag) return;
+  e.preventDefault();
+  const clientY = _drag.isTouch ? e.touches[0].clientY : e.clientY;
+  _drag.ghost.style.top = (clientY - _drag.offsetY) + 'px';
+
+  const n = _drag.rows.length;
+  let gap = n;
+  for (let j = 0; j < n; j++) {
+    const r = _drag.rows[j].getBoundingClientRect();
+    if (clientY < r.top + r.height / 2) { gap = j; break; }
+  }
+  _drag.gap = gap;
+
+  const indicatorY = gap < n
+    ? _drag.rows[gap].getBoundingClientRect().top
+    : _drag.rows[n - 1].getBoundingClientRect().bottom;
+  _drag.indicator.style.display = 'block';
+  _drag.indicator.style.top = (indicatorY - 1) + 'px';
+}
+
+function _onDragEnd() {
+  if (!_drag) return;
+  document.removeEventListener(_drag.isTouch ? 'touchmove' : 'mousemove', _onDragMove);
+  document.removeEventListener(_drag.isTouch ? 'touchend' : 'mouseup', _onDragEnd);
+  if (_drag.isTouch) document.removeEventListener('touchcancel', _onDragEnd);
+
+  const { idx, gap } = _drag;
+  _drag.ghost.remove();
+  _drag.indicator.remove();
+  _drag.rows[idx].classList.remove('dragging');
+  _drag = null;
+
+  const newPos = gap > idx ? gap - 1 : gap;
+  if (newPos !== idx) {
+    const moved = G.players.splice(idx, 1)[0];
+    G.players.splice(newPos, 0, moved);
+  }
+  renderSetupList();
+}
+
 function renderSetupList() {
   const el = document.getElementById('players-list');
+  const n = G.players.length;
   el.innerHTML = G.players.map((p, i) => `
     <div class="player-row">
+      ${n >= 2 ? `<span class="drag-handle" onmousedown="_startDrag(event,${i})" ontouchstart="_startDrag(event,${i})">⣿</span>` : ''}
       <span class="player-name-setup" style="color:${p.color}">${p.fromProfile ? '' : p.emoji + ' '}${p.name}</span>
       <button class="btn-del" onclick="removePlayer(${i})" aria-label="Supprimer ${p.name}">✖</button>
     </div>`).join('');
@@ -1831,6 +1915,7 @@ function startGame() {
   G.throwTimeline = [];
   G.round = 1;
   G.gameStarted = true;
+  G._finalResultShown = false;
   G.players.forEach(p => {
     p.score = G.startScore;
     p.throws = [];
@@ -1905,7 +1990,7 @@ function updateDisplay(flashIdx) {
   document.getElementById('chip-darts-lbl').textContent = DV_LANG.t('x01_chip_darts');
   document.getElementById('stat-avg').textContent = avg.toFixed(1);
   const _allT = (p.allThrows || []).concat(p.throws);
-  document.getElementById('stat-best').textContent = _allT.length ? Math.max(..._allT.map(t=>t.score)) : 0;
+  document.getElementById('stat-best').textContent = _allT.length ? _allT.reduce((m,t) => t.score > m ? t.score : m, 0) : 0;
   document.getElementById('stat-darts').textContent = p.dartsThrown;
 
   // Tour précédent
@@ -1968,6 +2053,7 @@ function calcAvg(p) {
   if (!allT.length) return 0;
   return allT.reduce((s, t) => s + t.score, 0) / allT.length;
 }
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function refreshInputDisplay(p) {
   const val = inputStr === '' ? null : parseInt(inputStr);
@@ -2016,19 +2102,10 @@ function refreshInputDisplay(p) {
   }
 
   if (remaining === 0) {
-    // Vérifier double out
-    if (G.doubleOut) {
-      // On suppose que c'est valide (on ne vérifie pas la fléchette spécifique)
-      valEl.textContent = val;
-      valEl.className = 'input-val perfect';
-      hintEl.textContent = DV_LANG.t('x01_checkout');
-      hintEl.className = 'input-hint perfect';
-    } else {
-      valEl.textContent = val;
-      valEl.className = 'input-val perfect';
-      hintEl.textContent = DV_LANG.t('x01_checkout');
-      hintEl.className = 'input-hint perfect';
-    }
+    valEl.textContent = val;
+    valEl.className = 'input-val perfect';
+    hintEl.textContent = DV_LANG.t('x01_checkout');
+    hintEl.className = 'input-hint perfect';
     return;
   }
 
@@ -2349,6 +2426,7 @@ function dHit(n) {
   pushDartSnap();
 
   const p = currentPlayer();
+  if (dartState.darts.length === 0) dartState.scoreAtTurnStart = p.score; // sauvegarde fiable avant tout undo possible
   const scoreAtTurnStart = dartState.darts.length === 0 ? p.score : null; // utilisé pour double attempts
 
   // ── Double In (mode par fléchette) ──
@@ -2397,9 +2475,8 @@ function dHit(n) {
 
   if (isBust) {
     // Bust : annuler TOUT le tour (restaurer le score au début du tour)
-    const snapBeforeTurn = G.history[G.history.length - dartState.darts.length]; // snap avant la 1ère fléchette
-    if (snapBeforeTurn) {
-      p.score = snapBeforeTurn.scores[G.currentIdx];
+    if (dartState.scoreAtTurnStart !== undefined) {
+      p.score = dartState.scoreAtTurnStart;
     }
     feedbackBust();
     speak(DV_LANG.get() === 'en' ? 'Bust' : 'Dépasse');
@@ -2432,15 +2509,13 @@ function dHit(n) {
     return;
   }
 
-  // 3 fléchettes ou OUT explicite : tour terminé
-  if (dartState.dartIdx === 3 || n === 0) {
+  // 3 fléchettes : tour terminé
+  if (dartState.dartIdx === 3) {
     // Enregistrer le tour dans throws
     var turnTotal = dartState.darts.reduce((s,d)=>s+d.pts,0);
     p.throws.push({ score: turnTotal, remaining: p.score, darts: dartState.darts.map(d => ({...d})) });
-    if (dartState.dartIdx === 3) {
-      if (turnTotal === 0) speak(DV_LANG.get() === 'en' ? 'Zero' : 'Zéro');
-      else speak(String(turnTotal));
-    }
+    if (turnTotal === 0) speak(DV_LANG.get() === 'en' ? 'Zero' : 'Zéro');
+    else speak(String(turnTotal));
     if (turnTotal === 180) feedback180();
     if (G.trackDoubles && G.doubleOut) {
       const snapBefore = G.history[G.history.length - 1];
@@ -2557,7 +2632,11 @@ function dValidateEarly() {
   }
   _dNextPlayer();
 }
-document.getElementById('dart-val-btn').addEventListener('click', () => { document.getElementById('dart-val-btn').classList.remove('ready'); dValidateEarly(); });
+document.getElementById('dart-val-btn').addEventListener('click', () => {
+  document.getElementById('dart-val-btn').classList.remove('ready');
+  if (window._adTakeoutTimer) { clearTimeout(window._adTakeoutTimer); window._adTakeoutTimer = null; }
+  dValidateEarly();
+});
 
 document.getElementById('dart-undo-btn').addEventListener('click', () => {
   if (document.getElementById('dart-undo-btn').classList.contains('disabled')) return;
@@ -2683,7 +2762,7 @@ function commitScore(p, val, remaining, actualBust, scoreAtTurnStart) {
     (actualBust || remaining <= 50 || remaining === 0);
 
   if (actualBust) {
-    p.throws.push({ score: val, remaining: p.score, bust: true });
+    p.throws.push({ score: 0, remaining: p.score, bust: true });
     pushTimelineDarts(p, p.throws[p.throws.length-1]);
     p.dartsThrown += 3;
     feedbackBust();
@@ -2779,7 +2858,7 @@ function undoLast() {
     p.legs = s.legs[i];
     p.sets = s.sets[i];
     p.legsInSet = s.legsInSet[i];
-    if (s.doubleInDone) p.doubleInDone = s.doubleInDone[i];
+    if (Array.isArray(s.doubleInDone)) p.doubleInDone = s.doubleInDone[i];
   });
   if (s.round !== undefined) G.round = s.round;
   // Timeline : 1 snap = 1 entrée (vrai en mode total et en mode darts avec nouvelle archi)
@@ -2842,7 +2921,7 @@ function showSetResult(winner) {
       const remaining = G.setsToWin - p.sets;
       return '<div class="rank-row" style="border-color:' + p.color + '20">' +
         '<div class="rank-medal">' + (medals[i] || '') + '</div>' +
-        '<div class="rank-name" style="color:' + p.color + '">' + p.name + '</div>' +
+        '<div class="rank-name" style="color:' + p.color + '">' + escHtml(p.name) + '</div>' +
         '<div class="rank-info">' +
           '<div class="rank-legs" style="color:' + p.color + '">' + p.sets + ' / ' + G.setsToWin + ' sets</div>' +
           '<div class="rank-avg">' + remaining + ' ' + DV_LANG.t('x01_sets_to_win') + '</div>' +
@@ -2871,7 +2950,7 @@ function showLegResult(winner) {
         const legs = p.legsInSet || 0;
         return '<div class="rank-row" style="border-color:' + p.color + '20">' +
           '<div class="rank-medal">' + (medals[i] || '') + '</div>' +
-          '<div class="rank-name" style="color:' + p.color + '">' + p.name + '</div>' +
+          '<div class="rank-name" style="color:' + p.color + '">' + escHtml(p.name) + '</div>' +
           '<div class="rank-info">' +
             '<div class="rank-legs" style="color:' + p.color + '">' + p.sets + ' ' + DV_LANG.t('x01_sets_lbl') + ' · ' + legs + '/' + G.legsPerSet + ' ' + DV_LANG.t('x01_legs_lbl') + '</div>' +
           '</div></div>';
@@ -2879,7 +2958,7 @@ function showLegResult(winner) {
         const remaining = G.legsToWin - p.legs;
         return '<div class="rank-row" style="border-color:' + p.color + '20">' +
           '<div class="rank-medal">' + (medals[i] || '') + '</div>' +
-          '<div class="rank-name" style="color:' + p.color + '">' + p.name + '</div>' +
+          '<div class="rank-name" style="color:' + p.color + '">' + escHtml(p.name) + '</div>' +
           '<div class="rank-info">' +
             '<div class="rank-legs" style="color:' + p.color + '">' + p.legs + ' / ' + G.legsToWin + '</div>' +
             '<div class="rank-avg">' + remaining + ' ' + DV_LANG.t('x01_legs_to_win') + '</div>' +
@@ -2895,6 +2974,8 @@ function showLegResult(winner) {
 }
 
 function showFinalResult(winner) {
+  if (G._finalResultShown) return;
+  G._finalResultShown = true;
   // Enregistrer la victoire immédiatement — annulable via btn-end-close
   G._finalWinner = (winner.fromProfile && G.players.length > 1) ? winner : null;
   _recordWins(G._finalWinner ? [G._finalWinner.name] : []);
@@ -2934,7 +3015,7 @@ function showFinalResult(winner) {
     const _rank = sorted.filter(q => q.legs > p.legs || (q.legs === p.legs && calcAvg(q) > calcAvg(p))).length + 1;
     return '<div class="rank-row" style="border-color:' + p.color + '20">' +
       '<div class="rank-medal">' + (medals[_rank - 1] || '') + '</div>' +
-      '<div class="rank-name" style="color:' + p.color + '">' + p.name + '</div>' +
+      '<div class="rank-name" style="color:' + p.color + '">' + escHtml(p.name) + '</div>' +
       '<div class="rank-info">' +
         '<div class="rank-legs" style="color:' + p.color + '">' + (G.setsToWin > 0 ? p.sets + ' ' + DV_LANG.t('x01_sets_lbl') : p.legs + ' ' + DV_LANG.t('x01_legs_lbl')) + '</div>' +
         '<div class="rank-avg">' + DV_LANG.t('x01_avg_lbl') + ' ' + globalAvg + ' | ' + p.allDartsThrown + ' ' + DV_LANG.t('x01_stat_darts') + '</div>' +
@@ -2947,7 +3028,7 @@ function showFinalResult(winner) {
   document.getElementById('end-modal').classList.add('open');
   if (window.TournamentBridge) {
     const _g=[];let _gi=0;
-    while(_gi<sorted.length){let _gj=_gi+1;while(_gj<sorted.length&&sorted[_gj].legs===sorted[_gi].legs&&calcAvg(sorted[_gj])===calcAvg(sorted[_gi]))_gj++;const _gs=sorted.slice(_gi,_gj).map(p=>p.name);_g.push(_gs.length===1?_gs[0]:_gs);_gi=_gj;}
+    while(_gi<sorted.length){let _gj=_gi+1;while(_gj<sorted.length&&sorted[_gj].legs===sorted[_gi].legs&&Math.abs(calcAvg(sorted[_gj])-calcAvg(sorted[_gi]))<0.001)_gj++;const _gs=sorted.slice(_gi,_gj).map(p=>p.name);_g.push(_gs.length===1?_gs[0]:_gs);_gi=_gj;}
     TournamentBridge.onGameEnd(_g);
   }
   G._pendingNextLeg = false;
@@ -2987,6 +3068,7 @@ function _endByMaxRounds() {
   const sorted = [...G.players].sort((a, b) => a.score - b.score);
   const winner = sorted[0];
   const medals = ['🏆','🥈','🥉'];
+  const lang = DV_LANG.get();
 
   // Cumuler les stats
   G._preFinalCumulatives = G.players.map(p => ({
@@ -3003,17 +3085,46 @@ function _endByMaxRounds() {
   });
 
   const isTie = sorted.length > 1 && sorted[0].score === sorted[1].score;
-  document.getElementById('end-title').textContent = isTie
-    ? '🤝 ' + DV_LANG.t('x01_tie') || 'Égalité !'
-    : '🏆 ' + winner.name + (DV_LANG.get() === 'en' ? ' wins!' : ' remporte la partie !');
-  document.getElementById('end-title').style.color = isTie ? 'var(--warn)' : winner.color;
-  speak((isTie ? (DV_LANG.get() === 'en' ? 'Tie game' : 'Égalité') : winner.name + ' ' + (DV_LANG.get() === 'en' ? 'wins' : 'remporte la partie')), 1200);
+
+  if (isTie) {
+    // Égalité au sommet → prolongation
+    const tiedScore = sorted[0].score;
+    const tiedPlayers = sorted.filter(p => p.score === tiedScore);
+    speak(lang === 'en' ? 'Tie game, overtime!' : 'Égalité, prolongation !', 0);
+    document.getElementById('end-title').textContent = '🤝 ' + (lang === 'en' ? 'Tie — Overtime!' : 'Égalité — Prolongation !');
+    document.getElementById('end-title').style.color = 'var(--warn)';
+    document.getElementById('end-ranking').innerHTML =
+      '<div style="font-family:Rajdhani,sans-serif;font-size:.75rem;font-weight:700;color:var(--dim);letter-spacing:1.5px;margin-bottom:8px;text-align:center;">' +
+      (lang === 'en' ? 'Tied players' : 'Joueurs à égalité') + '</div>' +
+      tiedPlayers.map(p =>
+        '<div class="rank-row" style="border-color:' + p.color + '20">' +
+          '<div class="rank-medal">🎯</div>' +
+          '<div class="rank-name" style="color:' + p.color + '">' + escHtml(p.name) + '</div>' +
+          '<div class="rank-info"><div class="rank-legs" style="color:' + p.color + '">' +
+            p.score + ' ' + (lang === 'en' ? 'remaining' : 'restants') +
+          '</div></div></div>'
+      ).join('');
+    document.getElementById('btn-rematch').textContent = '▶ ' + (lang === 'en' ? 'Play overtime' : 'Jouer la prolongation');
+    document.getElementById('btn-end-back').textContent = DV_LANG.t('config');
+    document.getElementById('btn-end-close').textContent = '↩ ' + DV_LANG.t('cancel');
+    document.getElementById('end-modal').classList.add('open');
+    G._pendingNextLeg = false;
+    G._pendingOvertime = tiedPlayers.map(p => p.name);
+    G.gameStarted = true;
+    updateDisplay();
+    return;
+  }
+
+  // Pas d'égalité — fin normale
+  document.getElementById('end-title').textContent = '🏆 ' + winner.name + (lang === 'en' ? ' wins!' : ' remporte la partie !');
+  document.getElementById('end-title').style.color = winner.color;
+  speak(winner.name + ' ' + (lang === 'en' ? 'wins' : 'remporte la partie'), 1200);
 
   document.getElementById('end-ranking').innerHTML = sorted.map((p, i) => {
     const avg = calcAvg(p);
     return '<div class="rank-row" style="border-color:' + p.color + '20">' +
       '<div class="rank-medal">' + (medals[i] || '') + '</div>' +
-      '<div class="rank-name" style="color:' + p.color + '">' + p.name + '</div>' +
+      '<div class="rank-name" style="color:' + p.color + '">' + escHtml(p.name) + '</div>' +
       '<div class="rank-info">' +
         '<div class="rank-legs" style="color:' + p.color + '">' + p.score + ' restants</div>' +
         '<div class="rank-avg">' + DV_LANG.t('x01_avg_lbl') + ' ' + avg.toFixed(1) + ' | ' + p.dartsThrown + ' ' + DV_LANG.t('x01_stat_darts') + '</div>' +
@@ -3025,6 +3136,21 @@ function _endByMaxRounds() {
   document.getElementById('btn-end-close').textContent = '↩ ' + DV_LANG.t('cancel');
   document.getElementById('end-modal').classList.add('open');
   G._pendingNextLeg = false;
+
+  // Notifier le tournoi
+  if (window.TournamentBridge) {
+    const _g = [];
+    let _gi = 0;
+    while (_gi < sorted.length) {
+      let _gj = _gi + 1;
+      while (_gj < sorted.length && sorted[_gj].score === sorted[_gi].score) _gj++;
+      const _gs = sorted.slice(_gi, _gj).map(p => p.name);
+      _g.push(_gs.length === 1 ? _gs[0] : _gs);
+      _gi = _gj;
+    }
+    TournamentBridge.onGameEnd(_g);
+  }
+
   updateDisplay();
 }
 
@@ -3037,7 +3163,7 @@ function openPlayerStats(idx) {
   const allT = (p.allThrows || []).concat(p.throws);
   const totalDarts = (p.allDartsThrown || 0) + p.dartsThrown;
   const globalAvg = allT.length ? (allT.reduce((s,t) => s + t.score, 0) / allT.length).toFixed(1) : '0.0';
-  const best = allT.length ? Math.max(...allT.map(t => t.score)) : 0;
+  const best = allT.length ? allT.reduce((m,t) => t.score > m ? t.score : m, 0) : 0;
   const countBust = allT.filter(t => t.bust).length;
   const totalDoubleAttempts = (p.allDoubleAttempts || 0) + p.doubleAttempts;
   const totalDoubleHits = (p.allDoubleHits || 0) + p.doubleHits;
@@ -3370,7 +3496,35 @@ document.getElementById('stats-modal').addEventListener('click', e => { if(e.tar
 
 document.getElementById('btn-rematch').addEventListener('click', () => {
   document.getElementById('end-modal').classList.remove('open');
-  if (G._pendingNextLeg) {
+  if (G._pendingOvertime) {
+    // Prolongation : garder uniquement les joueurs ex-aequo, pas de limite de tours
+    const tiedNames = G._pendingOvertime;
+    G._pendingOvertime = null;
+    G.players = G.players.filter(p => tiedNames.includes(p.name));
+    G.history = [];
+    G.throwTimeline = [];
+    G.gameStarted = true;
+    G.round = 1;
+    G.maxRounds = 0;
+    G.legsToWin = 1;
+    G.setsToWin = 0;
+    G.firstPlayerIdx = 0;
+    G.currentIdx = 0;
+    G.players.forEach(p => {
+      p.score = G.startScore;
+      p.throws = [];
+      p.dartsThrown = 0;
+      p.doubleAttempts = 0;
+      p.doubleHits = 0;
+      p.doubleInDone = !G.doubleIn;
+      p.legs = 0;
+      p.sets = 0;
+      p.legsInSet = 0;
+    });
+    inputStr = '';
+    dartReset();
+    updateDisplay();
+  } else if (G._pendingNextLeg) {
     // Leg suivant : pas encore une victoire finale
     G._pendingNextLeg = false;
     G.history = [];
@@ -4203,6 +4357,7 @@ function escPP(s) {
   function injectDart(dart) {
     if (typeof G === 'undefined' || !G.gameStarted) return;
     if (typeof dHit !== 'function') return;
+    if (adTurnResetTimer) { clearTimeout(adTurnResetTimer); adTurnResetTimer = null; }
 
     // Force darts mode
     if (typeof inputMode !== 'undefined' && inputMode !== 'darts') {
@@ -4282,13 +4437,17 @@ function escPP(s) {
     // - Enregistrement du tour
     // - Passage au joueur suivant
     if (typeof dValidateEarly === 'function') {
-      setTimeout(function() { dValidateEarly(); }, 200);
+      if (window._adTakeoutTimer) return; // déjà planifié
+      window._adTakeoutTimer = setTimeout(function() {
+        window._adTakeoutTimer = null;
+        dValidateEarly();
+      }, 200);
     }
   }
 
   // ── WebSocket ──
   function connect() {
-    if (ws) { try { ws.close(); } catch(e) {} }
+    if (ws) { ws.onclose = null; try { ws.close(); } catch(e) {} }
     const url = getWSUrl();
     console.log('[Autodarts] Connecting to', url);
     try { ws = new WebSocket(url); } catch(e) {
@@ -4434,7 +4593,7 @@ function escPP(s) {
       setIP(ipField.value.trim() || DEFAULT_IP);
       startBridge();
       // Auto-reset au démarrage pour vider tout état résiduel
-      setTimeout(function() { adAutoReset(); }, 600);
+      setTimeout(function() { triggerAdReset(true); }, 600);
     } else {
       stopBridge();
       // Unlock input mode toggle

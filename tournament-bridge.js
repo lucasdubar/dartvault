@@ -150,20 +150,12 @@
   });
 
   function _fillSetupAndStart() {
-    const cfg  = payload.config;
-    const mode = payload.inputMode;   // 'total' | 'darts' | 'autodarts'
-    const tm   = payload.teamMode;    // 'solo' | 'team'
+    const cfg     = payload.config;
+    const mode    = payload.inputMode;    // 'total' | 'darts' | 'autodarts'
+    const tm      = payload.teamMode;     // 'solo' | 'team'
+    const cfgMode = payload.configMode || 'random';
 
-    // 1. Set game options first (mode, difficulty, etc.)
-    //    Team games read the current mode to know which team to assign players to.
-    const filler = SETUP_FILLERS[currentGameId];
-    if (filler) {
-      try { filler(cfg, mode, tm, payload.players, payload.teams); } catch (e) { console.warn('[Tournament] setup fill error:', e); }
-    }
-
-    // 2. Add players — interleaved order for team games (A0,B0,A1,B1…) so the
-    //    game's alternating assignment matches the teams shown in the reveal animation;
-    //    shuffled order for solo games.
+    // Build ordered player list: interleaved (A0,B0,A1,B1…) for team games, shuffled for solo
     let playersToAdd;
     if (payload.teams && payload.teams.length >= 2) {
       const teamA = payload.teams[0], teamB = payload.teams[1];
@@ -176,6 +168,26 @@
     } else {
       playersToAdd = [...payload.players].sort(() => Math.random() - 0.5);
     }
+
+    if (cfgMode === 'manual') {
+      // Manual config: inject players + team/input mode only.
+      // The player configures game params themselves and clicks start.
+      _addPlayersToGame(playersToAdd);
+      _fillManualMode(mode, tm);
+      setTimeout(_lockPlayerUI, 100);
+      return;
+    }
+
+    // Auto config: full param fill + auto-start
+
+    // 1. Set game options first (mode, difficulty, etc.)
+    //    Team games read the current mode to know which team to assign players to.
+    const filler = SETUP_FILLERS[currentGameId];
+    if (filler) {
+      try { filler(cfg, mode, tm, payload.players, payload.teams); } catch (e) { console.warn('[Tournament] setup fill error:', e); }
+    }
+
+    // 2. Add players
     _addPlayersToGame(playersToAdd);
 
     // 3. For blackdart: apply croupier selected by roulette (set synchronously — players are now in B.players)
@@ -198,6 +210,44 @@
       const btn = document.querySelector(startSel);
       if (btn) btn.click();
     }, 200);
+  }
+
+  // ── Manual config mode helpers ────────────────────────────────────────────
+
+  // Set only team/game mode + input mode (player fills the rest)
+  function _fillManualMode(mode, tm) {
+    if (currentGameId === 'territoire') {
+      _clickOpt('mode', tm === 'team' ? 'equipe' : 'solo');
+    } else if (currentGameId === 'dartspong') {
+      _clickOpt('mode', tm === 'team' ? 'equipe' : 'duel');
+      _chk('#party-mode', false);
+    } else if (currentGameId === 'shooter') {
+      _clickOpt('mode', tm === 'team' ? 'team' : 'solo');
+    } else if (currentGameId === 'bataille') {
+      _clickOpt('game-mode', tm === 'team' ? 'team' : 'solo');
+    }
+    _setInputMode(mode, payload.autodarts_ip);
+  }
+
+  // Grey out and disable player add/remove controls so the player list is locked
+  function _lockPlayerUI() {
+    // Disable elements directly — most reliable method across all games
+    const inp = document.getElementById('player-input') || document.getElementById('pinp');
+    if (inp) inp.disabled = true;
+
+    const addBtn = document.getElementById('btn-add')
+                || document.getElementById('btn-add-player')
+                || document.getElementById('badd');
+    if (addBtn) addBtn.disabled = true;
+
+    // CSS for visual greying + .btn-del (dynamically created, can't set disabled directly)
+    const style = document.createElement('style');
+    style.textContent = `
+      #player-input, #pinp { opacity:.35!important; cursor:not-allowed!important; }
+      #btn-add, #btn-add-player, #badd { opacity:.35!important; cursor:not-allowed!important; }
+      .btn-del { opacity:.35!important; pointer-events:none!important; cursor:not-allowed!important; }
+    `;
+    (document.head || document.documentElement).appendChild(style);
   }
 
   // ────────────────────────────────────────────────

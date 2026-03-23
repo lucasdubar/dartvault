@@ -231,10 +231,9 @@ const TOURNAMENT_GAMES = [
     configs: {
       easy: [
         { hp: 3, difficulty: 'easy', 'maxrounds-sht': 10 },
-        { hp: 5, difficulty: 'easy', 'maxrounds-sht': 10 },
       ],
       normal: [
-        { hp: 5, difficulty: 'hard', 'maxrounds-sht': 10 },
+        { hp: 3, difficulty: 'hard', 'maxrounds-sht': 10 },
       ],
     },
   },

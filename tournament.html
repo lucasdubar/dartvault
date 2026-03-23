@@ -833,11 +833,20 @@ html,body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;
           <div class="game-grid" id="game-grid"></div>
         </div>
 
-        <!-- Difficulté -->
-        <div class="card-title" style="margin-top:16px;" data-i18n="t_difficulty">Difficulté</div>
-        <div class="opt-group" style="justify-content:flex-start;margin-bottom:16px;">
-          <div class="opt-pill active" data-grp="diff" data-val="easy"   onclick="pickOpt(this)" data-i18n="t_easy">Facile</div>
-          <div class="opt-pill"        data-grp="diff" data-val="normal" onclick="pickOpt(this)" data-i18n="t_normal">Normal</div>
+        <!-- Configuration : Aléatoire / Manuel -->
+        <div class="card-title" style="margin-top:16px;" data-i18n="t_config_mode">Configuration</div>
+        <div class="opt-group" style="justify-content:flex-start;margin-bottom:8px;">
+          <div class="opt-pill active" data-grp="cfgmode" data-val="random" onclick="pickCfgMode(this)" data-i18n="t_cfg_random">🎲 Aléatoire</div>
+          <div class="opt-pill"        data-grp="cfgmode" data-val="manual" onclick="pickCfgMode(this)" data-i18n="t_cfg_manual">✏️ Manuel</div>
+        </div>
+
+        <!-- Difficulté (cachée en mode manuel) -->
+        <div id="diff-section" style="margin-top:8px;">
+          <div class="card-title" data-i18n="t_difficulty">Difficulté</div>
+          <div class="opt-group" style="justify-content:flex-start;margin-bottom:16px;">
+            <div class="opt-pill active" data-grp="diff" data-val="easy"   onclick="pickOpt(this)" data-i18n="t_easy">Facile</div>
+            <div class="opt-pill"        data-grp="diff" data-val="normal" onclick="pickOpt(this)" data-i18n="t_normal">Normal</div>
+          </div>
         </div>
 
         <!-- Mode de saisie -->
@@ -1163,6 +1172,10 @@ const T_DICT = {
     t_game_selection: 'Sélection des jeux',
     t_random: '🎲 Aléatoire',
     t_manual_sel: 'Manuel',
+    t_config_mode: 'Configuration',
+    t_cfg_random: '🎲 Aléatoire',
+    t_cfg_manual: '✏️ Manuel',
+    t_free_config: '⚙️ Config libre',
     t_difficulty: 'Difficulté',
     t_easy: 'Facile',
     t_normal: 'Normal',
@@ -1239,6 +1252,10 @@ const T_DICT = {
     t_game_selection: 'Game selection',
     t_random: '🎲 Random',
     t_manual_sel: 'Manual',
+    t_config_mode: 'Configuration',
+    t_cfg_random: '🎲 Random',
+    t_cfg_manual: '✏️ Manual',
+    t_free_config: '⚙️ Free config',
     t_difficulty: 'Difficulty',
     t_easy: 'Easy',
     t_normal: 'Normal',
@@ -1336,44 +1353,52 @@ TournamentManager.getConfigLabel = function(game) {
   switch (game.id) {
     case 'g501':
       parts.push(c.gamemode + ' pts');
-      parts.push(c.endMode === 'doubleout' ? 'Double out' : 'Simple out');
+      parts.push('Out: ' + (c.endMode === 'doubleout' ? 'Double' : 'Simple'));
       break;
     case 'cricket':
-      parts.push(c.mode === 'noscore' ? 'No score' : c.mode === 'cutthroat' ? 'Cut-Throat' : 'Standard');
-      parts.push(c.rounds === 0 ? 'Unlimited' : c.rounds + ' rounds');
+      parts.push('Mode: ' + (c.mode === 'noscore' ? 'No score' : c.mode === 'cutthroat' ? 'Cut-Throat' : 'Standard'));
+      parts.push(c.rounds === 0 ? 'Unlimited rounds' : c.rounds + ' rounds');
       break;
     case 'shanghai':
-      parts.push(c.mode === 'random' ? 'Random zones' : 'Standard');
+      parts.push('Mode: ' + (c.mode === 'random' ? 'Random zones' : 'Standard'));
       parts.push('7 zones');
       break;
     case 'horloge':
-      parts.push(c.ordre === 'asc' ? '1 → 20' : '20 → 1');
-      parts.push(c.bull === 'none' ? 'No bull' : c.bull === 'bulleye' ? 'Bull + bullseye' : 'With bull');
-      parts.push(c.skip === 'skip' ? 'Skip on' : '');
+      parts.push('Order: ' + (c.ordre === 'asc' ? '1 → 20' : '20 → 1'));
+      parts.push('Bull: ' + (c.bull === 'none' ? 'No' : c.bull === 'bulleye' ? 'Bull + eye' : 'Yes'));
+      parts.push('Skip: ' + (c.skip === 'skip' ? 'On' : 'Off'));
+      if (c.maxrounds) parts.push(c.maxrounds + ' rounds max');
       break;
     case 'race500':
-      parts.push('Target ' + c.tgt + ' pts');
-      parts.push('Steal ' + c.steal + ' pts');
+      parts.push('Target: ' + c.tgt + ' pts');
+      parts.push('Steal: ' + c.steal + ' pts');
       break;
     case 'blackdart':
       parts.push(c.rounds + ' rounds');
-      parts.push('Targets ' + c.tgtMin + '–' + c.tgtMax);
+      parts.push('Target: ' + c.tgtMin + ' – ' + c.tgtMax);
       break;
     case 'territoire':
       parts.push(c.zones + ' zones');
-      parts.push(c.rounds + ' turns');
-      parts.push(c.difficulty === 'easy' ? 'Easy' : 'Normal');
+      parts.push(c.rounds + ' rounds');
+      parts.push('Difficulty: ' + (c.difficulty === 'easy' ? 'Easy' : 'Normal'));
+      parts.push('Mode: ' + (c.mode === 'equipe' ? 'Team' : 'Solo'));
       break;
     case 'dartspong':
       parts.push(c.zones + ' zones');
-      parts.push(c.difficulty === 'easy' ? 'Easy' : 'Hard');
+      parts.push('Difficulty: ' + (c.difficulty === 'easy' ? 'Easy' : 'Hard'));
+      parts.push('Mode: ' + (c.mode === 'equipe' ? 'Team' : 'Duel'));
       break;
     case 'shooter':
       parts.push(c.hp + ' lives');
-      parts.push(c.difficulty === 'easy' ? 'Easy' : 'Normal');
+      parts.push('Difficulty: ' + (c.difficulty === 'easy' ? 'Easy' : 'Normal'));
+      parts.push('Mode: ' + (c.mode === 'team' ? 'Team' : 'Solo'));
+      if (c['maxrounds-sht']) parts.push(c['maxrounds-sht'] + ' rounds max');
       break;
     case 'bataille':
-      parts.push(c.nbShips + ' ships');
+      parts.push('Difficulty: ' + (c.difficulty === 'easy' ? 'Easy' : 'Normal'));
+      if (c.nbShips) parts.push(c.nbShips + ' ships');
+      parts.push(c['maxrounds-bt'] + ' rounds max');
+      parts.push('Mode: ' + (c['game-mode'] === 'team' ? 'Team' : 'Solo'));
       break;
   }
   return parts.filter(Boolean).join(' · ');
@@ -1402,12 +1427,13 @@ const RANK_EMOJIS = ['🥇','🥈','🥉'];
 // ════════════════════════════════════════════════
 
 const S = {
-  players:  [],   // selected player full-names ("emoji name")
-  nb:       3,
-  diff:     'easy',
-  input:    'total',
-  selMode:  'random',
-  games:    [],   // manual selection
+  players:   [],      // selected player full-names ("emoji name")
+  nb:        3,
+  diff:      'easy',
+  input:     'total',
+  selMode:   'random',
+  configMode:'random', // 'random' | 'manual'
+  games:     [],      // manual selection
 };
 
 // ════════════════════════════════════════════════
@@ -1636,6 +1662,13 @@ function pickOpt(el) {
   if (el.dataset.grp === 'diff') S.diff = el.dataset.val;
 }
 
+function pickCfgMode(el) {
+  document.querySelectorAll('[data-grp="cfgmode"]').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+  S.configMode = el.dataset.val;
+  document.getElementById('diff-section').style.display = S.configMode === 'manual' ? 'none' : '';
+}
+
 function pickInput(el) {
   document.querySelectorAll('[data-grp="input"]').forEach(e => e.classList.remove('active'));
   el.classList.add('active');
@@ -1725,6 +1758,7 @@ function launchTournament() {
     autodarts_ip:  ip,
     selectionMode: S.selMode,
     selectedGames: S.selMode === 'manual' ? S.games : null,
+    configMode:    S.configMode,
   });
   runSlot('setup', () => showPregame());
 }
@@ -2241,13 +2275,23 @@ function confirmQuit()  { TournamentManager.quit(); localStorage.removeItem('dar
 function renderPills(id, game) {
   const container = document.getElementById(id);
   container.innerHTML = '';
-  const labels = TournamentManager.getConfigLabel(game).split(' · ').filter(Boolean);
-  labels.forEach(txt => {
+
+  if (!game.config) {
+    // Manual config mode: player will configure params themselves
     const pill = document.createElement('div');
     pill.className = 'config-pill';
-    pill.textContent = txt;
+    pill.textContent = T.t_free_config || '⚙️ Config libre';
     container.appendChild(pill);
-  });
+  } else {
+    const labels = TournamentManager.getConfigLabel(game).split(' · ').filter(Boolean);
+    labels.forEach(txt => {
+      const pill = document.createElement('div');
+      pill.className = 'config-pill';
+      pill.textContent = txt;
+      container.appendChild(pill);
+    });
+  }
+
   // Input mode pill
   const st = TournamentManager.state;
   const modePill = document.createElement('div');

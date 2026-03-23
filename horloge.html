@@ -70,6 +70,9 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
 .player-name{font-size:.9rem;font-weight:700;font-family:'Rajdhani',sans-serif;}
 .btn-del{background:rgba(220,53,69,.2);border:none;color:var(--danger);border-radius:6px;width:44px;height:44px;cursor:pointer;font-size:.75rem;display:flex;align-items:center;justify-content:center;touch-action:manipulation;}
 .btn-del:active{background:rgba(220,53,69,.5);}
+.drag-handle{color:var(--dim);font-size:.85rem;padding:0 8px 0 2px;touch-action:none;user-select:none;-webkit-user-select:none;display:flex;align-items:center;height:44px;flex-shrink:0;cursor:grab;letter-spacing:1px;}
+.drag-handle:active{cursor:grabbing;color:var(--text);}
+.player-row.dragging{opacity:.25;}
 .btn-main{width:100%;padding:13px;border-radius:12px;border:none;font-family:'Rajdhani',sans-serif;font-size:1.15rem;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:all .2s;touch-action:manipulation;}
 .btn-start{background:linear-gradient(135deg,#E8E8E8,#B8B8B8);color:#1A0A0E;box-shadow:0 4px 18px rgba(232,232,232,.3);}
 .btn-start:active{transform:scale(.97);}
@@ -806,10 +809,79 @@ function shufflePlayers(){
   G.players.forEach((p,i)=>{p.color=PLAYER_COLORS[i%6];p.emoji=PLAYER_EMOJIS[i%6];});
   renderSetupList();
 }
+let _drag = null;
+function _startDrag(e, idx) {
+  if (_drag) return;
+  const isTouch = e.type === 'touchstart';
+  e.preventDefault();
+  const clientY = isTouch ? e.touches[0].clientY : e.clientY;
+  const list = document.getElementById('players-list');
+  const rows = Array.from(list.querySelectorAll('.player-row'));
+  const srcRow = rows[idx];
+  const rect = srcRow.getBoundingClientRect();
+  const ghost = srcRow.cloneNode(true);
+  Object.assign(ghost.style, {
+    position:'fixed', left:rect.left+'px', top:rect.top+'px',
+    width:rect.width+'px', height:rect.height+'px',
+    pointerEvents:'none', zIndex:'9999', opacity:'.9',
+    boxShadow:'0 8px 32px rgba(0,0,0,.7)', borderRadius:'8px',
+    background:'var(--bg3)', margin:'0',
+  });
+  document.body.appendChild(ghost);
+  srcRow.classList.add('dragging');
+  const indicator = document.createElement('div');
+  Object.assign(indicator.style, {
+    position:'fixed', left:rect.left+'px', width:rect.width+'px',
+    height:'2px', borderRadius:'2px', background:'var(--accent)',
+    zIndex:'9998', pointerEvents:'none', display:'none',
+  });
+  document.body.appendChild(indicator);
+  _drag = { idx, gap: idx, ghost, indicator, rows, offsetY: clientY - rect.top, isTouch };
+  document.addEventListener(isTouch ? 'touchmove' : 'mousemove', _onDragMove, { passive: false });
+  document.addEventListener(isTouch ? 'touchend' : 'mouseup', _onDragEnd, { once: true });
+  if (isTouch) document.addEventListener('touchcancel', _onDragEnd, { once: true });
+}
+function _onDragMove(e) {
+  if (!_drag) return;
+  e.preventDefault();
+  const clientY = _drag.isTouch ? e.touches[0].clientY : e.clientY;
+  _drag.ghost.style.top = (clientY - _drag.offsetY) + 'px';
+  const n = _drag.rows.length;
+  let gap = n;
+  for (let j = 0; j < n; j++) {
+    const r = _drag.rows[j].getBoundingClientRect();
+    if (clientY < r.top + r.height / 2) { gap = j; break; }
+  }
+  _drag.gap = gap;
+  const indicatorY = gap < n
+    ? _drag.rows[gap].getBoundingClientRect().top
+    : _drag.rows[n - 1].getBoundingClientRect().bottom;
+  _drag.indicator.style.display = 'block';
+  _drag.indicator.style.top = (indicatorY - 1) + 'px';
+}
+function _onDragEnd() {
+  if (!_drag) return;
+  document.removeEventListener(_drag.isTouch ? 'touchmove' : 'mousemove', _onDragMove);
+  document.removeEventListener(_drag.isTouch ? 'touchend' : 'mouseup', _onDragEnd);
+  if (_drag.isTouch) document.removeEventListener('touchcancel', _onDragEnd);
+  const { idx, gap } = _drag;
+  _drag.ghost.remove();
+  _drag.indicator.remove();
+  _drag.rows[idx].classList.remove('dragging');
+  _drag = null;
+  const newPos = gap > idx ? gap - 1 : gap;
+  if (newPos !== idx) {
+    const moved = G.players.splice(idx, 1)[0];
+    G.players.splice(newPos, 0, moved);
+  }
+  renderSetupList();
+}
 function renderSetupList(){
+  const n = G.players.length;
   document.getElementById('players-list').innerHTML=G.players.map((p,i)=>{
     const dot=p.fromProfile?'':'<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:'+p.color+';flex-shrink:0;box-shadow:0 0 6px '+p.color+'88;"></span>';
-    return '<div class="player-row" style="display:flex;align-items:center;gap:8px;">'+dot+'<span class="player-name" style="flex:1;color:'+p.color+';">'+escHtml(p.name)+'</span><button class="btn-del" onclick="removePlayer('+i+')" aria-label="Supprimer '+escHtml(p.name)+'">✕</button></div>';
+    const handle=n>=2?'<span class="drag-handle" onmousedown="_startDrag(event,'+i+')" ontouchstart="_startDrag(event,'+i+')">⣿</span>':'';
+    return '<div class="player-row" style="display:flex;align-items:center;gap:8px;">'+handle+dot+'<span class="player-name" style="flex:1;color:'+p.color+';">'+escHtml(p.name)+'</span><button class="btn-del" onclick="removePlayer('+i+')" aria-label="Supprimer '+escHtml(p.name)+'">✕</button></div>';
   }).join('');
 }
 

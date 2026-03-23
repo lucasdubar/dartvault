@@ -199,6 +199,9 @@
     touch-action: manipulation;
   }
   .btn-remove:active { background: rgba(200,134,10,.4); }
+  .drag-handle{color:var(--dim);font-size:.85rem;padding:0 8px 0 2px;touch-action:none;user-select:none;-webkit-user-select:none;display:flex;align-items:center;height:44px;flex-shrink:0;cursor:grab;letter-spacing:1px;}
+  .drag-handle:active{cursor:grabbing;color:var(--text);}
+  .player-row.dragging{opacity:.25;}
 
   /* Team headers */
   .team-header {
@@ -1662,6 +1665,77 @@ function removePlayer(team, idx) {
   renderTeams();
 }
 
+let _drag = null;
+function _startDrag(e, idx, teamKey) {
+  if (_drag) return;
+  const isTouch = e.type === 'touchstart';
+  e.preventDefault();
+  const clientY = isTouch ? e.touches[0].clientY : e.clientY;
+  const listId = teamKey === 'A' ? 'team-a-list' : teamKey === 'B' ? 'team-b-list' : 'team-c-list';
+  const list = document.getElementById(listId);
+  if (!list) return;
+  const rows = Array.from(list.querySelectorAll('.player-row'));
+  const srcRow = rows[idx];
+  if (!srcRow) return;
+  const rect = srcRow.getBoundingClientRect();
+  const ghost = srcRow.cloneNode(true);
+  Object.assign(ghost.style, {
+    position:'fixed', left:rect.left+'px', top:rect.top+'px',
+    width:rect.width+'px', height:rect.height+'px',
+    pointerEvents:'none', zIndex:'9999', opacity:'.9',
+    boxShadow:'0 8px 32px rgba(0,0,0,.7)', borderRadius:'8px',
+    background:'var(--bg3)', margin:'0',
+  });
+  document.body.appendChild(ghost);
+  srcRow.classList.add('dragging');
+  const indicator = document.createElement('div');
+  Object.assign(indicator.style, {
+    position:'fixed', left:rect.left+'px', width:rect.width+'px',
+    height:'2px', borderRadius:'2px', background:'var(--accent)',
+    zIndex:'9998', pointerEvents:'none', display:'none',
+  });
+  document.body.appendChild(indicator);
+  _drag = { idx, gap: idx, ghost, indicator, rows, offsetY: clientY - rect.top, isTouch, teamKey };
+  document.addEventListener(isTouch ? 'touchmove' : 'mousemove', _onDragMove, { passive: false });
+  document.addEventListener(isTouch ? 'touchend' : 'mouseup', _onDragEnd, { once: true });
+  if (isTouch) document.addEventListener('touchcancel', _onDragEnd, { once: true });
+}
+function _onDragMove(e) {
+  if (!_drag) return;
+  e.preventDefault();
+  const clientY = _drag.isTouch ? e.touches[0].clientY : e.clientY;
+  _drag.ghost.style.top = (clientY - _drag.offsetY) + 'px';
+  const n = _drag.rows.length;
+  let gap = n;
+  for (let j = 0; j < n; j++) {
+    const r = _drag.rows[j].getBoundingClientRect();
+    if (clientY < r.top + r.height / 2) { gap = j; break; }
+  }
+  _drag.gap = gap;
+  const indicatorY = gap < n
+    ? _drag.rows[gap].getBoundingClientRect().top
+    : _drag.rows[n - 1].getBoundingClientRect().bottom;
+  _drag.indicator.style.display = 'block';
+  _drag.indicator.style.top = (indicatorY - 1) + 'px';
+}
+function _onDragEnd() {
+  if (!_drag) return;
+  document.removeEventListener(_drag.isTouch ? 'touchmove' : 'mousemove', _onDragMove);
+  document.removeEventListener(_drag.isTouch ? 'touchend' : 'mouseup', _onDragEnd);
+  if (_drag.isTouch) document.removeEventListener('touchcancel', _onDragEnd);
+  const { idx, gap, teamKey } = _drag;
+  _drag.ghost.remove();
+  _drag.indicator.remove();
+  _drag.rows[idx].classList.remove('dragging');
+  _drag = null;
+  const newPos = gap > idx ? gap - 1 : gap;
+  if (newPos !== idx) {
+    const arr = teamKey === 'A' ? state.teamA : teamKey === 'B' ? state.teamB : state.teamC;
+    const moved = arr.splice(idx, 1)[0];
+    arr.splice(newPos, 0, moved);
+  }
+  renderTeams();
+}
 function renderTeams() {
   const m = getMode();
   const isSolo = m === 'solo';
@@ -1682,10 +1756,12 @@ function renderTeams() {
 
 function renderList(id, arr, team, color) {
   const el = document.getElementById(id);
-  el.innerHTML = arr.map((n, i) => `
+  const n = arr.length;
+  el.innerHTML = arr.map((name, i) => `
     <div class="player-row">
-      <span class="player-name" style="color:${color}">${profilePlayers.has(n) ? '' : TEAM_EMOJI[team] + ' '}${n}</span>
-      <button class="btn-remove" onclick="removePlayer('${team}',${i})" aria-label="Supprimer ${n}">✖</button>
+      ${n >= 2 ? `<span class="drag-handle" onmousedown="_startDrag(event,${i},'${team}')" ontouchstart="_startDrag(event,${i},'${team}')">⣿</span>` : ''}
+      <span class="player-name" style="color:${color}">${profilePlayers.has(name) ? '' : TEAM_EMOJI[team] + ' '}${name}</span>
+      <button class="btn-remove" onclick="removePlayer('${team}',${i})" aria-label="Supprimer ${name}">✖</button>
     </div>`).join('');
 }
 
