@@ -1565,7 +1565,7 @@ function draw(fi){
           '<span style="font-size:.85rem;margin-right:1px;">'+rk+'</span>'+
           '<div class="sc-name" style="color:'+pl.c+'">'+dispName+'</div>'+
         '</div>'+
-        '<div class="sc-val'+(j===fi?' fl':'')+'" style="color:'+pl.c+'">'+pl.s+'</div>'+
+        '<div class="sc-val'+(j===fi?' fl':'')+'" style="color:var(--text)">'+pl.s+'</div>'+
       '</div>'+
       '<div class="sc-bottom">'+
         '<div class="sc-bar-w" style="flex:1;margin-top:0;"><div class="sc-bar" style="background:'+pl.c+';width:'+pct+'%"></div></div>'+
@@ -2560,10 +2560,13 @@ window.addEventListener('resize',adjustSlistPadding);
 
   function handleTakeout() {
     if (typeof G === 'undefined' || !G.on) return;
-    if (dartCount === 0) return;
-    var valBtn = document.getElementById('bval');
-    if (valBtn) setTimeout(function() { valBtn.click(); }, 300);
-    dartCount = 0;
+    if (G.d === 0) return;
+    if (window._adTakeoutTimer) return;
+    window._adTakeoutTimer = setTimeout(function() {
+      window._adTakeoutTimer = null;
+      var valBtn = document.getElementById('bval');
+      if (valBtn) valBtn.click();
+    }, 300);
   }
 
   function connect(){if(ws){try{ws.close();}catch(e){}}var url=getWSUrl();try{ws=new WebSocket(url);}catch(e){scheduleReconnect();return;}ws.onopen=function(){lastNumThrows=0;dartCount=0;updateDot('connected');};ws.onmessage=function(event){try{var msg=JSON.parse(event.data);if(msg.type!=='state')return;var data=msg.data;if(data.event==='Throw detected'&&data.numThrows>lastNumThrows){injectDart(data.throws[data.numThrows-1]);lastNumThrows=data.numThrows;if(data.numThrows>=3)updateDot('takeout');else updateDot('connected');}if(data.event==='Takeoff started'){updateDot('takeout');}if(data.event==='Takeout finished'){if(adTurnResetTimer){clearTimeout(adTurnResetTimer);adTurnResetTimer=null;}if(lastNumThrows>0){lastNumThrows=0;updateDot('connected');handleTakeout();}}if(data.event==='Manual reset'){lastNumThrows=0;dartCount=0;adInTakeout=false;updateDot('connected');}}catch(e){}};ws.onclose=function(){updateDot('disconnected');if(active)scheduleReconnect();};ws.onerror=function(){updateDot('disconnected');};}
