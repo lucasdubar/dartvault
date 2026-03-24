@@ -134,12 +134,11 @@ body {
 
 /* Tableau Cricket */
 .cricket-scroll { flex: 1; min-height: 0; overflow: hidden; padding: 4px 10px; display: flex; flex-direction: column; }
-.cricket-grid { display: flex; flex-direction: column; gap: 2px; flex: 1; min-height: 0; }
+.cricket-grid { display: flex; flex-direction: column; gap: 0; flex: 1; min-height: 0; }
 
 .num-row {
   display: flex; align-items: stretch; gap: 6px;
-  border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.06); padding: 1px 8px; transition: opacity 0.3s;
+  border-bottom: 1px solid rgba(255,255,255,0.06); padding: 0 6px; transition: opacity 0.3s;
   flex: 1; min-height: 0; overflow: hidden;
 }
 .num-row:first-child { flex: 0 0 auto; } /* header keeps natural size */
@@ -147,20 +146,20 @@ body {
 .num-row:nth-child(even) { background: var(--bg2); }
 .num-row.closed-all { opacity: 0.35; }
 .num-label {
-  font-family: 'Rajdhani', sans-serif; font-size: 1.15rem; font-weight: 700;
-  color: var(--accent); min-width: 44px; text-align: center; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
+  font-family: 'Rajdhani', sans-serif; font-size: 1.35rem; font-weight: 700;
+  color: var(--accent); width: 44px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
 }
 .num-row.closed-all .num-label { color: #444; }
 @media (orientation:portrait) {
-  .num-label { display: none !important; }
-  .mark-symbol { width: clamp(22px, 8vw, 48px) !important; height: clamp(22px, 8vw, 48px) !important; }
-  .hit-btns { flex-shrink: 0; align-self: stretch; align-items: stretch; }
-  .btn-hit { align-self: stretch; display: flex; align-items: center; justify-content: center; padding: 3px 8px; }
+  .num-label { display: none !important; width: 0 !important; min-width: 0 !important; max-width: 0 !important; overflow: hidden !important; padding: 0 !important; margin: 0 !important; }
+  .mark-symbol { width: clamp(28px, 10vw, 56px) !important; height: clamp(28px, 10vw, 56px) !important; }
+  .hit-btns { flex-shrink: 0; }
+  .btn-hit { padding: 0 8px; }
 }
 
 .marks-area { display: flex; flex: 1; gap: 2px; justify-content: center; align-items: stretch; align-self: stretch; min-width: 0; overflow: hidden; }
-.player-mark-cell { flex: 1; display: flex; align-items: center; justify-content: center; min-width: 0; border-radius: 4px; padding: 0; }
+.player-mark-cell { flex: 1; display: flex; align-items: center; justify-content: center; min-width: 0; border-radius: 0; padding: 0; align-self: stretch; }
 .player-mark-cell.col-even { background: rgba(255,255,255,.04); }
 .player-mark-cell.col-odd  { background: rgba(255,255,255,.09); }
 .mark-symbol {
@@ -176,18 +175,24 @@ body {
   opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
 }
 
-.hit-btns { display: flex; gap: 4px; flex-shrink: 0; align-items: center; align-self: stretch; }
+.hit-btns { display: flex; gap: 0; flex-shrink: 0; align-items: stretch; align-self: stretch; }
 .btn-hit {
-  padding: 3px 10px; border-radius: 8px;
-  font-family: 'Rajdhani', sans-serif; font-size: 0.82rem; font-weight: 700;
+  padding: 0 10px; border-radius: 0; border-right: none;
+  font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 700;
   cursor: pointer; touch-action: manipulation; border: 1.5px solid;
-  transition: all 0.15s; min-width: 42px; text-align: center; line-height: 1.1;
+  transition: all 0.15s; min-width: 44px; text-align: center; line-height: 1;
+  align-self: stretch; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px;
 }
+.btn-hit-label { font-weight: 900; font-size: inherit; line-height: 1; }
+.btn-hit-dots { display: flex; justify-content: center; gap: 3px; }
+.btn-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; display: block; flex-shrink: 0; opacity: 0.9; }
+.btn-hit:last-child { border-right: 1.5px solid; }
 .btn-hit:active { transform: scale(0.92); }
 .btn-hit:disabled { opacity: 0.2; pointer-events: none; }
-.btn-s { background: rgba(59,110,232,0.12);  border-color: rgba(59,110,232,0.45);  color: #6B9EFF; }
-.btn-d { background: rgba(78,203,113,0.12); border-color: rgba(78,203,113,0.4);   color: var(--ok); }
-.btn-t { background: rgba(255,159,67,0.12);  border-color: rgba(255,159,67,0.45);  color: var(--warn); }
+.btn-s { background: rgba(59,110,232,0.12);  border-color: rgba(59,110,232,0.45);  color: #fff; }
+.btn-d { background: rgba(78,203,113,0.12); border-color: rgba(78,203,113,0.4);   color: #fff; }
+.btn-t { background: rgba(255,159,67,0.12);  border-color: rgba(255,159,67,0.45);  color: #fff; }
 
 /* Footer scores */
 .scores-footer {
@@ -634,9 +639,9 @@ body {
 [data-theme="light"] .player-mark-cell.col-even{background:rgba(0,0,0,.04);}
 [data-theme="light"] .player-mark-cell.col-odd{background:rgba(0,0,0,.08);}
 [data-theme="light"] .num-row.closed-all .num-label{color:#bbb;}
-[data-theme="light"] .btn-s{background:rgba(59,110,232,.08);border-color:rgba(59,110,232,.3);color:#3B6EE8;}
-[data-theme="light"] .btn-d{background:rgba(34,160,72,.08);border-color:rgba(34,160,72,.3);color:#22A048;}
-[data-theme="light"] .btn-t{background:rgba(210,120,20,.08);border-color:rgba(210,120,20,.3);color:#D27814;}
+[data-theme="light"] .btn-s{background:rgba(59,110,232,.08);border-color:rgba(59,110,232,.3);color:#000;}
+[data-theme="light"] .btn-d{background:rgba(34,160,72,.08);border-color:rgba(34,160,72,.3);color:#000;}
+[data-theme="light"] .btn-t{background:rgba(210,120,20,.08);border-color:rgba(210,120,20,.3);color:#000;}
 
 
 /* ── Profile Picker ── */
@@ -791,9 +796,9 @@ body {
   .dart-icon{width:32px;height:16px;}
 
   .cricket-scroll{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;padding:4px 10px;}
-  .cricket-grid{display:flex;flex-direction:column;flex:1;gap:2px;min-height:0;}
+  .cricket-grid{display:flex;flex-direction:column;flex:1;gap:0;min-height:0;}
   .cricket-grid .num-row:first-child{flex:0 0 auto;}
-  .cricket-grid .num-row:not(:first-child){flex:1;min-height:0;overflow:hidden;}
+  .cricket-grid .num-row:not(:first-child){flex:1;min-height:0;overflow:hidden;max-height:72px;}
 
   div[style*="height:62px"]{display:none!important;}
   .hist-inline-ls{display:flex;}
@@ -836,17 +841,17 @@ body {
   .cur-player-score{font-size:2.4rem;}
 
   .cricket-scroll{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;padding:6px 16px;}
-  .cricket-grid{display:flex;flex-direction:column;flex:1;gap:4px;min-height:0;}
+  .cricket-grid{display:flex;flex-direction:column;flex:1;gap:0;min-height:0;}
   .cricket-grid .num-row:first-child{flex:0 0 auto;}
-  .cricket-grid .num-row:not(:first-child){flex:1;min-height:0;overflow:hidden;}
+  .cricket-grid .num-row:not(:first-child){flex:1;min-height:0;overflow:hidden;max-height:80px;}
 
-  /* Lignes plus aérées */
-  .num-row{padding:4px 16px;gap:12px;}
+  /* Lignes sans padding vertical pour remplissage complet */
+  .num-row{padding:0 16px;gap:12px;}
   .player-mark-cell{padding:0 4px;gap:0;}
-  .num-label{font-size:1.5rem;min-width:58px;}
+  .num-label{font-size:1.5rem;width:58px;}
 
   /* Marques : taille tablette */
-  .mark-symbol{width:clamp(28px, 5vmin, 52px)!important;height:clamp(28px, 5vmin, 52px)!important;}
+  .mark-symbol{width:clamp(36px, 7vmin, 62px)!important;height:clamp(36px, 7vmin, 62px)!important;}
 
   /* Noms + scores dans l'en-tête (override inline styles JS) */
   .num-row:first-child .player-mark-cell > div:first-child{font-size:1.2rem!important;}
@@ -854,7 +859,7 @@ body {
 
   /* Boutons de saisie : flex pour remplir la hauteur */
   .hit-btns{display:flex;align-items:stretch;align-self:stretch;justify-content:center;}
-  .btn-hit{padding:4px 16px;font-size:1.1rem;min-width:72px;flex:0;display:flex;align-items:center;justify-content:center;}
+  .btn-hit{padding:4px 12px;font-size:1.25rem;min-width:72px;flex:0;display:flex;align-items:center;justify-content:center;}
 
   /* Barre du bas */
   .bot-bar{padding:12px 16px;gap:10px;}
@@ -1420,7 +1425,7 @@ const ALL_NUMS      = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,'B'];
 const DEFAULT_NUMS  = [20, 19, 18, 17, 16, 15, 'B'];
 const NUM_LABELS    = { 20:'20', 19:'19', 18:'18', 17:'17', 16:'16', 15:'15', 14:'14', 13:'13', 12:'12', 11:'11', 10:'10', 9:'9', 8:'8', 7:'7', 6:'6', 5:'5', 4:'4', 3:'3', 2:'2', 1:'1', B:'BULL' };
 let CRICKET_NUMS    = [...DEFAULT_NUMS];
-const TEAM_COLORS   = ['#3B6EE8','#8B6914','#C934C9','#28C76F','#FF6B6B','#FF9F43'];
+const TEAM_COLORS   = ['#3B6EE8','#E8B800','#C934C9','#28C76F','#FF6B6B','#FF9F43'];
 const TEAM_EMOJIS   = ['🔵','🟡','🟣','🟢','🔴','🟠'];
 const PODIUM_ICONS  = ['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣'];
 
@@ -2150,21 +2155,20 @@ function renderGrid() {
     const isBull = (num === 'B');
     const btnDefs = isBull
       ? [
-          { l: numLabel, s: '',   m: 1, c: 'btn-s', fs: '1rem'    },
-          { l: 'D',      s: '×2', m: 2, c: 'btn-d', fs: '0.85rem' },
+          { l: 'BULL', dots: 1, m: 1, c: 'btn-s' },
+          { l: 'Eye+', dots: 2, m: 2, c: 'btn-d' },
         ]
       : [
-          { l: numLabel, s: '',   m: 1, c: 'btn-s', fs: '1rem'    },
-          { l: 'D',      s: '×2', m: 2, c: 'btn-d', fs: '0.85rem' },
-          { l: 'T',      s: '×3', m: 3, c: 'btn-t', fs: '0.85rem' },
+          { l: numLabel, dots: 1, m: 1, c: 'btn-s' },
+          { l: numLabel, dots: 2, m: 2, c: 'btn-d' },
+          { l: numLabel, dots: 3, m: 3, c: 'btn-t' },
         ];
-    btnDefs.forEach(({l, s, m, c, fs}) => {
+    btnDefs.forEach(({l, dots, m, c}) => {
       const btn = document.createElement('button');
       btn.className = `btn-hit ${c}`;
       if (isBull) btn.style.cssText = 'flex:1;';
-      btn.innerHTML = s
-        ? `<span style="font-size:${fs};font-weight:900;">${l}</span><span style="font-size:0.6rem;margin-left:3px;opacity:.8;">${s}</span>`
-        : `<span style="font-size:${fs};font-weight:900;">${l}</span>`;
+      const dotsHtml = Array(dots).fill('<span class="btn-dot"></span>').join('');
+      btn.innerHTML = `<span class="btn-hit-label">${l}</span><span class="btn-hit-dots">${dotsHtml}</span>`;
       btn.disabled = closedAll;
       btn.addEventListener('click', () => handleHit(num, m));
       btns.appendChild(btn);
@@ -2216,12 +2220,12 @@ function renderGrid() {
       if (centerSplit) {
         // 4, 6 joueurs : [marks-gauche] [num] [marks-droite] [btns]
         const areaLeft = document.createElement('div');
-        areaLeft.className = 'marks-area';
+        areaLeft.className = 'marks-area marks-area-L';
         for (let pi = 0; pi < leftCount; pi++) areaLeft.appendChild(buildMarkCell3p(G.players[pi], pi));
         row.appendChild(areaLeft);
         row.appendChild(numEl);
         const areaRight = document.createElement('div');
-        areaRight.className = 'marks-area';
+        areaRight.className = 'marks-area marks-area-R';
         for (let pi = leftCount; pi < n; pi++) areaRight.appendChild(buildMarkCell3p(G.players[pi], pi));
         row.appendChild(areaRight);
       } else {

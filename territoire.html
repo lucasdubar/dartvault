@@ -41,7 +41,7 @@
     --text:#F0F0F0; --dim:#606468; --text-dim:#777777;
     --team-a: #3B6EE8;
     --team-a-glow: rgba(59,110,232,0.4);
-    --team-b: #8B6914;
+    --team-b: #E8B800;
     --team-b-glow: rgba(212,160,23,0.4);
     --team-c: #C934C9;
     --team-c-glow: rgba(201,52,201,0.4);
@@ -1287,7 +1287,7 @@
       </div>
       <div class="score-dp team-b" id="score-b">
         <div class="score-dp-lbl" id="score-b-lbl">🟡 JAUNE</div>
-        <div class="score-dp-val" style="color:#8B6914" id="score-b-val">0</div>
+        <div class="score-dp-val" style="color:#E8B800" id="score-b-val">0</div>
         <div class="score-dp-name" id="score-b-name"></div>
       </div>
       <div class="score-dp team-c hidden" id="score-c">
@@ -1746,7 +1746,7 @@ function renderTeams() {
   const m = getMode();
   const isSolo = m === 'solo';
   renderList('team-a-list', state.teamA, 'A', '#3B6EE8');
-  renderList('team-b-list', state.teamB, 'B', '#8B6914');
+  renderList('team-b-list', state.teamB, 'B', '#E8B800');
   renderList('team-c-list', state.teamC, 'C', '#C934C9');
   const la = document.getElementById('label-team-a');
   const lb = document.getElementById('label-team-b');
@@ -1860,7 +1860,7 @@ function startGame() {
 // ═══════════════════════════════════════════════════════════════════
 // GAME DISPLAY
 // ═══════════════════════════════════════════════════════════════════
-const TEAM_COLORS = { A: '#3B6EE8', B: '#8B6914', C: '#C934C9' };
+const TEAM_COLORS = { A: '#3B6EE8', B: '#E8B800', C: '#C934C9' };
 const TEAM_EMOJI  = { A: '🔵', B: '🟡', C: '🟣' };
 
 // ── AUDIO + HAPTIC ──────────────────────────────────────────────
@@ -2108,7 +2108,7 @@ function renderBoard() {
   hi.innerHTML = ''; shields.innerHTML = '';
 
   // Filtres glow par équipe
-  const TEAM_GLOW = { A: '#3B6EE8', B: '#8B6914', C: '#C934C9' };
+  const TEAM_GLOW = { A: '#3B6EE8', B: '#E8B800', C: '#C934C9' };
   ['A','B','C'].forEach(team => {
     const f = document.createElementNS('http://www.w3.org/2000/svg','filter');
     f.setAttribute('id', `glow_T${team}`);
@@ -2824,7 +2824,7 @@ document.getElementById('history-drawer').addEventListener('click', e => { if (e
 // ── ZONES DRAWER ──
 document.getElementById('btn-zones').addEventListener('click', () => {
   const drawer = document.getElementById('zones-remaining');
-  const COLORS = { A: '#3B6EE8', B: '#8B6914', C: '#C934C9' };
+  const COLORS = { A: '#3B6EE8', B: '#E8B800', C: '#C934C9' };
   const teams = state.gameMode === 'solo' && state.teamC.length > 0
     ? ['A','B','C'] : ['A','B'];
 

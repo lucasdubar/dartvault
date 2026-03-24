@@ -427,6 +427,12 @@ body { font-family:'Exo 2',sans-serif; background:var(--bg); color:var(--text); 
   box-shadow: 0 0 6px rgba(22,23,24,.08) !important;
 }
 
+/* ── Boutons difficulté ── */
+.btn-difficulty-dp{padding:8px 12px;border-radius:10px;background:var(--bg3);border:1.5px solid rgba(61,142,255,.2);color:var(--dim);font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;touch-action:manipulation;}
+.btn-difficulty-dp.selected{border-color:var(--ok);color:var(--ok);background:rgba(40,199,111,.08);box-shadow:0 0 8px rgba(40,199,111,.25);}
+.btn-difficulty-dp.hard.selected{border-color:var(--danger);color:var(--danger);background:rgba(220,53,69,.08);box-shadow:0 0 8px rgba(220,53,69,.2);}
+.btn-difficulty-dp:active{transform:scale(.97);}
+
 /* ── Bouton difficulté selected ── */
 [data-theme="dark"] .btn-difficulty.selected,
 [data-theme="dark"] .btn-difficulty-dp.selected,
@@ -1104,20 +1110,18 @@ body { font-family:'Exo 2',sans-serif; background:var(--bg); color:var(--text); 
   <!-- Panneau configuration -->
   <div class="card">
     <div style="display:flex;flex-direction:column;gap:14px;">
-      <div>
-        <div class="card-title">⚓ Difficulté</div>
-        <div class="pill-group">
-          <label class="pill-label"><input type="radio" name="difficulty" value="easy" checked><span class="pill">Facile</span></label>
-          <label class="pill-label"><input type="radio" name="difficulty" value="normal"><span class="pill">Normal</span></label>
-          <label class="pill-label"><input type="radio" name="difficulty" value="hard"><span class="pill">Difficile</span></label>
+      <div style="display:flex;align-items:flex-start;gap:12px;">
+        <div>
+          <div class="card-title">⚓ Difficulté</div>
+          <button class="btn-difficulty-dp selected" id="btn-difficulty-bt">😊 Facile</button>
         </div>
-      </div>
-      <div id="ship-count-row">
-        <div class="card-title" data-i18n="bt_ships">🚢 Nombre de bateaux</div>
-        <div class="pill-group">
-          <label class="pill-label"><input type="radio" name="nb-ships" value="2"><span class="pill">2</span></label>
-          <label class="pill-label"><input type="radio" name="nb-ships" value="3" checked><span class="pill">3</span></label>
-          <label class="pill-label"><input type="radio" name="nb-ships" value="4"><span class="pill">4</span></label>
+        <div id="ship-count-row">
+          <div class="card-title" data-i18n="bt_ships">🚢 Nb de bateaux</div>
+          <div class="pill-group">
+            <label class="pill-label"><input type="radio" name="nb-ships" value="2"><span class="pill">2</span></label>
+            <label class="pill-label"><input type="radio" name="nb-ships" value="3" checked><span class="pill">3</span></label>
+            <label class="pill-label"><input type="radio" name="nb-ships" value="4"><span class="pill">4</span></label>
+          </div>
         </div>
       </div>
       <div>
@@ -1656,6 +1660,7 @@ const TEAM_EMOJI = { A:'🔵', B:'🟡' };
 const profilePlayers = new Set();
 // Ship defs selon nombre de bateaux choisi et difficulté
 let GAME_DIFFICULTY = 'easy'; // 'easy' | 'normal' | 'hard'
+let selectedNbShips = 3;
 
 function getShipDefs(n, difficulty) {
   const diff = difficulty || GAME_DIFFICULTY;
@@ -1886,7 +1891,7 @@ function allNames() { return [...teams.A, ...teams.B]; }
 
 // Lecture config
 function getSelectedShipCount() {
-  return parseInt(document.querySelector('input[name="nb-ships"]:checked').value);
+  return selectedNbShips;
 }
 function getSelectedMode() {
   return document.querySelector('input[name="game-mode"]:checked').value;
@@ -3000,15 +3005,31 @@ function goSetup() {
 // ════════════════════════════════════════════════
 // EVENTS
 // ════════════════════════════════════════════════
-// Show/hide ship count row based on difficulty
-document.querySelectorAll('input[name="difficulty"]').forEach(radio => {
-  radio.addEventListener('change', () => {
-    const diff = document.querySelector('input[name="difficulty"]:checked')?.value || 'easy';
-    GAME_DIFFICULTY = diff;
-    const row = document.getElementById('ship-count-row');
-    if (row) row.style.display = diff === 'easy' ? '' : 'none';
+// Bouton difficulté (cycle Facile → Normal → Difficile)
+(function() {
+  var states = [
+    { val:'easy',   label:'😊 Facile',    cls:'selected' },
+    { val:'normal', label:'⚔️ Normal',    cls:'selected' },
+    { val:'hard',   label:'💀 Difficile', cls:'selected hard' }
+  ];
+  var idx = 0;
+  var btn = document.getElementById('btn-difficulty-bt');
+  btn.addEventListener('click', function() {
+    idx = (idx + 1) % states.length;
+    var s = states[idx];
+    btn.textContent = s.label;
+    btn.className = 'btn-difficulty-dp ' + s.cls;
+    GAME_DIFFICULTY = s.val;
+    var row = document.getElementById('ship-count-row');
+    if (row) row.style.display = s.val === 'easy' ? '' : 'none';
   });
-});
+  // Nb bateaux via radio
+  document.querySelectorAll('input[name="nb-ships"]').forEach(function(r) {
+    r.addEventListener('change', function() {
+      selectedNbShips = parseInt(this.value);
+    });
+  });
+})();
 
 document.getElementById('btn-start').addEventListener('click', () => {
   haptic('success');
@@ -3020,8 +3041,7 @@ document.getElementById('btn-start').addEventListener('click', () => {
     showSetupToast(DV_LANG.t('err_solo1b'), '#F44336'); return;
   }
   // Appliquer la config choisie
-  const n = parseInt(document.querySelector('input[name="nb-ships"]:checked').value);
-  GAME_DIFFICULTY = document.querySelector('input[name="difficulty"]:checked')?.value || 'easy';
+  const n = selectedNbShips;
   SHIP_DEFS = getShipDefs(n, GAME_DIFFICULTY);
   setupMode = mode;
   startPlacement();
