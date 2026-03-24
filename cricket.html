@@ -187,7 +187,7 @@ body {
 .btn-hit-label { font-weight: 900; font-size: inherit; line-height: 1; }
 .btn-hit-dots { display: flex; justify-content: center; gap: 3px; }
 .btn-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; display: block; flex-shrink: 0; opacity: 0.9; }
-.btn-hit:last-child { border-right: 1.5px solid; }
+.btn-hit:last-child { border-right-width: 1.5px; border-right-style: solid; }
 .btn-hit:active { transform: scale(0.92); }
 .btn-hit:disabled { opacity: 0.2; pointer-events: none; }
 .btn-s { background: rgba(59,110,232,0.12);  border-color: rgba(59,110,232,0.45);  color: #fff; }
@@ -1197,6 +1197,13 @@ if (screen.orientation && screen.orientation.lock) {
 
 </div>
 </div>
+
+<!-- ══ PORTRAIT LOCK OVERLAY (fallback si API échoue) ══ -->
+<div id="portrait-lock-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--bg2);flex-direction:column;align-items:center;justify-content:center;gap:20px;font-family:'Rajdhani',sans-serif;text-align:center;padding:24px;">
+  <div style="font-size:3.5rem;animation:_rotHint 1.8s ease-in-out infinite;">📱</div>
+  <div style="font-size:1.3rem;font-weight:700;color:var(--text);" data-i18n="rotate_portrait">Tournez votre téléphone</div>
+</div>
+<style>@keyframes _rotHint{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-90deg)}}</style>
 
 <!-- ══ MODAL CUSTOM PICKER ══ -->
 <div class="modal-ov" id="custom-modal">
@@ -2261,16 +2268,37 @@ function renderFooter() {
 // ORIENTATION LOCK (phone portrait only)
 // ════════════════════════════════════════════════
 function _isPhone() { return Math.min(screen.width, screen.height) < 700; }
+let _gameLockActive = false;
+
+function _checkOrientationOverlay() {
+  const ov = document.getElementById('portrait-lock-overlay');
+  if (!ov) return;
+  const show = _gameLockActive && (window.innerWidth > window.innerHeight);
+  ov.style.display = show ? 'flex' : 'none';
+}
+window.addEventListener('resize', _checkOrientationOverlay);
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && _gameLockActive && _isPhone()) {
+    if (screen.orientation && screen.orientation.lock) {
+      screen.orientation.lock('portrait').catch(() => {});
+    }
+  }
+});
+
 function lockPortraitOnPhone() {
   if (!_isPhone()) return;
+  _gameLockActive = true;
   if (screen.orientation && screen.orientation.lock) {
     screen.orientation.lock('portrait').catch(() => {});
   }
+  _checkOrientationOverlay();
 }
 function unlockOrientation() {
+  _gameLockActive = false;
   if (screen.orientation && screen.orientation.unlock) {
     screen.orientation.unlock();
   }
+  _checkOrientationOverlay();
 }
 
 // ════════════════════════════════════════════════
