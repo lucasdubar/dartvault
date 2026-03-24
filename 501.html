@@ -988,8 +988,8 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
   #screen-setup{overflow-y:auto;}
   .setup-wrap{max-width:540px;margin:0 auto;padding-top:16px;}
 
-  /* ── Pad tablette portrait : élastique, max 50vh ── */
-  .bottom-fixed{position:static!important;flex:1;display:flex;flex-direction:column;max-height:50vh;}
+  /* ── Pad tablette portrait : exactement 50vh ── */
+  .bottom-fixed{position:static!important;flex:0 0 50vh;height:50vh;display:flex;flex-direction:column;overflow:hidden;}
   .android-spacer{display:none!important;}
   div[style*="height:8px"]{display:none!important;}
 
@@ -1016,6 +1016,29 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
   .nkey.kval-dart{font-size:1.05rem;}
   .dart-slot{height:63px;font-size:1.5rem;border-radius:10px;}
   .dart-darts-row{gap:6px;margin-bottom:6px;}
+
+  /* ── Zone joueur actif : plus grande sur tablette ── */
+  .active-name{font-size:2.4rem!important;}
+  .score-big{font-size:5rem!important;}
+
+  /* ── Scoreboard tablette portrait ── */
+  .players-list-wrap{display:flex;flex-direction:column;}
+  /* Duel (1-4j) : étirement, overflow caché */
+  .players-list-wrap:has(.players-grid-duel){overflow:hidden;}
+  .players-grid-duel{flex:1;min-height:0;align-content:stretch;grid-auto-rows:1fr;}
+  /* Container query uniquement sur les cartes duel (hauteur définie par la grille) */
+  .players-grid-duel .player-card-501{container-type:size;padding:10px 14px!important;}
+  .players-grid-duel .pc-name-duel{font-size:clamp(1rem,10cqb,2.5rem)!important;}
+  .players-grid-duel .pc-score-duel{font-size:clamp(2rem,24cqb,6rem)!important;}
+  .players-grid-duel .pc-last-duel{font-size:clamp(.8rem,7cqb,1.5rem)!important;}
+  .players-grid-duel .pc-stat-lbl{font-size:clamp(.6rem,5cqb,1rem)!important;}
+  .players-grid-duel .pc-stat-val{font-size:clamp(.75rem,6cqb,1.2rem)!important;}
+  /* 5-6j : scroll, fontes fixes adaptées tablette */
+  .players-list-wrap:has(.players-grid-inner){overflow-y:auto;}
+  .pc-name{font-size:1.15rem!important;}
+  .pc-score{font-size:2rem!important;}
+  .pc-avg{font-size:.8rem!important;}
+  .player-card-501{padding:10px 12px!important;}
 }
 
 /* ══ Tablette paysage (≥1024px) ══ */
@@ -1782,9 +1805,10 @@ function addPlayer() {
     inp.value = ''; inp.focus();
     return;
   }
+  const _nc=getNextColor(G.players);
   G.players.push({
-    name, color: getNextColor(G.players),
-    emoji: PLAYER_EMOJIS[G.players.length % PLAYER_EMOJIS.length],
+    name, color: _nc,
+    emoji: PLAYER_EMOJIS[PLAYER_COLORS.indexOf(_nc)],
     score: 0, legs: 0,
     throws: [],
     dartsThrown: 0,
@@ -2178,7 +2202,7 @@ function renderPlayersGrid(flashIdx) {
         <div class="pc-left">
           <div class="pc-dot"></div>
           <div class="pc-name" style="color:${pl.color}">${(()=>{
-            const mx = isPortrait ? (n>=6?4:n>=5?5:n>=4?7:99) : 99;
+            const mx = isPortrait ? (n>=6?4:n>=5?5:(n>=4&&!isMedium)?7:99) : 99;
             return pl.name.length>mx ? pl.name.substring(0,mx)+'.' : pl.name;
           })()}</div>
           ${G.doubleIn && !pl.doubleInDone ? '<span style="font-family:Rajdhani,sans-serif;font-size:.62rem;font-weight:700;color:#FF9F43;background:rgba(255,159,67,.15);border:1px solid rgba(255,159,67,.4);border-radius:4px;padding:0 5px;margin-left:3px;flex-shrink:0;">DI</span>' : ''}
@@ -2244,7 +2268,7 @@ function renderPlayersGrid(flashIdx) {
   }
 
   const gridClass = isCompact ? 'players-grid-inner players-grid-compact'
-                  : isMedium ? 'players-grid-inner players-grid-medium'
+                  : isMedium ? 'players-grid-inner players-grid-medium players-grid-single'
                   : (isTabletPortrait && n >= 5) ? 'players-grid-inner players-grid-single'
                   : (!isTablet && isPortrait && n === 3) ? 'players-grid-inner players-grid-single'
                   : 'players-grid-inner';
@@ -2257,10 +2281,8 @@ function adjustPlayersListPadding() {
   const wrap = document.getElementById('players-list-game');
   const bf = document.querySelector('.bottom-fixed');
   if (!wrap || !bf) return;
-  const isPortrait = window.matchMedia('(orientation:portrait)').matches;
-  const isLandscapeDesktop = !isPortrait && window.innerWidth >= 700;
-  if (isLandscapeDesktop) { wrap.style.paddingBottom = ''; return; }
-  wrap.style.paddingBottom = bf.offsetHeight + 'px';
+  const isFixed = getComputedStyle(bf).position === 'fixed';
+  wrap.style.paddingBottom = isFixed ? bf.offsetHeight + 'px' : '';
 }
 window.addEventListener('resize', adjustPlayersListPadding);
 
@@ -4156,10 +4178,11 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
       if (G.players.length >= 6) return;
       if (G.players.some(p => p.name.toLowerCase() === fullName.toLowerCase())) return;
       saveRecent(fullName);
+      const _nc=getNextColor(G.players);
       G.players.push({
         name: fullName, fromProfile: true,
-        color: getNextColor(G.players),
-        emoji: PLAYER_EMOJIS[G.players.length % PLAYER_EMOJIS.length],
+        color: _nc,
+        emoji: PLAYER_EMOJIS[PLAYER_COLORS.indexOf(_nc)],
         score: 0, legs: 0, sets: 0, legsInSet: 0,
         throws: [], dartsThrown: 0,
         doubleAttempts: 0, doubleHits: 0,
@@ -4193,10 +4216,11 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     if (G.players.length >= 6) { showToast(DV_LANG.t('err_max_players').replace('{n}','6')); return; }
     const fullName = emoji + ' ' + name;
     if (G.players.some(p => p.name.toLowerCase() === fullName.toLowerCase())) { showToast(DV_LANG.t('err_name_taken')); return; }
+    const _nc=getNextColor(G.players);
     G.players.push({
       name: fullName, fromProfile: true,
-      color: getNextColor(G.players),
-      emoji: PLAYER_EMOJIS[G.players.length % PLAYER_EMOJIS.length],
+      color: _nc,
+      emoji: PLAYER_EMOJIS[PLAYER_COLORS.indexOf(_nc)],
       score: 0, legs: 0, sets: 0, legsInSet: 0,
       throws: [], dartsThrown: 0,
       doubleAttempts: 0, doubleHits: 0,

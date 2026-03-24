@@ -805,8 +805,8 @@ function addPlayer(){
   if(!name){if(typeof openProfilePicker==='function')openProfilePicker();return;}
   if(G.players.length>=6){showToast('Maximum 6 joueurs');return;}
   if(G.players.some(p=>p.name.toLowerCase()===name.toLowerCase())){showToast(DV_LANG.t('err_name_taken'));inp.value='';inp.focus();return;}
-  const idx=G.players.length;
-  G.players.push({name,color:getNextColor(G.players),emoji:PLAYER_EMOJIS[idx%6],targetIdx:0,hitsOnCurrent:0,fromProfile:false,totalDarts:0,totalHits:0,lastTurnDarts:[]});
+  const _c=getNextColor(G.players);
+  G.players.push({name,color:_c,emoji:PLAYER_EMOJIS[PLAYER_COLORS.indexOf(_c)],targetIdx:0,hitsOnCurrent:0,fromProfile:false,totalDarts:0,totalHits:0,lastTurnDarts:[]});
   inp.value='';inp.focus();renderSetupList();
 }
 function removePlayer(i){G.players.splice(i,1);renderSetupList();}
@@ -1873,8 +1873,8 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
       if(G.players.length>=6)return;
       if(G.players.some(p=>p.name.toLowerCase()===fullName.toLowerCase()))return;
       sr(fullName);
-      const idx=G.players.length;
-      G.players.push({name:fullName,color:getNextColor(G.players),emoji:PLAYER_EMOJIS[idx%6],targetIdx:0,hitsOnCurrent:0,fromProfile:true,totalDarts:0,totalHits:0,lastTurnDarts:[]});
+      const _c=getNextColor(G.players);
+      G.players.push({name:fullName,color:_c,emoji:PLAYER_EMOJIS[PLAYER_COLORS.indexOf(_c)],targetIdx:0,hitsOnCurrent:0,fromProfile:true,totalDarts:0,totalHits:0,lastTurnDarts:[]});
     });
     renderSetupList();
     closeProfilePicker();

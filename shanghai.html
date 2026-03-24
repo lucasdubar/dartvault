@@ -1407,7 +1407,8 @@ function addPlayer() {
   if (!name) { if (typeof openProfilePicker === "function") openProfilePicker(); return; }
   if (state.players.length >= 6) { showToast(DV_LANG.t('err_max_players').replace('{n}','6')); return; }
   if (state.players.some(p => p.name.toLowerCase() === name.toLowerCase())) { showToast(DV_LANG.t('err_name_taken')); inp.value=''; inp.focus(); return; }
-  state.players.push({ name, score: 0, color: getNextColor(state.players), emoji: PLAYER_EMOJIS[state.players.length % PLAYER_EMOJIS.length], roundHits: {s:false,d:false,t:false}, roundHistory: [] });
+  const _c=getNextColor(state.players);
+  state.players.push({ name, score: 0, color: _c, emoji: PLAYER_EMOJIS[PLAYER_COLORS.indexOf(_c)], roundHits: {s:false,d:false,t:false}, roundHistory: [] });
   inp.value = ''; inp.focus();
   renderSetupList();
 }
@@ -2591,7 +2592,8 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
       if (state.players.length >= 6) return;
       if (state.players.some(function(p) { return p.name.toLowerCase() === fullName.toLowerCase(); })) return;
       saveRecent(fullName);
-      state.players.push({name:fullName, score:0, color:getNextColor(state.players), emoji:PLAYER_EMOJIS[state.players.length % PLAYER_EMOJIS.length], fromProfile:true, roundHits:{s:false,d:false,t:false}, roundHistory:[]});
+      const _c=getNextColor(state.players);
+      state.players.push({name:fullName, score:0, color:_c, emoji:PLAYER_EMOJIS[PLAYER_COLORS.indexOf(_c)], fromProfile:true, roundHits:{s:false,d:false,t:false}, roundHistory:[]});
     });
     renderSetupList();
     closeProfilePicker();
@@ -2619,7 +2621,8 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     const fullName = emoji + ' ' + name;
     if (state.players.length >= 6) { if(typeof showToast==='function') showToast(DV_LANG.t('err_max_players').replace('{n}','6')); return; }
     if (state.players.some(p => p.name.toLowerCase() === fullName.toLowerCase())) { if(typeof showToast==='function') showToast(DV_LANG.t('err_name_taken')); return; }
-    state.players.push({ name: fullName, score: 0, color: getNextColor(state.players), emoji: PLAYER_EMOJIS[state.players.length % PLAYER_EMOJIS.length], fromProfile: true, roundHits: {s:false,d:false,t:false}, roundHistory: [] });
+    const _c=getNextColor(state.players);
+    state.players.push({ name: fullName, score: 0, color: _c, emoji: PLAYER_EMOJIS[PLAYER_COLORS.indexOf(_c)], fromProfile: true, roundHits: {s:false,d:false,t:false}, roundHistory: [] });
     renderSetupList();
   };
 

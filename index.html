@@ -819,6 +819,7 @@
     }
     .gc-back {
       transform:rotateY(180deg);
+      container-type:inline-size;
       background:linear-gradient(160deg, var(--bg1) 0%, var(--bg2) 100%);
       border:1.5px solid var(--gc-col,rgba(255,255,255,.18));
       align-items:center; justify-content:center; gap:12px; padding:20px 16px;
@@ -856,11 +857,12 @@
     .game-card.gc-flip.flipped .gc-back { pointer-events:auto; }
     /* Verso : titre */
     .gc-back-title {
-      font-family:'Rajdhani',sans-serif; font-size:1.5rem; font-weight:800;
+      font-family:'Rajdhani',sans-serif; font-size:clamp(0.85rem,4.5vw,1.5rem); font-weight:800;
       line-height:1.1; letter-spacing:2px; text-transform:uppercase; text-align:center;
       color:var(--gc-col,var(--accent)); position:relative; z-index:1;
     }
     [data-key="territoire"] .gc-back-title { font-size:1.1rem; letter-spacing:1px; }
+    [data-key="bataille"] .gc-back-title { font-size:clamp(0.85rem,10cqi,1.5rem); letter-spacing:1px; }
     /* Verso : séparateur */
     .gc-back-sep {
       width:32px; height:2px; border-radius:2px;
@@ -985,7 +987,7 @@
       border:1px solid rgba(232,197,71,.12);
     }
     .welcome-icon {
-      font-size:2.6rem; line-height:1; display:block;
+      width:52px; height:52px; display:block; object-fit:contain;
       filter:drop-shadow(0 0 12px rgba(232,197,71,.7));
     }
     @keyframes welcomeBounce {
@@ -1151,7 +1153,7 @@
       <div class="welcome-inner">
         <div class="welcome-brand">
           <div class="welcome-icon-wrap">
-            <span class="welcome-icon">🎯</span>
+            <img class="welcome-icon" src="logo-hub.png" alt="DartVault">
           </div>
           <div class="welcome-brand-name">DARTVAULT</div>
         </div>
@@ -1361,7 +1363,7 @@
           <button class="fav-btn" data-key="shooter" onclick="toggleFav(event,'shooter')">☆</button>
           <button class="info-btn" onclick="showRules(event,'battleroyal')">i</button>
           <span class="game-icon">💥</span>
-          <div class="game-name">BATTLE ROYAL</div>
+          <div class="game-name">BAT. ROYALE</div>
           <div class="game-description" data-i18n="desc_battleroyal">Tire, esquive, élimine — dernier debout l'emporte !</div>
           <div class="game-players"><span data-i18n="players_battleroyal">👥 2 – 4 joueurs</span></div>
         </div>
@@ -1636,7 +1638,7 @@
         support_title: 'Soutenir DartVault',
         support_desc: 'DartVault est 100% gratuit et sans pub. Si l\'appli vous plaît, un petit coup de pouce aide à la maintenir et l\'améliorer !',
         close: 'Fermer',
-        name_territoire: 'TERRITOIRE', name_bataille: 'BATAILLE NAVALE',
+        name_territoire: 'TERRITOIRE', name_bataille: 'BAT. NAVALE',
         gcbt_bataille: 'BATAILLE<br>NAVALE',
         gc_rules: 'RÈGLES', gc_play: 'JOUER',
         hub_tournament: 'CHAMPIONNAT', check_update: 'Vérifier les mises à jour',
@@ -2968,7 +2970,7 @@
       // Fallback if SW never responds (local dev)
       setTimeout(function() {
         var el = document.getElementById('app-version');
-        if (el && !el.textContent) el.textContent = 'v2.37';
+        if (el && !el.textContent) el.textContent = 'v2.38';
       }, 2000);
     }, 2000);
 

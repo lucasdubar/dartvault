@@ -156,8 +156,8 @@ input[type=number]{-moz-appearance:textfield;}
 .nkey.k0{grid-column:span 2;}
 .nkey.kdel{background:rgba(220,53,69,.1);border-color:rgba(220,53,69,.3);color:var(--red2);font-size:1.1rem;}
 .nkey.kdel:active{background:rgba(220,53,69,.25);}
-.nkey.kval{flex:1;background:rgba(40,199,111,.15);border:1.5px solid rgba(40,199,111,.4);color:var(--ok);font-size:1rem;font-weight:900;letter-spacing:1px;}
-.nkey.kval:active{background:rgba(40,199,111,.3);transform:scale(.97);}
+.nkey.kval{flex:1;background:var(--accent);color:#000;border-color:var(--accent);font-size:1rem;font-weight:900;letter-spacing:1px;box-shadow:0 3px 14px rgba(232,232,232,.3);}
+.nkey.kval:active{background:#c9a830;transform:scale(.97);}
 .nkey.kval.disabled{opacity:.3;pointer-events:none;box-shadow:none;}
 .nkey.kundo{flex:1;background:rgba(255,159,67,.12);border:1.5px solid rgba(255,159,67,.35);color:var(--warn);font-size:.9rem;font-weight:700;letter-spacing:.5px;}
 .nkey.kundo:active{background:rgba(255,159,67,.25);}
@@ -273,10 +273,10 @@ input[type=number]{-moz-appearance:textfield;}
 
 /* ── Numpad touche valider ── */
 [data-theme="dark"] .nkey.kval {
-  background:rgba(40,199,111,.15)!important;border-color:rgba(40,199,111,.4)!important;color:var(--ok)!important;box-shadow:none!important;
+  background:var(--accent)!important;color:#111213!important;border-color:var(--accent)!important;box-shadow:0 3px 14px rgba(232,232,232,.3)!important;
 }
 [data-theme="light"] .nkey.kval {
-  background:rgba(26,138,74,.12)!important;border-color:rgba(26,138,74,.35)!important;color:var(--ok)!important;box-shadow:none!important;
+  background:var(--accent)!important;color:#F7F0F2!important;border-color:var(--accent)!important;box-shadow:0 3px 14px rgba(22,23,24,.25)!important;
 }
 
 /* ── Score principal (501 score-big, blackjack score-display) ── */
@@ -610,6 +610,24 @@ input[type=number]{-moz-appearance:textfield;}
 .hist-inline-ls-list::-webkit-scrollbar{width:3px;}
 .hist-inline-ls-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px;}
 
+/* ══ Téléphone portrait : pad fixe, joueurs scrollables ══ */
+@media (max-width:767px) and (orientation:portrait){
+  /* Annule la réduction compact : le pad garde toujours la même hauteur */
+  .compact-numpad .nkey{height:47px!important;font-size:1.3rem!important;}
+  /* 1-4j : 1 joueur par ligne */
+  .players-grid{grid-template-columns:1fr!important;}
+  /* 5-6j : 2 colonnes */
+  .game-screen-wrap.grid-2col-ls .players-grid{grid-template-columns:repeat(2,1fr)!important;}
+  /* Chip horizontal : nom gauche · score centré · argent droite */
+  .players-grid .player-chip{padding:12px 14px;min-height:56px;text-align:left;}
+  .players-grid .player-chip .chip-main-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px;width:100%;}
+  .players-grid .player-chip .chip-name{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;margin:0;font-size:1.1rem;}
+  .players-grid .player-chip .chip-score-wrap{text-align:center;}
+  .players-grid .player-chip .chip-score-v{font-size:1.9rem;}
+  .players-grid .player-chip .chip-score-v.pending{font-size:1.2rem;}
+  .players-grid .player-chip .chip-money-v{margin:0;font-size:.9rem;padding:3px 8px;justify-self:end;}
+}
+
 /* ══ Tablette portrait (≥768px) ══ */
 @media (min-width:768px) and (orientation:portrait){
   .target-num{font-size:4rem;}
@@ -618,6 +636,60 @@ input[type=number]{-moz-appearance:textfield;}
   .bj-cur-money{font-size:1.3rem;}
   .round-label{font-size:.95rem;padding:5px 16px;}
   .target-banner{padding:12px 20px;}
+
+  /* ── Pad exactement 50vh, cartes au-dessus ── */
+  .bottom-fixed{position:static!important;flex:0 0 50vh;height:50vh;display:flex;flex-direction:column;overflow:hidden;}
+  .android-spacer{display:none!important;}
+  .numpad-wrap{padding:10px 14px;padding-bottom:max(12px,env(safe-area-inset-bottom));display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;}
+  .nkey{height:auto;min-height:52px;font-size:1.8rem;border-radius:12px;flex:1;}
+  .numpad{gap:7px;flex:4;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr);}
+  .numpad-bottom-row{margin-top:7px;gap:7px;display:flex;flex:1;}
+  .numpad-bottom-row .nkey{flex:1;}
+  .nkey.kval,.nkey.kundo{font-size:1.1rem;}
+  /* Annule la hauteur fixe du mode compact sur tablette */
+  .compact-numpad .nkey{height:auto!important;min-height:40px;}
+  .input-display{margin-bottom:8px;}
+  .input-val{font-size:4.8rem;}
+  .input-hint{font-size:1.8rem;}
+
+  /* ── Dart pad tablette portrait ── */
+  .dart-pad-wrap{padding:10px 14px;padding-bottom:max(12px,env(safe-area-inset-bottom));display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;}
+  .dart-mult-row{gap:7px;margin-bottom:7px;}
+  .dmb{padding:17px 6px;font-size:1rem;border-radius:10px;flex:1;}
+  .dart-ngrid{gap:6px;margin-bottom:7px;flex:3;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(3,1fr);}
+  .dnb{height:auto;min-height:48px;font-size:1.3rem;border-radius:7px;}
+  .dart-bottom-row{gap:7px;display:flex;flex:1;}
+  .dart-bottom-row .nkey{flex:1;}
+  .nkey.kout{font-size:1.05rem;}
+  .nkey.kval-dart{font-size:1.05rem;}
+  .dart-slot{height:63px;font-size:1.5rem;border-radius:10px;}
+  .dart-darts-row{gap:6px;margin-bottom:6px;}
+
+  /* ── Grille joueurs ── */
+  .players-section{flex:1;display:flex;flex-direction:column;padding:6px 10px;}
+  .players-grid{grid-template-columns:repeat(2,1fr)!important;gap:8px;}
+  /* Chip : layout vertical centré */
+  .player-chip{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8px 10px;gap:2px;}
+  .player-chip .chip-main-row{display:flex;flex-direction:column;align-items:center;width:100%;gap:2px;}
+  .player-chip .chip-name{text-align:center;margin:0;}
+  .player-chip .chip-score-wrap{text-align:center;}
+  .chip-dart-slots{display:flex;justify-content:center;}
+
+  /* ≤4j : cartes s'étirent, fontes proportionnelles à la hauteur */
+  .game-screen-wrap:not(.grid-2col-ls) .players-section{overflow:hidden;}
+  .game-screen-wrap:not(.grid-2col-ls) .players-grid{flex:1;align-content:stretch;grid-auto-rows:1fr;}
+  .game-screen-wrap:not(.grid-2col-ls) .player-chip{container-type:size;min-height:0;}
+  .game-screen-wrap:not(.grid-2col-ls) .player-chip .chip-name{font-size:clamp(1rem,13cqb,2rem);}
+  .game-screen-wrap:not(.grid-2col-ls) .player-chip .chip-score-v{font-size:clamp(2rem,32cqb,6rem);}
+  .game-screen-wrap:not(.grid-2col-ls) .player-chip .chip-score-v.pending{font-size:clamp(1rem,18cqb,3rem);}
+  .game-screen-wrap:not(.grid-2col-ls) .player-chip .chip-money-v{font-size:clamp(.8rem,8cqb,1.4rem);padding:3px 8px;margin:0;}
+  .game-screen-wrap:not(.grid-2col-ls) .player-chip .chip-check{font-size:clamp(.8rem,6cqb,1.2rem);}
+
+  /* 5-6j : scroll, fontes fixes tablette */
+  .game-screen-wrap.grid-2col-ls .players-section{overflow-y:auto;}
+  .game-screen-wrap.grid-2col-ls .player-chip .chip-name{font-size:1.2rem;}
+  .game-screen-wrap.grid-2col-ls .player-chip .chip-score-v{font-size:2.8rem;}
+  .game-screen-wrap.grid-2col-ls .player-chip .chip-money-v{font-size:1rem;}
 }
 
 /* ══ PAYSAGE — infos gauche · numpad droite ══ */
@@ -745,19 +817,22 @@ input[type=number]{-moz-appearance:textfield;}
   .nkey.kval-dart{font-size:1.05rem;}
   .dart-slot{height:63px;font-size:1.5rem;border-radius:10px;}
 
-  /* Toujours 2 colonnes en tablette paysage */
-  .players-grid{grid-template-columns:repeat(2,1fr)!important;gap:10px;}
+  /* Toujours 2 colonnes en tablette paysage — grille étirée */
+  .players-section{overflow:hidden;display:flex;flex-direction:column;}
+  .players-grid{grid-template-columns:repeat(2,1fr)!important;gap:10px;flex:1;align-content:stretch;grid-auto-rows:1fr;}
 
-  /* Chips tablette : nom gauche · score milieu · argent droite */
-  .player-chip{display:flex;flex-direction:column;text-align:left;padding:14px 18px;min-height:130px;justify-content:center;gap:6px;}
+  /* Chips tablette : container query → fontes proportionnelles à la hauteur */
+  .player-chip{container-type:size;display:flex;flex-direction:column;text-align:left;padding:14px 18px;min-height:0;justify-content:center;gap:6px;}
   .player-chip .chip-main-row{display:flex;align-items:center;width:100%;gap:8px;}
-  .player-chip .chip-name{font-size:1.6rem;margin-bottom:0;flex:0 0 auto;}
+  .player-chip .chip-name{font-size:clamp(1.2rem,9cqb,2.5rem);margin-bottom:0;flex:0 0 auto;}
   .player-chip .chip-score-wrap{flex:1;text-align:center;}
-  .player-chip .chip-score-v{font-size:3.5rem;}
-  .player-chip .chip-score-v.pending{font-size:1.5rem;}
-  .player-chip .chip-money-v{margin-top:0;font-size:1.2rem;padding:5px 12px;flex:0 0 auto;display:inline-block;}
-  .player-chip .chip-check{font-size:1.1rem;}
+  .player-chip .chip-score-v{font-size:clamp(2.5rem,26cqb,6rem);}
+  .player-chip .chip-score-v.pending{font-size:clamp(1rem,10cqb,2rem);}
+  .player-chip .chip-money-v{margin-top:0;font-size:clamp(.9rem,7cqb,1.6rem);padding:5px 12px;flex:0 0 auto;display:inline-block;}
+  .player-chip .chip-check{font-size:clamp(.9rem,6cqb,1.4rem);}
   .chip-dart-slots{display:flex;}
+  .target-num{font-size:clamp(3rem,6vw,5.5rem);}
+  .bj-cur-money{font-size:clamp(1.5rem,2.5vw,2.8rem);}
 }
 </style>
 <style id="theme-overrides">
@@ -799,10 +874,10 @@ input[type=number]{-moz-appearance:textfield;}
 
 /* Numpad */
 [data-theme="dark"] .nkey{background:var(--bg3)!important;color:var(--text)!important;border-color:rgba(232,232,232,.12)!important;box-shadow:none!important;}
-[data-theme="dark"] .nkey.kval{background:rgba(40,199,111,.15)!important;border-color:rgba(40,199,111,.4)!important;color:var(--ok)!important;box-shadow:none!important;}
+[data-theme="dark"] .nkey.kval{background:var(--accent)!important;color:#111213!important;border-color:var(--accent)!important;box-shadow:0 3px 14px rgba(232,232,232,.3)!important;}
 [data-theme="dark"] .nkey.kdel{background:rgba(220,53,69,.12)!important;color:var(--danger)!important;border-color:rgba(220,53,69,.3)!important;box-shadow:none!important;}
 [data-theme="light"] .nkey{background:var(--bg3)!important;color:var(--text)!important;border-color:rgba(22,23,24,.15)!important;box-shadow:none!important;}
-[data-theme="light"] .nkey.kval{background:rgba(26,138,74,.12)!important;border-color:rgba(26,138,74,.35)!important;color:var(--ok)!important;box-shadow:none!important;}
+[data-theme="light"] .nkey.kval{background:var(--accent)!important;color:#F7F0F2!important;border-color:var(--accent)!important;box-shadow:0 3px 14px rgba(22,23,24,.25)!important;}
 [data-theme="light"] .nkey.kdel{background:rgba(200,39,43,.1)!important;color:var(--danger)!important;border-color:rgba(200,39,43,.25)!important;box-shadow:none!important;}
 /* Bouton mode saisie — blanc en dark, sombre en light, comme 501 */
 [data-theme="dark"] #btn-input-mode-bj{background:var(--accent)!important;color:#111213!important;border-color:var(--accent)!important;box-shadow:0 0 10px rgba(232,232,232,.3)!important;}
@@ -991,9 +1066,9 @@ input[type=number]{-moz-appearance:textfield;}
 [data-theme="dark"] .score-status-lbl.state-perfect{color:var(--accent)!important;}
 [data-theme="light"] .score-status-lbl.state-perfect{color:var(--accent)!important;}
 
-/* nkey.kval → accent DA au lieu du gradient gold */
-[data-theme="dark"] .nkey.kval{background:rgba(40,199,111,.15)!important;border-color:rgba(40,199,111,.4)!important;color:var(--ok)!important;box-shadow:none!important;}
-[data-theme="light"] .nkey.kval{background:rgba(26,138,74,.12)!important;border-color:rgba(26,138,74,.35)!important;color:var(--ok)!important;box-shadow:none!important;}
+/* nkey.kval → accent comme 501 */
+[data-theme="dark"] .nkey.kval{background:var(--accent)!important;color:#111213!important;border-color:var(--accent)!important;box-shadow:0 3px 14px rgba(232,232,232,.3)!important;}
+[data-theme="light"] .nkey.kval{background:var(--accent)!important;color:#F7F0F2!important;border-color:var(--accent)!important;box-shadow:0 3px 14px rgba(22,23,24,.25)!important;}
 
 /* nkey.kundo, kout, kval-dart */
 [data-theme="dark"] .nkey.kundo{background:rgba(255,159,67,.12)!important;border-color:rgba(255,159,67,.35)!important;color:var(--warn)!important;box-shadow:none!important;}
@@ -1149,7 +1224,6 @@ input[type=number]{-moz-appearance:textfield;}
 
   <!-- Players grid -->
   <div class="players-section">
-    <div class="section-lbl" data-i18n="bj_players_col">Joueurs</div>
     <div class="players-grid" id="players-grid"></div>
   </div>
 
@@ -1491,8 +1565,8 @@ function addPlayer() {
   if (!name) { if (typeof openProfilePicker === "function") openProfilePicker(); return; }
   if(B.players.length >= 6){ showToast(DV_LANG.t('err_max6_bj')); return; }
   if(B.players.some(p => p.name.toLowerCase() === name.toLowerCase())){ showToast(DV_LANG.t('err_pseudo_bj')); inp.value=''; inp.focus(); return; }
-  const idx = B.players.length;
-  B.players.push({name, money:10, is_dealer:false, color:getNextColor(B.players), emoji:PLAYER_EMOJIS[idx]});
+  const _c=getNextColor(B.players);
+  B.players.push({name, money:10, is_dealer:false, color:_c, emoji:PLAYER_EMOJIS[PLAYER_COLORS.indexOf(_c)]});
   inp.value=''; inp.focus();
   renderSetupList();
 }
@@ -2545,10 +2619,8 @@ function adjustPlayersPadding(){
   var ps=document.querySelector('.players-section');
   var bf=document.querySelector('.bottom-fixed');
   if(!ps||!bf)return;
-  var isPortrait=window.matchMedia('(orientation:portrait)').matches;
-  var isLandscapeDesktop=!isPortrait&&window.innerWidth>=700;
-  if(isLandscapeDesktop){ps.style.paddingBottom='';return;}
-  ps.style.paddingBottom=bf.offsetHeight+'px';
+  var isFixed=getComputedStyle(bf).position==='fixed';
+  ps.style.paddingBottom=isFixed?bf.offsetHeight+'px':'';
 }
 adjustPlayersPadding();
 window.addEventListener('resize',adjustPlayersPadding);
@@ -2819,8 +2891,8 @@ window.addEventListener('resize',adjustPlayersPadding);
     const fullName = emoji + ' ' + name;
     if(B.players.length >= 6){ if(typeof showToast==='function') showToast(DV_LANG.t('err_max6_bj')); return; }
     if(B.players.some(p => p.name.toLowerCase() === fullName.toLowerCase())){ if(typeof showToast==='function') showToast(DV_LANG.t('err_pseudo_bj')); return; }
-    const idx = B.players.length;
-    B.players.push({name: fullName, money:10, is_dealer:false, color:getNextColor(B.players), emoji:PLAYER_EMOJIS[idx], fromProfile:true});
+    const _c=getNextColor(B.players);
+    B.players.push({name: fullName, money:10, is_dealer:false, color:_c, emoji:PLAYER_EMOJIS[PLAYER_COLORS.indexOf(_c)], fromProfile:true});
     renderSetupList();
   };
 
@@ -2832,8 +2904,8 @@ window.addEventListener('resize',adjustPlayersPadding);
       if (B.players.length >= 6) return;
       if (B.players.some(p => p.name.toLowerCase() === fullName.toLowerCase())) return;
       saveRecent(fullName);
-      const idx = B.players.length;
-      B.players.push({name: fullName, money:10, is_dealer:false, color:getNextColor(B.players), emoji:PLAYER_EMOJIS[idx], fromProfile:true});
+      const _c=getNextColor(B.players);
+      B.players.push({name: fullName, money:10, is_dealer:false, color:_c, emoji:PLAYER_EMOJIS[PLAYER_COLORS.indexOf(_c)], fromProfile:true});
     });
     renderSetupList();
     closeProfilePicker();

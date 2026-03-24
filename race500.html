@@ -35,9 +35,8 @@
 :root{--bg:#0E0F10;--bg2:#161718;--bg3:#1C1E20;--bg4:#242628;--accent:#E8E8E8;--ok:#28C76F;--warn:#FF9F43;--danger:#DC3545;--text:#F0F0F0;--dim:#606468;}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;height:var(--real-vh,100dvh);max-height:var(--real-vh,100dvh);display:flex;flex-direction:column;overflow:hidden;max-width:480px;margin:0 auto;}
-@media (orientation:landscape) and (min-width:700px){body{max-width:100%;margin:0;}
-  /* Safe area latérale (iPhone notch/home bar en paysage) */
-}
+@media (orientation:landscape) and (min-width:700px){body{max-width:100%;margin:0;}}
+@media (min-width:700px) and (orientation:portrait){body{max-width:100%;margin:0;}}
 
 /* HEADER */
 .hdr{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);padding:10px 14px;border-bottom:1px solid rgba(232,232,232,.15);flex-shrink:0;position:relative;}
@@ -853,6 +852,67 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
 [data-theme="dark"] .toast{background:var(--bg3)!important;border-color:rgba(232,232,232,.15)!important;color:var(--text)!important;}
 [data-theme="light"] .toast{background:var(--bg2)!important;border-color:rgba(22,23,24,.15)!important;color:var(--text)!important;}
 
+/* ══ PORTRAIT TÉLÉPHONE ══ */
+/* ══ PORTRAIT TABLETTE ══ */
+@media (min-width:700px) and (orientation:portrait){
+  /* Setup : 2 colonnes */
+  #s-setup.on{overflow:hidden;width:100%;}
+  .setup-container{padding:16px;display:flex!important;flex-direction:row!important;gap:16px;overflow:hidden;flex:1;min-height:0;padding-bottom:16px;}
+  .setup-col-config{display:flex!important;flex-direction:column;flex:1;min-width:0;overflow-y:auto;}
+  .setup-col-players{display:flex!important;flex-direction:column;width:44%;flex-shrink:0;overflow-y:auto;}
+  .card{padding:14px;margin-bottom:12px;}
+
+  /* Game : pad occupe 50% hauteur, joueurs au-dessus */
+  .bottom-fixed{position:static!important;flex:0 0 50vh;height:50vh;display:flex;flex-direction:column;overflow:hidden;}
+  .pad{padding:10px 14px;padding-bottom:max(12px,env(safe-area-inset-bottom));display:flex;flex-direction:column;flex:1;}
+  .input-display{margin-bottom:8px;}
+  .input-val{font-size:3.2rem;}
+  .input-hint{font-size:1.2rem;}
+  .dart-darts-row{gap:5px;margin-bottom:5px;}
+  .dart-slot{height:50px;font-size:1.2rem;}
+  .mrow{gap:5px;margin-bottom:5px;}
+  .mb{padding:13px 4px;font-size:.88rem;flex:1;}
+  .ngrid{gap:4px;margin-bottom:5px;flex:3;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(3,1fr);}
+  .nb{height:auto;min-height:38px;font-size:1rem;border-radius:6px;}
+  .arow{gap:5px;display:flex;flex:1;}
+  .arow .nkey{flex:1;}
+  .nkey.khist{flex:none!important;width:50px;}
+
+  /* Scores joueurs — cards qui remplissent l'espace */
+  .slist{overflow:hidden;padding:8px 10px;}
+  .sgrid,.sgrid.one-col,.sgrid.compact5{
+    grid-template-columns:repeat(2,1fr)!important;
+    gap:8px!important;
+    height:100%;
+    grid-auto-rows:1fr;
+    align-content:stretch;
+  }
+  .scard{container-type:size;padding:8px 12px!important;border-radius:12px!important;min-height:0;}
+  .sc-name{font-size:clamp(1rem,13cqb,2rem)!important;}
+  .sc-val{font-size:clamp(1.8rem,32cqb,5rem)!important;}
+  .sc-bar-w{height:4px!important;}
+  .sc-avg-lbl{font-size:.8rem;}
+  .ab-name{font-size:2rem;}
+  .ab-score{font-size:3.4rem;}
+}
+
+/* ══ PORTRAIT TÉLÉPHONE ══ */
+@media (max-width:767px) and (orientation:portrait){
+  /* Barre, moyenne et hint cachés pour tous */
+  .sc-bar-w,.sc-avg-lbl,.sc-hint{display:none!important;}
+  .sc-bottom{margin-top:0!important;}
+
+  /* 1-3 joueurs : 1 colonne, cards plus grandes */
+  .sgrid.one-col .scard{padding:10px 14px!important;}
+  .sgrid.one-col .sc-name{font-size:1.4rem!important;}
+  .sgrid.one-col .sc-val{font-size:2.2rem!important;}
+
+  /* 5-6 joueurs : noms lisibles, hint masqué */
+  .sgrid.compact5 .scard{padding:7px 10px!important;}
+  .sgrid.compact5 .sc-name{font-size:.92rem!important;}
+  .sgrid.compact5 .sc-val{font-size:1.7rem!important;}
+}
+
 /* ══ PAYSAGE — infos gauche · pad droite ══ */
 @media (orientation:landscape) and (min-width:700px){
   .hdr{padding:5px 10px;}
@@ -1365,7 +1425,7 @@ function addP(){
   G.pl.push({n,c:getNextColor(G.pl),e:PE[G.pl.length],s:0});
   el.value='';el.focus();rPL();
 }
-function delP(i){G.pl.splice(i,1);G.pl.forEach((p,j)=>p.c=PC[j]);rPL();}
+function delP(i){G.pl.splice(i,1);G.pl.forEach((p,j)=>{p.c=PC[j];p.e=PE[j];});rPL();}
 let _drag = null;
 function _startDrag(e, idx) {
   if (_drag) return;
@@ -1430,7 +1490,7 @@ function _onDragEnd() {
   if (newPos !== idx) {
     const moved = G.pl.splice(idx, 1)[0];
     G.pl.splice(newPos, 0, moved);
-    G.pl.forEach((p, j) => p.c = PC[j]);
+    G.pl.forEach((p, j) => {p.c=PC[j];p.e=PE[j];});
   }
   rPL();
 }
@@ -1515,6 +1575,8 @@ function draw(fi){
   }).join('');
   document.getElementById('slist').innerHTML='<div class="'+gridCls+'">'+cards+'</div>';
   if(typeof adjustSlistPadding==='function') adjustSlistPadding();
+  var curCard=document.querySelector('.scard.cur');
+  if(curCard) curCard.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
 function sM(m){
@@ -2050,10 +2112,8 @@ function adjustSlistPadding(){
   var sl=document.querySelector('.slist');
   var bf=document.querySelector('.bottom-fixed');
   if(!sl||!bf)return;
-  var isPortrait=window.matchMedia('(orientation:portrait)').matches;
-  var isLandscapeDesktop=!isPortrait&&window.innerWidth>=700;
-  if(isLandscapeDesktop){sl.style.paddingBottom='';return;}
-  sl.style.paddingBottom=bf.offsetHeight+'px';
+  var isFixed=getComputedStyle(bf).position==='fixed';
+  sl.style.paddingBottom=isFixed?bf.offsetHeight+'px':'';
 }
 adjustSlistPadding();
 window.addEventListener('resize',adjustSlistPadding);

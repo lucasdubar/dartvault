@@ -787,7 +787,8 @@ body {
 
   .game-layout{flex-direction:row!important;width:100%;align-items:stretch;min-height:0;flex:1;}
   .ls-left{display:flex!important;flex-direction:column;flex:1;min-width:0;min-height:0;overflow:hidden;}
-  .ls-right{display:flex!important;flex-direction:column;width:40%;flex-shrink:0;min-height:0;overflow:hidden;}
+  .ls-right{display:none!important;}
+  .hist-inline-ls{display:none!important;}
 
   .game-topbar{padding:5px 10px;}
   .round-label{font-size:.7rem;padding:3px 10px;}
@@ -801,7 +802,9 @@ body {
   .cricket-grid .num-row:not(:first-child){flex:1;min-height:0;overflow:hidden;max-height:72px;}
 
   div[style*="height:62px"]{display:none!important;}
-  .hist-inline-ls{display:flex;}
+  /* Boutons S/D/T toujours à droite (y compris mode 2 joueurs) */
+  .num-row .hit-btns{order:10;}
+
   .bottom-fixed{position:static!important;border-top:1px solid rgba(255,255,255,.06);flex-shrink:0;}
   .bot-bar{padding:8px;padding-bottom:max(8px,env(safe-area-inset-bottom));gap:5px;}
   .btn-out,.btn-undo{padding:9px 6px;font-size:.8rem;}
@@ -833,7 +836,8 @@ body {
 
   .game-layout{width:100%;}
   /* Historique à gauche, 20% de largeur */
-  .ls-right{display:flex!important;width:20%!important;order:-1;flex-shrink:0;}
+  .ls-right{display:flex!important;flex-direction:column;width:20%!important;order:-1;flex-shrink:0;min-height:0;overflow:hidden;}
+  .hist-inline-ls{display:flex!important;}
 
   .game-topbar{padding:8px 16px;}
   .round-label{font-size:.95rem;padding:5px 16px;}
@@ -2254,9 +2258,26 @@ function renderFooter() {
 }
 
 // ════════════════════════════════════════════════
+// ORIENTATION LOCK (phone portrait only)
+// ════════════════════════════════════════════════
+function _isPhone() { return Math.min(screen.width, screen.height) < 700; }
+function lockPortraitOnPhone() {
+  if (!_isPhone()) return;
+  if (screen.orientation && screen.orientation.lock) {
+    screen.orientation.lock('portrait').catch(() => {});
+  }
+}
+function unlockOrientation() {
+  if (screen.orientation && screen.orientation.unlock) {
+    screen.orientation.unlock();
+  }
+}
+
+// ════════════════════════════════════════════════
 // NAVIGATION
 // ════════════════════════════════════════════════
 function showScreen(id) {
+  if (id === 'game') { lockPortraitOnPhone(); } else { unlockOrientation(); }
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(`screen-${id}`).classList.add('active');
   document.getElementById('btn-back').textContent = id === 'game' ? DV_LANG.t('back') : DV_LANG.t('menu');
