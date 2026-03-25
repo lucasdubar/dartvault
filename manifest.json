@@ -1,7 +1,7 @@
 {
   "name": "DartVault",
   "short_name": "DartVault",
-  "description": "10 jeux de fléchettes : 501, Cricket, Shanghai, Horloge, Shooter, BlackJack Darts, Bataille, Territoire, Race, DartPong",
+  "description": "DartVault — 501, Cricket, Bataille Navale, BlackDart, Territoire, Battle Royal et 6 autres jeux de fléchettes gratuits entre amis. Sans inscription.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
