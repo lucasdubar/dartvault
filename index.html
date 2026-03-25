@@ -1555,7 +1555,7 @@
     <button class="btn-support" id="btn-support" onclick="document.getElementById('support-modal').classList.add('open')">☕ <span id="btn-support-text">Soutenir DartVault</span></button>
     <span>DartVault © 2026</span>
     <div style="display:flex;gap:16px;">
-      <button class="footer-privacy" id="btn-privacy" onclick="window.location.href='/privacy.html'">🔒 <span data-i18n="privacy">Confidentialité</span></button>
+      <button class="footer-privacy" id="btn-privacy" onclick="window.location.href='/privacy'">🔒 <span data-i18n="privacy">Confidentialité</span></button>
       <button class="footer-privacy" id="btn-contact" onclick="document.getElementById('contact-modal').classList.add('open')">✉️ Contact</button>
     </div>
     <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
@@ -2970,7 +2970,7 @@
       // Fallback if SW never responds (local dev)
       setTimeout(function() {
         var el = document.getElementById('app-version');
-        if (el && !el.textContent) el.textContent = 'v2.44';
+        if (el && !el.textContent) el.textContent = 'v2.45';
       }, 2000);
     }, 2000);
 
