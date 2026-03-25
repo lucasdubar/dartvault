@@ -215,7 +215,19 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
 .players-grid-duel .pc-bottom{margin-top:auto;}
 /* ── Nouveau bas de carte duel ── */
 .pc-last-duel{text-align:center;font-family:'Rajdhani',sans-serif;font-size:1.05rem;font-weight:700;line-height:1.6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:2px 0;}
-.pc-duel-footer{display:flex;justify-content:space-between;align-items:center;font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:700;color:rgba(255,255,255,.45);letter-spacing:.5px;text-transform:uppercase;margin-top:auto;}
+.pc-duel-footer{display:flex;justify-content:space-between;align-items:center;font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:700;color:var(--dim);letter-spacing:.5px;text-transform:uppercase;margin-top:auto;}
+
+/* ── Mode téléphone portrait (3+j) : score centré, stats droite ── */
+.player-card-501.pc-ph{display:flex;align-items:center;gap:8px;padding:6px 10px;}
+.player-card-501.pc-ph .pc-ph-left{flex:1;min-width:0;display:flex;align-items:center;gap:4px;overflow:hidden;}
+.player-card-501.pc-ph .pc-ph-left .pc-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.player-card-501.pc-ph .pc-score{flex:0 0 auto;font-size:1.8rem;font-weight:900;font-family:'Rajdhani',sans-serif;line-height:1;text-align:center;min-width:52px;}
+.player-card-501.pc-ph .pc-ph-right{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:1px;min-width:38px;text-align:right;}
+.pc-ph-last{font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:700;line-height:1.2;}
+.pc-ph-avg{font-family:'Rajdhani',sans-serif;font-size:.62rem;font-weight:700;color:var(--dim);line-height:1.2;}
+.players-grid-compact .player-card-501.pc-ph{padding:8px 8px;}
+.players-grid-compact .player-card-501.pc-ph .pc-score{font-size:1.4rem!important;}
+.players-grid-medium .player-card-501.pc-ph .pc-score{font-size:2rem!important;}
 
 /* ── Pavé numérique ── */
 
@@ -1134,7 +1146,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
   .players-grid-duel.duel-5plus .pc-name-duel{font-size:1.4rem!important;}
   .players-grid-duel .player-card-501{padding:12px 14px!important;}
   .pc-last-duel{font-size:1.2rem!important;}
-  .pc-duel-footer{font-size:.9rem!important;color:rgba(255,255,255,.5)!important;}
+  .pc-duel-footer{font-size:.9rem!important;color:var(--dim)!important;}
 }
 </style>
 <script src="lang.js"></script>
@@ -2197,6 +2209,31 @@ function renderPlayersGrid(flashIdx) {
       }
     }
     const activeBg501 = isCur ? `background:color-mix(in srgb, ${pl.color} 22%, var(--bg2));` : '';
+    // ── Téléphone portrait (3+j) : score centré, dernier score + avg à droite ──
+    if (isPortrait && !isTablet) {
+      const nameDisplay = (() => {
+        const mx = n>=6?4:n>=5?5:(n>=4)?8:12;
+        return pl.name.length>mx ? pl.name.substring(0,mx)+'.' : pl.name;
+      })();
+      return `<div class="player-card-501 pc-ph ${isCur ? 'current' : ''}" style="--pcolor:${pl.color};${activeBg501}">
+        <div class="pc-ph-left">
+          <div class="pc-dot"></div>
+          ${isCompact
+            ? `<div class="pc-name" style="color:${pl.color};cursor:pointer;" onclick="openPlayerStats(${idx})">${nameDisplay}</div>`
+            : `<div class="pc-name" style="color:${pl.color}">${nameDisplay}</div>`}
+          ${G.doubleIn && !pl.doubleInDone ? '<span style="font-family:Rajdhani,sans-serif;font-size:.62rem;font-weight:700;color:#FF9F43;background:rgba(255,159,67,.15);border:1px solid rgba(255,159,67,.4);border-radius:4px;padding:0 4px;margin-left:2px;flex-shrink:0;">DI</span>' : ''}
+          ${G.setsToWin > 0
+            ? '<span style="font-family:Rajdhani,sans-serif;font-size:.6rem;font-weight:700;color:var(--dim);background:var(--bg3);border-radius:4px;padding:1px 4px;margin-left:2px;flex-shrink:0;">' + (pl.sets||0) + '/' + G.setsToWin + 'S·' + (pl.legsInSet||0) + '/' + G.legsPerSet + 'M</span>'
+            : G.legsToWin > 1 ? '<span style="font-family:Rajdhani,sans-serif;font-size:.6rem;font-weight:700;color:var(--dim);background:var(--bg3);border-radius:4px;padding:1px 4px;margin-left:2px;flex-shrink:0;">' + pl.legs + '/' + G.legsToWin + '</span>' : ''}
+          ${isCompact ? '' : `<button class="pc-info-btn" onclick="openPlayerStats(${idx})" aria-label="Stats de ${pl.name}">ℹ</button>`}
+        </div>
+        <div class="pc-score${idx === flashIdx ? ' flash' : ''}">${pl.score}</div>
+        <div class="pc-ph-right">
+          ${lastLabel ? `<div class="pc-ph-last" style="color:${lastT && lastT.bust ? '#DC3545' : 'var(--text)'};">${lastLabel}</div>` : ''}
+          <div class="pc-ph-avg">${DV_LANG.t('x01_avg')} ${avg.toFixed(1)}</div>
+        </div>
+      </div>`;
+    }
     return `<div class="player-card-501 ${isCur ? 'current' : ''}" style="--pcolor:${pl.color};${activeBg501}">
       <div class="pc-main-row">
         <div class="pc-left">

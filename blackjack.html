@@ -98,8 +98,10 @@ input[type=number]{-moz-appearance:textfield;}
 .compact-grid .players-grid{gap:6px 4px;}
 /* 4+ joueurs : numpad compact uniquement */
 .compact-numpad .nkey{height:36px;font-size:1.1rem;}
-.compact-numpad .nkey.kval{font-size:.9rem;}
-.compact-numpad .nkey.kundо{height:32px;font-size:.82rem;}
+.compact-numpad .nkey.kval{height:47px;font-size:1rem;}
+.compact-numpad .nkey.kundo{height:47px;font-size:.9rem;}
+.compact-numpad .nkey.kout{height:47px;font-size:.9rem;}
+.compact-numpad .nkey.kval-dart{height:47px;font-size:.9rem;}
 .compact-numpad .numpad-wrap{padding:4px 10px;padding-bottom:max(8px,env(safe-area-inset-bottom));}
 .player-chip.active{border-color:var(--gold);background:rgba(255,215,0,.1);box-shadow:0 0 14px rgba(255,215,0,.2);}
 .player-chip.done{border-color:rgba(40,199,111,.4);background:rgba(40,199,111,.06);}
@@ -192,7 +194,7 @@ input[type=number]{-moz-appearance:textfield;}
 .dnb.dnt{background:rgba(220,53,69,.15);border-color:rgba(220,53,69,.4);color:var(--red2);}
 .dnb.bull-disabled{opacity:.25;pointer-events:none;}
 .dart-bottom-row{display:flex;gap:6px;margin-top:4px;}
-.nkey.kout{flex:1;background:rgba(220,53,69,.15);border:1.5px solid rgba(220,53,69,.4);color:var(--red2);font-size:.9rem;font-weight:700;letter-spacing:.5px;}
+.nkey.kout{flex:1;background:rgba(220,53,69,.15);border:1.5px solid rgba(220,53,69,.4);color:var(--danger);font-size:.9rem;font-weight:700;letter-spacing:.5px;}
 .nkey.kout:active{background:rgba(220,53,69,.35);}
 .nkey.kval-dart{flex:1;background:rgba(40,199,111,.15);border:1.5px solid rgba(40,199,111,.4);color:var(--ok);font-size:.9rem;font-weight:700;letter-spacing:.5px;padding:9px 4px;position:relative;overflow:visible;}
 .nkey.kval-dart:active{background:rgba(40,199,111,.3);}
@@ -668,28 +670,29 @@ input[type=number]{-moz-appearance:textfield;}
   /* ── Grille joueurs ── */
   .players-section{flex:1;display:flex;flex-direction:column;padding:6px 10px;}
   .players-grid{grid-template-columns:repeat(2,1fr)!important;gap:8px;}
-  /* Chip : layout vertical centré */
-  .player-chip{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8px 10px;gap:2px;}
-  .player-chip .chip-main-row{display:flex;flex-direction:column;align-items:center;width:100%;gap:2px;}
-  .player-chip .chip-name{text-align:center;margin:0;}
-  .player-chip .chip-score-wrap{text-align:center;}
+  /* Chip : layout grille nom+argent / score */
+  .player-chip{display:flex;flex-direction:column;align-items:stretch;text-align:left;padding:10px 14px;gap:4px;}
+  .player-chip .chip-main-row{display:grid;grid-template-areas:"name money" "score score";grid-template-columns:1fr auto;gap:4px 8px;width:100%;align-items:start;}
+  .player-chip .chip-name{grid-area:name;text-align:left;margin:0;}
+  .player-chip .chip-money-v{grid-area:money;margin:0;}
+  .player-chip .chip-score-wrap{grid-area:score;text-align:center;}
   .chip-dart-slots{display:flex;justify-content:center;}
 
   /* ≤4j : cartes s'étirent, fontes proportionnelles à la hauteur */
   .game-screen-wrap:not(.grid-2col-ls) .players-section{overflow:hidden;}
   .game-screen-wrap:not(.grid-2col-ls) .players-grid{flex:1;align-content:stretch;grid-auto-rows:1fr;}
   .game-screen-wrap:not(.grid-2col-ls) .player-chip{container-type:size;min-height:0;}
-  .game-screen-wrap:not(.grid-2col-ls) .player-chip .chip-name{font-size:clamp(1rem,13cqb,2rem);}
-  .game-screen-wrap:not(.grid-2col-ls) .player-chip .chip-score-v{font-size:clamp(2rem,32cqb,6rem);}
-  .game-screen-wrap:not(.grid-2col-ls) .player-chip .chip-score-v.pending{font-size:clamp(1rem,18cqb,3rem);}
-  .game-screen-wrap:not(.grid-2col-ls) .player-chip .chip-money-v{font-size:clamp(.8rem,8cqb,1.4rem);padding:3px 8px;margin:0;}
-  .game-screen-wrap:not(.grid-2col-ls) .player-chip .chip-check{font-size:clamp(.8rem,6cqb,1.2rem);}
+  .game-screen-wrap:not(.grid-2col-ls) .player-chip .chip-name{font-size:clamp(1.3rem,17cqb,2.6rem);}
+  .game-screen-wrap:not(.grid-2col-ls) .player-chip .chip-score-v{font-size:clamp(2.6rem,42cqb,7.8rem);}
+  .game-screen-wrap:not(.grid-2col-ls) .player-chip .chip-score-v.pending{font-size:clamp(1.3rem,23cqb,3.9rem);}
+  .game-screen-wrap:not(.grid-2col-ls) .player-chip .chip-money-v{font-size:clamp(1.04rem,10cqb,1.82rem);padding:3px 8px;margin:0;}
+  .game-screen-wrap:not(.grid-2col-ls) .player-chip .chip-check{font-size:clamp(1.04rem,8cqb,1.56rem);}
 
   /* 5-6j : scroll, fontes fixes tablette */
   .game-screen-wrap.grid-2col-ls .players-section{overflow-y:auto;}
-  .game-screen-wrap.grid-2col-ls .player-chip .chip-name{font-size:1.2rem;}
-  .game-screen-wrap.grid-2col-ls .player-chip .chip-score-v{font-size:2.8rem;}
-  .game-screen-wrap.grid-2col-ls .player-chip .chip-money-v{font-size:1rem;}
+  .game-screen-wrap.grid-2col-ls .player-chip .chip-name{font-size:1.56rem;}
+  .game-screen-wrap.grid-2col-ls .player-chip .chip-score-v{font-size:3.64rem;}
+  .game-screen-wrap.grid-2col-ls .player-chip .chip-money-v{font-size:1.3rem;}
 }
 
 /* ══ PAYSAGE — infos gauche · numpad droite ══ */
@@ -822,14 +825,14 @@ input[type=number]{-moz-appearance:textfield;}
   .players-grid{grid-template-columns:repeat(2,1fr)!important;gap:10px;flex:1;align-content:stretch;grid-auto-rows:1fr;}
 
   /* Chips tablette : container query → fontes proportionnelles à la hauteur */
-  .player-chip{container-type:size;display:flex;flex-direction:column;text-align:left;padding:14px 18px;min-height:0;justify-content:center;gap:6px;}
-  .player-chip .chip-main-row{display:flex;align-items:center;width:100%;gap:8px;}
-  .player-chip .chip-name{font-size:clamp(1.2rem,9cqb,2.5rem);margin-bottom:0;flex:0 0 auto;}
-  .player-chip .chip-score-wrap{flex:1;text-align:center;}
-  .player-chip .chip-score-v{font-size:clamp(2.5rem,26cqb,6rem);}
-  .player-chip .chip-score-v.pending{font-size:clamp(1rem,10cqb,2rem);}
-  .player-chip .chip-money-v{margin-top:0;font-size:clamp(.9rem,7cqb,1.6rem);padding:5px 12px;flex:0 0 auto;display:inline-block;}
-  .player-chip .chip-check{font-size:clamp(.9rem,6cqb,1.4rem);}
+  .player-chip{container-type:size;display:flex;flex-direction:column;text-align:left;padding:14px 18px;min-height:0;gap:4px;}
+  .player-chip .chip-main-row{display:grid;grid-template-areas:"name money" "score score";grid-template-columns:1fr auto;gap:4px 8px;width:100%;align-items:start;}
+  .player-chip .chip-name{grid-area:name;font-size:clamp(1.56rem,12cqb,3.25rem);margin:0;text-align:left;}
+  .player-chip .chip-money-v{grid-area:money;margin:0;font-size:clamp(1.17rem,9cqb,2.08rem);padding:5px 12px;}
+  .player-chip .chip-score-wrap{grid-area:score;text-align:center;}
+  .player-chip .chip-score-v{font-size:clamp(3.25rem,34cqb,7.8rem);}
+  .player-chip .chip-score-v.pending{font-size:clamp(1.3rem,13cqb,2.6rem);}
+  .player-chip .chip-check{font-size:clamp(1.17rem,8cqb,1.82rem);}
   .chip-dart-slots{display:flex;}
   .target-num{font-size:clamp(3rem,6vw,5.5rem);}
   .bj-cur-money{font-size:clamp(1.5rem,2.5vw,2.8rem);}
@@ -1072,16 +1075,20 @@ input[type=number]{-moz-appearance:textfield;}
 
 /* nkey.kundo, kout, kval-dart */
 [data-theme="dark"] .nkey.kundo{background:rgba(255,159,67,.12)!important;border-color:rgba(255,159,67,.35)!important;color:var(--warn)!important;box-shadow:none!important;}
-[data-theme="dark"] .nkey.kout{background:rgba(220,53,69,.15)!important;border-color:rgba(220,53,69,.4)!important;color:var(--danger)!important;}
+[data-theme="dark"] .nkey.kout{background:rgba(220,53,69,.15)!important;border-color:rgba(220,53,69,.4)!important;color:var(--danger)!important;box-shadow:none!important;}
+[data-theme="dark"] .nkey.kout:active{box-shadow:0 0 16px rgba(220,53,69,.4)!important;}
 [data-theme="dark"] .nkey.kval-dart{background:rgba(40,199,111,.15)!important;border-color:rgba(40,199,111,.4)!important;color:var(--ok)!important;}
 [data-theme="dark"] .nkey.kval-dart.ready{background:rgba(40,199,111,.28)!important;border-color:rgba(40,199,111,.8)!important;}
 [data-theme="dark"] .nkey.kval-dart.ready::after{content:'';position:absolute;inset:-1px;border-radius:10px;pointer-events:none;animation:valReadyPSBJ 1.2s ease-in-out infinite;}
+[data-theme="dark"] .nkey.kval-dart:active{background:rgba(40,199,111,.3)!important;}
 [data-theme="dark"] .nkey.khist{background:var(--bg3)!important;border-color:rgba(232,232,232,.15)!important;color:var(--dim)!important;box-shadow:none!important;}
 [data-theme="light"] .nkey.kundo{background:rgba(192,96,0,.1)!important;border-color:rgba(192,96,0,.3)!important;color:var(--warn)!important;box-shadow:none!important;}
-[data-theme="light"] .nkey.kout{background:rgba(200,39,43,.12)!important;border-color:rgba(200,39,43,.35)!important;color:var(--danger)!important;}
-[data-theme="light"] .nkey.kval-dart{background:rgba(26,138,74,.12)!important;border-color:rgba(26,138,74,.35)!important;color:var(--ok)!important;}
+[data-theme="light"] .nkey.kout{background:rgba(200,39,43,.12)!important;border-color:rgba(200,39,43,.35)!important;color:var(--danger)!important;box-shadow:none!important;}
+[data-theme="light"] .nkey.kout:active{box-shadow:0 0 10px rgba(200,39,43,.2)!important;}
+[data-theme="light"] .nkey.kval-dart{background:rgba(26,138,74,.1)!important;border-color:rgba(26,138,74,.3)!important;color:var(--ok)!important;}
 [data-theme="light"] .nkey.kval-dart.ready{background:rgba(26,138,74,.18)!important;border-color:rgba(26,138,74,.7)!important;}
 [data-theme="light"] .nkey.kval-dart.ready::after{content:'';position:absolute;inset:-1px;border-radius:10px;pointer-events:none;animation:valReadyPSBJ 1.2s ease-in-out infinite;}
+[data-theme="light"] .nkey.kval-dart:active{background:rgba(26,138,74,.2)!important;}
 [data-theme="light"] .nkey.khist{background:var(--bg3)!important;border-color:rgba(22,23,24,.18)!important;color:var(--dim)!important;box-shadow:none!important;}
 
 /* android-spacer + numpad-wrap fond */
@@ -2034,7 +2041,8 @@ function gRenderGrid() {
         dartSlotsHtml = `<div class="chip-dart-slots">${savedSlots}</div>`;
       }
     }
-    const nameDisplay = p.name.length > 7 ? p.name.slice(0, 7) : p.name;
+    const isTabletView = window.innerWidth >= 700;
+    const nameDisplay = (!isTabletView && p.name.length > 7) ? p.name.slice(0, 7) : p.name;
     return `<div class="${cls}" style="${chipStyle}">${check}
       <div class="chip-main-row">
         <div class="chip-name" style="color:${p.color}">${p.fromProfile ? '' : p.emoji + ' '}${nameDisplay}${p.is_dealer ? ' 🎩' : ''}</div>

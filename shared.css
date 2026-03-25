@@ -124,3 +124,9 @@
 [data-theme="light"] .rules-row{color:#333;}
 [data-theme="light"] .rules-dismiss label{color:#999;}
 [data-theme="light"] .rules-quick-players{color:#999;}
+
+/* ── Profile picker — light mode ── */
+[data-theme="light"] .pp-profile-row.checked{border-color:var(--ok)!important;background:rgba(26,138,74,.1)!important;}
+[data-theme="light"] .pp-profile-row.checked .pp-check{border-color:var(--ok)!important;background:var(--ok)!important;color:#fff!important;}
+[data-theme="light"] .pp-btn-add-manual{background:var(--ok)!important;color:#fff!important;}
+[data-theme="light"] .pp-btn-manage{background:rgba(26,138,74,.1)!important;border-color:rgba(26,138,74,.35)!important;color:var(--ok)!important;}
