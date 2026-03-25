@@ -6,6 +6,7 @@
   <title>Tournoi — DartVault</title>
   <link rel="icon" href="favicon.ico">
   <link rel="stylesheet" href="/fonts/fonts.css">
+  <link rel="stylesheet" href="shared.css">
 <script>(function(){var t=localStorage.getItem('dartvault_theme')||'dark';if(t==='light'||t==='dark'||t==='colored')document.documentElement.setAttribute('data-theme',t);})();</script>
   <style>
 /* ── Base identique à 501 ── */
@@ -193,7 +194,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;
     .pp-handle { width: 40px; height: 4px; border-radius: 2px; background: var(--border); margin: 0 auto 14px; }
     .pp-title {
       font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 700;
-      color: var(--gold); text-align: center; letter-spacing: 1.5px; margin-bottom: 14px;
+      color: var(--accent); text-align: center; letter-spacing: 1.5px; margin-bottom: 14px;
     }
     .pp-list { display: flex; flex-direction: column; gap: 8px; max-height: 50vh; overflow-y: auto; margin-bottom: 14px; }
     .pp-profile-row {
@@ -202,7 +203,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;
       border-radius: 12px; padding: 11px 14px;
       cursor: pointer; touch-action: manipulation; transition: all .18s;
     }
-    .pp-profile-row.checked { border-color: var(--gold); background: rgba(232,197,71,.10); }
+    .pp-profile-row.checked { border-color: var(--accent); background: rgba(232,197,71,.10); }
     .pp-profile-row.disabled { opacity: .35; pointer-events: none; }
     .pp-check {
       width: 22px; height: 22px; border-radius: 6px; flex-shrink: 0;
@@ -210,7 +211,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;
       display: flex; align-items: center; justify-content: center;
       transition: all .18s; font-size: .75rem; color: transparent; margin-left: auto;
     }
-    .pp-profile-row.checked .pp-check { border-color: var(--gold); background: var(--gold); color: #000; }
+    .pp-profile-row.checked .pp-check { border-color: var(--accent); background: var(--accent); color: #000; }
     .pp-avatar { font-size: 1.6rem; line-height: 1; }
     .pp-name { font-family: 'Rajdhani', sans-serif; font-size: 1.05rem; font-weight: 700; color: var(--text); flex: 1; }
     .pp-empty { text-align: center; padding: 24px 0; color: var(--dim); font-family: 'Rajdhani', sans-serif; font-size: .95rem; }
@@ -221,10 +222,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;
       color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 600;
       outline: none; transition: border-color .2s;
     }
-    .pp-manual-input:focus { border-color: var(--gold); }
+    .pp-manual-input:focus { border-color: var(--accent); }
     .pp-manual-input::placeholder { color: var(--dim); opacity: .7; }
     .pp-btn-add-manual {
-      padding: 10px 14px; background: var(--gold); border: none; border-radius: 12px;
+      padding: 10px 14px; background: var(--accent); border: none; border-radius: 12px;
       color: #000; font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 900;
       cursor: pointer; touch-action: manipulation; flex-shrink: 0;
     }
@@ -242,7 +243,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;
     .pp-btn-confirm.disabled { opacity: .35; pointer-events: none; }
     .pp-btn-manage {
       flex: 1; padding: 11px; background: rgba(232,197,71,.08); border: 1.5px solid rgba(232,197,71,.25);
-      border-radius: 12px; color: var(--gold); font-family: 'Rajdhani', sans-serif;
+      border-radius: 12px; color: var(--accent); font-family: 'Rajdhani', sans-serif;
       font-size: .9rem; font-weight: 700; cursor: pointer;
     }
 
@@ -713,6 +714,12 @@ html,body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;
 [data-theme="dark"] .card,[data-theme="light"] .card{background:var(--bg2)!important;border-color:rgba(232,232,232,.07)!important;}
 [data-theme="light"] .card{border-color:rgba(22,23,24,.08)!important;}
 [data-theme="dark"] .t-card,[data-theme="light"] .t-card{background:var(--bg2)!important;}
+[data-theme="light"] .t-card{border-color:rgba(22,23,24,.1)!important;}
+[data-theme="light"] .t-header-title{color:var(--text)!important;text-shadow:none!important;}
+[data-theme="light"] .nb-val{color:var(--text)!important;}
+[data-theme="light"] .nb-btn:hover{color:var(--text)!important;border-color:rgba(22,23,24,.25)!important;}
+[data-theme="light"] .config-pill{border-color:rgba(22,23,24,.15)!important;background:rgba(22,23,24,.04)!important;}
+[data-theme="light"] .team-card{border-color:rgba(22,23,24,.1)!important;}
 [data-theme="dark"] .t-back,[data-theme="light"] .t-back{background:var(--bg3)!important;color:var(--text)!important;border-color:rgba(232,232,232,.15)!important;}
 [data-theme="light"] .t-back{border-color:rgba(22,23,24,.18)!important;}
 /* Option pills */
@@ -736,6 +743,9 @@ html,body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;
 [data-theme="dark"] .profile-picker-sheet,[data-theme="light"] .profile-picker-sheet{background:var(--bg2)!important;}
 [data-theme="dark"] .pp-profile-row,[data-theme="light"] .pp-profile-row{background:var(--bg3)!important;border-color:rgba(232,232,232,.08)!important;}
 [data-theme="light"] .pp-profile-row{border-color:rgba(22,23,24,.1)!important;}
+/* Restore checked state overridden by the rule above */
+[data-theme="dark"] .pp-profile-row.checked,[data-theme="colored"] .pp-profile-row.checked{border-color:var(--accent)!important;background:rgba(232,197,71,.10)!important;}
+[data-theme="dark"] .pp-profile-row.checked .pp-check,[data-theme="colored"] .pp-profile-row.checked .pp-check{border-color:var(--accent)!important;background:var(--accent)!important;color:#000!important;}
 /* Settings panel */
 [data-theme="dark"] .settings-panel-game,[data-theme="light"] .settings-panel-game{background:var(--bg2)!important;border-color:rgba(232,232,232,.1)!important;}
 [data-theme="light"] .settings-panel-game{border-color:rgba(22,23,24,.1)!important;}
@@ -838,7 +848,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;
         <div class="card-title" style="margin-top:16px;" data-i18n="t_config_mode">Configuration</div>
         <div class="opt-group" style="justify-content:flex-start;margin-bottom:8px;">
           <div class="opt-pill active" data-grp="cfgmode" data-val="random" onclick="pickCfgMode(this)" data-i18n="t_cfg_random">🎲 Aléatoire</div>
-          <div class="opt-pill"        data-grp="cfgmode" data-val="manual" onclick="pickCfgMode(this)" data-i18n="t_cfg_manual">✏️ Manuel</div>
+          <div class="opt-pill"        data-grp="cfgmode" data-val="manual" onclick="pickCfgMode(this)" data-i18n="t_cfg_manual">Manuel</div>
         </div>
 
         <!-- Difficulté (cachée en mode manuel) -->
@@ -1175,12 +1185,13 @@ const T_DICT = {
     t_manual_sel: 'Manuel',
     t_config_mode: 'Configuration',
     t_cfg_random: '🎲 Aléatoire',
-    t_cfg_manual: '✏️ Manuel',
+    t_cfg_manual: 'Manuel',
     t_free_config: '⚙️ Config libre',
     t_difficulty: 'Difficulté',
     t_easy: 'Facile',
     t_normal: 'Normal',
     t_input_mode: 'Mode de saisie',
+    t_input_mode_prefix: 'Saisie : ',
     t_total_input: '🔢 Total',
     t_darts_input: '🎯 Par fléchettes',
     t_autodarts_input: '🔗 Autodarts',
@@ -1255,12 +1266,13 @@ const T_DICT = {
     t_manual_sel: 'Manual',
     t_config_mode: 'Configuration',
     t_cfg_random: '🎲 Random',
-    t_cfg_manual: '✏️ Manual',
+    t_cfg_manual: 'Manual',
     t_free_config: '⚙️ Free config',
     t_difficulty: 'Difficulty',
     t_easy: 'Easy',
     t_normal: 'Normal',
     t_input_mode: 'Input mode',
+    t_input_mode_prefix: 'Input: ',
     t_total_input: '🔢 Total',
     t_darts_input: '🎯 Per dart',
     t_autodarts_input: '🔗 Autodarts',
@@ -1761,7 +1773,12 @@ function launchTournament() {
     selectedGames: S.selMode === 'manual' ? S.games : null,
     configMode:    S.configMode,
   });
-  runSlot('setup', () => showPregame());
+  if (S.selMode === 'manual') {
+    TournamentManager.revealCurrentGame();
+    showPregame();
+  } else {
+    runSlot('setup', () => showPregame());
+  }
 }
 
 // ════════════════════════════════════════════════
@@ -2297,9 +2314,10 @@ function renderPills(id, game) {
   const st = TournamentManager.state;
   const modePill = document.createElement('div');
   modePill.className = 'config-pill';
-  modePill.textContent = st.inputMode === 'autodarts' ? T.t_autodarts_input
-                       : st.inputMode === 'darts'     ? T.t_darts_input
-                                                      : T.t_total_input;
+  const inputLabel = st.inputMode === 'autodarts' ? T.t_autodarts_input
+                   : st.inputMode === 'darts'     ? T.t_darts_input
+                                                  : T.t_total_input;
+  modePill.textContent = (T.t_input_mode_prefix || 'Saisie : ') + inputLabel;
   container.appendChild(modePill);
 }
 
