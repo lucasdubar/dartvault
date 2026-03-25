@@ -3561,14 +3561,17 @@ window.addEventListener('beforeinstallprompt', e => {
     if (!adEnabled) return;
     if (adTurnResetTimer) { clearTimeout(adTurnResetTimer); adTurnResetTimer = null; }
     lastNumThrows = 0;
+    dartCount = 0;
     adInTakeout = false;
     fetch('http://' + getIP() + ':3180/api/reset', { method: 'POST', mode: 'no-cors', targetAddressSpace: 'local' }).catch(function(){});
     ['ad-led-1','ad-led-2','ad-led-3'].forEach(function(id) {
       var el = document.getElementById(id);
       if (el) { el.style.background = '#fff'; el.style.boxShadow = '0 0 8px rgba(255,255,255,.9)'; el.style.animation = ''; }
     });
-    setTimeout(function() { connect(); }, 300);
-    if (!silent && typeof showToast === 'function') showToast('Autodarts reset');
+    if (!silent) {
+      setTimeout(function() { connect(); }, 300);
+      if (typeof showToast === 'function') showToast('Autodarts reset');
+    }
   }
 
   // ── Tap status dot = reset Autodarts (déblocage) ──

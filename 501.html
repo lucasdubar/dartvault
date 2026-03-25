@@ -4490,8 +4490,10 @@ function escPP(s) {
       var el = document.getElementById(id);
       if (el) { el.style.background = '#fff'; el.style.boxShadow = '0 0 8px rgba(255,255,255,.9)'; el.style.animation = ''; }
     });
-    setTimeout(function() { connect(); }, 300);
-    if (!silent && typeof showToast === 'function') showToast('Autodarts reset');
+    if (!silent) {
+      setTimeout(function() { connect(); }, 300);
+      if (typeof showToast === 'function') showToast('Autodarts reset');
+    }
   }
 
   // ── Handle takeout: auto-complete + next player ──
