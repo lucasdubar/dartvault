@@ -2146,7 +2146,10 @@ function initPodium() {
   const lb = TournamentManager.getLeaderboard();
   if (!lb.length) return;
 
-  document.getElementById('podium-winner').textContent = lb[0]?.name || '';
+  // Detect tie for 1st place
+  const tiedFirst = lb.filter(p => p.score === lb[0].score);
+  document.getElementById('podium-winner').textContent =
+    tiedFirst.length > 1 ? tiedFirst.map(p => p.name).join(' & ') : (lb[0]?.name || '');
 
   // Columns: 2nd · 1st · 3rd
   const cols    = document.getElementById('podium-cols');
@@ -2340,12 +2343,14 @@ function renderLeaderboard(id, lb) {
   const maxPts    = lb[0]?.score || 1;
   container.innerHTML = '';
   const rClasses = ['r1', 'r2', 'r3'];
+  let displayRank = 0; // rank pointer that only advances when score changes
   lb.forEach((p, i) => {
+    if (i === 0 || lb[i].score !== lb[i - 1].score) displayRank = i;
     const row = document.createElement('div');
-    row.className = `lb-row ${rClasses[i] || ''}`;
+    row.className = `lb-row ${rClasses[displayRank] || ''}`;
     const barW = maxPts > 0 ? Math.round((p.score / maxPts) * 100) : 0;
     row.innerHTML = `
-      <span class="lb-rank">${RANK_EMOJIS[i] || (i+1) + '.'}</span>
+      <span class="lb-rank">${RANK_EMOJIS[displayRank] || (displayRank + 1) + '.'}</span>
       <span class="lb-name">${p.name}</span>
       <div class="lb-bar-wrap"><div class="lb-bar" style="width:${barW}%"></div></div>
       <span class="lb-pts">${p.score} ${p.score !== 1 ? T.t_pts_plural : T.t_pts}</span>

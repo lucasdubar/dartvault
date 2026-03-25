@@ -512,7 +512,7 @@
 
     // Watch for 'open' class being added
     new MutationObserver(() => {
-      if (modal.classList.contains('open') && !modal._tInjected) {
+      if (modal.classList.contains('open') && !modal._tInjected && _ranking !== null) {
         modal._tInjected = true;
         _injectTournamentUI(modal);
       }
