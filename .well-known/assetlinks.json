@@ -2,7 +2,7 @@
   "relation": ["delegate_permission/common.handle_all_urls"],
   "target": {
     "namespace": "android_app",
-    "package_name": "YOUR_PACKAGE_NAME",
-    "sha256_cert_fingerprints": ["YOUR_SHA256_FINGERPRINT"]
+    "package_name": "app.dartvault.twa",
+    "sha256_cert_fingerprints": ["77:0E:36:51:46:6A:A9:D3:25:2D:93:98:93:A2:CE:91:9E:45:9B:53:7D:F4:0D:79:FD:FA:1F:53:3C:51:93:C5"]
   }
 }]
