@@ -419,7 +419,8 @@
       const diffBtn = document.querySelector('#btn-difficulty');
       if (diffBtn) {
         const wantHard = cfg.difficulty === 'hard';
-        const isHard = (diffBtn.dataset.difficulty || '') === 'hard'
+        const isHard = diffBtn.classList.contains('hard')
+                    || (diffBtn.dataset.difficulty || '') === 'hard'
                     || diffBtn.textContent.toLowerCase().includes('difficile')
                     || diffBtn.textContent.toLowerCase().includes('hard');
         if (wantHard !== isHard) diffBtn.click();

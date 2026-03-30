@@ -3376,7 +3376,6 @@ document.getElementById('autodarts-ip').addEventListener('change', function() { 
       if (el) { el.style.background = '#fff'; el.style.boxShadow = '0 0 8px rgba(255,255,255,.9)'; el.style.animation = ''; }
     });
     if (!silent) {
-      setTimeout(function() { connect(); }, 300);
       if (typeof showToast === 'function') showToast('Autodarts reset');
     }
   }

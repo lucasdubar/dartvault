@@ -1234,12 +1234,6 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
         <button id="autodarts-test-btn" style="width:160px;padding:7px 10px;border-radius:8px;border:1.5px solid rgba(78,203,113,.4);background:rgba(78,203,113,.1);color:var(--ok);font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;touch-action:manipulation;transition:all .15s;">Tester la connexion</button>
         <div id="autodarts-test-result" style="font-size:.75rem;margin-top:4px;min-height:1.2em;font-weight:600;padding-left:2px;"></div>
       </div>
-      <div id="autodarts-apk-row" style="display:none;padding:2px 0 2px 28px;">
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-          <input type="checkbox" id="chk-autodarts-apk" style="width:15px;height:15px;accent-color:var(--warn);">
-          <span style="font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;color:var(--warn);">Mode APK (ws://)</span>
-        </label>
-      </div>
     </div>
   </div>
 
@@ -4338,9 +4332,7 @@ function escPP(s) {
   'use strict';
 
   const STORAGE_KEY = 'dartvault_autodarts_ip';
-  const APK_MODE_KEY = 'dartvault_autodarts_apk_mode';
-  function getAPKMode() { return localStorage.getItem(APK_MODE_KEY) === '1'; }
-  const DEFAULT_IP  = '192.168.1.37';
+const DEFAULT_IP  = '192.168.1.37';
   const PORT_WS  = 3180;
   const PORT_WSS = 3181;
   const RECONNECT_DELAY = 3000;
@@ -4359,7 +4351,7 @@ function escPP(s) {
 
   function getWSUrl() {
     const ip = getIP();
-    const isSecure = window.location.protocol === 'https:' && !getAPKMode();
+    const isSecure = window.location.protocol === 'https:';
     return (isSecure ? 'wss' : 'ws') + '://' + ip + ':' + (isSecure ? PORT_WSS : PORT_WS) + '/api/events';
   }
 
@@ -4491,7 +4483,6 @@ function escPP(s) {
       if (el) { el.style.background = '#fff'; el.style.boxShadow = '0 0 8px rgba(255,255,255,.9)'; el.style.animation = ''; }
     });
     if (!silent) {
-      setTimeout(function() { connect(); }, 300);
       if (typeof showToast === 'function') showToast('Autodarts reset');
     }
   }
@@ -4620,11 +4611,9 @@ function escPP(s) {
   }
 
   var testRow = document.getElementById('autodarts-test-row');
-  var apkRow = document.getElementById('autodarts-apk-row');
   function setAutodartsRows(visible) {
     ipRow.style.display = visible ? '' : 'none';
     if (testRow) testRow.style.display = visible ? '' : 'none';
-    if (apkRow) apkRow.style.display = visible ? '' : 'none';
   }
 
   // Restore saved state
@@ -4634,10 +4623,7 @@ function escPP(s) {
     applyAutodartsValidate(true);
   }
   ipField.value = getIP();
-  var chkApk = document.getElementById('chk-autodarts-apk');
-  if (chkApk) { chkApk.checked = getAPKMode(); chkApk.addEventListener('change', function() { localStorage.setItem(APK_MODE_KEY, this.checked ? '1' : '0'); }); }
-
-  chk.addEventListener('change', function() {
+chk.addEventListener('change', function() {
     setAutodartsRows(this.checked);
     localStorage.setItem('dartvault_autodarts_enabled', this.checked ? '1' : '0');
     if (this.checked) setIP(ipField.value.trim() || DEFAULT_IP);
@@ -4716,8 +4702,8 @@ function escPP(s) {
       var ip = getIP();
       _testResult501.textContent = '⏳';
       _testResult501.style.color = 'var(--dim)';
-      var proto = (window.location.protocol === 'https:' && !getAPKMode()) ? 'wss' : 'ws';
-      var port  = (window.location.protocol === 'https:' && !getAPKMode()) ? PORT_WSS : PORT_WS;
+      var proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
+      var port  = window.location.protocol === 'https:' ? PORT_WSS : PORT_WS;
       var url   = proto + '://' + ip + ':' + port + '/api/events';
       var twsTest, tTimeout;
       try { twsTest = new WebSocket(url); } catch(e) { fail501(); return; }
