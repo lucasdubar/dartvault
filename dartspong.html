@@ -2993,7 +2993,7 @@ function showScreen(n){
   document.body.scrollTop = 0;
   el.scrollTop = 0;
   const btn = document.getElementById('btn-back');
-  if(btn) btn.textContent = n==='game' ? '← Retour' : '← Menu';
+  if(btn) btn.textContent = n==='game' ? DV_LANG.t('back') : DV_LANG.t('menu');
 }
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 function shuffle(a){return[...a].sort(()=>Math.random()-.5);}

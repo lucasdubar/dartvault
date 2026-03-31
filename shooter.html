@@ -1505,7 +1505,7 @@ function showScreen(id) {
   if (sc) sc.scrollTop = 0;
   const menuBtn = document.getElementById('btn-menu-back');
   if (id === 'setup') {
-    menuBtn.textContent = '← Menu';
+    menuBtn.textContent = DV_LANG.t('menu');
   } else if (id === 'game') {
     menuBtn.textContent = DV_LANG.t('back');
   }
@@ -3521,7 +3521,7 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
       var s = document.getElementById('btn-start');
       if (s) s.textContent = '💥 ' + L('start');
       var bk = document.getElementById('btn-menu-back');
-      if (bk) bk.textContent = L('menu');
+      if (bk) { var _sg = document.getElementById('screen-game'); bk.textContent = (_sg && _sg.classList.contains('active')) ? L('back') : L('menu'); }
       var rb = document.getElementById('btn-rules');
       if (rb) rb.textContent = L('rules_btn');
       var dif = document.getElementById('btn-difficulty');

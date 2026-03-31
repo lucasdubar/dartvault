@@ -2989,6 +2989,8 @@ function showPlaceToast(msg, color) {
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(`screen-${id}`).classList.add('active');
+  var bk = document.getElementById('btn-back');
+  if (bk) bk.textContent = id === 'game' ? DV_LANG.t('back') : DV_LANG.t('menu');
 }
 
 function goSetup() {
@@ -3402,7 +3404,7 @@ history.pushState(null,'',window.location.href);
       var s = document.getElementById('btn-start');
       if (s) s.textContent = '⚓ ' + L('start');
       var bk = document.getElementById('btn-back');
-      if (bk) bk.textContent = L('menu');
+      if (bk) { var _sg = document.getElementById('screen-game'); bk.textContent = (_sg && _sg.classList.contains('active')) ? L('back') : L('menu'); }
       var ht = document.querySelector('.hist-inline-title');
       if (ht) ht.textContent = L('history');
       // Handoff dynamique

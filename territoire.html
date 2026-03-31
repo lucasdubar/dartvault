@@ -3185,7 +3185,7 @@ renderTeams();
       var s = document.getElementById('btn-start');
       if (s) s.textContent = '🏰 ' + L('start');
       var bk = document.getElementById('btn-menu-back');
-      if (bk) bk.textContent = L('menu');
+      if (bk) { var _sg = document.getElementById('screen-game'); bk.textContent = (_sg && _sg.classList.contains('active')) ? L('back') : L('menu'); }
       var rb = document.getElementById('btn-rules');
       if (rb) rb.textContent = L('rules_btn');
       // Difficulté
