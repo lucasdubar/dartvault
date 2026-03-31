@@ -1534,25 +1534,23 @@
     <div class="mod" style="max-width:440px;text-align:left;">
       <div style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--accent);margin-bottom:12px;text-align:center;">🎯 Autodarts</div>
       <div id="ad-info-body" style="font-size:.85rem;color:var(--text);line-height:1.7;">
-        <p style="margin-bottom:10px;opacity:.85;" id="ad-info-p1">Autodarts est un système de <b>scoring automatique</b> par caméras. Trois caméras USB filment la cible et détectent où chaque fléchette se plante — plus besoin de saisir manuellement !</p>
-        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.9rem;color:var(--accent);margin:12px 0 6px;">📦 <span id="ad-info-h1">Matériel nécessaire</span></div>
-        <p style="margin-bottom:10px;opacity:.85;" id="ad-info-p2">Un mini-PC (ex: HP T630), 3 caméras USB (OV9732), un anneau lumineux (Winmau Plasma), et des supports imprimés 3D. Le tout connecté en Ethernet ou WiFi sur le même réseau que votre téléphone/tablette.</p>
-        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.9rem;color:var(--accent);margin:12px 0 6px;">⚙️ <span id="ad-info-h2">Configuration</span></div>
-        <p style="margin-bottom:6px;opacity:.85;" id="ad-info-p3">1. Installez <b>Autodarts</b> sur votre mini-PC (<a href="https://autodarts.io" target="_blank" style="color:var(--accent);">autodarts.io</a>)</p>
-        <p style="margin-bottom:6px;opacity:.85;" id="ad-info-p4">2. Calibrez les 3 caméras via le Board Manager</p>
-        <p style="margin-bottom:6px;opacity:.85;" id="ad-info-p5">3. Activez Autodarts ici dans les réglages et entrez l'IP de votre mini-PC</p>
-        <p style="margin-bottom:6px;opacity:.85;" id="ad-info-p6">4. <b>Important</b> : acceptez le certificat HTTPS en visitant <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[IP]:3181</code> une fois sur chaque appareil</p>
-        <p style="margin-bottom:10px;opacity:.85;" id="ad-info-p7">5. Cochez 🎯 Autodarts dans les options de chaque jeu — c'est prêt !</p>
-        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.9rem;color:var(--accent);margin:12px 0 6px;">💡 <span id="ad-info-h3">Astuces</span></div>
-        <p style="margin-bottom:6px;opacity:.85;" id="ad-info-p8">• La <b>pastille verte</b> en haut à droite indique la connexion. Tapez dessus pour reset le board si ça bloque.</p>
-        <p style="opacity:.85;" id="ad-info-p9">• La validation nécessaire est forcée en mode Autodarts pour que le retrait des fléchettes déclenche le passage au joueur suivant.</p>
+        <p style="margin-bottom:10px;opacity:.85;" id="ad-info-p1">Autodarts est un système de <b>scoring automatique</b> par caméras qui détecte où chaque fléchette se plante. <a href="https://autodarts.io" target="_blank" style="color:var(--accent);">autodarts.io</a></p>
+        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.9rem;color:var(--accent);margin:12px 0 6px;">⚙️ <span id="ad-info-h2">Connexion</span></div>
+        <p style="margin-bottom:6px;opacity:.85;" id="ad-info-p3">1. Assurez-vous que votre système est allumé et sur le même réseau WiFi</p>
+        <p style="margin-bottom:6px;opacity:.85;" id="ad-info-p4">2. Activez Autodarts dans les réglages et entrez l'IP de votre board</p>
+        <p style="margin-bottom:6px;opacity:.85;" id="ad-info-p5">3. Acceptez le certificat HTTPS en visitant <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[IP]:3181</code> une fois sur cet appareil</p>
+        <p style="margin-bottom:10px;opacity:.85;" id="ad-info-p6">4. Cochez 🎯 Autodarts dans les options du jeu — c'est prêt !</p>
+        <p style="opacity:.85;" id="ad-info-p8">💡 La <b>pastille verte</b> en haut à droite indique la connexion. Tapez dessus pour reset si ça bloque.</p>
       </div>
       <button class="bclose" style="margin-top:16px;width:100%;" onclick="document.getElementById('ad-info-modal').classList.remove('open')" data-i18n="close">Fermer</button>
     </div>
   </div>
 
   <div class="footer">
-    <button class="btn-support" id="btn-support" onclick="document.getElementById('support-modal').classList.add('open')">☕ <span id="btn-support-text">Soutenir DartVault</span></button>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn-support" id="btn-support" onclick="document.getElementById('support-modal').classList.add('open')">☕ <span id="btn-support-text">Soutenir DartVault</span></button>
+      <button class="btn-support" onclick="window.open('https://play.google.com/store/apps/details?id=app.dartvault.twa','_blank')" style="border-color:rgba(99,102,241,.4);color:rgba(180,180,255,.9);">⭐ <span id="btn-rate-text">Noter l'appli</span></button>
+    </div>
     <span>DartVault © 2026</span>
     <div style="display:flex;gap:16px;">
       <button class="footer-privacy" id="btn-privacy" onclick="window.location.href='/privacy'">🔒 <span data-i18n="privacy">Confidentialité</span></button>
@@ -1571,6 +1569,20 @@
       <p style="font-size:.85rem;color:var(--dim);line-height:1.6;margin-bottom:16px;" id="support-desc-text">DartVault est 100% gratuit et sans pub. Si l'appli vous plaît, un petit coup de pouce aide à la maintenir et l'améliorer !</p>
       <div id="paypal-container-K34UTC75D75NW" style="min-height:50px;"></div>
       <button class="bclose" onclick="document.getElementById('support-modal').classList.remove('open')" data-i18n="close_rules">Fermer</button>
+    </div>
+  </div>
+
+  <!-- Modal Notation -->
+  <div class="mov" id="rating-modal" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="mod" style="max-width:360px;text-align:center;">
+      <div style="font-size:2.2rem;margin-bottom:8px;">⭐</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:1.2rem;font-weight:700;color:var(--accent);margin-bottom:10px;" id="rating-title">Vous aimez DartVault ?</div>
+      <p style="font-size:.85rem;color:var(--dim);line-height:1.6;margin-bottom:20px;" id="rating-desc">Laissez un avis sur le Play Store, ça aide énormément et c'est gratuit !</p>
+      <button style="width:100%;padding:13px;border-radius:12px;border:none;font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--accent),#6366f1);color:#fff;margin-bottom:8px;touch-action:manipulation;" onclick="window.open('https://play.google.com/store/apps/details?id=app.dartvault.twa','_blank');localStorage.setItem('dartvault_rating_done','1');document.getElementById('rating-modal').classList.remove('open')" id="rating-btn-yes">⭐ Noter l'appli</button>
+      <div style="display:flex;gap:8px;margin-top:4px;">
+        <button class="bclose" style="flex:1;" onclick="document.getElementById('rating-modal').classList.remove('open')" id="rating-btn-later">Plus tard</button>
+        <button class="bclose" style="flex:1;opacity:.6;" onclick="localStorage.setItem('dartvault_rating_done','1');document.getElementById('rating-modal').classList.remove('open')" id="rating-btn-never">Ne plus afficher</button>
+      </div>
     </div>
   </div>
 
@@ -1634,7 +1646,7 @@
         contact_ok: '✅ Message envoyé !',
         contact_err: '❌ Erreur, réessayez.',
         contact_empty: 'Veuillez écrire un message.',
-        support_btn: '☕ Soutenir DartVault',
+        support_btn: '☕ Soutenir DartVault', rate_btn: 'Noter l\'appli',
         support_title: 'Soutenir DartVault',
         support_desc: 'DartVault est 100% gratuit et sans pub. Si l\'appli vous plaît, un petit coup de pouce aide à la maintenir et l\'améliorer !',
         close: 'Fermer',
@@ -1666,15 +1678,13 @@
         ad_connect: 'Connexion', ad_test: 'Tester la connexion', ad_info_btn: "ℹ️ Qu'est-ce qu'Autodarts ?",
         ad_info_text: "Qu'est-ce qu'Autodarts ?",
         ad_connected: 'Connecté', ad_failed: 'Échec — vérifiez l\'IP et le certificat HTTPS',
-        ad_p1: 'Autodarts est un système de <b>scoring automatique</b> par caméras. Trois caméras USB filment la cible et détectent où chaque fléchette se plante — plus besoin de saisir manuellement !',
-        ad_h1: 'Matériel nécessaire', ad_p2: 'Un mini-PC (ex: HP T630), 3 caméras USB (OV9732), un anneau lumineux (Winmau Plasma), et des supports imprimés 3D. Le tout connecté en Ethernet ou WiFi sur le même réseau que votre téléphone/tablette.',
-        ad_h2: 'Configuration',
-        ad_p3: '1. Installez <b>Autodarts</b> sur votre mini-PC', ad_p4: '2. Calibrez les 3 caméras via le Board Manager',
-        ad_p5: '3. Activez Autodarts ici dans les réglages et entrez l\'IP de votre mini-PC',
-        ad_p6: '4. <b>Important</b> : acceptez le certificat HTTPS en visitant <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[IP]:3181</code> une fois sur chaque appareil',
-        ad_p7: '5. Cochez 🎯 Autodarts dans les options de chaque jeu — c\'est prêt !',
-        ad_h3: 'Astuces', ad_p8: '• La <b>pastille verte</b> en haut à droite indique la connexion. Tapez dessus pour reset le board si ça bloque.',
-        ad_p9: '• La validation nécessaire est forcée en mode Autodarts pour que le retrait des fléchettes déclenche le passage au joueur suivant.',
+        ad_p1: 'Autodarts est un système de <b>scoring automatique</b> par caméras qui détecte où chaque fléchette se plante. <a href="https://autodarts.io" target="_blank" style="color:var(--accent);">autodarts.io</a>',
+        ad_h2: 'Connexion',
+        ad_p3: '1. Assurez-vous que votre système est allumé et sur le même réseau WiFi',
+        ad_p4: '2. Activez Autodarts dans les réglages et entrez l\'IP de votre board',
+        ad_p5: '3. Acceptez le certificat HTTPS en visitant <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[IP]:3181</code> une fois sur cet appareil',
+        ad_p6: '4. Cochez 🎯 Autodarts dans les options du jeu — c\'est prêt !',
+        ad_p8: '💡 La <b>pastille verte</b> en haut à droite indique la connexion. Tapez dessus pour reset si ça bloque.',
         rules: {
           x01: { icon:'🎯', title:'X01 DARTS', players:'👤 1 – 6 joueurs',
             catch: 'Chaque fléchette compte.\nDescends à zéro avant tout le monde.',
@@ -1967,7 +1977,7 @@
         contact_ok: '✅ Message sent!',
         contact_err: '❌ Error, try again.',
         contact_empty: 'Please write a message.',
-        support_btn: '☕ Support DartVault',
+        support_btn: '☕ Support DartVault', rate_btn: 'Rate the app',
         support_title: 'Support DartVault',
         support_desc: 'DartVault is 100% free and ad-free. If you enjoy the app, a small contribution helps keep it alive and improving!',
         close: 'Close',
@@ -1999,15 +2009,13 @@
         ad_connect: 'Connection', ad_test: 'Test connection', ad_info_btn: 'ℹ️ What is Autodarts?',
         ad_info_text: 'What is Autodarts?',
         ad_connected: 'Connected', ad_failed: 'Failed — check IP and HTTPS certificate',
-        ad_p1: 'Autodarts is an <b>automatic scoring</b> system using cameras. Three USB cameras film the board and detect where each dart lands — no more manual input!',
-        ad_h1: 'Required hardware', ad_p2: 'A mini-PC (e.g. HP T630), 3 USB cameras (OV9732), a ring light (Winmau Plasma), and 3D-printed mounts. Everything connected via Ethernet or WiFi on the same network as your phone/tablet.',
-        ad_h2: 'Setup',
-        ad_p3: '1. Install <b>Autodarts</b> on your mini-PC', ad_p4: '2. Calibrate the 3 cameras via the Board Manager',
-        ad_p5: '3. Enable Autodarts here in settings and enter your mini-PC IP address',
-        ad_p6: '4. <b>Important</b>: accept the HTTPS certificate by visiting <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[IP]:3181</code> once on each device',
-        ad_p7: '5. Check 🎯 Autodarts in each game\'s options — you\'re all set!',
-        ad_h3: 'Tips', ad_p8: '• The <b>green dot</b> in the top-right shows connection status. Tap it to reset the board if it gets stuck.',
-        ad_p9: '• Validation is forced in Autodarts mode so that removing darts triggers the next player automatically.',
+        ad_p1: 'Autodarts is an <b>automatic scoring</b> system using cameras that detects where each dart lands. <a href="https://autodarts.io" target="_blank" style="color:var(--accent);">autodarts.io</a>',
+        ad_h2: 'Connection',
+        ad_p3: '1. Make sure your system is on and connected to the same WiFi network',
+        ad_p4: '2. Enable Autodarts in settings and enter your board\'s IP address',
+        ad_p5: '3. Accept the HTTPS certificate by visiting <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[IP]:3181</code> once on this device',
+        ad_p6: '4. Check 🎯 Autodarts in the game options — you\'re all set!',
+        ad_p8: '💡 The <b>green dot</b> in the top-right shows connection status. Tap it to reset if it gets stuck.',
         rules: {
           x01: { icon:'🎯', title:'X01 DARTS', players:'👤 1 – 6 players',
             catch: 'Every dart counts.\nGet down to zero before everyone else.',
@@ -2319,6 +2327,8 @@
       if(ctSend) ctSend.textContent = T.contact_send;
       const spBtn = document.getElementById('btn-support-text');
       if(spBtn) spBtn.textContent = T.support_btn.replace('☕ ','');
+      const rateBtn = document.getElementById('btn-rate-text');
+      if(rateBtn && T.rate_btn) rateBtn.textContent = T.rate_btn;
       const spTitle = document.getElementById('support-title-text');
       if(spTitle) spTitle.textContent = T.support_title;
       const spDesc = document.getElementById('support-desc-text');
@@ -2970,7 +2980,7 @@
       // Fallback if SW never responds (local dev)
       setTimeout(function() {
         var el = document.getElementById('app-version');
-        if (el && !el.textContent) el.textContent = 'v2.52';
+        if (el && !el.textContent) el.textContent = 'v2.53';
       }, 2000);
     }, 2000);
 
@@ -3262,6 +3272,30 @@
     var modal = document.getElementById('support-modal');
     if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
   })();
+</script>
+<script>
+(function() {
+  if (localStorage.getItem('dartvault_rating_done')) return;
+  var gamePages = ['501','cricket','shanghai','horloge','bataille','blackjack','dartspong','race500','shooter','territoire'];
+  var fromGame = gamePages.some(function(g) { return document.referrer.indexOf(g) !== -1; });
+  if (!fromGame) return;
+  var count = parseInt(localStorage.getItem('dartvault_game_count') || '0') + 1;
+  localStorage.setItem('dartvault_game_count', String(count));
+  if (count % 10 === 0) {
+    setTimeout(function() {
+      var lang = localStorage.getItem('dartvault_lang') || 'fr';
+      if (lang === 'en') {
+        var t = document.getElementById('rating-title'); if (t) t.textContent = 'Enjoying DartVault?';
+        var d = document.getElementById('rating-desc'); if (d) d.textContent = "Leave a review on the Play Store — it helps a lot and it's free!";
+        var y = document.getElementById('rating-btn-yes'); if (y) y.textContent = '⭐ Rate the app';
+        var l = document.getElementById('rating-btn-later'); if (l) l.textContent = 'Later';
+        var n = document.getElementById('rating-btn-never'); if (n) n.textContent = "Don't show again";
+      }
+      var modal = document.getElementById('rating-modal');
+      if (modal) modal.classList.add('open');
+    }, 600);
+  }
+})();
 </script>
 </body>
 </html>
