@@ -1658,32 +1658,33 @@ let selectedNbShips = 3;
 
 function getShipDefs(n, difficulty) {
   const diff = difficulty || GAME_DIFFICULTY;
+  const t = (window.DV_LANG && typeof DV_LANG.t === 'function') ? (k => DV_LANG.t(k)) : (k => k);
   if (diff === 'normal') return [
-    { id:'carrier',   type:'full_zone', label:'⚓ Porte-avion' },
-    { id:'submarine', type:'tri_sint',  label:'🤿 Sous-marin'  },
-    { id:'free',      type:'big3', ring:'any', label:'🚢 Bateau libre' },
+    { id:'carrier',   type:'full_zone', label:t('bt_ship_carrier')   },
+    { id:'submarine', type:'tri_sint',  label:t('bt_ship_sub')       },
+    { id:'free',      type:'big3', ring:'any', label:t('bt_ship_free_any') },
   ];
   if (diff === 'hard') return [
-    { id:'carrier',    type:'full_zone', label:'⚓ Porte-avion' },
-    { id:'battleship', type:'big3', ring:'any', label:'🛳 Cuirassé'   },
-    { id:'submarine',  type:'tri_sint',  label:'🤿 Sous-marin'  },
-    { id:'cruiser',    type:'dbl3',      label:'⛵ Croiseur'    },
+    { id:'carrier',    type:'full_zone', label:t('bt_ship_carrier')    },
+    { id:'battleship', type:'big3', ring:'any', label:t('bt_ship_battleship') },
+    { id:'submarine',  type:'tri_sint',  label:t('bt_ship_sub')        },
+    { id:'cruiser',    type:'dbl3',      label:t('bt_ship_cruiser')    },
   ];
   // easy
   if (n === 2) return [
-    { id:'ext1', type:'big3', ring:'ext', label:'🚢 Ext. 1' },
-    { id:'any1', type:'big3', ring:'any', label:'🚢 Libre'  },
+    { id:'ext1', type:'big3', ring:'ext', label:'🚢 Ext. 1'          },
+    { id:'any1', type:'big3', ring:'any', label:t('bt_ship_libre')    },
   ];
   if (n === 4) return [
-    { id:'ext1', type:'big3', ring:'ext', label:'🚢 Ext. 1' },
-    { id:'ext2', type:'big3', ring:'ext', label:'🚢 Ext. 2' },
-    { id:'any1', type:'big3', ring:'any', label:'🚢 Libre 1' },
-    { id:'any2', type:'big3', ring:'any', label:'🚢 Libre 2' },
+    { id:'ext1', type:'big3', ring:'ext', label:'🚢 Ext. 1'          },
+    { id:'ext2', type:'big3', ring:'ext', label:'🚢 Ext. 2'          },
+    { id:'any1', type:'big3', ring:'any', label:t('bt_ship_libre1')   },
+    { id:'any2', type:'big3', ring:'any', label:t('bt_ship_libre2')   },
   ];
   return [
-    { id:'ext1', type:'big3', ring:'ext', label:'🚢 Ext. 1' },
-    { id:'ext2', type:'big3', ring:'ext', label:'🚢 Ext. 2' },
-    { id:'any1', type:'big3', ring:'any', label:'🚢 Libre'  },
+    { id:'ext1', type:'big3', ring:'ext', label:'🚢 Ext. 1'          },
+    { id:'ext2', type:'big3', ring:'ext', label:'🚢 Ext. 2'          },
+    { id:'any1', type:'big3', ring:'any', label:t('bt_ship_libre')    },
   ];
 }
 let SHIP_DEFS = getShipDefs(3); // sera mis à jour au démarrage

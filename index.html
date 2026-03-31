@@ -1525,7 +1525,7 @@
       <div id="ad-test-result" style="font-size:.75rem;text-align:center;margin-top:4px;min-height:1.2em;font-weight:600;"></div>
     </div>
     <div style="padding:0 6px 4px;">
-      <button id="ad-info-btn" style="background:none;border:none;color:var(--dim);font-size:.78rem;cursor:pointer;touch-action:manipulation;text-decoration:underline;font-family:'Exo 2',sans-serif;padding:0;" data-i18n="ad_info_btn">ℹ️ <span id="ad-info-text">Qu'est-ce qu'Autodarts ?</span></button>
+      <button id="ad-info-btn" style="background:none;border:none;color:var(--dim);font-size:.78rem;cursor:pointer;touch-action:manipulation;text-decoration:underline;font-family:'Exo 2',sans-serif;padding:0;" data-i18n="ad_info_btn">📡 <span id="ad-info-text">Infos Autodarts</span></button>
     </div>
   </div>
 
@@ -1540,7 +1540,7 @@
         <p style="margin-bottom:6px;opacity:.85;" id="ad-info-p4">2. Activez Autodarts dans les réglages et entrez l'IP de votre board</p>
         <p style="margin-bottom:6px;opacity:.85;" id="ad-info-p5">3. Acceptez le certificat HTTPS en visitant <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[IP]:3181</code> une fois sur cet appareil</p>
         <p style="margin-bottom:10px;opacity:.85;" id="ad-info-p6">4. Cochez 🎯 Autodarts dans les options du jeu — c'est prêt !</p>
-        <p style="opacity:.85;" id="ad-info-p8">💡 La <b>pastille verte</b> en haut à droite indique la connexion. Tapez dessus pour reset si ça bloque.</p>
+        <p style="opacity:.85;" id="ad-info-p8">💡 Le logo 📡 en haut à droite indique la connexion. Tapez dessus pour reset si ça bloque.</p>
       </div>
       <button class="bclose" style="margin-top:16px;width:100%;" onclick="document.getElementById('ad-info-modal').classList.remove('open')" data-i18n="close">Fermer</button>
     </div>
@@ -1675,8 +1675,8 @@
         name_horloge: 'HORLOGE',
         desc_horloge: 'Touche chaque numéro de 1 à 20 dans l\'ordre !',
         players_horloge: '👤 1 – 6 joueurs',
-        ad_connect: 'Connexion', ad_test: 'Tester la connexion', ad_info_btn: "ℹ️ Qu'est-ce qu'Autodarts ?",
-        ad_info_text: "Qu'est-ce qu'Autodarts ?",
+        ad_connect: 'Connexion', ad_test: 'Tester la connexion', ad_info_btn: '📡 Infos Autodarts',
+        ad_info_text: 'Infos Autodarts',
         ad_connected: 'Connecté', ad_failed: 'Échec — vérifiez l\'IP et le certificat HTTPS',
         ad_p1: 'Autodarts est un système de <b>scoring automatique</b> par caméras qui détecte où chaque fléchette se plante. <a href="https://autodarts.io" target="_blank" style="color:var(--accent);">autodarts.io</a>',
         ad_h2: 'Connexion',
@@ -1684,7 +1684,7 @@
         ad_p4: '2. Activez Autodarts dans les réglages et entrez l\'IP de votre board',
         ad_p5: '3. Acceptez le certificat HTTPS en visitant <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[IP]:3181</code> une fois sur cet appareil',
         ad_p6: '4. Cochez 🎯 Autodarts dans les options du jeu — c\'est prêt !',
-        ad_p8: '💡 La <b>pastille verte</b> en haut à droite indique la connexion. Tapez dessus pour reset si ça bloque.',
+        ad_p8: '💡 Le logo 📡 en haut à droite indique la connexion. Tapez dessus pour reset si ça bloque.',
         rules: {
           x01: { icon:'🎯', title:'X01 DARTS', players:'👤 1 – 6 joueurs',
             catch: 'Chaque fléchette compte.\nDescends à zéro avant tout le monde.',
@@ -2006,8 +2006,8 @@
         name_horloge: 'HORLOGE',
         desc_horloge: 'Hit every number from 1 to 20 in order!',
         players_horloge: '👤 1 – 6 players',
-        ad_connect: 'Connection', ad_test: 'Test connection', ad_info_btn: 'ℹ️ What is Autodarts?',
-        ad_info_text: 'What is Autodarts?',
+        ad_connect: 'Connection', ad_test: 'Test connection', ad_info_btn: '📡 Autodarts Info',
+        ad_info_text: 'Autodarts Info',
         ad_connected: 'Connected', ad_failed: 'Failed — check IP and HTTPS certificate',
         ad_p1: 'Autodarts is an <b>automatic scoring</b> system using cameras that detects where each dart lands. <a href="https://autodarts.io" target="_blank" style="color:var(--accent);">autodarts.io</a>',
         ad_h2: 'Connection',
@@ -2015,7 +2015,7 @@
         ad_p4: '2. Enable Autodarts in settings and enter your board\'s IP address',
         ad_p5: '3. Accept the HTTPS certificate by visiting <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[IP]:3181</code> once on this device',
         ad_p6: '4. Check 🎯 Autodarts in the game options — you\'re all set!',
-        ad_p8: '💡 The <b>green dot</b> in the top-right shows connection status. Tap it to reset if it gets stuck.',
+        ad_p8: '💡 The 📡 icon in the top-right shows connection status. Tap it to reset if it gets stuck.',
         rules: {
           x01: { icon:'🎯', title:'X01 DARTS', players:'👤 1 – 6 players',
             catch: 'Every dart counts.\nGet down to zero before everyone else.',
@@ -2980,7 +2980,7 @@
       // Fallback if SW never responds (local dev)
       setTimeout(function() {
         var el = document.getElementById('app-version');
-        if (el && !el.textContent) el.textContent = 'v2.54';
+        if (el && !el.textContent) el.textContent = 'v2.55';
       }, 2000);
     }, 2000);
 
