@@ -1541,7 +1541,7 @@ document.addEventListener('click', e => {
   const skipIds = ['btn-start', 'btn-blackjack-close', 'btn-next-round'];
   if (skipIds.includes(el.id)) return;
   if (skipClasses.some(s => el.classList.contains(s))) return;
-  haptic('light');
+  feedbackKey();
 });
 document.getElementById('btn-add').addEventListener('click', addPlayer);
 document.getElementById('player-input').addEventListener('keydown', e=>{ if(e.key==='Enter') addPlayer(); });

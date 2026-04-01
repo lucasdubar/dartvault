@@ -2266,7 +2266,7 @@ document.addEventListener('click', e => {
   const skipClasses = ['btn-action', 'btn-out-shg', 'btn-out', 'btn-undo'];
   if (skipIds.includes(el.id)) return;
   if (skipClasses.some(c => el.classList.contains(c))) return;
-  haptic('light');
+  feedbackKey();
 });
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 function wiggleValBtn(){const btn=document.getElementById('btn-val');if(!btn)return;btn.classList.add('ready');btn.classList.remove('wiggle');void btn.offsetWidth;btn.classList.add('wiggle');btn.addEventListener('animationend',()=>btn.classList.remove('wiggle'),{once:true});}

@@ -1819,6 +1819,14 @@ document.getElementById('btn-rematch').onclick = () => {
 };
 document.getElementById('btn-end-back').onclick = () => { G._finalWinnerNames=null; document.getElementById('end-modal').classList.remove('open'); G._victorySnapshot = null; goS(); };
 document.getElementById('btn-end-menu').onclick = () => { G._finalWinnerNames=null; window.location.href = 'index.html'; };
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('button, label, .pill-label, .option-btn');
+  if (!el) return;
+  const skipIds = ['btn-rematch', 'btn-end-back', 'btn-end-menu', 'btn-end-close'];
+  if (skipIds.includes(el.id)) return;
+  feedbackKey();
+});
 document.getElementById('btn-end-close').onclick = () => {
   _undoWins(G._finalWinnerNames || []);
   G._finalWinnerNames = null;

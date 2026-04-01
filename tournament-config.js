@@ -167,14 +167,14 @@ const TOURNAMENT_GAMES = [
   // input[name="rounds"] → 5 | 7 | 10
   // difficulty           → "easy" | "normal"
   // input[name="mode"]   → "solo" | "equipe"
-  // 1-3 joueurs : solo | 4 joueurs : equipe | 5-6 : indisponible
+  // 2-3 joueurs : solo | 4-6 joueurs : equipe
   {
     id: 'territoire',
     name: 'Territoire',
     url: 'territoire.html',
     teamMode: 'conditional',
     minPlayers: 2,
-    maxPlayers: 4,
+    maxPlayers: 6,
     configs: {
       easy: [
         { zones: 5, rounds: 5, difficulty: 'easy' },
@@ -196,14 +196,14 @@ const TOURNAMENT_GAMES = [
   // difficulty             → "easy" | "hard"
   // input[name="mode"]     → "duel" | "equipe"
   // #party-mode (checkbox) → always false in tournament
-  // Impair → duel | Pair → random duel ou equipe
+  // 2 joueurs : duel | 3+ joueurs : random duel ou equipe (équipes impaires autorisées)
   {
     id: 'dartspong',
     name: 'DartPong',
     url: 'dartspong.html',
     teamMode: 'optional',
     minPlayers: 2,
-    maxPlayers: 4,
+    maxPlayers: 6,
     configs: {
       easy: [
         { zones: 5, difficulty: 'easy', partyMode: false },
@@ -307,8 +307,7 @@ function resolveTeamMode(game, nbPlayers) {
     return nbPlayers === 2 ? 'solo' : 'team'; // 4 or 6
   }
   if (game.id === 'territoire') {
-    if (nbPlayers > 4) return 'unavailable';
-    return nbPlayers === 4 ? 'team' : 'solo';
+    return nbPlayers >= 4 ? 'team' : 'solo';
   }
   if (game.id === 'shooter') {
     if (nbPlayers > 4) return 'unavailable';
@@ -316,8 +315,8 @@ function resolveTeamMode(game, nbPlayers) {
     return 'solo';
   }
   if (game.id === 'dartspong') {
-    if (nbPlayers % 2 === 0) return Math.random() < 0.5 ? 'team' : 'solo';
-    return 'solo';
+    if (nbPlayers === 2) return Math.random() < 0.5 ? 'team' : 'solo';
+    return Math.random() < 0.5 ? 'team' : 'solo';
   }
   return 'solo';
 }

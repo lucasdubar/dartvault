@@ -1094,26 +1094,17 @@ if (screen.orientation && screen.orientation.lock) {
       <label class="pill-label"><input type="radio" name="rounds" value="20"><span class="pill">20</span></label>
     </div>
 
-    <div class="card-title">🏆 Format</div>
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-      <div>
-        <div style="font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:700;color:var(--text-dim);letter-spacing:1.5px;margin-bottom:6px;" data-i18n="rounds_label">MANCHES</div>
-        <div style="display:flex;gap:6px;">
-          <button type="button" class="legs-btn selected" data-legs="1" onclick="selectLegs(1)">1</button>
-          <button type="button" class="legs-btn" data-legs="2" onclick="selectLegs(2)">2</button>
-          <button type="button" class="legs-btn" data-legs="3" onclick="selectLegs(3)">3</button>
-          <button type="button" class="legs-btn" id="legs-plus-btn" data-legs="custom" onclick="openCustomModal('legs')">+</button>
-        </div>
-      </div>
-      <div>
-        <div style="font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:700;color:var(--text-dim);letter-spacing:1.5px;margin-bottom:6px;">SETS <span style="font-size:.6rem;opacity:.6;" data-i18n="sets_sub">(3 manches/set)</span></div>
-        <div style="display:flex;gap:6px;">
-          <button type="button" class="legs-btn" data-sets="1" onclick="selectSets(1)">1</button>
-          <button type="button" class="legs-btn" data-sets="2" onclick="selectSets(2)">2</button>
-          <button type="button" class="legs-btn" data-sets="3" onclick="selectSets(3)">3</button>
-          <button type="button" class="legs-btn" id="sets-plus-btn" data-sets="custom" onclick="openCustomModal('sets')">+</button>
-        </div>
-      </div>
+    <div class="card-title">🏆 FORMAT</div>
+    <button type="button" class="legs-btn selected" id="btn-format" onclick="openFormatModal()" style="min-width:120px;text-align:center;margin-top:4px;"><span id="val-format">1 Manche</span></button>
+    <div style="display:none;">
+      <button type="button" class="legs-btn selected" data-legs="1" onclick="selectLegs(1)">1</button>
+      <button type="button" class="legs-btn" data-legs="2" onclick="selectLegs(2)">2</button>
+      <button type="button" class="legs-btn" data-legs="3" onclick="selectLegs(3)">3</button>
+      <button type="button" class="legs-btn" id="legs-plus-btn" data-legs="custom" onclick="openCustomModal('legs')">+</button>
+      <button type="button" class="legs-btn" data-sets="1" onclick="selectSets(1)">1</button>
+      <button type="button" class="legs-btn" data-sets="2" onclick="selectSets(2)">2</button>
+      <button type="button" class="legs-btn" data-sets="3" onclick="selectSets(3)">3</button>
+      <button type="button" class="legs-btn" id="sets-plus-btn" data-sets="custom" onclick="openCustomModal('sets')">+</button>
     </div>
     <label style="display:flex;align-items:center;gap:10px;padding:10px 0 4px;cursor:pointer;">
       <input type="checkbox" id="chk-validate" style="width:18px;height:18px;accent-color:var(--accent);">
@@ -1198,6 +1189,28 @@ if (screen.orientation && screen.orientation.lock) {
   <div style="font-size:1.3rem;font-weight:700;color:var(--text);" data-i18n="rotate_portrait">Tournez votre téléphone</div>
 </div>
 <style>@keyframes _rotHint{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-90deg)}}</style>
+
+<!-- ══ MODAL FORMAT ══ -->
+<div class="modal-ov" id="format-modal">
+  <div class="modal" style="max-width:300px;">
+    <div class="modal-title" style="color:var(--accent);font-size:1.1rem;margin-bottom:16px;">🏆 FORMAT</div>
+    <div style="font-size:.75rem;font-weight:600;letter-spacing:.04em;opacity:.7;margin-bottom:6px;text-transform:capitalize;" data-i18n="x01_legs_label">Manches</div>
+    <div style="display:flex;gap:6px;margin-bottom:14px;">
+      <button type="button" class="legs-btn selected" data-fmlegs="1" onclick="fmPickLegs(1)">1</button>
+      <button type="button" class="legs-btn" data-fmlegs="2" onclick="fmPickLegs(2)">2</button>
+      <button type="button" class="legs-btn" data-fmlegs="3" onclick="fmPickLegs(3)">3</button>
+      <button type="button" class="legs-btn" data-fmlegs="custom" onclick="fmPickLegs('custom')">+</button>
+    </div>
+    <div style="font-size:.75rem;font-weight:600;letter-spacing:.04em;opacity:.7;margin-bottom:6px;">Sets</div>
+    <div style="display:flex;gap:6px;margin-bottom:16px;">
+      <button type="button" class="legs-btn" data-fmsets="1" onclick="fmPickSets(1)">1</button>
+      <button type="button" class="legs-btn" data-fmsets="2" onclick="fmPickSets(2)">2</button>
+      <button type="button" class="legs-btn" data-fmsets="3" onclick="fmPickSets(3)">3</button>
+      <button type="button" class="legs-btn" data-fmsets="custom" onclick="fmPickSets('custom')">+</button>
+    </div>
+    <button class="btn-modal btn-gray" onclick="document.getElementById('format-modal').classList.remove('open')" style="width:100%;" data-i18n="cancel">Fermer</button>
+  </div>
+</div>
 
 <!-- ══ MODAL CUSTOM PICKER ══ -->
 <div class="modal-ov" id="custom-modal">
@@ -1334,6 +1347,7 @@ function playTick(freq = 520, dur = 0.04, vol = 0.15) {
   } catch(e) {}
 }
 
+function feedbackKey()    { haptic('light');   playTick(520, 0.05, 0.13); }
 function feedbackHit()    { haptic('light');   playTick(520, 0.05, 0.13); }
 function feedbackClose()  { haptic('success'); playTick(660, 0.08, 0.18); setTimeout(() => playTick(880, 0.06, 0.12), 80); }
 function wiggleValBtn() {
@@ -1414,13 +1428,13 @@ function feedbackWhiteHorse() {
 
 // Vibration légère sur tous les boutons interactifs
 document.addEventListener('click', e => {
-  const el = e.target.closest('button, .pill-label, label');
+  const el = e.target.closest('button, .option-btn, .pill-label, label');
   if (!el) return;
   const skipIds = ['btn-hist'];
   const skipClasses = ['btn-hit', 'btn-out', 'btn-undo'];
   if (skipIds.includes(el.id)) return;
   if (skipClasses.some(c => el.classList.contains(c))) return;
-  haptic('light');
+  feedbackKey();
 });
 
 // ════════════════════════════════════════════════
@@ -2457,6 +2471,7 @@ function selectLegs(n) {
   document.querySelectorAll('[data-sets]').forEach(b => b.classList.remove('selected'));
   const sp = document.getElementById('sets-plus-btn');
   if (sp) { sp.textContent = '+'; sp.classList.remove('selected'); }
+  updateFormatBtn();
 }
 
 function selectSets(n) {
@@ -2472,7 +2487,48 @@ function selectSets(n) {
   document.querySelectorAll('[data-legs]').forEach(b => b.classList.remove('selected'));
   const lp = document.getElementById('legs-plus-btn');
   if (lp) { lp.textContent = '+'; lp.classList.remove('selected'); }
+  updateFormatBtn();
 }
+
+function updateFormatBtn() {
+  const el = document.getElementById('val-format');
+  if (!el) return;
+  const fr = DV_LANG.get() !== 'en';
+  if (selectedSets > 0) {
+    el.textContent = selectedSets + (selectedSets > 1 ? ' Sets' : ' Set');
+  } else {
+    el.textContent = fr
+      ? selectedLegs + (selectedLegs > 1 ? ' Manches' : ' Manche')
+      : selectedLegs + (selectedLegs > 1 ? ' Legs' : ' Leg');
+  }
+}
+function openFormatModal() {
+  document.querySelectorAll('[data-fmlegs]').forEach(b => {
+    const v = b.dataset.fmlegs;
+    b.classList.toggle('selected', v !== 'custom' && parseInt(v) === selectedLegs && selectedSets === 0);
+    if (v === 'custom') { b.textContent = selectedLegs > 3 ? selectedLegs : '+'; b.classList.toggle('selected', selectedLegs > 3 && selectedSets === 0); }
+  });
+  document.querySelectorAll('[data-fmsets]').forEach(b => {
+    const v = b.dataset.fmsets;
+    b.classList.toggle('selected', v !== 'custom' && parseInt(v) === selectedSets);
+    if (v === 'custom') { b.textContent = selectedSets > 3 ? selectedSets : '+'; b.classList.toggle('selected', selectedSets > 3); }
+  });
+  document.getElementById('format-modal').classList.add('open');
+}
+function fmPickLegs(n) {
+  if (n === 'custom') { document.getElementById('format-modal').classList.remove('open'); openCustomModal('legs'); return; }
+  selectLegs(n);
+  document.getElementById('format-modal').classList.remove('open');
+}
+function fmPickSets(n) {
+  if (n === 'custom') { document.getElementById('format-modal').classList.remove('open'); openCustomModal('sets'); return; }
+  selectSets(n);
+  document.getElementById('format-modal').classList.remove('open');
+}
+document.getElementById('format-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('format-modal'))
+    document.getElementById('format-modal').classList.remove('open');
+});
 
 let _customModalTarget = 'legs';
 function openCustomModal(target) {
@@ -2863,6 +2919,7 @@ history.pushState(null, '', window.location.href);
       var em = document.getElementById('btn-end-menu');
       if (em) em.textContent = L('x01_menu_btn');
       // Refresh dynamic texts if game running
+      if (typeof updateFormatBtn === 'function') updateFormatBtn();
       if (typeof G !== 'undefined' && G.started) {
         var ec = document.getElementById('btn-end-close');
         if (ec) ec.textContent = '↩ ' + L('cancel');

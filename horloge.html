@@ -1709,7 +1709,7 @@ document.addEventListener('click',e=>{
   const el=e.target.closest('button,.option-btn,.pill-label,label');
   if(!el)return;
   if(['btn-start','btn-simple','btn-double','btn-triple','btn-out','btn-undo'].includes(el.id))return;
-  haptic('light');
+  feedbackKey();
 });
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}

@@ -658,11 +658,12 @@ html,body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;
 [data-theme="colored"] .opt-pill {
   background:rgba(232,197,71,.06)!important;
   border-color:rgba(232,197,71,.15)!important;
-  color:rgba(232,197,71,.5)!important;
+  color:rgba(255,255,255,.65)!important;
 }
 [data-theme="colored"] .opt-pill.active {
   background:rgba(232,197,71,.14)!important;
   border-color:var(--gold)!important;
+  color:#fff!important;
   color:var(--gold)!important;
 }
 
@@ -1482,6 +1483,15 @@ function initSetup() {
   renderNb();
   renderGrid();
   validate();
+  const adEnabled = localStorage.getItem('dartvault_autodarts_enabled') === '1';
+  const adPill = document.querySelector('[data-grp="input"][data-val="autodarts"]');
+  if (adPill) {
+    if (adEnabled) {
+      pickInput(adPill);
+    } else {
+      adPill.style.display = 'none';
+    }
+  }
 }
 
 /* Player profiles from localStorage */
@@ -1704,6 +1714,8 @@ function renderGrid() {
   if (S.selMode !== 'manual') return;
   const nb     = Math.max(2, S.players.length);
   const games  = availableGames(nb);
+  const availableIds = games.map(g => g.id);
+  S.games = S.games.filter(id => availableIds.includes(id));
   const grid   = document.getElementById('game-grid');
   document.getElementById('grid-label').textContent = T.t_choose_games(S.nb, games.length);
   grid.innerHTML = '';

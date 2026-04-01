@@ -1202,7 +1202,7 @@
         <div class="card-title" data-i18n="ter_mode">🎮 Mode de jeu</div>
         <div class="pill-group">
           <label class="pill-label"><input type="radio" name="mode" value="solo" checked> <span class="pill" data-i18n="ter_solo">Solo (2-3)</span></label>
-          <label class="pill-label"><input type="radio" name="mode" value="equipe"> <span class="pill" data-i18n="ter_team">Équipe (2-4)</span></label>
+          <label class="pill-label"><input type="radio" name="mode" value="equipe"> <span class="pill" data-i18n="ter_team">Équipe (2-6)</span></label>
         </div>
       </div>
       <div style="margin-top:14px;">
@@ -1600,15 +1600,15 @@ function onModeChange() {
   const m = getMode();
   const isSolo = m === 'solo';
   // Titre de la card
-  document.getElementById('players-card-title').textContent = isSolo ? '👥 ' + DV_LANG.t('players_label').replace('👥 ', '').replace(/\(.*\)/,'').trim() + ' (2-3)' : '👥 ' + DV_LANG.t('ter_teams_lbl').replace(/\(.*\)/,'').trim() + ' (4)';
+  document.getElementById('players-card-title').textContent = isSolo ? '👥 ' + DV_LANG.t('players_label').replace('👥 ', '').replace(/\(.*\)/,'').trim() + ' (2-3)' : '👥 ' + DV_LANG.t('ter_teams_lbl').replace(/\(.*\)/,'').trim() + ' (2-6)';
   // Labels équipes/joueurs
   document.getElementById('label-team-a').textContent = isSolo ? DV_LANG.t('player_blue') : DV_LANG.t('team_blue');
   document.getElementById('label-team-b').textContent = isSolo ? DV_LANG.t('player_yellow') : DV_LANG.t('team_yellow');
-  // En passant en équipe : vider équipe C, limiter A et B à 2
+  // En passant en équipe : vider équipe C, limiter A et B à 3
   if (!isSolo) {
     state.teamC = [];
-    if (state.teamA.length > 2) state.teamA = state.teamA.slice(0, 2);
-    if (state.teamB.length > 2) state.teamB = state.teamB.slice(0, 2);
+    if (state.teamA.length > 3) state.teamA = state.teamA.slice(0, 3);
+    if (state.teamB.length > 3) state.teamB = state.teamB.slice(0, 3);
   }
   // En passant en solo : max 1 par équipe
   if (isSolo) {
@@ -1637,12 +1637,13 @@ function addPlayer() {
     else if (state.teamC.length === 0) state.teamC.push(name);
     else { showToast(DV_LANG.t('err_solo_max3')); return; }
   } else {
-    // Équipe 2v2 : max 2 par équipe
+    // Équipe : max 3 par équipe, 6 joueurs max
+    if (state.teamA.length + state.teamB.length >= 6) { showToast(DV_LANG.t('err_team_max2')); return; }
     if (state.teamA.length <= state.teamB.length) {
-      if (state.teamA.length >= 2) { showToast(DV_LANG.t('err_team_max2')); return; }
+      if (state.teamA.length >= 3) { showToast(DV_LANG.t('err_team_max2')); return; }
       state.teamA.push(name);
     } else {
-      if (state.teamB.length >= 2) { showToast(DV_LANG.t('err_team_max2')); return; }
+      if (state.teamB.length >= 3) { showToast(DV_LANG.t('err_team_max2')); return; }
       state.teamB.push(name);
     }
   }
@@ -1787,8 +1788,8 @@ function startGame() {
     // Solo : 2 à 3 joueurs, 1 par équipe
     if (state.teamA.length < 1 || state.teamB.length < 1) { showToast(DV_LANG.t('err_solo_min2')); return; }
   } else {
-    // Équipe 2v2 : exactement 2 par équipe
-    if (state.teamA.length !== 2 || state.teamB.length !== 2) {
+    // Équipe : au moins 1 par équipe, max 3 par équipe
+    if (state.teamA.length < 1 || state.teamB.length < 1) {
       showToast(DV_LANG.t('err_team_eq')); return;
     }
   }

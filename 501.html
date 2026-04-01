@@ -104,10 +104,10 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
   pointer-events:none;
 }
 .active-player-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
-.active-name{font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700;letter-spacing:.5px;text-align:center;flex:1;text-shadow:0 0 12px currentColor;transition:color .3s;}
+.active-name{font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700;letter-spacing:.5px;text-align:center;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-shadow:0 0 12px currentColor;transition:color .3s;}
 .active-stats-row{display:flex;flex-direction:column;gap:3px;align-items:flex-start;}
-.az-stats-wrap{min-width:110px;}
-.az-score-wrap{text-align:right;min-width:110px;}
+.az-stats-wrap{flex:0 0 72px;}
+.az-score-wrap{text-align:right;flex:0 0 112px;overflow:hidden;}
 .stat-chip{font-family:'Rajdhani',sans-serif;font-size:.65rem;font-weight:700;color:var(--dim);letter-spacing:.5px;line-height:1.2;}
 .stat-chip span{color:var(--text);}
 
@@ -225,7 +225,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
 .player-card-501.pc-ph .pc-ph-right{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:1px;min-width:38px;text-align:right;}
 .pc-ph-last{font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:700;line-height:1.2;}
 .pc-ph-avg{font-family:'Rajdhani',sans-serif;font-size:.62rem;font-weight:700;color:var(--dim);line-height:1.2;}
-.players-grid-compact .player-card-501.pc-ph{padding:8px 8px;}
+.players-grid-compact .player-card-501.pc-ph{padding:8px 8px;min-height:50px;}
 .players-grid-compact .player-card-501.pc-ph .pc-score{font-size:1.4rem!important;}
 .players-grid-medium .player-card-501.pc-ph .pc-score{font-size:2rem!important;}
 
@@ -613,7 +613,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
 <style id="theme-overrides">
 [data-theme="dark"]{--bg:#0E0F10!important;--bg2:#161718!important;--bg3:#1C1E20!important;--bg4:#242628!important;--text:#F0F0F0!important;--dim:#606468!important;--text-dim:#606468!important;--accent:#E8E8E8!important;--ok:#28C76F!important;--warn:#FF9F43!important;--danger:#DC3545!important;}
 [data-theme="light"]{--bg:#F7F0F2!important;--bg2:#FFFFFF!important;--bg3:#EDE4E7!important;--bg4:#E2D6DA!important;--text:#111213!important;--dim:#8A6070!important;--text-dim:#8A6070!important;--accent:#1A1A1A!important;--ok:#1A8A4A!important;--warn:#C06000!important;--danger:#C8272B!important;}
-[data-theme="colored"]{--bg:#0D0304!important;--bg2:#120507!important;--bg3:#180A0A!important;--bg4:#1E0E0E!important;--accent:#F87171!important;--ok:#4ADE80!important;--warn:#E2E8F0!important;--danger:#F87171!important;--text:#FFF1F2!important;--dim:#C87878!important;--text-dim:#C87878!important;}
+[data-theme="colored"]{--bg:#0D0304!important;--bg2:#1E0A0A!important;--bg3:#2A1212!important;--bg4:#361818!important;--accent:#FFF0F0!important;--ok:#4ADE80!important;--warn:#E2E8F0!important;--danger:#F87171!important;--text:#FFF1F2!important;--dim:#CC9999!important;--text-dim:#CC9999!important;}
 
 /* Surfaces */
 [data-theme="dark"] body,[data-theme="light"] body{background:var(--bg)!important;color:var(--text)!important;}
@@ -680,10 +680,12 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
 [data-theme="light"] input[type="checkbox"]{accent-color:#1A1B1C!important;}
 
 /* Player rows */
-[data-theme="dark"] .player-row,[data-theme="dark"] .player-card-501{background:rgba(255,255,255,.04)!important;border-color:rgba(232,232,232,.08)!important;}
+[data-theme="dark"] .player-row,[data-theme="dark"] .player-card-501{background:rgba(255,255,255,.04)!important;border-color:rgba(232,232,232,.22)!important;}
 [data-theme="dark"] .player-card-501.current{box-shadow:0 0 0 2px var(--pcolor),0 0 14px var(--pcolor),0 0 28px var(--pcolor)!important;background:color-mix(in srgb,var(--pcolor) 22%,var(--bg2))!important;}
-[data-theme="light"] .player-row,[data-theme="light"] .player-card-501{background:rgba(22,23,24,.04)!important;border-color:rgba(22,23,24,.1)!important;}
+[data-theme="light"] .player-row,[data-theme="light"] .player-card-501{background:rgba(22,23,24,.04)!important;border-color:rgba(22,23,24,.22)!important;}
 [data-theme="light"] .player-card-501.current{box-shadow:0 0 0 2px var(--pcolor),0 0 12px var(--pcolor),0 0 22px var(--pcolor)!important;background:color-mix(in srgb,var(--pcolor) 22%,var(--bg2))!important;}
+[data-theme="colored"] .player-row,[data-theme="colored"] .player-card-501{background:rgba(255,255,255,.05)!important;border-color:rgba(255,200,200,.25)!important;}
+[data-theme="colored"] .player-card-501.current{box-shadow:0 0 0 2px var(--pcolor),0 0 14px var(--pcolor),0 0 28px var(--pcolor)!important;background:color-mix(in srgb,var(--pcolor) 22%,var(--bg2))!important;}
 [data-theme="dark"] .player-chip{box-shadow:0 0 14px rgba(232,232,232,.1)!important;}
 [data-theme="light"] .player-chip{box-shadow:none!important;}
 
@@ -1184,7 +1186,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
     <div class="option-grid">
       <div class="option-btn selected" id="opt-doubleout" onclick="selectOpt('doubleout')" data-i18n="x01_doubleout">Double Out</div>
       <div class="option-btn" id="opt-simpleout" onclick="selectOpt('simpleout')" data-i18n="x01_simpleout">Simple Out</div>
-      <div class="option-btn" id="opt-dblindblout" onclick="selectOpt('dblindblout')" data-i18n="x01_dblindblout">D. In / D. Out</div>
+      <div class="option-btn" id="opt-dblindblout" onclick="selectOpt('dblindblout')">D.In/D.Out</div>
     </div>
     <div class="card-title" style="margin-top:12px;">⏱ Tours max / manche</div>
     <div class="pill-group" style="margin-bottom:12px;">
@@ -1193,26 +1195,17 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
       <label class="pill-label"><input type="radio" name="maxrounds501" value="15"><span class="pill">15</span></label>
       <label class="pill-label"><input type="radio" name="maxrounds501" value="20"><span class="pill">20</span></label>
     </div>
-    <div class="card-title" style="margin-top:12px;">🏆 Format</div>
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-      <div>
-        <div class="card-title" data-i18n="rounds_label">MANCHES</div>
-        <div style="display:flex;gap:6px;">
-          <button type="button" class="legs-btn selected" data-legs="1" onclick="selectLegs(1)">1</button>
-          <button type="button" class="legs-btn" data-legs="2" onclick="selectLegs(2)">2</button>
-          <button type="button" class="legs-btn" data-legs="3" onclick="selectLegs(3)">3</button>
-          <button type="button" class="legs-btn" id="legs-plus-btn" data-legs="custom" onclick="openCustomModal('legs')">+</button>
-        </div>
-      </div>
-      <div>
-        <div class="card-title">SETS <span style="font-size:.6rem;opacity:.6;" data-i18n="sets_sub">(3 manches/set)</span></div>
-        <div style="display:flex;gap:6px;">
-          <button type="button" class="legs-btn" data-sets="1" onclick="selectSets(1)">1</button>
-          <button type="button" class="legs-btn" data-sets="2" onclick="selectSets(2)">2</button>
-          <button type="button" class="legs-btn" data-sets="3" onclick="selectSets(3)">3</button>
-          <button type="button" class="legs-btn" id="sets-plus-btn" data-sets="custom" onclick="openCustomModal('sets')">+</button>
-        </div>
-      </div>
+    <div class="card-title" style="margin-top:12px;">🏆 FORMAT</div>
+    <button type="button" class="legs-btn selected" id="btn-format" onclick="openFormatModal()" style="min-width:120px;text-align:center;margin-top:4px;"><span id="val-format">1 Manche</span></button>
+    <div style="display:none;">
+      <button data-legs="1" class="legs-btn selected"></button>
+      <button data-legs="2" class="legs-btn"></button>
+      <button data-legs="3" class="legs-btn"></button>
+      <button id="legs-plus-btn" data-legs="custom" class="legs-btn">+</button>
+      <button data-sets="1" class="legs-btn"></button>
+      <button data-sets="2" class="legs-btn"></button>
+      <button data-sets="3" class="legs-btn"></button>
+      <button id="sets-plus-btn" data-sets="custom" class="legs-btn">+</button>
     </div>
     <div style="margin-top:10px;">
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
@@ -1448,6 +1441,27 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
     <div class="modal-title" id="custom-modal-title" style="color:var(--accent);font-size:1.1rem;margin-bottom:16px;" data-i18n="x01_rounds_dlg">Nombre de manches</div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;" id="custom-picker-grid"></div>
     <button class="btn-modal btn-gray" onclick="document.getElementById('custom-modal').classList.remove('open')" style="width:100%;" data-i18n="cancel">Annuler</button>
+  </div>
+</div>
+
+<div class="modal-ov" id="format-modal">
+  <div class="modal" style="max-width:300px;">
+    <div class="modal-title" style="color:var(--accent);font-size:1.1rem;margin-bottom:16px;">🏆 FORMAT</div>
+    <div style="font-size:.75rem;font-weight:600;letter-spacing:.04em;opacity:.7;margin-bottom:6px;text-transform:capitalize;" data-i18n="x01_legs_label">Manches</div>
+    <div style="display:flex;gap:6px;margin-bottom:14px;">
+      <button type="button" class="legs-btn selected" data-fmlegs="1" onclick="fmPickLegs(1)">1</button>
+      <button type="button" class="legs-btn" data-fmlegs="2" onclick="fmPickLegs(2)">2</button>
+      <button type="button" class="legs-btn" data-fmlegs="3" onclick="fmPickLegs(3)">3</button>
+      <button type="button" class="legs-btn" data-fmlegs="custom" onclick="fmPickLegs('custom')">+</button>
+    </div>
+    <div style="font-size:.75rem;font-weight:600;letter-spacing:.04em;opacity:.7;margin-bottom:6px;">Sets</div>
+    <div style="display:flex;gap:6px;margin-bottom:16px;">
+      <button type="button" class="legs-btn" data-fmsets="1" onclick="fmPickSets(1)">1</button>
+      <button type="button" class="legs-btn" data-fmsets="2" onclick="fmPickSets(2)">2</button>
+      <button type="button" class="legs-btn" data-fmsets="3" onclick="fmPickSets(3)">3</button>
+      <button type="button" class="legs-btn" data-fmsets="custom" onclick="fmPickSets('custom')">+</button>
+    </div>
+    <button class="btn-modal btn-gray" onclick="document.getElementById('format-modal').classList.remove('open')" style="width:100%;" data-i18n="cancel">Fermer</button>
   </div>
 </div>
 
@@ -1740,6 +1754,7 @@ function selectLegs(n) {
   document.querySelectorAll('[data-sets]').forEach(b => b.classList.remove('selected'));
   const sp = document.getElementById('sets-plus-btn');
   if (sp) { sp.textContent = '+'; sp.classList.remove('selected'); }
+  updateFormatBtn();
 }
 
 function selectSets(n) {
@@ -1755,6 +1770,7 @@ function selectSets(n) {
   document.querySelectorAll('[data-legs]').forEach(b => b.classList.remove('selected'));
   const lp = document.getElementById('legs-plus-btn');
   if (lp) { lp.textContent = '+'; lp.classList.remove('selected'); }
+  updateFormatBtn();
 }
 
 let _customModalTarget = 'legs';
@@ -1784,6 +1800,47 @@ function openCustomModal(target) {
 document.getElementById('custom-modal').addEventListener('click', e => {
   if (e.target === document.getElementById('custom-modal'))
     document.getElementById('custom-modal').classList.remove('open');
+});
+
+function updateFormatBtn() {
+  const el = document.getElementById('val-format');
+  if (!el) return;
+  const fr = DV_LANG.get() !== 'en';
+  if (selectedSets > 0) {
+    el.textContent = selectedSets + (selectedSets > 1 ? ' Sets' : ' Set');
+  } else {
+    el.textContent = fr
+      ? selectedLegs + (selectedLegs > 1 ? ' Manches' : ' Manche')
+      : selectedLegs + (selectedLegs > 1 ? ' Legs' : ' Leg');
+  }
+}
+function openFormatModal() {
+  // Sync état des boutons dans le modal
+  document.querySelectorAll('[data-fmlegs]').forEach(b => {
+    const v = b.dataset.fmlegs;
+    b.classList.toggle('selected', v !== 'custom' && parseInt(v) === selectedLegs && selectedSets === 0);
+    if (v === 'custom') { b.textContent = selectedLegs > 3 ? selectedLegs : '+'; b.classList.toggle('selected', selectedLegs > 3 && selectedSets === 0); }
+  });
+  document.querySelectorAll('[data-fmsets]').forEach(b => {
+    const v = b.dataset.fmsets;
+    b.classList.toggle('selected', v !== 'custom' && parseInt(v) === selectedSets);
+    if (v === 'custom') { b.textContent = selectedSets > 3 ? selectedSets : '+'; b.classList.toggle('selected', selectedSets > 3); }
+  });
+  document.getElementById('format-modal').classList.add('open');
+}
+function fmPickLegs(n) {
+  if (n === 'custom') { document.getElementById('format-modal').classList.remove('open'); openCustomModal('legs'); return; }
+  selectLegs(n);
+  document.getElementById('format-modal').classList.remove('open');
+}
+function fmPickSets(n) {
+  if (n === 'custom') { document.getElementById('format-modal').classList.remove('open'); openCustomModal('sets'); return; }
+  selectSets(n);
+  document.getElementById('format-modal').classList.remove('open');
+}
+document.getElementById('format-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('format-modal'))
+    document.getElementById('format-modal').classList.remove('open');
 });
 
 document.getElementById('btn-add').addEventListener('click', addPlayer);
@@ -2010,7 +2067,8 @@ function updateDisplay(flashIdx) {
 
   // Zone active — badge joueur centré style Territoire
   const activeNameEl = document.getElementById('active-name');
-  activeNameEl.textContent = p.fromProfile ? p.name : `${p.emoji} ${p.name}`;
+  const _dn = p.name.length > 10 ? p.name.substring(0, 10) + '.' : p.name;
+  activeNameEl.textContent = p.fromProfile ? _dn : `${p.emoji} ${_dn}`;
   activeNameEl.style.color = p.color;
 
   const scoreEl = document.getElementById('active-score');
@@ -2206,7 +2264,7 @@ function renderPlayersGrid(flashIdx) {
     // ── Téléphone portrait (3+j) : score centré, dernier score + avg à droite ──
     if (isPortrait && !isTablet) {
       const nameDisplay = (() => {
-        const mx = n>=6?4:n>=5?5:(n>=4)?8:12;
+        const mx = n>=6?4:n>=5?5:8;
         return pl.name.length>mx ? pl.name.substring(0,mx)+'.' : pl.name;
       })();
       return `<div class="player-card-501 pc-ph ${isCur ? 'current' : ''}" style="--pcolor:${pl.color};${activeBg501}">
@@ -2288,7 +2346,7 @@ function renderPlayersGrid(flashIdx) {
         <div class="pc-score-duel ${idx === flashIdx ? 'flash' : ''}">${pl.score}</div>
         ${lastLabel ? `<div class="pc-last-duel" style="color:${lastT && lastT.bust ? '#DC3545' : 'var(--text)'};opacity:${lastT && lastT.bust ? '1' : '.75'};">${lastLabel}</div>` : ''}
         <div class="pc-duel-footer">
-          <span>${pl.dartsThrown} ${DV_LANG.t('x01_darts')}</span>
+          <span>${pl.dartsThrown} ${DV_LANG.get() === 'en' ? 'darts' : 'flèch.'}</span>
           <span>AVG ${avg.toFixed(1)}</span>
         </div>
       </div>`;
@@ -3779,7 +3837,7 @@ document.addEventListener('click', e => {
   const skipClasses = ['dnb','dout-choice','numpad-key','numpad-action'];
   if (skipIds.includes(el.id)) return;
   if (skipClasses.some(c => el.classList.contains(c))) return;
-  haptic('light');
+  feedbackKey();
 });
 if('serviceWorker' in navigator && !location.hostname.includes('claudeusercontent')){
   navigator.serviceWorker.getRegistrations().then(regs => {
@@ -3836,6 +3894,7 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
         if (ht) ht.textContent = '🎯 ' + G.startScore + legInfo;
       }
       if (document.getElementById('doublein-modal').classList.contains('open')) refreshDiModal();
+      if (typeof updateFormatBtn === 'function') updateFormatBtn();
       // Rafraîchir les cartes joueurs (labels dynamiques comme FLÉCHETTES/DARTS, AVG, Double %)
       if (typeof G !== 'undefined' && G.gameStarted && typeof updateDisplay === 'function') updateDisplay();
     }

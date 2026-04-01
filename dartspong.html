@@ -1652,7 +1652,7 @@ function startGame() {
     const totalA = G.teamA.length, totalB = G.teamB.length, totalC = G.teamC.length;
     const total = totalA + totalB + totalC;
     if (total < 2) { showToast(DV_LANG.t('err_team_min2')); return; }
-    if (totalA !== totalB) { showToast(DV_LANG.t('err_team_same')); return; }
+    if (totalA < 1 || totalB < 1) { showToast(DV_LANG.t('err_team_min2')); return; }
     if (totalA > 3) { showToast(DV_LANG.t('err_team_max3')); return; }
     const maxLen = Math.max(totalA, totalB);
     for (let i = 0; i < maxLen; i++) {
