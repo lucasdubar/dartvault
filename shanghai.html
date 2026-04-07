@@ -1488,6 +1488,27 @@ function renderSetupList() {
     </div>`).join('');
 }
 
+function saveCfg() {
+  try {
+    var cfg = {
+      rounds: document.querySelector('input[name="rounds"]:checked')?.value,
+      shgMode: shgMode,
+      chkValidate: document.getElementById('chk-validate') ? document.getElementById('chk-validate').checked : false
+    };
+    localStorage.setItem('dv_cfg_shanghai', JSON.stringify(cfg));
+  } catch(e) {}
+}
+function restoreCfg() {
+  try {
+    var raw = localStorage.getItem('dv_cfg_shanghai');
+    if (!raw) return;
+    var cfg = JSON.parse(raw);
+    if (cfg.rounds) { var r = document.querySelector('input[name="rounds"][value="'+cfg.rounds+'"]'); if(r) r.checked = true; }
+    if (cfg.shgMode) selectShgMode(cfg.shgMode);
+    if (cfg.chkValidate != null) { var chk = document.getElementById('chk-validate'); if(chk) chk.checked = cfg.chkValidate; }
+  } catch(e) {}
+}
+
 document.getElementById('btn-start').addEventListener('click', startGame);
 let shgMode = 'standard';
 function selectShgMode(mode) {
@@ -1497,6 +1518,7 @@ function selectShgMode(mode) {
 }
 
 function startGame() {
+  saveCfg();
   if (!state.players.length) { showToast(DV_LANG.t('err_add_1')); return; }
   feedbackStart();
   state.maxRounds = parseInt(document.querySelector('input[name="rounds"]:checked').value);
@@ -2325,6 +2347,7 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     function initLang() {
       DV_LANG.apply();
       applyGameLang();
+      if (typeof restoreCfg === 'function') restoreCfg();
     }
     window.addEventListener('DOMContentLoaded', initLang);
   </script>

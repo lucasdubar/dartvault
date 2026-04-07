@@ -1633,7 +1633,30 @@ document.addEventListener('click', e => {
   feedbackKey();
 });
 
-document.getElementById('btn-start').addEventListener('click', () => { feedbackStart(); startGame(); });
+function saveCfg() {
+  try {
+    var cfg = {
+      zones: document.querySelector('input[name="zones"]:checked')?.value,
+      maxroundsdp: document.querySelector('input[name="maxroundsdp"]:checked')?.value,
+      mode: document.querySelector('input[name="mode"]:checked')?.value,
+      chkValidate: document.getElementById('chk-validate') ? document.getElementById('chk-validate').checked : false
+    };
+    localStorage.setItem('dv_cfg_dartspong', JSON.stringify(cfg));
+  } catch(e) {}
+}
+function restoreCfg() {
+  try {
+    var raw = localStorage.getItem('dv_cfg_dartspong');
+    if (!raw) return;
+    var cfg = JSON.parse(raw);
+    if (cfg.zones) { var r = document.querySelector('input[name="zones"][value="'+cfg.zones+'"]'); if(r) r.checked = true; }
+    if (cfg.maxroundsdp != null) { var r2 = document.querySelector('input[name="maxroundsdp"][value="'+cfg.maxroundsdp+'"]'); if(r2) r2.checked = true; }
+    if (cfg.mode) { var r3 = document.querySelector('input[name="mode"][value="'+cfg.mode+'"]'); if(r3) { r3.checked = true; r3.dispatchEvent(new Event('change')); } }
+    if (cfg.chkValidate != null) { var chk = document.getElementById('chk-validate'); if(chk) chk.checked = cfg.chkValidate; }
+  } catch(e) {}
+}
+
+document.getElementById('btn-start').addEventListener('click', () => { saveCfg(); feedbackStart(); startGame(); });
 
 function startGame() {
   const m = getMode();
@@ -3058,6 +3081,7 @@ window.addEventListener('beforeinstallprompt', e => {
     function initLang() {
       DV_LANG.apply();
       applyGameLang();
+      if (typeof restoreCfg === 'function') restoreCfg();
     }
     window.addEventListener('DOMContentLoaded', initLang);
   </script>

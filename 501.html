@@ -1179,7 +1179,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
       </div>
       <div>
         <div class="card-title" data-i18n="x01_entry">📝 Saisie</div>
-        <button type="button" class="pill" id="btn-input-mode" onclick="toggleInputMode()" style="display:block;border:1.5px solid var(--accent);background:var(--accent);cursor:pointer;font-size:.88rem;font-weight:600;color:var(--bg);border-radius:999px;padding:6px 14px;touch-action:manipulation;font-family:'Exo 2',sans-serif;white-space:nowrap;" data-i18n="x01_total">Total</button>
+        <button type="button" class="pill" id="btn-input-mode" onclick="toggleInputMode()" style="display:block;border:1.5px solid var(--accent);background:var(--accent);cursor:pointer;font-size:.88rem;font-weight:600;color:var(--bg);border-radius:999px;padding:6px 14px;touch-action:manipulation;font-family:'Exo 2',sans-serif;white-space:nowrap;" data-i18n="x01_per_dart">Par fléchette</button>
       </div>
     </div>
     <div class="card-title" style="margin-top:4px;" data-i18n="x01_endgame">🏁 Fin de partie</div>
@@ -1721,7 +1721,7 @@ let G = {
 };
 let selectedLegs = 1;
 let selectedSets = 0; // 0 = mode legs actif
-let inputMode = 'total'; // 'total' | 'darts'
+let inputMode = 'darts'; // 'total' | 'darts'
 
 function toggleInputMode() {
   inputMode = inputMode === 'total' ? 'darts' : 'total';
@@ -1982,7 +1982,39 @@ function renderSetupList() {
     </div>`).join('');
 }
 
+function saveCfg() {
+  try {
+    var cfg = {
+      gamemode: document.querySelector('input[name="gamemode"]:checked')?.value,
+      maxrounds501: document.querySelector('input[name="maxrounds501"]:checked')?.value,
+      inputMode: inputMode,
+      outMode: outMode,
+      chkValidate: document.getElementById('chk-validate').checked,
+      chkDoubleStats: document.getElementById('chk-double-stats').checked
+    };
+    localStorage.setItem('dv_cfg_501', JSON.stringify(cfg));
+  } catch(e) {}
+}
+function restoreCfg() {
+  try {
+    var raw = localStorage.getItem('dv_cfg_501');
+    if (!raw) return;
+    var cfg = JSON.parse(raw);
+    if (cfg.gamemode) { var r = document.querySelector('input[name="gamemode"][value="'+cfg.gamemode+'"]'); if(r) r.checked = true; }
+    if (cfg.maxrounds501 != null) { var r2 = document.querySelector('input[name="maxrounds501"][value="'+cfg.maxrounds501+'"]'); if(r2) r2.checked = true; }
+    if (cfg.inputMode && cfg.inputMode !== inputMode) {
+      inputMode = cfg.inputMode;
+      var btn = document.getElementById('btn-input-mode');
+      if (btn) { btn.textContent = cfg.inputMode === 'total' ? DV_LANG.t('x01_total') : DV_LANG.t('x01_per_dart'); btn.dataset.i18n = cfg.inputMode === 'total' ? 'x01_total' : 'x01_per_dart'; }
+    }
+    if (cfg.outMode) selectOpt(cfg.outMode);
+    if (cfg.chkValidate != null) document.getElementById('chk-validate').checked = cfg.chkValidate;
+    if (cfg.chkDoubleStats != null) document.getElementById('chk-double-stats').checked = cfg.chkDoubleStats;
+  } catch(e) {}
+}
+
 document.getElementById('btn-start').addEventListener('click', () => {
+  saveCfg();
   if (G.players.length < 1) { showToast(DV_LANG.t('err_add_1')); return; }
   // Son de démarrage : deux notes montantes courtes
   feedbackStart();
@@ -3901,6 +3933,7 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     function initLang() {
       DV_LANG.apply();
       applyGameLang();
+      if (typeof restoreCfg === 'function') restoreCfg();
     }
     window.addEventListener('DOMContentLoaded', initLang);
   </script>

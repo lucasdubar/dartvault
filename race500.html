@@ -1403,7 +1403,29 @@ document.getElementById('bshuf').onclick=()=>{
   G.pl.forEach((p,i)=>{p.c=PC[i];p.e=PE[i];});
   rPL();
 };
+function saveCfg() {
+  try {
+    var cfg = {
+      tgt: document.querySelector('input[name="tgt"]:checked')?.value,
+      steal: document.querySelector('input[name="steal"]:checked')?.value,
+      chkValidate: document.getElementById('chk-validate') ? document.getElementById('chk-validate').checked : false
+    };
+    localStorage.setItem('dv_cfg_race500', JSON.stringify(cfg));
+  } catch(e) {}
+}
+function restoreCfg() {
+  try {
+    var raw = localStorage.getItem('dv_cfg_race500');
+    if (!raw) return;
+    var cfg = JSON.parse(raw);
+    if (cfg.tgt) { var r = document.querySelector('input[name="tgt"][value="'+cfg.tgt+'"]'); if(r) r.checked = true; }
+    if (cfg.steal != null) { var r2 = document.querySelector('input[name="steal"][value="'+cfg.steal+'"]'); if(r2) r2.checked = true; }
+    if (cfg.chkValidate != null) { var chk = document.getElementById('chk-validate'); if(chk) chk.checked = cfg.chkValidate; }
+  } catch(e) {}
+}
+
 document.getElementById('bstart').onclick=()=>{
+  saveCfg();
   if(G.pl.length<2){T(DV_LANG.t('err_min2_rc'));return;}
   G.tgt=parseInt(document.querySelector('input[name="tgt"]:checked').value);
   G.stealAmt=parseInt(document.querySelector('input[name="steal"]:checked').value);
@@ -2103,6 +2125,7 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     function initLang() {
       DV_LANG.apply();
       applyGameLang();
+      if (typeof restoreCfg === 'function') restoreCfg();
     }
     window.addEventListener('DOMContentLoaded', initLang);
   </script>

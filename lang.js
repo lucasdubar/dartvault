@@ -30,6 +30,7 @@
       diff_label:     '⚔️ Difficulté',
       easy_btn:       '😊 Facile',
       normal_btn:     '⚔️ Normal',
+      hard_btn:       '💀 Difficile',
 
       // ── Modes solo/équipe ───────────────────────────────────
       solo_2_3:  'Solo (2-3)',
@@ -912,6 +913,7 @@
       diff_label:     '⚔️ Difficulty',
       easy_btn:       '😊 Easy',
       normal_btn:     '⚔️ Normal',
+      hard_btn:       '💀 Hard',
 
       solo_2_3:  'Solo (2-3)',
       solo_2_4:  'Solo (2-4)',

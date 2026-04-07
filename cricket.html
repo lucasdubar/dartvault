@@ -2582,7 +2582,31 @@ document.querySelectorAll('input[name="mode"]').forEach(radio => {
   });
 });
 
+function saveCfg() {
+  try {
+    var cfg = {
+      mode: document.querySelector('input[name="mode"]:checked')?.value,
+      rounds: document.querySelector('input[name="rounds"]:checked')?.value,
+      chkRandomZones: document.getElementById('chk-random-zones') ? document.getElementById('chk-random-zones').checked : false,
+      chkValidate: document.getElementById('chk-validate') ? document.getElementById('chk-validate').checked : false
+    };
+    localStorage.setItem('dv_cfg_cricket', JSON.stringify(cfg));
+  } catch(e) {}
+}
+function restoreCfg() {
+  try {
+    var raw = localStorage.getItem('dv_cfg_cricket');
+    if (!raw) return;
+    var cfg = JSON.parse(raw);
+    if (cfg.mode) { var r = document.querySelector('input[name="mode"][value="'+cfg.mode+'"]'); if(r) r.checked = true; }
+    if (cfg.rounds != null) { var r2 = document.querySelector('input[name="rounds"][value="'+cfg.rounds+'"]'); if(r2) r2.checked = true; }
+    if (cfg.chkRandomZones != null) { var chkR = document.getElementById('chk-random-zones'); if(chkR) chkR.checked = cfg.chkRandomZones; }
+    if (cfg.chkValidate != null) { var chkV = document.getElementById('chk-validate'); if(chkV) chkV.checked = cfg.chkValidate; }
+  } catch(e) {}
+}
+
 document.getElementById('btn-start').addEventListener('click', () => {
+  saveCfg();
   const mode        = document.querySelector('input[name="mode"]:checked').value;
   if (players.length < 2 && mode !== 'noscore') { showToast(DV_LANG.t('err_add_2')); return; }
   feedbackStart();
@@ -2940,6 +2964,7 @@ history.pushState(null, '', window.location.href);
     function initLang() {
       DV_LANG.apply();
       applyGameLang();
+      if (typeof restoreCfg === 'function') restoreCfg();
     }
     window.addEventListener('DOMContentLoaded', initLang);
   </script>

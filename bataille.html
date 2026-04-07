@@ -1112,8 +1112,8 @@ body { font-family:'Exo 2',sans-serif; background:var(--bg); color:var(--text); 
     <div style="display:flex;flex-direction:column;gap:14px;">
       <div style="display:flex;align-items:flex-start;gap:12px;">
         <div>
-          <div class="card-title">⚓ Difficulté</div>
-          <button class="btn-difficulty-dp selected" id="btn-difficulty-bt">😊 Facile</button>
+          <div class="card-title" data-i18n="diff_label">⚓ Difficulté</div>
+          <button class="btn-difficulty-dp selected" id="btn-difficulty-bt" data-i18n="easy_btn">😊 Facile</button>
         </div>
         <div id="ship-count-row">
           <div class="card-title" data-i18n="bt_ships">🚢 Nb de bateaux</div>
@@ -3004,17 +3004,17 @@ function goSetup() {
 // ════════════════════════════════════════════════
 // Bouton difficulté (cycle Facile → Normal → Difficile)
 (function() {
-  var states = [
-    { val:'easy',   label:'😊 Facile',    cls:'selected' },
-    { val:'normal', label:'⚔️ Normal',    cls:'selected' },
-    { val:'hard',   label:'💀 Difficile', cls:'selected hard' }
+  var stateKeys = [
+    { val:'easy',   key:'easy_btn',   cls:'selected' },
+    { val:'normal', key:'normal_btn', cls:'selected' },
+    { val:'hard',   key:'hard_btn',   cls:'selected hard' }
   ];
   var idx = 0;
   var btn = document.getElementById('btn-difficulty-bt');
   btn.addEventListener('click', function() {
-    idx = (idx + 1) % states.length;
-    var s = states[idx];
-    btn.textContent = s.label;
+    idx = (idx + 1) % stateKeys.length;
+    var s = stateKeys[idx];
+    btn.textContent = DV_LANG.t(s.key);
     btn.className = 'btn-difficulty-dp ' + s.cls;
     GAME_DIFFICULTY = s.val;
     var row = document.getElementById('ship-count-row');
@@ -3028,7 +3028,41 @@ function goSetup() {
   });
 })();
 
+function saveCfg() {
+  try {
+    var cfg = {
+      nbShips: document.querySelector('input[name="nb-ships"]:checked')?.value,
+      gameMode: document.querySelector('input[name="game-mode"]:checked')?.value,
+      difficulty: GAME_DIFFICULTY,
+      chkValidate: document.getElementById('chk-validate') ? document.getElementById('chk-validate').checked : false
+    };
+    localStorage.setItem('dv_cfg_bataille', JSON.stringify(cfg));
+  } catch(e) {}
+}
+function restoreCfg() {
+  try {
+    var raw = localStorage.getItem('dv_cfg_bataille');
+    if (!raw) return;
+    var cfg = JSON.parse(raw);
+    if (cfg.nbShips) { var r = document.querySelector('input[name="nb-ships"][value="'+cfg.nbShips+'"]'); if(r) r.checked = true; }
+    if (cfg.gameMode) { var r2 = document.querySelector('input[name="game-mode"][value="'+cfg.gameMode+'"]'); if(r2) r2.checked = true; }
+    if (cfg.difficulty) {
+      var stateMap = { easy: {val:'easy', key:'easy_btn', cls:'btn-difficulty-dp selected', idx:0}, normal: {val:'normal', key:'normal_btn', cls:'btn-difficulty-dp selected', idx:1}, hard: {val:'hard', key:'hard_btn', cls:'btn-difficulty-dp selected hard', idx:2} };
+      var s = stateMap[cfg.difficulty];
+      if (s) {
+        GAME_DIFFICULTY = s.val;
+        var btn = document.getElementById('btn-difficulty-bt');
+        if (btn) { btn.className = s.cls; btn.textContent = DV_LANG.t(s.key); }
+        var row = document.getElementById('ship-count-row');
+        if (row) row.style.display = s.val === 'easy' ? '' : 'none';
+      }
+    }
+    if (cfg.chkValidate != null) { var chk = document.getElementById('chk-validate'); if(chk) chk.checked = cfg.chkValidate; }
+  } catch(e) {}
+}
+
 document.getElementById('btn-start').addEventListener('click', () => {
+  saveCfg();
   haptic('success');
   const mode = getSelectedMode();
   if (teams.A.length < 1 || teams.B.length < 1) {
@@ -3417,6 +3451,7 @@ history.pushState(null,'',window.location.href);
     function initLang() {
       DV_LANG.apply();
       applyGameLang();
+      if (typeof restoreCfg === 'function') restoreCfg();
     }
     window.addEventListener('DOMContentLoaded', initLang);
   </script>

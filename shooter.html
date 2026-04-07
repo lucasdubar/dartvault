@@ -975,14 +975,14 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
         <div>
           <div class="card-title" data-i18n="sht_hp">❤️ POINTS DE VIE</div>
           <div class="pill-group">
-            <label class="pill-label"><input type="radio" name="hp" value="3"><span class="pill">3</span></label>
-            <label class="pill-label"><input type="radio" name="hp" value="5" checked><span class="pill">5</span></label>
+            <label class="pill-label"><input type="radio" name="hp" value="3" checked><span class="pill">3</span></label>
+            <label class="pill-label"><input type="radio" name="hp" value="5"><span class="pill">5</span></label>
             <label class="pill-label"><input type="radio" name="hp" value="10"><span class="pill">10</span></label>
           </div>
         </div>
         <div>
           <div class="card-title" data-i18n="sht_diff">⚔️ DIFFICULTÉ</div>
-          <button class="btn-difficulty hard selected" id="btn-difficulty" data-i18n="normal_btn">⚔️ Normal</button>
+          <button class="btn-difficulty selected" id="btn-difficulty" data-i18n="easy_btn">⚡ Easy</button>
         </div>
       </div>
       <div>
@@ -1465,7 +1465,7 @@ const SOLO_EMOJI = ['🔵', '🟡', '🟣', '🟤', '🟢', '🔴'];
 // STATE
 let state = {
   maxHP: 10,
-  difficulty: 'hard',
+  difficulty: 'easy',
   gameMode: 'solo',
   players: [],
   currentPlayerIndex: 0,
@@ -1866,7 +1866,49 @@ document.getElementById('btn-random').addEventListener('click', () => {
   }
 });
 
+function saveCfg() {
+  try {
+    var btn = document.getElementById('btn-difficulty');
+    var cfg = {
+      hp: document.querySelector('input[name="hp"]:checked')?.value,
+      mode: document.querySelector('input[name="mode"]:checked')?.value,
+      maxroundsSht: document.querySelector('input[name="maxrounds-sht"]:checked')?.value,
+      difficulty: btn && btn.classList.contains('hard') ? 'hard' : 'easy',
+      chkValidate: document.getElementById('chk-validate') ? document.getElementById('chk-validate').checked : false
+    };
+    localStorage.setItem('dv_cfg_shooter', JSON.stringify(cfg));
+  } catch(e) {}
+}
+function restoreCfg() {
+  try {
+    var raw = localStorage.getItem('dv_cfg_shooter');
+    if (!raw) return;
+    var cfg = JSON.parse(raw);
+    if (cfg.hp) { var r = document.querySelector('input[name="hp"][value="'+cfg.hp+'"]'); if(r) r.checked = true; }
+    if (cfg.mode) { var r2 = document.querySelector('input[name="mode"][value="'+cfg.mode+'"]'); if(r2) { r2.checked = true; r2.dispatchEvent(new Event('change')); } }
+    if (cfg.maxroundsSht != null) { var r3 = document.querySelector('input[name="maxrounds-sht"][value="'+cfg.maxroundsSht+'"]'); if(r3) r3.checked = true; }
+    if (cfg.difficulty) {
+      var btn = document.getElementById('btn-difficulty');
+      if (btn) {
+        if (cfg.difficulty === 'hard') {
+          btn.className = 'btn-difficulty hard selected';
+          btn.textContent = DV_LANG.t('normal_btn');
+          btn.dataset.i18n = 'normal_btn';
+          state.difficulty = 'hard';
+        } else {
+          btn.className = 'btn-difficulty selected';
+          btn.textContent = DV_LANG.t('easy_btn');
+          btn.dataset.i18n = 'easy_btn';
+          state.difficulty = 'easy';
+        }
+      }
+    }
+    if (cfg.chkValidate != null) { var chk = document.getElementById('chk-validate'); if(chk) chk.checked = cfg.chkValidate; }
+  } catch(e) {}
+}
+
 document.getElementById('btn-start').addEventListener('click', () => {
+  saveCfg();
   // Son de démarrage
   haptic('success');
   if (_ac && localStorage.getItem('dartvault_sound') !== 'off') {
@@ -3532,6 +3574,7 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     function initLang() {
       DV_LANG.apply();
       applyGameLang();
+      if (typeof restoreCfg === 'function') restoreCfg();
     }
     window.addEventListener('DOMContentLoaded', initLang);
   </script>

@@ -886,7 +886,37 @@ function renderSetupList(){
 }
 
 // ── Démarrage ─────────────────────────────────────────────────────
+function saveCfg() {
+  try {
+    var cfg = {
+      ordre: G.options.ordre,
+      bull: G.options.bull,
+      hits: G.options.hits,
+      skip: G.options.skip,
+      maxrounds: G.options.maxrounds,
+      chkReplay: document.getElementById('chk-replay') ? document.getElementById('chk-replay').checked : false,
+      chkValidate: document.getElementById('chk-validate') ? document.getElementById('chk-validate').checked : false
+    };
+    localStorage.setItem('dv_cfg_horloge', JSON.stringify(cfg));
+  } catch(e) {}
+}
+function restoreCfg() {
+  try {
+    var raw = localStorage.getItem('dv_cfg_horloge');
+    if (!raw) return;
+    var cfg = JSON.parse(raw);
+    if (cfg.ordre != null) selectOpt('ordre', cfg.ordre);
+    if (cfg.bull != null) selectOpt('bull', cfg.bull);
+    if (cfg.hits != null) selectOpt('hits', cfg.hits);
+    if (cfg.skip != null) selectOpt('skip', cfg.skip);
+    if (cfg.maxrounds != null) selectOpt('maxrounds', cfg.maxrounds);
+    if (cfg.chkReplay != null) { var chkR = document.getElementById('chk-replay'); if(chkR) chkR.checked = cfg.chkReplay; }
+    if (cfg.chkValidate != null) { var chkV = document.getElementById('chk-validate'); if(chkV) chkV.checked = cfg.chkValidate; }
+  } catch(e) {}
+}
+
 document.getElementById('btn-start').addEventListener('click',()=>{
+  saveCfg();
   if(G.players.length<1){showToast('Ajoutez au moins 1 joueur');return;}
   G.sequence=buildSequence(G.options);
   G.players.forEach(p=>{p.targetIdx=0;p.hitsOnCurrent=0;p.totalDarts=0;p.totalHits=0;p.lastTurnDarts=[];});
@@ -1718,6 +1748,7 @@ function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').
 
 window.addEventListener('DOMContentLoaded',function(){
   if(window.DV_LANG&&typeof window.DV_LANG.apply==='function')window.DV_LANG.apply();
+  if(typeof restoreCfg==='function')restoreCfg();
 });
 </script>
 

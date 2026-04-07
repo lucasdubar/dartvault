@@ -1780,7 +1780,30 @@ document.getElementById('btn-random').addEventListener('click', () => {
   renderTeams();
 });
 
-document.getElementById('btn-start').addEventListener('click', startGame);
+function saveCfg() {
+  try {
+    var cfg = {
+      zones: document.querySelector('input[name="zones"]:checked')?.value,
+      mode: document.querySelector('input[name="mode"]:checked')?.value,
+      rounds: document.querySelector('input[name="rounds"]:checked')?.value,
+      chkValidate: document.getElementById('chk-validate') ? document.getElementById('chk-validate').checked : false
+    };
+    localStorage.setItem('dv_cfg_territoire', JSON.stringify(cfg));
+  } catch(e) {}
+}
+function restoreCfg() {
+  try {
+    var raw = localStorage.getItem('dv_cfg_territoire');
+    if (!raw) return;
+    var cfg = JSON.parse(raw);
+    if (cfg.zones) { var r = document.querySelector('input[name="zones"][value="'+cfg.zones+'"]'); if(r) r.checked = true; }
+    if (cfg.mode) { var r2 = document.querySelector('input[name="mode"][value="'+cfg.mode+'"]'); if(r2) { r2.checked = true; r2.dispatchEvent(new Event('change')); } }
+    if (cfg.rounds) { var r3 = document.querySelector('input[name="rounds"][value="'+cfg.rounds+'"]'); if(r3) r3.checked = true; }
+    if (cfg.chkValidate != null) { var chk = document.getElementById('chk-validate'); if(chk) chk.checked = cfg.chkValidate; }
+  } catch(e) {}
+}
+
+document.getElementById('btn-start').addEventListener('click', () => { saveCfg(); startGame(); });
 
 function startGame() {
   const m = getMode();
@@ -3218,6 +3241,7 @@ renderTeams();
     function initLang() {
       DV_LANG.apply();
       applyGameLang();
+      if (typeof restoreCfg === 'function') restoreCfg();
     }
     window.addEventListener('DOMContentLoaded', initLang);
   </script>

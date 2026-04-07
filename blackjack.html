@@ -1155,7 +1155,7 @@ input[type=number]{-moz-appearance:textfield;}
       </div>
       <div>
         <div class="card-title" data-i18n="x01_entry">📝 Saisie</div>
-        <button type="button" class="pill" id="btn-input-mode-bj" onclick="bjToggleInputMode()" data-i18n="x01_total">Total</button>
+        <button type="button" class="pill" id="btn-input-mode-bj" onclick="bjToggleInputMode()" data-mode="dart" data-i18n="x01_per_dart">Par fléchette</button>
       </div>
     </div>
     <div style="display:flex;gap:10px;margin-top:12px;">
@@ -1418,7 +1418,7 @@ let B = {
   gameStarted: false,
   roundsLog: [],
   _lastRoundSnapshot: null,
-  inputMode: 'total',
+  inputMode: 'dart',
   requireValidate: false,
 };
 
@@ -1686,7 +1686,33 @@ document.getElementById('btn-random-dealer').addEventListener('click', () => {
   showToast(DV_LANG.t('bj_dealer_toast').replace('{name}',B.players[idx].name));
 });
 
+function saveCfg() {
+  try {
+    var bm = document.getElementById('btn-input-mode-bj');
+    var cfg = {
+      rounds: document.querySelector('input[name="rounds"]:checked')?.value,
+      inputMode: bm ? bm.dataset.mode : 'dart',
+      chkValidate: document.getElementById('chk-validate').checked
+    };
+    localStorage.setItem('dv_cfg_blackjack', JSON.stringify(cfg));
+  } catch(e) {}
+}
+function restoreCfg() {
+  try {
+    var raw = localStorage.getItem('dv_cfg_blackjack');
+    if (!raw) return;
+    var cfg = JSON.parse(raw);
+    if (cfg.rounds) { var r = document.querySelector('input[name="rounds"][value="'+cfg.rounds+'"]'); if(r) r.checked = true; }
+    if (cfg.inputMode) {
+      var btn = document.getElementById('btn-input-mode-bj');
+      if (btn) { btn.dataset.mode = cfg.inputMode; btn.textContent = cfg.inputMode === 'dart' ? DV_LANG.t('x01_per_dart') : DV_LANG.t('x01_total'); btn.dataset.i18n = cfg.inputMode === 'dart' ? 'x01_per_dart' : 'x01_total'; }
+    }
+    if (cfg.chkValidate != null) document.getElementById('chk-validate').checked = cfg.chkValidate;
+  } catch(e) {}
+}
+
 document.getElementById('btn-start').addEventListener('click', () => {
+  saveCfg();
   if(B.players.length < 2){ showToast(DV_LANG.t('err_min2_bj')); return; }
   if(!B.dealer){ showToast(DV_LANG.t('err_dealer')); return; }
   if(!validateTargets()){ showToast(DV_LANG.t('err_targets')); return; }
@@ -2610,6 +2636,7 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     function initLang() {
       DV_LANG.apply();
       applyGameLang();
+      if (typeof restoreCfg === 'function') restoreCfg();
     }
     window.addEventListener('DOMContentLoaded', initLang);
   </script>
