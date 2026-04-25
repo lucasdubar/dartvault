@@ -1094,7 +1094,7 @@ if (screen.orientation && screen.orientation.lock) {
       <label class="pill-label"><input type="radio" name="rounds" value="20"><span class="pill">20</span></label>
     </div>
 
-    <div class="card-title">🏆 FORMAT</div>
+    <div class="card-title" data-i18n="format_label">🏆 Format</div>
     <button type="button" class="legs-btn selected" id="btn-format" onclick="openFormatModal()" style="min-width:120px;text-align:center;margin-top:4px;"><span id="val-format">1 Manche</span></button>
     <div style="display:none;">
       <button type="button" class="legs-btn selected" data-legs="1" onclick="selectLegs(1)">1</button>
@@ -1193,7 +1193,7 @@ if (screen.orientation && screen.orientation.lock) {
 <!-- ══ MODAL FORMAT ══ -->
 <div class="modal-ov" id="format-modal">
   <div class="modal" style="max-width:300px;">
-    <div class="modal-title" style="color:var(--accent);font-size:1.1rem;margin-bottom:16px;">🏆 FORMAT</div>
+    <div class="modal-title" style="color:var(--accent);font-size:1.1rem;margin-bottom:16px;" data-i18n="format_label">🏆 Format</div>
     <div style="font-size:.75rem;font-weight:600;letter-spacing:.04em;opacity:.7;margin-bottom:6px;text-transform:capitalize;" data-i18n="x01_legs_label">Manches</div>
     <div style="display:flex;gap:6px;margin-bottom:14px;">
       <button type="button" class="legs-btn selected" data-fmlegs="1" onclick="fmPickLegs(1)">1</button>
@@ -2493,13 +2493,11 @@ function selectSets(n) {
 function updateFormatBtn() {
   const el = document.getElementById('val-format');
   if (!el) return;
-  const fr = DV_LANG.get() !== 'en';
   if (selectedSets > 0) {
     el.textContent = selectedSets + (selectedSets > 1 ? ' Sets' : ' Set');
   } else {
-    el.textContent = fr
-      ? selectedLegs + (selectedLegs > 1 ? ' Manches' : ' Manche')
-      : selectedLegs + (selectedLegs > 1 ? ' Legs' : ' Leg');
+    const label = selectedLegs > 1 ? DV_LANG.t('leg_plural') : DV_LANG.t('leg_singular');
+    el.textContent = selectedLegs + ' ' + label;
   }
 }
 function openFormatModal() {
@@ -2818,10 +2816,97 @@ const _RULES_DATA = {
             <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Validation</strong>: manual confirmation before scoring</span></div>
             </div>`
   }
+  ,de: {
+    icon: '🦗', title: 'Cricket',
+    catch: 'Schließe die Zahlen, sammel die Punkte.\nLass den Rest hinter dir.',
+    points: [
+      { icon: '🎯', title: 'Felder schließen', desc: '15 bis 20 und Bull — jede Zahl 3 Mal treffen, um sie zu "schließen".' },
+      { icon: '✖️', title: 'Punkte erzielen', desc: 'Einmal geschlossen, bringen weitere Treffer Punkte — bis Gegner das Feld auch schließen.' },
+      { icon: '🏆', title: 'Spiel gewinnen', desc: 'Alle Felder schließen mit den meisten (Standard) oder wenigsten (Cut-throat) Punkten!' }
+    ],
+    full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spielablauf</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 Pfeile pro Runde auf Felder 15–20 und Bull</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>/ = 1 Treffer · X = 2 Treffer · ⊗ = geschlossen (3 Treffer)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Single = ×1 · Double = ×2 · Triple = ×3 Treffer</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Einmal geschlossen, bringen weitere Treffer Punkte — bis Gegner das Feld schließen</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Sieg</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Standard</strong>: alle Felder schließen mit den meisten Punkten</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Cut-throat</strong>: deine Punkte gehen an Gegner — wenigste Punkte gewinnt!</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>No Score</strong>: Erster, der alle Felder schließt, gewinnt, ohne Punkte</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modus</strong>: Standard · Cut-throat · No Score</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Zufallsfelder</strong>: aktive Zahlen werden zufällig gezogen</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Format</strong>: Freie Legs oder Sets (3 Legs/Set)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bestätigung</strong>: manuelle Bestätigung vor der Wertung</span></div>
+            </div>`
+  },
+  nl: {
+    icon: '🦗', title: 'Cricket',
+    catch: 'Sluit de nummers, scoor de punten.\nLaat de rest achter je.',
+    points: [
+      { icon: '🎯', title: 'Zones sluiten', desc: '15 tot 20 en Bull — elk nummer 3 keer raken om het te "sluiten".' },
+      { icon: '✖️', title: 'Punten scoren', desc: 'Eenmaal gesloten leveren extra treffers punten op — totdat tegenstanders dat nummer ook sluiten.' },
+      { icon: '🏆', title: 'Spel winnen', desc: 'Sluit alle nummers met de meeste punten (Standard) of minste (Cut-throat)!' }
+    ],
+    full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spelverloop</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 pijlen per beurt op nummers 15–20 en Bull</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>/ = 1 treffer · X = 2 treffers · ⊗ = gesloten (3 treffers)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Single = ×1 · Double = ×2 · Triple = ×3 treffers</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Eenmaal gesloten leveren extra treffers punten op — totdat tegenstanders het nummer sluiten</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Overwinning</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Standard</strong>: alle nummers sluiten met de meeste punten</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Cut-throat</strong>: jouw punten gaan naar tegenstanders — minste punten wint!</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>No Score</strong>: eerste die alle nummers sluit wint, zonder punten</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modus</strong>: Standard · Cut-throat · No Score</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Willekeurige zones</strong>: actieve nummers willekeurig getrokken</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Formaat</strong>: Vrije legs of Sets (3 legs/set)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bevestiging</strong>: handmatige bevestiging voor de scoring</span></div>
+            </div>`
+  },
+  es: {
+    icon: '🦗', title: 'Cricket',
+    catch: 'Cierra los números, suma los puntos.\nDeja el resto atrás.',
+    points: [
+      { icon: '🎯', title: 'Zonas a cerrar', desc: 'Del 15 al 20 y el Bull — golpear cada número 3 veces para "cerrarlo".' },
+      { icon: '✖️', title: 'Sumar puntos', desc: 'Una vez cerrado, los golpes extra suman puntos hasta que el rival cierre ese número también.' },
+      { icon: '🏆', title: 'Ganar la partida', desc: '¡Cierra todos los números con más puntos (Standard) o menos (Cut-throat)!' }
+    ],
+    full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Cómo jugar</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 dardos por turno en los números 15–20 y Bull</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>/ = 1 marca · X = 2 marcas · ⊗ = cerrado (3 marcas)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Simple = ×1 · Doble = ×2 · Triple = ×3 marcas</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Una vez cerrado, las marcas extra suman puntos hasta que los rivales cierren ese número</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Victoria</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Standard</strong>: cerrar todos los números con más puntos</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Cut-throat</strong>: tus puntos van a los rivales — ¡gana el que tenga menos puntos!</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>No Score</strong>: el primero en cerrar todos los números gana, sin puntos</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modo</strong>: Standard · Cut-throat · No Score</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Zonas aleatorias</strong>: números activos sorteados al azar</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Formato</strong>: Mangas libres o Sets (3 mangas/set)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Validación</strong>: confirmación manual antes de puntuar</span></div>
+            </div>`
+  }
 };
 function _injectRules() {
   const lang = (window.DV_LANG && typeof DV_LANG.get === 'function') ? DV_LANG.get() : 'fr';
-  const r = _RULES_DATA[lang] || _RULES_DATA.fr;
+  const r = _RULES_DATA[lang] || _RULES_DATA.en || _RULES_DATA.fr;
   const el = document.getElementById('rules-body-content');
   if (!el) return;
 
@@ -3050,7 +3135,7 @@ history.pushState(null, '', window.location.href);
     // Lang flag
     const lang = localStorage.getItem(LANG_KEY) || 'fr';
     const lb = document.getElementById('sg-btn-lang');
-    if (lb) lb.textContent = lang === 'fr' ? '🇫🇷' : '🇬🇧';
+    if (lb) lb.textContent = lang === 'fr' ? '🇫🇷' : lang === 'de' ? '🇩🇪' : lang === 'nl' ? '🇳🇱' : lang === 'es' ? '🇪🇸' : '🇬🇧';
     // i18n labels
     if (typeof applyI18n === 'function') applyI18n(sgPanel);
     else if (typeof L === 'function') {
@@ -3092,14 +3177,9 @@ history.pushState(null, '', window.location.href);
 
   const langBtn = document.getElementById('sg-btn-lang');
   if (langBtn) langBtn.addEventListener('click', () => {
-    const cur = localStorage.getItem(LANG_KEY) || 'fr';
-    const next = cur === 'fr' ? 'en' : 'fr';
-    localStorage.setItem(LANG_KEY, next);
-    // Mise à jour instantanée de l'interface
-    if (window.DV_LANG && typeof window.DV_LANG.apply === 'function') {
-      window.DV_LANG.apply();
-    }
-    // Rappel de la fonction de langue spécifique au jeu si elle existe
+    if (window.DV_LANG && typeof DV_LANG.showPicker === 'function') DV_LANG.showPicker(langBtn);
+  });
+  window.addEventListener('dv-lang-change', () => {
     if (typeof applyGameLang === 'function') applyGameLang();
     syncSgPanel();
   });

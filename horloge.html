@@ -1671,10 +1671,94 @@ const _RULES_DATA = {
             <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Validation</strong>: manual confirmation before passing</span></div>
             </div>`
   }
+  ,de: {
+    icon: '🕐', title: 'Uhr',
+    catch: 'Die Uhr tickt.\nTriff die Zahlen der Reihe nach oder falle zurück.',
+    points: [
+      { icon: '🕐', title: 'Sequenz befolgen', desc: 'Jede Zahl der Reihe nach validieren (1→20, 20→1 oder zufällig) vor den Gegnern.' },
+      { icon: '🎯', title: 'Double und Triple', desc: 'Double = 2 Treffer, Triple = 3 Treffer — schneller durch die Sequenz vorankommen!' },
+      { icon: '🔄', title: 'Wiederholbonus', desc: '3 Pfeile auf das richtige Ziel in einer Runde = die Runde erneut spielen!' }
+    ],
+    full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spielablauf</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 Pfeile pro Runde</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Single, Double oder Triple validieren alle das aktuelle Ziel (1-Treffer-Modus)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Multi-Treffer-Modus: Double = +2 Treffer, Triple = +3 Treffer</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Überspringen-Modus (1 Treffer): Double = 2 vorwärts, Triple = 3 vorwärts</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Sieg</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Erster Spieler, der die gesamte Sequenz abschließt, gewinnt sofort.</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Wiederholbonus</strong>: 3 Pfeile auf das richtige Ziel in einer Runde = nochmal spielen!</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Reihenfolge</strong>: 1→20 · 20→1 · Zufällig</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bull</strong>: Keiner · Bull (25) · Bull + Bull's Eye (50)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Treffer pro Zahl</strong>: 1 Treffer · 2 Treffer · 3 Treffer</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bestätigung</strong>: manuelle Bestätigung vor dem Weitergehen</span></div>
+            </div>`
+  },
+  nl: {
+    icon: '🕐', title: 'Klok',
+    catch: 'De klok tikt.\nRaak de nummers op volgorde of raak achterop.',
+    points: [
+      { icon: '🕐', title: 'Volg de volgorde', desc: 'Valideer elk nummer op volgorde (1→20, 20→1 of willekeurig) voor je tegenstanders.' },
+      { icon: '🎯', title: 'Double en Triple', desc: 'Double = 2 hits, Triple = 3 hits — sneller door de volgorde gaan!' },
+      { icon: '🔄', title: 'Herspeel-bonus', desc: '3 pijlen op het juiste doel in één beurt = die beurt opnieuw spelen!' }
+    ],
+    full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spelverloop</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 pijlen per beurt</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Single, Double of Triple valideren allemaal het huidige doel (1-hit modus)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Multi-hit modus: Double = +2 hits, Triple = +3 hits</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Sla-over modus (1 hit): Double = 2 vooruit, Triple = 3 vooruit</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Winnen</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>De eerste speler die de volledige volgorde afrondt, wint direct.</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Herspeel-bonus</strong>: 3 pijlen op het juiste doel in één beurt = opnieuw spelen!</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Volgorde</strong>: 1→20 · 20→1 · Willekeurig</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bull</strong>: Geen · Bull (25) · Bull + Bull's Eye (50)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Hits per nummer</strong>: 1 hit · 2 hits · 3 hits</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Validatie</strong>: handmatige bevestiging voor doorgaan</span></div>
+            </div>`
+  },
+  es: {
+    icon: '🕐', title: 'Reloj',
+    catch: 'El reloj corre.\nGolpea los números en orden o quédate atrás.',
+    points: [
+      { icon: '🕐', title: 'Sigue la secuencia', desc: 'Valida cada número en orden (1→20, 20→1 o aleatorio) antes que tus rivales.' },
+      { icon: '🎯', title: 'Doble y Triple', desc: 'Doble = 2 impactos, Triple = 3 impactos — ¡avanza más rápido por la secuencia!' },
+      { icon: '🔄', title: 'Bonus de repetición', desc: '¡3 dardos en el objetivo correcto en un turno = jugar el turno de nuevo!' }
+    ],
+    full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Cómo jugar</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 dardos por turno</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Simple, Doble o Triple validan el objetivo actual (modo 1 impacto)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Modo multi-impacto: Doble = +2 impactos, Triple = +3 impactos</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Modo saltar (1 impacto): Doble = avanza 2, Triple = avanza 3</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Victoria</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>El primer jugador en completar toda la secuencia gana al instante.</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bonus de repetición</strong>: 3 dardos en el objetivo correcto en un turno = ¡volver a jugar!</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Orden</strong>: 1→20 · 20→1 · Aleatorio</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bull</strong>: Ninguno · Bull (25) · Bull + Bull's Eye (50)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Impactos por número</strong>: 1 impacto · 2 impactos · 3 impactos</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Validación</strong>: confirmación manual antes de pasar</span></div>
+            </div>`
+  }
 };
 function _injectRules() {
   const lang = (window.DV_LANG && typeof DV_LANG.get === 'function') ? DV_LANG.get() : 'fr';
-  const r = _RULES_DATA[lang] || _RULES_DATA.fr;
+  const r = _RULES_DATA[lang] || _RULES_DATA.en || _RULES_DATA.fr;
   const el = document.getElementById('rules-body-content');
   if (!el) return;
 
@@ -1813,14 +1897,15 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     const vt=document.getElementById('sg-toggle-vib');if(vt)vt.checked=localStorage.getItem(VK)!=='off';
     const st=document.getElementById('sg-toggle-snd');if(st)st.checked=localStorage.getItem(SK)!=='off';
     const tt=document.getElementById('sg-toggle-tts');if(tt)tt.checked=localStorage.getItem('dartvault_tts')!=='off';
-    const lb=document.getElementById('sg-btn-lang');if(lb)lb.textContent=(localStorage.getItem(LK)||'fr')==='fr'?'🇫🇷':'🇬🇧';
+    const lb=document.getElementById('sg-btn-lang');if(lb){const _l=localStorage.getItem(LK)||'fr';lb.textContent=_l==='fr'?'🇫🇷':_l==='de'?'🇩🇪':_l==='nl'?'🇳🇱':_l==='es'?'🇪🇸':'🇬🇧';}
   }
   function at(t){localStorage.setItem(TK,t);document.documentElement.setAttribute('data-theme',t);sync();}
   ['dark','light','colored'].forEach(k=>{const el=document.getElementById('sg-pill-'+k);if(el)el.addEventListener('click',()=>at(k));});
   const vt=document.getElementById('sg-toggle-vib');if(vt)vt.addEventListener('change',()=>localStorage.setItem(VK,vt.checked?'on':'off'));
   const st=document.getElementById('sg-toggle-snd');if(st)st.addEventListener('change',()=>localStorage.setItem(SK,st.checked?'on':'off'));
   const tts=document.getElementById('sg-toggle-tts');if(tts)tts.addEventListener('change',()=>localStorage.setItem('dartvault_tts',tts.checked?'on':'off'));
-  const lb=document.getElementById('sg-btn-lang');if(lb)lb.addEventListener('click',()=>{const c=localStorage.getItem(LK)||'fr';localStorage.setItem(LK,c==='fr'?'en':'fr');applyGameLang();sync();});
+  const lb=document.getElementById('sg-btn-lang');if(lb)lb.addEventListener('click',()=>{if(window.DV_LANG&&typeof DV_LANG.showPicker==='function')DV_LANG.showPicker(lb);});
+  window.addEventListener('dv-lang-change',()=>{applyGameLang();sync();});
   sync();
 })();
 </script>

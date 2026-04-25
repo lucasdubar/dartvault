@@ -1132,7 +1132,7 @@ body { font-family:'Exo 2',sans-serif; background:var(--bg); color:var(--text); 
         </div>
       </div>
       <div>
-        <div class="card-title">⏱ Tours max / manche</div>
+        <div class="card-title" data-i18n="bt_tours_max">⏱ Tours max / manche</div>
         <div class="pill-group">
           <label class="pill-label"><input type="radio" name="maxrounds-bt" value="0" checked><span class="pill">∞</span></label>
           <label class="pill-label"><input type="radio" name="maxrounds-bt" value="10"><span class="pill">10</span></label>
@@ -3286,11 +3286,89 @@ const _RULES_DATA = {
               <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Mode</strong>: Solo (1v1) · Team (2-6 players)</span></div>
             </div>`
   }
+  ,de: {
+    icon: '⚓', title: 'Seeschlacht',
+    catch: 'Verstecke deine Schiffe. Jage den Feind.\nVersenke sie, bevor sie dich versenken.',
+    points: [
+      { icon: '🗺️', title: 'Geheime Platzierung', desc: 'Jedes Team versteckt seine Schiffe auf dem Board — der Gegner sieht nichts.' },
+      { icon: '🎯', title: 'Blinder Beschuss', desc: 'Abwechselnd Pfeile werfen, um die feindliche Flotte zu orten.' },
+      { icon: '💥', title: 'Flotte versenken', desc: 'Alle 3 Felder eines Schiffs treffen, um es zu versenken. Wer zuerst alles versenkt, gewinnt!' }
+    ],
+    full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spielablauf</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Jedes Team platziert seine Schiffe heimlich auf dem Board</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Teams werfen abwechselnd, um feindliche Schiffe zu finden</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Double / Single außen → Außenring · Triple / Single innen → Innenring</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Bull (25) → 2 zufällige Felder · Bull's Eye (50) → 3 zufällige Felder</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🚢 Schiffe</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Jedes Schiff belegt 3 benachbarte Felder auf dem Board</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>2 Schiffe: 1 außen + 1 frei · 3 Schiffe: 2 außen + 1 frei · 4 Schiffe: 2 außen + 2 frei</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Schiffe</strong>: 2 · 3 · 4 Schiffe pro Team</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modus</strong>: Solo (1v1) · Team (2-6 Spieler)</span></div>
+            </div>`
+  },
+  nl: {
+    icon: '⚓', title: 'Zeeslag',
+    catch: 'Verstop je schepen. Zoek de vijand.\nZink ze voordat ze jou zinken.',
+    points: [
+      { icon: '🗺️', title: 'Geheime plaatsing', desc: 'Elk team verstopt zijn schepen op het bord — de tegenstander ziet niets.' },
+      { icon: '🎯', title: 'Blind vuren', desc: 'Gooi om beurten pijlen om de vijandelijke vloot te lokaliseren.' },
+      { icon: '💥', title: 'Zink de vloot', desc: 'Raak alle 3 vakjes van een schip om het te zinken. Wie alles het eerst zinkt, wint!' }
+    ],
+    full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spelverloop</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Elk team plaatst zijn schepen in het geheim op het bord</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Teams gooien om beurten om vijandelijke schepen te vinden</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Double / Single buiten → buitenring · Triple / Single binnen → binnenring</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Bull (25) → 2 willekeurige vakjes · Bull's Eye (50) → 3 willekeurige vakjes</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🚢 Schepen</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Elk schip beslaat 3 aangrenzende vakjes op het bord</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>2 schepen: 1 buiten + 1 vrij · 3 schepen: 2 buiten + 1 vrij · 4 schepen: 2 buiten + 2 vrij</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Schepen</strong>: 2 · 3 · 4 schepen per team</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modus</strong>: Solo (1v1) · Team (2-6 spelers)</span></div>
+            </div>`
+  },
+  es: {
+    icon: '⚓', title: 'Batalla Naval',
+    catch: 'Esconde tus barcos. Caza al enemigo.\nHúndelos antes de que te hundan a ti.',
+    points: [
+      { icon: '🗺️', title: 'Colocación secreta', desc: 'Cada equipo esconde sus barcos en el tablero — el rival no ve nada.' },
+      { icon: '🎯', title: 'Fuego ciego', desc: 'Por turnos, lanza dardos para localizar la flota enemiga.' },
+      { icon: '💥', title: 'Hunde la flota', desc: 'Impacta las 3 casillas de un barco para hundirlo. ¡El primero en hundir todo gana!' }
+    ],
+    full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Cómo jugar</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Cada equipo coloca en secreto sus barcos en el tablero</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Los equipos disparan por turnos para encontrar los barcos enemigos</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Doble / Simple exterior → anillo exterior · Triple / Simple interior → anillo interior</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Bull (25) → 2 casillas aleatorias · Bull's Eye (50) → 3 casillas aleatorias</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🚢 Barcos</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Cada barco ocupa 3 casillas adyacentes en el tablero</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>2 barcos: 1 exterior + 1 libre · 3 barcos: 2 exterior + 1 libre · 4 barcos: 2 exterior + 2 libres</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Barcos</strong>: 2 · 3 · 4 barcos por equipo</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modo</strong>: Solo (1v1) · Equipo (2-6 jugadores)</span></div>
+            </div>`
+  }
 };
 
 function _injectRules() {
   const lang = (window.DV_LANG && typeof DV_LANG.get === 'function') ? DV_LANG.get() : 'fr';
-  const r = _RULES_DATA[lang] || _RULES_DATA.fr;
+  const r = _RULES_DATA[lang] || _RULES_DATA.en || _RULES_DATA.fr;
   const el = document.getElementById('rules-body-content');
   if (!el) return;
 
@@ -3537,7 +3615,7 @@ history.pushState(null,'',window.location.href);
     // Lang flag
     const lang = localStorage.getItem(LANG_KEY) || 'fr';
     const lb = document.getElementById('sg-btn-lang');
-    if (lb) lb.textContent = lang === 'fr' ? '🇫🇷' : '🇬🇧';
+    if (lb) lb.textContent = lang === 'fr' ? '🇫🇷' : lang === 'de' ? '🇩🇪' : lang === 'nl' ? '🇳🇱' : lang === 'es' ? '🇪🇸' : '🇬🇧';
     // i18n labels
     if (typeof applyI18n === 'function') applyI18n(sgPanel);
     else if (typeof L === 'function') {
@@ -3577,14 +3655,9 @@ history.pushState(null,'',window.location.href);
 
   const langBtn = document.getElementById('sg-btn-lang');
   if (langBtn) langBtn.addEventListener('click', () => {
-    const cur = localStorage.getItem(LANG_KEY) || 'fr';
-    const next = cur === 'fr' ? 'en' : 'fr';
-    localStorage.setItem(LANG_KEY, next);
-    // Mise à jour instantanée de l'interface
-    if (window.DV_LANG && typeof window.DV_LANG.apply === 'function') {
-      window.DV_LANG.apply();
-    }
-    // Rappel de la fonction de langue spécifique au jeu si elle existe
+    if (window.DV_LANG && typeof DV_LANG.showPicker === 'function') DV_LANG.showPicker(langBtn);
+  });
+  window.addEventListener('dv-lang-change', () => {
     if (typeof applyGameLang === 'function') applyGameLang();
     syncSgPanel();
   });

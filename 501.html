@@ -1188,14 +1188,14 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
       <div class="option-btn" id="opt-simpleout" onclick="selectOpt('simpleout')" data-i18n="x01_simpleout">Simple Out</div>
       <div class="option-btn" id="opt-dblindblout" onclick="selectOpt('dblindblout')">D.In/D.Out</div>
     </div>
-    <div class="card-title" style="margin-top:12px;">⏱ Tours max / manche</div>
+    <div class="card-title" style="margin-top:12px;" data-i18n="x01_tours_max">⏱ Tours max / manche</div>
     <div class="pill-group" style="margin-bottom:12px;">
       <label class="pill-label"><input type="radio" name="maxrounds501" value="0" checked><span class="pill">∞</span></label>
       <label class="pill-label"><input type="radio" name="maxrounds501" value="10"><span class="pill">10</span></label>
       <label class="pill-label"><input type="radio" name="maxrounds501" value="15"><span class="pill">15</span></label>
       <label class="pill-label"><input type="radio" name="maxrounds501" value="20"><span class="pill">20</span></label>
     </div>
-    <div class="card-title" style="margin-top:12px;">🏆 FORMAT</div>
+    <div class="card-title" style="margin-top:12px;" data-i18n="format_label">🏆 Format</div>
     <button type="button" class="legs-btn selected" id="btn-format" onclick="openFormatModal()" style="min-width:120px;text-align:center;margin-top:4px;"><span id="val-format">1 Manche</span></button>
     <div style="display:none;">
       <button data-legs="1" class="legs-btn selected"></button>
@@ -1446,7 +1446,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
 
 <div class="modal-ov" id="format-modal">
   <div class="modal" style="max-width:300px;">
-    <div class="modal-title" style="color:var(--accent);font-size:1.1rem;margin-bottom:16px;">🏆 FORMAT</div>
+    <div class="modal-title" style="color:var(--accent);font-size:1.1rem;margin-bottom:16px;" data-i18n="format_label">🏆 Format</div>
     <div style="font-size:.75rem;font-weight:600;letter-spacing:.04em;opacity:.7;margin-bottom:6px;text-transform:capitalize;" data-i18n="x01_legs_label">Manches</div>
     <div style="display:flex;gap:6px;margin-bottom:14px;">
       <button type="button" class="legs-btn selected" data-fmlegs="1" onclick="fmPickLegs(1)">1</button>
@@ -1805,13 +1805,11 @@ document.getElementById('custom-modal').addEventListener('click', e => {
 function updateFormatBtn() {
   const el = document.getElementById('val-format');
   if (!el) return;
-  const fr = DV_LANG.get() !== 'en';
   if (selectedSets > 0) {
     el.textContent = selectedSets + (selectedSets > 1 ? ' Sets' : ' Set');
   } else {
-    el.textContent = fr
-      ? selectedLegs + (selectedLegs > 1 ? ' Manches' : ' Manche')
-      : selectedLegs + (selectedLegs > 1 ? ' Legs' : ' Leg');
+    const label = selectedLegs > 1 ? DV_LANG.t('leg_plural') : DV_LANG.t('leg_singular');
+    el.textContent = selectedLegs + ' ' + label;
   }
 }
 function openFormatModal() {
@@ -3600,10 +3598,109 @@ const _RULES_DATA = {
             <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Validation</strong>: manual confirmation before scoring</span></div>
             </div>`
   }
+  ,de: {
+    icon: '🎯', title: 'X01 Darts',
+    catch: 'Jeder Pfeil zählt.\nGeh auf null, bevor alle anderen es tun.',
+    points: [
+      { icon: '🎯', title: 'Auf null', desc: 'Starte bei 501 (oder 301/701) und reduziere deinen Score Pfeil für Pfeil — genau 0, um zu gewinnen.' },
+      { icon: '💥', title: 'Bust vermeiden', desc: 'Unter null gehen bricht den gesamten Zug ab — konzentriert bleiben und rechnen!' },
+      { icon: '🔴', title: 'Mit Double beenden', desc: 'Im Double Out muss der letzte Pfeil ein Double treffen. Gut zielen!' }
+    ],
+    full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spielablauf</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 Pfeile pro Runde</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Gesamtscore oder Pfeil für Pfeil eingeben</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Jeder Score unter null wird annulliert (Bust)</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Sieg</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Erster Spieler, der genau null erreicht, gewinnt das Leg</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Im Sets-Format die erforderliche Anzahl von Sets gewinnen</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚡ Spezialwurf</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Double Out</strong>: letzter Pfeil muss ein Double treffen</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>D.In / D.Out</strong>: Einsteigen UND Beenden auf einem Double</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modus</strong>: 301 · 501 · 701</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Abschluss</strong>: Double Out · Simple Out · D.In / D.Out</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Format</strong>: Freie Legs oder Sets (3 Legs/Set)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Eingabe</strong>: Gesamtscore oder Pfeil für Pfeil</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bestätigung</strong>: manuelle Bestätigung vor der Wertung</span></div>
+            </div>`
+  },
+  nl: {
+    icon: '🎯', title: 'X01 Darts',
+    catch: 'Elke pijl telt.\nGa naar nul voor iedereen anders.',
+    points: [
+      { icon: '🎯', title: 'Naar nul', desc: 'Begin bij 501 (of 301/701) en verminder je score pijl voor pijl — exact 0 om te winnen.' },
+      { icon: '💥', title: 'Vermijd de bust', desc: 'Onder nul gaan annuleert de hele beurt — geconcentreerd blijven en rekenen!' },
+      { icon: '🔴', title: 'Eindig op een double', desc: 'Bij Double Out moet de laatste pijl een double raken. Goed mikken!' }
+    ],
+    full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spelverloop</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 pijlen per beurt</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Totale score of pijl voor pijl invoeren</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Elke score onder nul wordt geannuleerd (bust)</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Overwinning</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Eerste speler die exact nul bereikt wint de leg</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>In Sets-formaat het vereiste aantal sets winnen</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚡ Speciale worp</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Double Out</strong>: laatste pijl moet een double raken</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>D.In / D.Out</strong>: instappen EN afsluiten op een double</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modus</strong>: 301 · 501 · 701</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Afsluiting</strong>: Double Out · Simple Out · D.In / D.Out</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Formaat</strong>: Vrije legs of Sets (3 legs/set)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Invoer</strong>: Totale score of pijl voor pijl</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bevestiging</strong>: handmatige bevestiging voor de scoring</span></div>
+            </div>`
+  },
+  es: {
+    icon: '🎯', title: 'X01 Darts',
+    catch: 'Cada dardo cuenta.\nLlega a cero antes que todos los demás.',
+    points: [
+      { icon: '🎯', title: 'Llega a cero', desc: 'Comienza en 501 (o 301/701) y reduce tu puntuación dardo a dardo — exactamente 0 para ganar.' },
+      { icon: '💥', title: 'Evita el bust', desc: 'Bajar de cero cancela todo el turno — ¡mantén la cabeza fría y calcula!' },
+      { icon: '🔴', title: 'Termina en doble', desc: 'En Double Out, el último dardo debe tocar un doble. ¡Apunta bien!' }
+    ],
+    full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Cómo jugar</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 dardos por turno</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Introducir puntuación total o dardo a dardo</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Toda puntuación que baje de cero se cancela (bust)</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Victoria</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>El primer jugador en llegar exactamente a cero gana la manga</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>En formato Sets, ganar el número de sets requerido</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚡ Lanzamiento especial</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Double Out</strong>: el último dardo debe tocar un doble</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>D.In / D.Out</strong>: entrar Y terminar en un doble</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modo</strong>: 301 · 501 · 701</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Final</strong>: Double Out · Simple Out · D.In / D.Out</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Formato</strong>: Mangas libres o Sets (3 mangas/set)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Entrada</strong>: Puntuación total o dardo a dardo</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Validación</strong>: confirmación manual antes de puntuar</span></div>
+            </div>`
+  }
 };
 function _injectRules() {
   const lang = (window.DV_LANG && typeof DV_LANG.get === 'function') ? DV_LANG.get() : 'fr';
-  const r = _RULES_DATA[lang] || _RULES_DATA.fr;
+  const r = _RULES_DATA[lang] || _RULES_DATA.en || _RULES_DATA.fr;
   const el = document.getElementById('rules-body-content');
   if (!el) return;
 
@@ -4020,7 +4117,7 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     // Lang flag
     const lang = localStorage.getItem(LANG_KEY) || 'fr';
     const lb = document.getElementById('sg-btn-lang');
-    if (lb) lb.textContent = lang === 'fr' ? '🇫🇷' : '🇬🇧';
+    if (lb) lb.textContent = lang === 'fr' ? '🇫🇷' : lang === 'de' ? '🇩🇪' : lang === 'nl' ? '🇳🇱' : lang === 'es' ? '🇪🇸' : '🇬🇧';
     // i18n labels
     if (typeof applyI18n === 'function') applyI18n(sgPanel);
     else if (typeof L === 'function') {
@@ -4062,14 +4159,9 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
 
   const langBtn = document.getElementById('sg-btn-lang');
   if (langBtn) langBtn.addEventListener('click', () => {
-    const cur = localStorage.getItem(LANG_KEY) || 'fr';
-    const next = cur === 'fr' ? 'en' : 'fr';
-    localStorage.setItem(LANG_KEY, next);
-    // Mise à jour instantanée de l'interface
-    if (window.DV_LANG && typeof window.DV_LANG.apply === 'function') {
-      window.DV_LANG.apply();
-    }
-    // Rappel de la fonction de langue spécifique au jeu si elle existe
+    if (window.DV_LANG && typeof DV_LANG.showPicker === 'function') DV_LANG.showPicker(langBtn);
+  });
+  window.addEventListener('dv-lang-change', () => {
     if (typeof applyGameLang === 'function') applyGameLang();
     syncSgPanel();
   });

@@ -544,7 +544,10 @@ const WINS_KEY      = 'dartvault_wins'; // { "emoji pseudo": { daily:{YYYY-MM-DD
 
 const PERIOD_LABELS = {
   fr: { daily:'Quotidien', weekly:'Hebdomadaire', monthly:'Mensuel', alltime:'All Time' },
-  en: { daily:'Daily', weekly:'Weekly', monthly:'Monthly', alltime:'All Time' }
+  en: { daily:'Daily', weekly:'Weekly', monthly:'Monthly', alltime:'All Time' },
+  de: { daily:'Täglich', weekly:'Wöchentlich', monthly:'Monatlich', alltime:'Gesamt' },
+  nl: { daily:'Dagelijks', weekly:'Wekelijks', monthly:'Maandelijks', alltime:'Totaal' },
+  es: { daily:'Diario', weekly:'Semanal', monthly:'Mensual', alltime:'Total' }
 };
 
 const PAGE_LABELS = {
@@ -555,7 +558,19 @@ const PAGE_LABELS = {
   en: { title:'RANKINGS', back:'← Menu', wins:'Wins', player:'Player', nodata:'No wins yet', nodata_sub:'Play a game to appear here!',
         reset_btn:'Reset stats', reset_title:'⚠️ RESET?',
         reset_sub:'All wins for all players will be reset to zero. This action cannot be undone.',
-        reset_confirm:'🗑️ Reset everything', reset_cancel:'Cancel' }
+        reset_confirm:'🗑️ Reset everything', reset_cancel:'Cancel' },
+  de: { title:'RANGLISTE', back:'← Menü', wins:'Siege', player:'Spieler', nodata:'Noch keine Siege', nodata_sub:'Spiele eine Partie, um hier zu erscheinen!',
+        reset_btn:'Statistiken zurücksetzen', reset_title:'⚠️ ZURÜCKSETZEN?',
+        reset_sub:'Alle Siege aller Spieler werden auf null gesetzt. Diese Aktion ist nicht rückgängig zu machen.',
+        reset_confirm:'🗑️ Alles zurücksetzen', reset_cancel:'Abbrechen' },
+  nl: { title:'RANGLIJST', back:'← Menu', wins:'Overwinningen', player:'Speler', nodata:'Nog geen overwinningen', nodata_sub:'Speel een partij om hier te verschijnen!',
+        reset_btn:'Statistieken resetten', reset_title:'⚠️ RESETTEN?',
+        reset_sub:'Alle overwinningen van alle spelers worden op nul gezet. Deze actie kan niet ongedaan worden gemaakt.',
+        reset_confirm:'🗑️ Alles resetten', reset_cancel:'Annuleren' },
+  es: { title:'CLASIFICACIÓN', back:'← Menú', wins:'Victorias', player:'Jugador', nodata:'Sin victorias aún', nodata_sub:'¡Juega una partida para aparecer aquí!',
+        reset_btn:'Reiniciar estadísticas', reset_title:'⚠️ ¿REINICIAR?',
+        reset_sub:'Todas las victorias de todos los jugadores se pondrán a cero. Esta acción no se puede deshacer.',
+        reset_confirm:'🗑️ Reiniciar todo', reset_cancel:'Cancelar' }
 };
 
 // ══════════════════════════════════════════════════════════════════════
@@ -596,22 +611,25 @@ let currentLang   = localStorage.getItem('dartvault_lang') || 'fr';
 // Noms affichés par jeu
 const GAME_NAMES = {
   fr: { _total:'Tout', '501':'X01 DARTS', cricket:'CRICKET', shanghai:'SHANGHAI', blackjack:'BLACKDART', race500:'RACE 500', territoire:'TERRITOIRE', dartspong:'DARTSPONG', shooter:'BATTLE ROYAL', bataille:'BATAILLE NAVALE', horloge:'HORLOGE' },
-  en: { _total:'All',  '501':'X01 DARTS', cricket:'CRICKET', shanghai:'SHANGHAI', blackjack:'BLACKDART', race500:'RACE 500', territoire:'TERRITORY',  dartspong:'DARTSPONG', shooter:'BATTLE ROYAL', bataille:'BATTLESHIP', horloge:'HORLOGE' }
+  en: { _total:'All',  '501':'X01 DARTS', cricket:'CRICKET', shanghai:'SHANGHAI', blackjack:'BLACKDART', race500:'RACE 500', territoire:'TERRITORY',  dartspong:'DARTSPONG', shooter:'BATTLE ROYAL', bataille:'BATTLESHIP', horloge:'HORLOGE' },
+  de: { _total:'Alle', '501':'X01 DARTS', cricket:'CRICKET', shanghai:'SHANGHAI', blackjack:'BLACKDART', race500:'RACE 500', territoire:'TERRITORIUM', dartspong:'DARTSPONG', shooter:'BATTLE ROYAL', bataille:'SEESCHLACHT', horloge:'UHR' },
+  nl: { _total:'Alles', '501':'X01 DARTS', cricket:'CRICKET', shanghai:'SHANGHAI', blackjack:'BLACKDART', race500:'RACE 500', territoire:'TERRITORIUM', dartspong:'DARTSPONG', shooter:'BATTLE ROYAL', bataille:'ZEESLAG', horloge:'KLOK' },
+  es: { _total:'Todo', '501':'X01 DARTS', cricket:'CRICKET', shanghai:'SHANGHAI', blackjack:'BLACKDART', race500:'RACE 500', territoire:'TERRITORIO', dartspong:'DARTSPONG', shooter:'BATTLE ROYAL', bataille:'BATALLA NAVAL', horloge:'RELOJ' }
 };
 
 // ── Sélecteur de jeu ─────────────────────────────────────────────────
 const GAMES_LIST = [
-  { key:'_total',    fr:'🏆 Tout',           en:'🏆 All' },
-  { key:'501',       fr:'🎯 X01 DARTS',      en:'🎯 X01 DARTS' },
-  { key:'cricket',   fr:'🦗 CRICKET',        en:'🦗 CRICKET' },
-  { key:'shanghai',  fr:'🗼 SHANGHAI',        en:'🗼 SHANGHAI' },
-  { key:'blackjack', fr:'🃏 BLACKDART',       en:'🃏 BLACKDART' },
-  { key:'race500',   fr:'🏁 RACE 500',        en:'🏁 RACE 500' },
-  { key:'territoire',fr:'🏰 TERRITOIRE',      en:'🏰 TERRITORY' },
-  { key:'dartspong', fr:'🔴 DARTSPONG',       en:'🔴 DARTSPONG' },
-  { key:'shooter',   fr:'💥 BATTLE ROYAL',    en:'💥 BATTLE ROYAL' },
-  { key:'bataille',  fr:'⚓ BATAILLE NAVALE', en:'⚓ BATTLESHIP' },
-  { key:'horloge',   fr:'🕐 HORLOGE',         en:'🕐 HORLOGE' },
+  { key:'_total',    fr:'🏆 Tout',           en:'🏆 All',          de:'🏆 Alle',        nl:'🏆 Alles',        es:'🏆 Todo' },
+  { key:'501',       fr:'🎯 X01 DARTS',      en:'🎯 X01 DARTS',    de:'🎯 X01 DARTS',   nl:'🎯 X01 DARTS',    es:'🎯 X01 DARTS' },
+  { key:'cricket',   fr:'🦗 CRICKET',        en:'🦗 CRICKET',      de:'🦗 CRICKET',     nl:'🦗 CRICKET',      es:'🦗 CRICKET' },
+  { key:'shanghai',  fr:'🗼 SHANGHAI',        en:'🗼 SHANGHAI',     de:'🗼 SHANGHAI',    nl:'🗼 SHANGHAI',     es:'🗼 SHANGHAI' },
+  { key:'blackjack', fr:'🃏 BLACKDART',       en:'🃏 BLACKDART',    de:'🃏 BLACKDART',   nl:'🃏 BLACKDART',    es:'🃏 BLACKDART' },
+  { key:'race500',   fr:'🏁 RACE 500',        en:'🏁 RACE 500',     de:'🏁 RACE 500',    nl:'🏁 RACE 500',     es:'🏁 RACE 500' },
+  { key:'territoire',fr:'🏰 TERRITOIRE',      en:'🏰 TERRITORY',    de:'🏰 TERRITORIUM', nl:'🏰 TERRITORIUM',  es:'🏰 TERRITORIO' },
+  { key:'dartspong', fr:'🔴 DARTSPONG',       en:'🔴 DARTSPONG',    de:'🔴 DARTSPONG',   nl:'🔴 DARTSPONG',    es:'🔴 DARTSPONG' },
+  { key:'shooter',   fr:'💥 BATTLE ROYAL',    en:'💥 BATTLE ROYAL', de:'💥 BATTLE ROYAL',nl:'💥 BATTLE ROYAL',  es:'💥 BATTLE ROYAL' },
+  { key:'bataille',  fr:'⚓ BATAILLE NAVALE', en:'⚓ BATTLESHIP',   de:'⚓ SEESCHLACHT', nl:'⚓ ZEESLAG',       es:'⚓ BATALLA NAVAL' },
+  { key:'horloge',   fr:'🕐 HORLOGE',         en:'🕐 HORLOGE',      de:'🕐 UHR',         nl:'🕐 KLOK',          es:'🕐 RELOJ' },
 ];
 
 function openGamePicker() {
@@ -626,7 +644,7 @@ function selectGame(el) {
   currentGame = el.dataset.game;
   const lang = currentLang;
   const found = GAMES_LIST.find(g => g.key === currentGame);
-  document.getElementById('game-pick-label').textContent = found ? found[lang] : currentGame;
+  document.getElementById('game-pick-label').textContent = found ? (found[lang] || found.en || found.fr) : currentGame;
   closeGamePicker();
   renderRanking();
 }
@@ -637,13 +655,13 @@ function updateGamePills(lang) {
   // Mettre à jour les options du modal et le label du bouton
   GAMES_LIST.forEach(g => {
     const el = document.querySelector(`.gp-option[data-game="${g.key}"]`);
-    if (el) el.textContent = g[lang] || g.fr;
+    if (el) el.textContent = g[lang] || g.en || g.fr;
   });
   // Mettre à jour le label du bouton principal
   const found = GAMES_LIST.find(g => g.key === currentGame);
   if (found) document.getElementById('game-pick-label').textContent = found[lang] || found.fr;
   // Titre du modal
-  document.getElementById('gp-title').textContent = lang === 'fr' ? 'CHOISIR UN JEU' : 'CHOOSE A GAME';
+  document.getElementById('gp-title').textContent = lang === 'fr' ? 'CHOISIR UN JEU' : lang === 'nl' ? 'KIES EEN SPEL' : lang === 'es' ? 'ELEGIR UN JUEGO' : 'CHOOSE A GAME';
 }
 
 function getWinsForPeriod(game, period) {
@@ -711,7 +729,7 @@ function renderRanking() {
   const container = document.getElementById('ranking-container');
   const winsMap = getWinsForPeriod(currentGame, currentPeriod);
   const profiles = getProfiles();
-  const labels = PAGE_LABELS[currentLang];
+  const labels = PAGE_LABELS[currentLang] || PAGE_LABELS['en'];
   const gameStats = getGameStats();
 
   // Ajouter les joueurs avec des parties mais sans victoire
@@ -932,8 +950,8 @@ dropdown.querySelectorAll('.period-option').forEach(opt => {
 // ══════════════════════════════════════════════════════════════════════
 function applyPageLang(lang) {
   currentLang = lang;
-  const L = PAGE_LABELS[lang];
-  const P = PERIOD_LABELS[lang];
+  const L = PAGE_LABELS[lang] || PAGE_LABELS['en'];
+  const P = PERIOD_LABELS[lang] || PERIOD_LABELS['en'];
   document.getElementById('page-title').textContent = L.title;
   document.getElementById('btn-back').textContent = '← ' + (L.back || 'Menu').replace(/^←\s*/,'');
   // Reset modal labels
@@ -992,7 +1010,7 @@ applyPageLang(initLang);
     document.getElementById('sg-toggle-vib').checked = localStorage.getItem(VIB_KEY) !== 'off';
     document.getElementById('sg-toggle-snd').checked = localStorage.getItem(SND_KEY) !== 'off';
     document.getElementById('sg-toggle-tts').checked = localStorage.getItem('dartvault_tts') !== 'off';
-    document.getElementById('sg-btn-lang').textContent = (localStorage.getItem(LANG_KEY)||'fr') === 'fr' ? '🇫🇷' : '🇬🇧';
+    const _cl = localStorage.getItem(LANG_KEY)||'fr'; document.getElementById('sg-btn-lang').textContent = _cl === 'fr' ? '🇫🇷' : _cl === 'de' ? '🇩🇪' : '🇬🇧';
   }
 
   function applyTheme(t) {
@@ -1016,9 +1034,10 @@ applyPageLang(initLang);
   tts.addEventListener('change', () => localStorage.setItem('dartvault_tts', tts.checked ? 'on' : 'off'));
 
   document.getElementById('sg-btn-lang').addEventListener('click', () => {
-    const cur = localStorage.getItem(LANG_KEY) || 'fr';
-    const next = cur === 'fr' ? 'en' : 'fr';
-    localStorage.setItem(LANG_KEY, next);
+    if (window.DV_LANG && typeof DV_LANG.showPicker === 'function') DV_LANG.showPicker(document.getElementById('sg-btn-lang'));
+  });
+  window.addEventListener('dv-lang-change', () => {
+    const next = localStorage.getItem(LANG_KEY) || 'fr';
     applyPageLang(next);
     syncPanel();
   });

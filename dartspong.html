@@ -975,7 +975,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;overf
       </div>
     </div>
     <div style="margin-top:12px;">
-      <div class="card-title">🔢 Tours max / manche</div>
+      <div class="card-title" data-i18n="dp_tours_max">🔢 Tours max / manche</div>
       <div class="pill-group">
         <label class="pill-label"><input type="radio" name="maxroundsdp" value="0" checked><span class="pill">∞</span></label>
         <label class="pill-label"><input type="radio" name="maxroundsdp" value="10"><span class="pill">10</span></label>
@@ -2904,10 +2904,97 @@ const _RULES_DATA = {
             <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Party Mode</strong>: festive rules to spice up the game</span></div>
             </div>`
   }
+  ,de: {
+    icon: '🔴', title: 'Dartpong',
+    catch: 'Wie Beer Pong — eliminiere Zonen eine nach der anderen.\nRuf den Bull, wenn du es spürst!',
+    points: [
+      { icon: '🔴', title: 'Jede Zone eliminieren', desc: 'Eliminiere jede sichtbare Zone — jeder Treffer entfernt eine Zone.' },
+      { icon: '📢', title: 'Der Bull-Ruf', desc: 'VOR dem Wurf ansagen — ein Treffer eliminiert 2 feindliche Zonen auf einmal!' },
+      { icon: '⚡', title: 'Serie ×3', desc: '3 Zonen in Folge eliminieren = eine volle Bonusrunde spielen!' }
+    ],
+    full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spielablauf</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 Pfeile pro Runde</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Jeder Spieler muss alle seine Zonen eliminieren, um zu gewinnen</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Eine Zone treffen eliminiert sie je nach Schwierigkeit</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🎯 Der Bull</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Spezieller Wurf, <strong>einmal pro Spiel</strong> nutzbar</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Muss <strong>vor dem Wurf angekündigt</strong> werden</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Treffer</strong> (Bull 25 oder Bull's Eye 50) → 2 feindliche Zonen eliminieren</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Verfehlt</strong> → Wurf ist ungültig, Pfeil verschwendet</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Zonen</strong>: Zonen pro Team</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Schwierigkeit</strong>: Einfach · Normal</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modus</strong>: Solo (2-6 Spieler) · Team (2-6 Spieler)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Party-Modus</strong>: festliche Regeln für mehr Spaß</span></div>
+            </div>`
+  },
+  nl: {
+    icon: '🔴', title: 'DartPong',
+    catch: 'Zoals beerpong — elimineer zones één voor één.\nAls je je goed voelt, roep de Bull!',
+    points: [
+      { icon: '🔴', title: 'Elimineer elke zone', desc: 'Elimineer elke zichtbare zone — elke treffer verwijdert een zone.' },
+      { icon: '📢', title: 'De Bull-roep', desc: 'Aankondigingen VOOR het gooien — een treffer elimineert 2 vijandelijke zones tegelijk!' },
+      { icon: '⚡', title: 'Serie ×3', desc: '3 zones op rij elimineren = een volledige bonusbeurt spelen!' }
+    ],
+    full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spelverloop</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 pijlen per beurt</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Elke speler moet al zijn zones elimineren om te winnen</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Een zone raken elimineert deze op basis van de moeilijkheidsgraad</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🎯 De Bull</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Speciale worp, <strong>eenmaal per spel</strong> bruikbaar</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Moet <strong>voor het gooien aangekondigd</strong> worden</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Treffer</strong> (Bull 25 of Bull's Eye 50) → 2 vijandelijke zones elimineren</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Gemist</strong> → worp is ongeldig, pijl verspild</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Zones</strong>: zones per team</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Moeilijkheid</strong>: Makkelijk · Normaal</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modus</strong>: Solo (2-6 spelers) · Team (2-6 spelers)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Feestmodus</strong>: feestelijke regels voor meer plezier</span></div>
+            </div>`
+  },
+  es: {
+    icon: '🔴', title: 'DartPong',
+    catch: 'Como el beer pong — elimina zonas una a una.\n¡Si te sientes con ganas, anuncia el Bull!',
+    points: [
+      { icon: '🔴', title: 'Elimina cada zona', desc: 'Elimina cada zona visible — cada impacto elimina una zona.' },
+      { icon: '📢', title: 'El grito del Bull', desc: '¡Anúncialo ANTES de lanzar — un impacto elimina 2 zonas enemigas de golpe!' },
+      { icon: '⚡', title: 'Racha ×3', desc: '¡Elimina 3 zonas seguidas = juega un turno bonus completo!' }
+    ],
+    full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Cómo jugar</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 dardos por turno</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Cada jugador debe eliminar todas sus zonas para ganar</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Golpear una zona la elimina según la dificultad</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🎯 El Bull</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Lanzamiento especial usable <strong>una sola vez por partida</strong></span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Debe <strong>anunciarse antes de lanzar</strong></span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Acierto</strong> (Bull 25 o Bull's Eye 50) → elimina 2 zonas adversarias</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Fallo</strong> → el lanzamiento es nulo, el dardo se pierde</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Zonas</strong>: zonas por equipo</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Dificultad</strong>: Fácil · Normal</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modo</strong>: Solo (2-6 jugadores) · Equipo (2-6 jugadores)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modo Fiesta</strong>: reglas festivas para animar la partida</span></div>
+            </div>`
+  }
 };
 function _injectRules() {
   const lang = (window.DV_LANG && typeof DV_LANG.get === 'function') ? DV_LANG.get() : 'fr';
-  const r = _RULES_DATA[lang] || _RULES_DATA.fr;
+  const r = _RULES_DATA[lang] || _RULES_DATA.en || _RULES_DATA.fr;
   const el = document.getElementById('rules-body-content');
   if (!el) return;
 
@@ -3167,7 +3254,7 @@ window.addEventListener('beforeinstallprompt', e => {
     // Lang flag
     const lang = localStorage.getItem(LANG_KEY) || 'fr';
     const lb = document.getElementById('sg-btn-lang');
-    if (lb) lb.textContent = lang === 'fr' ? '🇫🇷' : '🇬🇧';
+    if (lb) lb.textContent = lang === 'fr' ? '🇫🇷' : lang === 'de' ? '🇩🇪' : lang === 'nl' ? '🇳🇱' : lang === 'es' ? '🇪🇸' : '🇬🇧';
     // i18n labels
     if (typeof applyI18n === 'function') applyI18n(sgPanel);
     else if (typeof L === 'function') {
@@ -3207,14 +3294,9 @@ window.addEventListener('beforeinstallprompt', e => {
 
   const langBtn = document.getElementById('sg-btn-lang');
   if (langBtn) langBtn.addEventListener('click', () => {
-    const cur = localStorage.getItem(LANG_KEY) || 'fr';
-    const next = cur === 'fr' ? 'en' : 'fr';
-    localStorage.setItem(LANG_KEY, next);
-    // Mise à jour instantanée de l'interface
-    if (window.DV_LANG && typeof window.DV_LANG.apply === 'function') {
-      window.DV_LANG.apply();
-    }
-    // Rappel de la fonction de langue spécifique au jeu si elle existe
+    if (window.DV_LANG && typeof DV_LANG.showPicker === 'function') DV_LANG.showPicker(langBtn);
+  });
+  window.addEventListener('dv-lang-change', () => {
     if (typeof applyGameLang === 'function') applyGameLang();
     syncSgPanel();
   });

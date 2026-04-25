@@ -1926,10 +1926,100 @@ const _RULES_DATA = {
             <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Stolen points</strong>: points stolen on a steal (25 · 50 · 75)</span></div>
             </div>`
   }
+  ,de: {
+    icon: '🏁', title: 'Race 500',
+    catch: 'Schnell aufsteigen, Punkte klauen,\nals Erster die Linie erreichen!',
+    points: [
+      { icon: '🏃', title: 'Zum Ziel aufsteigen', desc: '3 Pfeile werfen und Punkte addieren, um zum Ziel (300 oder 500) aufzusteigen.' },
+      { icon: '💫', title: 'Punkte klauen', desc: 'Genau auf den Score eines Gegners landen — und seine Punkte stehlen!' },
+      { icon: '💥', title: 'Bust vermeiden', desc: 'Das Ziel überschreiten bricht den gesamten Zug ab — unterhalb bleiben und fokussiert bleiben!' }
+    ],
+    full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spielablauf</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 Pfeile pro Runde, Punkte addieren</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Single = ×1 · Double = ×2 · Triple = ×3 · Bull = 25 (kein Triple)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Ziel überschreiten = Bust — Zug wird annulliert, Score auf Wert zu Rundenbeginn zurückgesetzt</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🥊 Punkte klauen</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Genau auf den Score eines Gegners landen → seine Punkte stehlen</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Stehlen können sich kaskadenartig fortsetzen, wenn der neue Score auf einen anderen Gegner fällt</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Würde ein Diebstahl das Ziel überschreiten → Zug wird annulliert (Bust)</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Sieg</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Erster Spieler, der genau den Zielwert erreicht, gewinnt.</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Zielwert</strong>: 300 · 500</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Gestohlene Punkte</strong>: Punkte beim Diebstahl (25 · 50 · 75)</span></div>
+            </div>`
+  },
+  nl: {
+    icon: '🏁', title: 'Race 500',
+    catch: 'Snel omhoog, punten stelen,\nals eerste de finish bereiken!',
+    points: [
+      { icon: '🏃', title: 'Klim naar het doel', desc: 'Gooi 3 pijlen en tel de punten op om naar het doel (300 of 500) te klimmen.' },
+      { icon: '💫', title: 'Punten stelen', desc: 'Land precies op de score van een tegenstander — en steel zijn punten!' },
+      { icon: '💥', title: 'Vermijd de bust', desc: 'Het doel overschrijden annuleert alleen de laatste pijl.' }
+    ],
+    full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spelverloop</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 pijlen per beurt, punten optellen</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Single = ×1 · Double = ×2 · Triple = ×3 · Bull = 25 (geen triple)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Het doel overschrijden = Bust — alleen de pijl die overschrijdt wordt geannuleerd, de vorige tellen mee</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🥊 Punten stelen</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Precies op de score van een tegenstander landen → zijn punten stelen</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Diefstallen kunnen in cascade doorgaan als de nieuwe score op een andere tegenstander valt</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Als een diefstal je voorbij het doel zou brengen → de diefstal wordt geannuleerd (bust)</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Winnen</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>De eerste speler die precies de doelscore bereikt, wint.</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Doelscore</strong>: 300 · 500</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Gestolen punten</strong>: punten gestolen bij een diefstal (25 · 50 · 75)</span></div>
+            </div>`
+  },
+  es: {
+    icon: '🏁', title: 'Race 500',
+    catch: 'Sube rápido, roba puntos,\n¡llega el primero a la meta!',
+    points: [
+      { icon: '🏃', title: 'Sube hacia el objetivo', desc: 'Lanza 3 dardos y suma los puntos para avanzar hacia el objetivo (300 o 500).' },
+      { icon: '💫', title: 'Roba puntos', desc: '¡Cae exactamente sobre la puntuación de un rival — y roba sus puntos!' },
+      { icon: '💥', title: 'Evita el bust', desc: 'Superar el objetivo solo cancela el último dardo.' }
+    ],
+    full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Cómo jugar</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 dardos por turno, sumar los puntos</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Simple = ×1 · Doble = ×2 · Triple = ×3 · Bull = 25 (sin triple)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Superar el objetivo = Bust — solo se cancela el dardo que supera, los anteriores cuentan</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🥊 Robar puntos</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Caer exactamente en la puntuación de un rival → robarle sus puntos</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Los robos pueden encadenarse en cascada si la nueva puntuación cae sobre otro rival</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Si un robo te haría superar el objetivo → el robo se cancela (bust)</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Victoria</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>El primer jugador en alcanzar exactamente la puntuación objetivo gana.</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Puntuación objetivo</strong>: 300 · 500</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Puntos robados</strong>: puntos robados en un robo (25 · 50 · 75)</span></div>
+            </div>`
+  }
 };
 function _injectRules() {
   const lang = (window.DV_LANG && typeof DV_LANG.get === 'function') ? DV_LANG.get() : 'fr';
-  const r = _RULES_DATA[lang] || _RULES_DATA.fr;
+  const r = _RULES_DATA[lang] || _RULES_DATA.en || _RULES_DATA.fr;
   const el = document.getElementById('rules-body-content');
   if (!el) return;
 
@@ -2223,7 +2313,7 @@ window.addEventListener('resize',adjustSlistPadding);
     // Lang flag
     const lang = localStorage.getItem(LANG_KEY) || 'fr';
     const lb = document.getElementById('sg-btn-lang');
-    if (lb) lb.textContent = lang === 'fr' ? '🇫🇷' : '🇬🇧';
+    if (lb) lb.textContent = lang === 'fr' ? '🇫🇷' : lang === 'de' ? '🇩🇪' : lang === 'nl' ? '🇳🇱' : lang === 'es' ? '🇪🇸' : '🇬🇧';
     // i18n labels
     if (typeof applyI18n === 'function') applyI18n(sgPanel);
     else if (typeof L === 'function') {
@@ -2263,14 +2353,9 @@ window.addEventListener('resize',adjustSlistPadding);
 
   const langBtn = document.getElementById('sg-btn-lang');
   if (langBtn) langBtn.addEventListener('click', () => {
-    const cur = localStorage.getItem(LANG_KEY) || 'fr';
-    const next = cur === 'fr' ? 'en' : 'fr';
-    localStorage.setItem(LANG_KEY, next);
-    // Mise à jour instantanée de l'interface
-    if (window.DV_LANG && typeof window.DV_LANG.apply === 'function') {
-      window.DV_LANG.apply();
-    }
-    // Rappel de la fonction de langue spécifique au jeu si elle existe
+    if (window.DV_LANG && typeof DV_LANG.showPicker === 'function') DV_LANG.showPicker(langBtn);
+  });
+  window.addEventListener('dv-lang-change', () => {
     if (typeof applyGameLang === 'function') applyGameLang();
     syncSgPanel();
   });

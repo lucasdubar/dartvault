@@ -993,7 +993,7 @@ body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;heigh
         </div>
       </div>
       <div>
-        <div class="card-title">⏱ Manches max</div>
+        <div class="card-title" data-i18n="sht_rounds_max">⏱ Manches max</div>
         <div class="pill-group">
           <label class="pill-label"><input type="radio" name="maxrounds-sht" value="0" checked><span class="pill">∞</span></label>
           <label class="pill-label"><input type="radio" name="maxrounds-sht" value="7"><span class="pill">7</span></label>
@@ -3450,10 +3450,101 @@ const _RULES_DATA = {
             <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Mode</strong>: Solo (2-4 players) · Team 2v2</span></div>
             </div>`
   }
+  ,de: {
+    icon: '💥', title: 'Battle Royal',
+    catch: 'Jeder Spieler besitzt Zonen.\nNachladen, zielen, eliminieren!',
+    points: [
+      { icon: '🎯', title: 'Verteidigen und nachladen', desc: 'Eigene Zonen treffen, um Munition zu verdienen — vor dem Angriff.' },
+      { icon: '💣', title: 'Gegner angreifen', desc: 'Kostet 1 Kugel — Schaden: Single (-1), Double (-2) oder Triple (-3 LP).' },
+      { icon: '💀', title: 'Letzter Überlebender', desc: 'Einen Spieler auf 0 LP bringen, um ihn zu eliminieren. Letzter Überlebender gewinnt!' }
+    ],
+    full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spielablauf</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Jeder Spieler besitzt 1 oder 2 Zonen auf dem Board (je nach Schwierigkeit) und hat LP</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Eigene Zone treffen = Munition nachladen (Single +1, Double +2, Triple +3)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Feindliche Zone treffen = kostet 1 Kugel, verursacht Schaden (Single -1, Double -2, Triple -3 LP)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Schießen ohne Munition oder neutrale Zone treffen = Fehlschuss</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🎯 Bull</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Grüner Bull (25) → +2 LP für dich oder einen eliminierten Verbündeten wiederbeleben</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Roter Bull (50) → 1 Runde Unverwundbarkeit — oder Grüner-Bull-Effekt</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>LP</strong>: 3 · 5 · 10 Startlebenspunkte</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Schwierigkeit</strong>: Einfach (2 Zonen + Last Stand) · Schwer (1 Zone)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modus</strong>: Solo (2-4 Spieler) · Team 2v2</span></div>
+            </div>`
+  },
+  nl: {
+    icon: '💥', title: 'Battle Royal',
+    catch: 'Elke speler verdedigt zijn zones.\nLaden, richten, elimineren!',
+    points: [
+      { icon: '🎯', title: 'Verdedigen en herladen', desc: 'Schiet op je eigen zones om munitie te verdienen — voordat je de vijand aanvalt.' },
+      { icon: '💣', title: 'Tegenstanders aanvallen', desc: 'Kost 1 kogel — schade: Single (-1), Double (-2) of Triple (-3 LP).' },
+      { icon: '💀', title: 'Laatste overlevende', desc: 'Breng een speler naar 0 LP om hem te elimineren. Laatste overlevende of laatste team wint!' }
+    ],
+    full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spelverloop</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Elke speler bezit 1 of 2 zones op het bord (op basis van moeilijkheid) en heeft LP</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Eigen zone raken = munitie herladen (Single +1, Double +2, Triple +3)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Vijandelijke zone raken = kost 1 kogel, geeft schade (Single -1, Double -2, Triple -3 LP)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Schieten zonder munitie of neutrale zone raken = mis</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🎯 Bull</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Groene Bull (25) → +2 LP voor jezelf of een geëlimineerde bondgenoot doen herleven</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Rode Bull (50) → onoverwinnelijkheid voor 1 beurt — of effect van de groene Bull</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚠️ Last Stand</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>In de makkelijke modus, vallen naar 1 LP = een overlevingszone kiezen</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Tegenstanders zien alleen die zone — goed richten!</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>LP</strong>: 3 · 5 · 10 startlevenspunten</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Moeilijkheid</strong>: Makkelijk (2 zones + Last Stand) · Moeilijk (1 zone)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modus</strong>: Solo (2-4 spelers) · Team 2v2</span></div>
+            </div>`
+  },
+  es: {
+    icon: '💥', title: 'Battle Royal',
+    catch: 'Cada jugador defiende sus zonas.\n¡Carga, apunta, elimina!',
+    points: [
+      { icon: '🎯', title: 'Defender y recargar', desc: 'Lanza a tus propias zonas para conseguir munición — antes de atacar al enemigo.' },
+      { icon: '💣', title: 'Atacar a los rivales', desc: 'Cuesta 1 bala — inflige daño: Simple (-1), Doble (-2) o Triple (-3 PV).' },
+      { icon: '💀', title: 'El último en pie', desc: 'Lleva a un jugador a 0 PV para eliminarlo. ¡El último superviviente o equipo en pie gana!' }
+    ],
+    full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Cómo jugar</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Cada jugador posee 1 o 2 zonas en el tablero (según la dificultad) y tiene PV</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Golpear tu propia zona = recargar munición (Simple +1, Doble +2, Triple +3)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Golpear una zona enemiga = cuesta 1 bala, inflige daño (Simple -1, Doble -2, Triple -3 PV)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Disparar sin munición o golpear una zona neutra = fallo</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🎯 Bull</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Bull verde (25) → +2 PV para ti o revivir a un aliado eliminado</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Bull rojo (50) → invulnerabilidad durante 1 turno — o efecto del Bull verde</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚠️ Last Stand</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>En modo Fácil, caer a 1 PV = elegir una zona de supervivencia</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Los rivales solo ven esa zona — ¡apunta bien!</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>PV</strong>: 3 · 5 · 10 puntos de vida iniciales</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Dificultad</strong>: Fácil (2 zonas + Last Stand) · Difícil (1 zona)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modo</strong>: Solo (2-4 jugadores) · Equipo 2v2</span></div>
+            </div>`
+  }
 };
 function _injectRules() {
   const lang = (window.DV_LANG && typeof DV_LANG.get === 'function') ? DV_LANG.get() : 'fr';
-  const r = _RULES_DATA[lang] || _RULES_DATA.fr;
+  const r = _RULES_DATA[lang] || _RULES_DATA.en || _RULES_DATA.fr;
   const el = document.getElementById('rules-body-content');
   if (!el) return;
 
@@ -3660,7 +3751,7 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
     // Lang flag
     const lang = localStorage.getItem(LANG_KEY) || 'fr';
     const lb = document.getElementById('sg-btn-lang');
-    if (lb) lb.textContent = lang === 'fr' ? '🇫🇷' : '🇬🇧';
+    if (lb) lb.textContent = lang === 'fr' ? '🇫🇷' : lang === 'de' ? '🇩🇪' : lang === 'nl' ? '🇳🇱' : lang === 'es' ? '🇪🇸' : '🇬🇧';
     // i18n labels
     if (typeof applyI18n === 'function') applyI18n(sgPanel);
     else if (typeof L === 'function') {
@@ -3700,14 +3791,9 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
 
   const langBtn = document.getElementById('sg-btn-lang');
   if (langBtn) langBtn.addEventListener('click', () => {
-    const cur = localStorage.getItem(LANG_KEY) || 'fr';
-    const next = cur === 'fr' ? 'en' : 'fr';
-    localStorage.setItem(LANG_KEY, next);
-    // Mise à jour instantanée de l'interface
-    if (window.DV_LANG && typeof window.DV_LANG.apply === 'function') {
-      window.DV_LANG.apply();
-    }
-    // Rappel de la fonction de langue spécifique au jeu si elle existe
+    if (window.DV_LANG && typeof DV_LANG.showPicker === 'function') DV_LANG.showPicker(langBtn);
+  });
+  window.addEventListener('dv-lang-change', () => {
     if (typeof applyGameLang === 'function') applyGameLang();
     syncSgPanel();
   });

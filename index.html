@@ -1206,7 +1206,7 @@
     </div>
     <div class="header-bar-right">
       <button class="btn-install-header" id="btn-install-header-top">📲 <span data-i18n="install">Installer</span></button>
-      <button id="btn-lang" aria-label="Changer de langue" onclick="cycleLang()" style="background:none;border:none;cursor:pointer;font-size:1.6rem;line-height:1;padding:2px;border-radius:6px;touch-action:manipulation;transition:transform .15s;">🇫🇷</button>
+      <button id="btn-lang" aria-label="Changer de langue" onclick="cycleLang(this)" style="background:none;border:none;cursor:pointer;font-size:1.6rem;line-height:1;padding:2px;border-radius:6px;touch-action:manipulation;transition:transform .15s;">🇫🇷</button>
       <button class="btn-settings" id="btn-settings" aria-label="Paramètres">⚙️</button>
     </div>
   </div>
@@ -1504,7 +1504,7 @@
     </div>
     <div class="settings-row">
       <span class="settings-row-label">Langue / Language</span>
-      <button id="sg-btn-lang" aria-label="Changer de langue" onclick="cycleLang()" style="background:none;border:none;cursor:pointer;font-size:1.8rem;line-height:1;padding:2px;border-radius:6px;touch-action:manipulation;transition:transform .15s;">🇫🇷</button>
+      <button id="sg-btn-lang" aria-label="Changer de langue" onclick="cycleLang(this)" style="background:none;border:none;cursor:pointer;font-size:1.8rem;line-height:1;padding:2px;border-radius:6px;touch-action:manipulation;transition:transform .15s;">🇫🇷</button>
     </div>
 
     <div class="settings-section-label" style="margin-top:10px;">🎯 AUTODARTS</div>
@@ -2291,6 +2291,999 @@
             <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Validation</strong>: manual confirmation before passing</span></div>
             </div>` }
         }
+      },
+      de: {
+        all: 'Alle', classic: 'Klassisch', fun: 'Fun', random: 'SCHNELLES SPIEL',
+        install: 'Installieren',
+        profiles: 'Profile',
+        theme: 'Thema', theme_dark: '🌙 Dunkel', theme_light: '☀️ Hell', theme_colored: '🎨 Bunt',
+        vibrations: 'Vibration', sounds: 'Töne', announcer: 'Ansager', language: 'Sprache',
+        privacy: '🔒 Datenschutz',
+        contact: '✉️ Kontakt',
+        contact_title: 'Kontakt',
+        contact_name: 'Name (optional)',
+        contact_msg: 'Nachricht',
+        contact_send: 'Senden',
+        contact_sending: 'Wird gesendet…',
+        contact_ok: '✅ Nachricht gesendet!',
+        contact_err: '❌ Fehler, erneut versuchen.',
+        contact_empty: 'Bitte eine Nachricht schreiben.',
+        support_btn: '☕ DartVault unterstützen', rate_btn: 'App bewerten',
+        support_title: 'DartVault unterstützen',
+        support_desc: 'DartVault ist 100% kostenlos und werbefrei. Wenn dir die App gefällt, hilft ein kleiner Beitrag, sie am Leben zu erhalten und zu verbessern!',
+        close: 'Schließen',
+        name_territoire: 'TERRITORIUM', name_bataille: 'SEESCHLACHT',
+        gcbt_bataille: 'SEESCHLACHT',
+        gc_rules: 'REGELN', gc_play: 'SPIELEN',
+        hub_tournament: 'MEISTERSCHAFT', check_update: 'Nach Updates suchen',
+        desc_x01: 'Starte bei 501 und reduziere deinen Score auf 0.',
+        players_x01: '👤 1 – 6 Spieler',
+        desc_cricket: 'Schließe Felder 15 bis 20 + Bull, dann score darin.',
+        players_cricket: '👤 2 – 6 Spieler',
+        desc_shanghai: 'Triff jede Runde das angesagte Feld und versuche das Shanghai.',
+        players_shanghai: '👤 1 – 6 Spieler',
+        desc_territoire: 'Erobere so viele Zonen wie möglich vor Ablauf der Zeit!',
+        players_territoire: '👥 2 – 6 Spieler',
+        desc_dartspong: 'Eliminiere alle Zonen vor deinem Gegner.',
+        players_dartspong: '👥 2 – 6 Spieler',
+        desc_battleroyal: 'Nachladen, zielen, schießen — der Letzte gewinnt.',
+        players_battleroyal: '👥 2 – 6 Spieler',
+        desc_blackdarts: 'Komme dem Zielwert so nah wie möglich, ohne ihn zu überschreiten.',
+        players_blackdarts: '👥 2 – 6 Spieler',
+        desc_race: 'Rennen auf 500 Pkte — klaue die Punkte deiner Rivalen!',
+        players_race: '👥 2 – 6 Spieler',
+        desc_bataille: 'Verstecke deine Schiffe und versenke die der Gegner.',
+        players_bataille: '👥 2 – 6 Spieler',
+        name_horloge: 'UHR',
+        desc_horloge: 'Triff jede Zahl von 1 bis 20 der Reihe nach!',
+        players_horloge: '👤 1 – 6 Spieler',
+        ad_connect: 'Verbindung', ad_test: 'Verbindung testen', ad_info_btn: '📡 Autodarts Info',
+        ad_info_text: 'Autodarts Info',
+        ad_connected: 'Verbunden', ad_failed: 'Fehlgeschlagen — IP und HTTPS-Zertifikat prüfen',
+        ad_p1: 'Autodarts ist ein <b>automatisches Scoring-System</b> mit Kameras, das erkennt, wo jeder Pfeil landet. <a href="https://autodarts.io" target="_blank" style="color:var(--accent);">autodarts.io</a>',
+        ad_h2: 'Verbindung',
+        ad_p3: '1. Stelle sicher, dass dein System eingeschaltet und im gleichen WLAN-Netzwerk ist',
+        ad_p4: '2. Aktiviere Autodarts in den Einstellungen und gib die IP deines Boards ein',
+        ad_p5: '3. Akzeptiere das HTTPS-Zertifikat, indem du <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[IP]:3181</code> einmal auf diesem Gerät aufrufst',
+        ad_p6: '4. Aktiviere 🎯 Autodarts in den Spieloptionen — fertig!',
+        ad_p8: '💡 Das 📡 Symbol oben rechts zeigt den Verbindungsstatus. Tippe darauf zum Zurücksetzen.',
+        rules: {
+          x01: { icon:'🎯', title:'X01 DARTS', players:'👤 1 – 6 Spieler',
+            catch: 'Jeder Pfeil zählt.\nGeh auf null, bevor alle anderen es tun.',
+            points: [
+              { icon:'🎯', title:'Auf null', desc:'Starte bei 501 (oder 301/701) und reduziere deinen Score Pfeil für Pfeil — genau 0, um zu gewinnen.' },
+              { icon:'💥', title:'Bust vermeiden', desc:'Unter null gehen bricht den gesamten Zug ab — konzentriert bleiben und rechnen!' },
+              { icon:'🔴', title:'Mit Double beenden', desc:'Im Double Out muss der letzte Pfeil ein Double treffen. Gut zielen!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spielablauf</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 Pfeile pro Runde</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Gesamtscore oder Pfeil für Pfeil eingeben</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Jeder Score unter null wird annulliert (Bust)</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Sieg</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Erster Spieler, der genau null erreicht, gewinnt das Leg</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Im Sets-Format die erforderliche Anzahl von Sets gewinnen</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚡ Spezialwurf</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Double Out</strong>: letzter Pfeil muss ein Double treffen</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>D.In / D.Out</strong>: Einsteigen UND Beenden auf einem Double</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modus</strong>: 301 · 501 · 701</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Abschluss</strong>: Double Out · Simple Out · D.In / D.Out</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Format</strong>: Freie Legs oder Sets (3 Legs/Set)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bestätigung</strong>: manuelle Bestätigung vor der Wertung</span></div>
+            </div>` },
+          cricket: { icon:'🦗', title:'CRICKET', players:'👤 2 – 6 Spieler',
+            catch: 'Schließe die Zahlen, sammel die Punkte.\nLass den Rest hinter dir.',
+            points: [
+              { icon:'🎯', title:'Felder schließen', desc:'15 bis 20 und Bull — jede Zahl 3 Mal treffen, um sie zu "schließen".' },
+              { icon:'✖️', title:'Punkte erzielen', desc:'Einmal geschlossen, bringen weitere Treffer Punkte — bis Gegner das Feld auch schließen.' },
+              { icon:'🏆', title:'Spiel gewinnen', desc:'Alle Felder schließen mit den meisten (Standard) oder wenigsten (Cut-throat) Punkten!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spielablauf</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 Pfeile pro Runde auf Felder 15–20 und Bull</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>/ = 1 Treffer · X = 2 Treffer · ⊗ = geschlossen (3 Treffer)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Single = ×1 · Double = ×2 · Triple = ×3 Treffer</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Einmal geschlossen, bringen weitere Treffer Punkte — bis Gegner das Feld schließen</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Sieg</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Standard</strong>: alle Felder schließen mit den meisten Punkten</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Cut-throat</strong>: deine Punkte gehen an Gegner — wenigste Punkte gewinnt!</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>No Score</strong>: Erster, der alle Felder schließt, gewinnt, ohne Punkte</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modus</strong>: Standard · Cut-throat · No Score</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Zufallsfelder</strong>: aktive Zahlen werden zufällig gezogen</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Format</strong>: Freie Legs oder Sets (3 Legs/Set)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bestätigung</strong>: manuelle Bestätigung vor der Wertung</span></div>
+            </div>` },
+          shanghai: { icon:'🗼', title:'SHANGHAI', players:'👤 1 – 6 Spieler',
+            catch: 'Eine Zahl, drei Wege sie zu treffen.\nEin Schuss, um alles zu gewinnen.',
+            points: [
+              { icon:'🔢', title:'Eine Zahl pro Runde', desc:'Jede Runde hat eine Zielzahl — nur Pfeile auf diese Zahl zählen!' },
+              { icon:'📈', title:'Punkte multiplizieren', desc:'Single = ×1, Double = ×2, Triple = ×3 — auf Triple zielen für Maximum!' },
+              { icon:'⚡', title:'Das Shanghai', desc:'Single + Double + Triple auf dieselbe Zahl in einem Zug → Sofortsieg!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spielablauf</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 Pfeile pro Runde</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Jede Runde hat eine vorgegebene Zielzahl (1, 2, 3… nach Anzahl der Felder)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Single = ×1 · Double = ×2 · Triple = ×3 Punkte auf die Zielzahl</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Pfeile daneben = 0 Punkte</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Sieg</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Spieler mit den meisten Punkten am Ende gewinnt.</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚡ Shanghai</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Single + Double + Triple auf dieselbe Zahl in einem Zug = Sofortsieg!</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modus</strong>: Standard (1, 2, 3…) · Zufällig</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Felder</strong>: 7 · 10 · 15 · 20 Runden</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bestätigung</strong>: manuelle Bestätigung vor der Wertung</span></div>
+            </div>` },
+          territoire: { icon:'🏰', title:'TERRITORIUM', players:'👥 2 – 6 Spieler',
+            catch: 'Erobern, verteidigen, dominieren.\nDas Board ist ein Schlachtfeld.',
+            points: [
+              { icon:'🏳️', title:'Zonen erobern', desc:'Triff das Board, um neutrale Zonen zu erobern oder feindliches Territorium zu neutralisieren.' },
+              { icon:'🛡️', title:'Schilde setzen', desc:'Ein Triple auf deiner Zone setzt einen Schild — Gegner müssen ihn zuerst brechen.' },
+              { icon:'👑', title:'Board dominieren', desc:'Am Ende die meisten Zonen kontrollieren oder alle für einen Sofortsieg!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spielablauf</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 Pfeile pro Spieler pro Runde</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Single / Double → neutrale Zone erobern oder feindliche Zone neutralisieren</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Triple → feindliche Zone ohne Schild direkt erobern oder neue Zone + Schild setzen</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Triple auf eigener Zone → 🛡️ Schild hinzufügen</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🛡️ Schild</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Single/Double bricht den Schild ohne die Zone zu erobern</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Triple bricht den Schild UND neutralisiert die Zone</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🎯 Bull</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Bull (25) → 2 zufällige feindliche Zonen neutralisieren</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Bull's Eye (50) → eine zufällige feindliche Zone + Schild erobern</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Zonen</strong>: 5 · 7 · 10</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Schwierigkeit</strong>: Einfach · Normal</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modus</strong>: Solo (2-3 Spieler) · Team (2-4 Spieler)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Runden</strong>: 5 · 7 · 10</span></div>
+            </div>` },
+          dartspong: { icon:'🔴', title:'DARTPONG', players:'👥 2 – 6 Spieler',
+            catch: 'Wie Beer Pong — eliminiere Zonen eine nach der anderen.\nRuf den Bull, wenn du es spürst!',
+            points: [
+              { icon:'🔴', title:'Jede Zone eliminieren', desc:'Eliminiere jede sichtbare Zone — jeder Treffer entfernt eine Zone.' },
+              { icon:'📢', title:'Der Bull-Ruf', desc:'VOR dem Wurf ansagen — ein Treffer eliminiert 2 feindliche Zonen auf einmal!' },
+              { icon:'⚡', title:'Serie ×3', desc:'3 Zonen in Folge eliminieren = eine volle Bonusrunde spielen!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spielablauf</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 Pfeile pro Runde</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Jeder Spieler muss alle seine Zonen eliminieren, um zu gewinnen</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Eine Zone treffen eliminiert sie je nach Schwierigkeit</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🎯 Der Bull</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Spezieller Wurf, <strong>einmal pro Spiel</strong> nutzbar</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Muss <strong>vor dem Wurf angekündigt</strong> werden</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Treffer</strong> (Bull 25 oder Bull's Eye 50) → 2 feindliche Zonen eliminieren</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Verfehlt</strong> → Wurf ist ungültig, Pfeil verschwendet</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Zonen</strong>: Zonen pro Team</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Schwierigkeit</strong>: Einfach · Normal</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modus</strong>: Solo (2-6 Spieler) · Team (2-6 Spieler)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Party-Modus</strong>: festliche Regeln für mehr Spaß</span></div>
+            </div>` },
+          battleroyal: { icon:'💥', title:'BATTLE ROYAL', players:'👥 2 – 6 Spieler',
+            catch: 'Jeder Spieler besitzt Zonen.\nNachladen, zielen, eliminieren!',
+            points: [
+              { icon:'🎯', title:'Verteidigen und nachladen', desc:'Eigene Zonen treffen, um Munition zu verdienen — vor dem Angriff.' },
+              { icon:'💣', title:'Gegner angreifen', desc:'Kostet 1 Kugel — Schaden: Single (-1), Double (-2) oder Triple (-3 LP).' },
+              { icon:'💀', title:'Letzter Überlebender', desc:'Einen Spieler auf 0 LP bringen, um ihn zu eliminieren. Letzter Überlebender gewinnt!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spielablauf</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Jeder Spieler besitzt 1 oder 2 Zonen auf dem Board (je nach Schwierigkeit) und hat LP</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Eigene Zone treffen = Munition nachladen (Single +1, Double +2, Triple +3)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Feindliche Zone treffen = kostet 1 Kugel, verursacht Schaden (Single -1, Double -2, Triple -3 LP)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Schießen ohne Munition oder neutrale Zone treffen = Fehlschuss</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🎯 Bull</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Grüner Bull (25) → +2 LP für dich oder einen eliminierten Verbündeten wiederbeleben</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Roter Bull (50) → 1 Runde Unverwundbarkeit — oder Grüner-Bull-Effekt</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>LP</strong>: 3 · 5 · 10 Startlebenspunkte</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Schwierigkeit</strong>: Einfach (2 Zonen + Last Stand) · Schwer (1 Zone)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modus</strong>: Solo (2-4 Spieler) · Team 2v2</span></div>
+            </div>` },
+          blackjack: { icon:'🃏', title:'BLACKDART', players:'👥 2 – 6 Spieler',
+            catch: 'Triff den perfekten Score.\nNicht zu niedrig, nicht zu hoch.',
+            points: [
+              { icon:'🃏', title:'Zielwert treffen', desc:'Der Zielwert der Runde wird zufällig gezogen — addiere deine Pfeile, um ihn genau zu treffen.' },
+              { icon:'💥', title:'Bust vermeiden', desc:'Zielwert überschreiten = 0 für die Runde — den Wurf gut planen!' },
+              { icon:'💰', title:'Geld gewinnen', desc:'Perfekter Score → +2€, Dealer schlagen → +1€. Meistes Geld am Ende gewinnt!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spielablauf</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 oder weniger Pfeile pro Runde, Punkte addieren</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Zielwert wird zufällig im Min/Max-Bereich gezogen</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Zielwert überschreiten → Score = 0 für diese Runde (Bust)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Der Dealer spielt gegen alle anderen Spieler</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Verdienst</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Perfekter Score (= Zielwert) → +2€</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Besser als Dealer → +1€ · Schlechter → -1€</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Dealer ist perfekt → alle anderen verlieren 2€</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Spieler mit dem meisten Geld am Ende aller Runden gewinnt</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Runden</strong>: Anzahl gespielter Runden</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Score Min / Max</strong>: Bereich für den zufälligen Zielwert</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Dealer</strong>: manuell gewählt oder zufällig gezogen</span></div>
+            </div>` },
+          race: { icon:'🏁', title:'RACE', players:'👥 2 – 6 Spieler',
+            catch: 'Schnell aufsteigen, Punkte klauen,\nals Erster die Linie erreichen!',
+            points: [
+              { icon:'🏃', title:'Zum Ziel aufsteigen', desc:'3 Pfeile werfen und Punkte addieren, um zum Ziel (300 oder 500) aufzusteigen.' },
+              { icon:'💫', title:'Punkte klauen', desc:'Genau auf den Score eines Gegners landen — und seine Punkte stehlen!' },
+              { icon:'💥', title:'Bust vermeiden', desc:'Das Ziel überschreiten bricht den gesamten Zug ab — unterhalb bleiben und fokussiert bleiben!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spielablauf</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 Pfeile pro Runde, Punkte addieren</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Single = ×1 · Double = ×2 · Triple = ×3 · Bull = 25 (kein Triple)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Ziel überschreiten = Bust — Zug wird annulliert, Score auf Wert zu Rundenbeginn zurückgesetzt</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🥊 Punkte klauen</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Genau auf den Score eines Gegners landen → seine Punkte stehlen</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Stehlen können sich kaskadenartig fortsetzen, wenn der neue Score auf einen anderen Gegner fällt</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Würde ein Diebstahl das Ziel überschreiten → Zug wird annulliert (Bust)</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Sieg</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Erster Spieler, der genau den Zielwert erreicht, gewinnt.</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Zielwert</strong>: 300 · 500</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Gestohlene Punkte</strong>: Punkte beim Diebstahl (25 · 50 · 75)</span></div>
+            </div>` },
+          bataille: { icon:'⚓', title:'SEESCHLACHT', players:'👥 2 – 6 Spieler',
+            catch: 'Verstecke deine Schiffe. Jage den Feind.\nVersenke sie, bevor sie dich versenken.',
+            points: [
+              { icon:'🗺️', title:'Geheime Platzierung', desc:'Jedes Team versteckt seine Schiffe auf dem Board — der Gegner sieht nichts.' },
+              { icon:'🎯', title:'Blinder Beschuss', desc:'Abwechselnd Pfeile werfen, um die feindliche Flotte zu orten.' },
+              { icon:'💥', title:'Flotte versenken', desc:'Alle 3 Felder eines Schiffs treffen, um es zu versenken. Wer zuerst alles versenkt, gewinnt!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spielablauf</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Jedes Team platziert seine Schiffe heimlich auf dem Board</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Teams werfen abwechselnd, um feindliche Schiffe zu finden</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Double / Single außen → Außenring · Triple / Single innen → Innenring</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Bull (25) → 2 zufällige Felder · Bull's Eye (50) → 3 zufällige Felder</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🚢 Schiffe</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Jedes Schiff belegt 3 benachbarte Felder auf dem Board</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>2 Schiffe: 1 außen + 1 frei · 3 Schiffe: 2 außen + 1 frei · 4 Schiffe: 2 außen + 2 frei</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Schiffe</strong>: 2 · 3 · 4 Schiffe pro Team</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modus</strong>: Solo (1v1) · Team (2-6 Spieler)</span></div>
+            </div>` },
+          horloge: { icon:'🕐', title:'UHR', players:'👤 1 – 6 Spieler',
+            catch: 'Die Uhr tickt.\nTriff die Zahlen der Reihe nach oder falle zurück.',
+            points: [
+              { icon:'🕐', title:'Sequenz befolgen', desc:'Jede Zahl der Reihe nach validieren (1→20, 20→1 oder zufällig) vor den Gegnern.' },
+              { icon:'🎯', title:'Double und Triple', desc:'Double = 2 Treffer, Triple = 3 Treffer — schneller durch die Sequenz vorankommen!' },
+              { icon:'🔄', title:'Wiederholbonus', desc:'3 Pfeile auf das richtige Ziel in einer Runde = die Runde erneut spielen!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spielablauf</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 Pfeile pro Runde</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Single, Double oder Triple validieren alle das aktuelle Ziel (1-Treffer-Modus)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Multi-Treffer-Modus: Double = +2 Treffer, Triple = +3 Treffer</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Überspringen-Modus (1 Treffer): Double = 2 vorwärts, Triple = 3 vorwärts</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Sieg</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Erster Spieler, der die gesamte Sequenz abschließt, gewinnt sofort.</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Wiederholbonus</strong>: 3 Pfeile auf das richtige Ziel in einer Runde = nochmal spielen!</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Reihenfolge</strong>: 1→20 · 20→1 · Zufällig</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bull</strong>: Keiner · Bull (25) · Bull + Bull's Eye (50)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Treffer pro Zahl</strong>: 1 Treffer · 2 Treffer · 3 Treffer</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bestätigung</strong>: manuelle Bestätigung vor dem Weitergehen</span></div>
+            </div>` }
+        }
+      },
+      nl: {
+        all: 'Alles', classic: 'Klassiek', fun: 'Fun', random: 'SNEL SPEL',
+        install: 'Installeren',
+        profiles: 'Profielen',
+        theme: 'Thema', theme_dark: '🌙 Donker', theme_light: '☀️ Licht', theme_colored: '🎨 Kleurrijk',
+        vibrations: 'Vibraties', sounds: 'Geluiden', announcer: 'Commentator', language: 'Taal',
+        privacy: '🔒 Privacy',
+        contact: '✉️ Contact',
+        contact_title: 'Contact',
+        contact_name: 'Naam (optioneel)',
+        contact_msg: 'Bericht',
+        contact_send: 'Versturen',
+        contact_sending: 'Verzenden…',
+        contact_ok: '✅ Bericht verzonden!',
+        contact_err: '❌ Fout, probeer opnieuw.',
+        contact_empty: 'Schrijf een bericht.',
+        support_btn: '☕ DartVault steunen', rate_btn: 'App beoordelen',
+        support_title: 'DartVault steunen',
+        support_desc: 'DartVault is 100% gratis en zonder reclame. Als je de app leuk vindt, helpt een kleine bijdrage om hem te onderhouden en te verbeteren!',
+        close: 'Sluiten',
+        name_territoire: 'TERRITORIUM', name_bataille: 'ZEESLAG',
+        gcbt_bataille: 'ZEESLAG',
+        gc_rules: 'REGELS', gc_play: 'SPELEN',
+        hub_tournament: 'KAMPIOENSCHAP', check_update: 'Controleer op updates',
+        desc_x01: 'Begin bij 501 en breng je score terug naar 0.',
+        players_x01: '👤 1 – 6 spelers',
+        desc_cricket: 'Sluit de zones van 15 tot 20 + Bull, scoor dan erin.',
+        players_cricket: '👤 2 – 6 spelers',
+        desc_shanghai: 'Raak elke ronde het aangekondigde veld en probeer de Shanghai.',
+        players_shanghai: '👤 1 – 6 spelers',
+        desc_territoire: 'Verover zoveel mogelijk zones voor het tijd is!',
+        players_territoire: '👥 2 – 6 spelers',
+        desc_dartspong: 'Elimineer alle zones voor je tegenstander.',
+        players_dartspong: '👥 2 – 6 spelers',
+        desc_battleroyal: 'Herladen, richten, schieten — de laatste man wint.',
+        players_battleroyal: '👥 2 – 6 spelers',
+        desc_blackdarts: 'Kom zo dicht mogelijk bij de doelscore zonder erover te gaan.',
+        players_blackdarts: '👥 2 – 6 spelers',
+        desc_race: 'Race naar 500 ptn — steel de punten van je rivalen!',
+        players_race: '👥 2 – 6 spelers',
+        desc_bataille: 'Verberg je schepen en zing die van de tegenstander.',
+        players_bataille: '👥 2 – 6 spelers',
+        name_horloge: 'KLOK',
+        desc_horloge: 'Raak elk getal van 1 tot 20 op volgorde!',
+        players_horloge: '👤 1 – 6 spelers',
+        ad_connect: 'Verbinding', ad_test: 'Verbinding testen', ad_info_btn: '📡 Autodarts info',
+        ad_info_text: 'Autodarts info',
+        ad_connected: 'Verbonden', ad_failed: 'Mislukt — controleer het IP en het HTTPS-certificaat',
+        ad_p1: 'Autodarts is een <b>automatisch scoresysteem</b> met camera\'s dat detecteert waar elke pijl landt. <a href="https://autodarts.io" target="_blank" style="color:var(--accent);">autodarts.io</a>',
+        ad_h2: 'Verbinding',
+        ad_p3: '1. Zorg ervoor dat je systeem aan staat en op hetzelfde wifi-netwerk zit',
+        ad_p4: '2. Activeer Autodarts in de instellingen en voer het IP van je board in',
+        ad_p5: '3. Accepteer het HTTPS-certificaat door <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[IP]:3181</code> eenmalig te openen op dit apparaat',
+        ad_p6: '4. Activeer 🎯 Autodarts in de spelopties — klaar!',
+        ad_p8: '💡 Het 📡 pictogram rechts bovenaan toont de verbindingsstatus. Tik erop om te resetten.',
+        rules: {
+          x01: { icon:'🎯', title:'X01 DARTS', players:'👤 1 – 6 spelers',
+            catch: 'Elke pijl telt.\nGa naar nul voor iedereen anders.',
+            points: [
+              { icon:'🎯', title:'Naar nul', desc:'Begin bij 501 (of 301/701) en verlaag je score pijl voor pijl — precies 0 om te winnen.' },
+              { icon:'💥', title:'Bust vermijden', desc:'Onder nul gaan annuleert de hele beurt — gefocust blijven en rekenen!' },
+              { icon:'🔴', title:'Eindigen met double', desc:'Bij Double Out moet de laatste pijl een double raken. Goed richten!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spelverloop</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 pijlen per beurt</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Totale score of pijl voor pijl invoeren</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Elke score onder nul wordt geannuleerd (bust)</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Overwinning</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Eerste speler die precies nul bereikt, wint het leg</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>In sets-formaat het vereiste aantal sets winnen</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚡ Speciale worp</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Double Out</strong>: laatste pijl moet een double raken</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>D.In / D.Out</strong>: instappen EN afsluiten op een double</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modus</strong>: 301 · 501 · 701</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Afsluiting</strong>: Double Out · Simple Out · D.In / D.Out</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Formaat</strong>: Vrije legs of sets (3 legs/set)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bevestiging</strong>: handmatige bevestiging voor de scoring</span></div>
+            </div>` },
+          cricket: { icon:'🦗', title:'CRICKET', players:'👤 2 – 6 spelers',
+            catch: 'Sluit de zones, verzamel de punten.\nLaat de rest achter je.',
+            points: [
+              { icon:'🎯', title:'Zones sluiten', desc:'15 tot 20 en Bull — elk getal 3 keer raken om het te "sluiten".' },
+              { icon:'✖️', title:'Punten scoren', desc:'Eenmaal gesloten leveren extra treffers punten op — tot de tegenstander ook sluit.' },
+              { icon:'🏆', title:'Spel winnen', desc:'Alle zones sluiten met de meeste (Standard) of minste (Cut-throat) punten!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spelverloop</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 pijlen per beurt op zones 15–20 en Bull</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>/ = 1 treffer · X = 2 treffers · ⊗ = gesloten (3 treffers)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Single = ×1 · Double = ×2 · Triple = ×3 treffers</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Eenmaal gesloten leveren extra treffers punten op — tot de tegenstander sluit</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Overwinning</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Standard</strong>: alle zones sluiten met de meeste punten</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Cut-throat</strong>: jouw punten gaan naar tegenstanders — minste punten wint!</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>No Score</strong>: eerste die alle zones sluit wint, zonder punten</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modus</strong>: Standard · Cut-throat · No Score</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Willekeurige zones</strong>: actieve getallen worden willekeurig gekozen</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Formaat</strong>: Vrije legs of sets (3 legs/set)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bevestiging</strong>: handmatige bevestiging voor de scoring</span></div>
+            </div>` },
+          shanghai: { icon:'🗼', title:'SHANGHAI', players:'👤 1 – 6 spelers',
+            catch: 'Eén getal, drie manieren om te raken.\nEén worp om alles te winnen.',
+            points: [
+              { icon:'🔢', title:'Eén getal per ronde', desc:'Elke ronde heeft een doelgetal — alleen pijlen op dat getal tellen!' },
+              { icon:'📈', title:'Punten vermenigvuldigen', desc:'Single = ×1, Double = ×2, Triple = ×3 — mik op triple voor het maximum!' },
+              { icon:'⚡', title:'De Shanghai', desc:'Single + Double + Triple op hetzelfde getal in één beurt → directe overwinning!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spelverloop</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 pijlen per beurt</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Elke ronde heeft een vooraf bepaald doelgetal (1, 2, 3… op basis van aantal zones)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Single = ×1 · Double = ×2 · Triple = ×3 punten op het doelgetal</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Pijlen ernaast = 0 punten</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Overwinning</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Speler met de meeste punten aan het einde wint.</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚡ Shanghai</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Single + Double + Triple op hetzelfde getal in één beurt = directe overwinning!</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modus</strong>: Standard (1, 2, 3…) · Willekeurig</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Zones</strong>: 7 · 10 · 15 · 20 rondes</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bevestiging</strong>: handmatige bevestiging voor de scoring</span></div>
+            </div>` },
+          territoire: { icon:'🏰', title:'TERRITORIUM', players:'👥 2 – 6 spelers',
+            catch: 'Veroveren, verdedigen, domineren.\nHet bord is een slagveld.',
+            points: [
+              { icon:'🏳️', title:'Zones veroveren', desc:'Raak het bord om neutrale zones te veroveren of vijandelijk territorium te neutraliseren.' },
+              { icon:'🛡️', title:'Schilden plaatsen', desc:'Een triple op jouw zone plaatst een schild — tegenstanders moeten het eerst doorbreken.' },
+              { icon:'👑', title:'Bord domineren', desc:'Controleer de meeste zones aan het einde of pak alle zones voor een directe overwinning!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spelverloop</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 pijlen per speler per ronde</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Single / Double → neutrale zone veroveren of vijandelijke zone neutraliseren</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Triple → vijandelijke zone zonder schild direct veroveren of nieuwe zone + schild plaatsen</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Triple op eigen zone → 🛡️ schild toevoegen</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🛡️ Schild</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Single/Double doorbreekt het schild zonder de zone te veroveren</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Triple doorbreekt het schild EN neutraliseert de zone</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🎯 Bull</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Bull (25) → 2 willekeurige vijandelijke zones neutraliseren</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Bull's Eye (50) → een willekeurige vijandelijke zone + schild veroveren</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Zones</strong>: 5 · 7 · 10</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Moeilijkheid</strong>: Gemakkelijk · Normaal</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modus</strong>: Solo (2-3 spelers) · Team (2-4 spelers)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Rondes</strong>: 5 · 7 · 10</span></div>
+            </div>` },
+          dartspong: { icon:'🔴', title:'DARTPONG', players:'👥 2 – 6 spelers',
+            catch: 'Zoals Beer Pong — elimineer zones één voor één.\nRoep de Bull als je het voelt!',
+            points: [
+              { icon:'🔴', title:'Elke zone elimineren', desc:'Elimineer elke zichtbare zone — elke treffer verwijdert een zone.' },
+              { icon:'📢', title:'De Bull-roep', desc:'VOOR de worp aanroepen — een treffer elimineert tegelijk 2 vijandelijke zones!' },
+              { icon:'⚡', title:'Serie ×3', desc:'3 zones op rij elimineren = een volledige bonusronde spelen!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spelverloop</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 pijlen per ronde</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Elke speler moet al zijn zones elimineren om te winnen</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Een zone raken elimineert hem afhankelijk van de moeilijkheid</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🎯 De Bull</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Speciale worp, <strong>eenmalig per spel</strong> bruikbaar</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Moet <strong>voor de worp worden aangekondigd</strong></span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Treffer</strong> (Bull 25 of Bull's Eye 50) → 2 vijandelijke zones elimineren</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Gemist</strong> → worp is ongeldig, pijl verspild</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Zones</strong>: zones per team</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Moeilijkheid</strong>: Gemakkelijk · Normaal</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modus</strong>: Solo (2-6 spelers) · Team (2-6 spelers)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Partystand</strong>: feestelijke regels voor meer plezier</span></div>
+            </div>` },
+          battleroyal: { icon:'💥', title:'BATTLE ROYAL', players:'👥 2 – 6 spelers',
+            catch: 'Elke speler bezit zones.\nHerladen, richten, elimineren!',
+            points: [
+              { icon:'🎯', title:'Verdedigen en herladen', desc:'Eigen zones raken om munitie te verdienen — voor de aanval.' },
+              { icon:'💣', title:'Tegenstanders aanvallen', desc:'Kost 1 kogel — schade: Single (-1), Double (-2) of Triple (-3 LP).' },
+              { icon:'💀', title:'Laatste overlevende', desc:'Een speler op 0 LP brengen om hem te elimineren. Laatste overlevende wint!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spelverloop</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Elke speler bezit 1 of 2 zones op het bord (afhankelijk van moeilijkheid) en heeft LP</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Eigen zone raken = munitie herladen (Single +1, Double +2, Triple +3)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Vijandelijke zone raken = kost 1 kogel, veroorzaakt schade (Single -1, Double -2, Triple -3 LP)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Schieten zonder munitie of neutrale zone raken = misser</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🎯 Bull</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Groene Bull (25) → +2 LP voor jezelf of een geëlimineerde bondgenoot reanimeren</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Rode Bull (50) → 1 ronde onoverwinnelijkheid — of Groene-Bull-effect</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>LP</strong>: 3 · 5 · 10 startlevens</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Moeilijkheid</strong>: Gemakkelijk (2 zones + Last Stand) · Moeilijk (1 zone)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modus</strong>: Solo (2-4 spelers) · Team 2v2</span></div>
+            </div>` },
+          blackjack: { icon:'🃏', title:'BLACKDART', players:'👥 2 – 6 spelers',
+            catch: 'Raak de perfecte score.\nNiet te laag, niet te hoog.',
+            points: [
+              { icon:'🃏', title:'Doelwaarde raken', desc:'De doelwaarde van de ronde wordt willekeurig getrokken — tel je pijlen op om hem precies te raken.' },
+              { icon:'💥', title:'Bust vermijden', desc:'Doelwaarde overschrijden = 0 voor de ronde — goed nadenken voor de worp!' },
+              { icon:'💰', title:'Geld winnen', desc:'Perfecte score → +2€, dealer verslaan → +1€. Meeste geld aan het einde wint!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spelverloop</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 of minder pijlen per ronde, punten optellen</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Doelwaarde wordt willekeurig getrokken binnen het min/max-bereik</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Doelwaarde overschrijden → score = 0 voor deze ronde (bust)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>De dealer speelt tegen alle andere spelers</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Verdiensten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Perfecte score (= doelwaarde) → +2€</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Beter dan dealer → +1€ · Slechter → -1€</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Dealer is perfect → alle anderen verliezen 2€</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Speler met het meeste geld aan het einde van alle rondes wint</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Rondes</strong>: aantal gespeelde rondes</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Score Min / Max</strong>: bereik voor de willekeurige doelwaarde</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Dealer</strong>: handmatig gekozen of willekeurig getrokken</span></div>
+            </div>` },
+          race: { icon:'🏁', title:'RACE', players:'👥 2 – 6 spelers',
+            catch: 'Snel omhoog klimmen, punten stelen,\nals eerste de finish bereiken!',
+            points: [
+              { icon:'🏃', title:'Naar het doel klimmen', desc:'3 pijlen gooien en punten optellen om naar het doel (300 of 500) te klimmen.' },
+              { icon:'💫', title:'Punten stelen', desc:'Precies op de score van een tegenstander landen — en zijn punten stelen!' },
+              { icon:'💥', title:'Bust vermijden', desc:'Het doel overschrijden annuleert de hele beurt — eronder blijven en gefocust blijven!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spelverloop</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 pijlen per ronde, punten optellen</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Single = ×1 · Double = ×2 · Triple = ×3 · Bull = 25 (geen triple)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Doel overschrijden = bust — beurt geannuleerd, score teruggezet naar begin van de ronde</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🥊 Punten stelen</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Precies op de score van een tegenstander landen → zijn punten stelen</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Stelen kan trapsgewijs doorgaan als de nieuwe score op een andere tegenstander valt</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Als een diefstal het doel zou overschrijden → beurt geannuleerd (bust)</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Overwinning</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Eerste speler die precies de doelwaarde bereikt, wint.</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Doelwaarde</strong>: 300 · 500</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Gestolen punten</strong>: punten bij een diefstal (25 · 50 · 75)</span></div>
+            </div>` },
+          bataille: { icon:'⚓', title:'ZEESLAG', players:'👥 2 – 6 spelers',
+            catch: 'Verberg je schepen. Jaag op de vijand.\nZink ze voor ze jou zinken.',
+            points: [
+              { icon:'🗺️', title:'Geheime plaatsing', desc:'Elk team verbergt zijn schepen op het bord — de tegenstander ziet niets.' },
+              { icon:'🎯', title:'Blinde beschieting', desc:'Om beurten pijlen gooien om de vijandelijke vloot te lokaliseren.' },
+              { icon:'💥', title:'Vloot zinken', desc:'Alle 3 velden van een schip raken om het te zinken. Wie als eerste alles zinkt, wint!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spelverloop</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Elk team plaatst zijn schepen heimelijk op het bord</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Teams gooien om beurten om vijandelijke schepen te vinden</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Double / Single buiten → buitenring · Triple / Single binnen → binnenring</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Bull (25) → 2 willekeurige velden · Bull's Eye (50) → 3 willekeurige velden</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🚢 Schepen</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Elk schip bezet 3 aangrenzende velden op het bord</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>2 schepen: 1 buiten + 1 vrij · 3 schepen: 2 buiten + 1 vrij · 4 schepen: 2 buiten + 2 vrij</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Schepen</strong>: 2 · 3 · 4 schepen per team</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modus</strong>: Solo (1v1) · Team (2-6 spelers)</span></div>
+            </div>` },
+          horloge: { icon:'🕐', title:'KLOK', players:'👤 1 – 6 spelers',
+            catch: 'De klok tikt.\nRaak de getallen op volgorde of val terug.',
+            points: [
+              { icon:'🕐', title:'Volgorde aanhouden', desc:'Elk getal op volgorde valideren (1→20, 20→1 of willekeurig) voor de tegenstanders.' },
+              { icon:'🎯', title:'Double en Triple', desc:'Double = 2 treffers, Triple = 3 treffers — sneller door de reeks gaan!' },
+              { icon:'🔄', title:'Herhaalbonus', desc:'3 pijlen op het juiste doel in één ronde = de ronde opnieuw spelen!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spelverloop</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 pijlen per ronde</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Single, Double of Triple valideren allemaal het huidige doel (1-treffer-modus)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Multi-treffer-modus: Double = +2 treffers, Triple = +3 treffers</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Overslaan-modus (1 treffer): Double = 2 vooruit, Triple = 3 vooruit</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Overwinning</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Eerste speler die de volledige reeks afrondt, wint meteen.</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Herhaalbonus</strong>: 3 pijlen op het juiste doel in één ronde = opnieuw spelen!</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Volgorde</strong>: 1→20 · 20→1 · Willekeurig</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bull</strong>: Geen · Bull (25) · Bull + Bull's Eye (50)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Treffers per getal</strong>: 1 treffer · 2 treffers · 3 treffers</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bevestiging</strong>: handmatige bevestiging voor doorgaan</span></div>
+            </div>` }
+        }
+      },
+      es: {
+        all: 'Todo', classic: 'Clásico', fun: 'Fun', random: 'PARTIDA RÁPIDA',
+        install: 'Instalar',
+        profiles: 'Perfiles',
+        theme: 'Tema', theme_dark: '🌙 Oscuro', theme_light: '☀️ Claro', theme_colored: '🎨 Colorido',
+        vibrations: 'Vibraciones', sounds: 'Sonidos', announcer: 'Locutor', language: 'Idioma',
+        privacy: '🔒 Privacidad',
+        contact: '✉️ Contacto',
+        contact_title: 'Contacto',
+        contact_name: 'Nombre (opcional)',
+        contact_msg: 'Mensaje',
+        contact_send: 'Enviar',
+        contact_sending: 'Enviando…',
+        contact_ok: '✅ ¡Mensaje enviado!',
+        contact_err: '❌ Error, inténtalo de nuevo.',
+        contact_empty: 'Por favor escribe un mensaje.',
+        support_btn: '☕ Apoyar DartVault', rate_btn: 'Valorar la app',
+        support_title: 'Apoyar DartVault',
+        support_desc: 'DartVault es 100% gratuito y sin publicidad. Si te gusta la app, una pequeña contribución ayuda a mantenerla y mejorarla.',
+        close: 'Cerrar',
+        name_territoire: 'TERRITORIO', name_bataille: 'BATALLA NAVAL',
+        gcbt_bataille: 'BATALLA<br>NAVAL',
+        gc_rules: 'REGLAS', gc_play: 'JUGAR',
+        hub_tournament: 'CAMPEONATO', check_update: 'Buscar actualizaciones',
+        desc_x01: 'Empieza en 501 y reduce tu puntuación a 0.',
+        players_x01: '👤 1 – 6 jugadores',
+        desc_cricket: 'Cierra las zonas de 15 a 20 + Bull, luego puntúa en ellas.',
+        players_cricket: '👤 2 – 6 jugadores',
+        desc_shanghai: 'Apunta al campo anunciado cada ronda e intenta el Shanghai.',
+        players_shanghai: '👤 1 – 6 jugadores',
+        desc_territoire: '¡Conquista el mayor número de zonas antes de que acabe el tiempo!',
+        players_territoire: '👥 2 – 6 jugadores',
+        desc_dartspong: 'Elimina todas las zonas antes que tu adversario.',
+        players_dartspong: '👥 2 – 6 jugadores',
+        desc_battleroyal: 'Recargar, apuntar, disparar — el último en pie gana.',
+        players_battleroyal: '👥 2 – 6 jugadores',
+        desc_blackdarts: 'Acércate al valor objetivo sin sobrepasarlo.',
+        players_blackdarts: '👥 2 – 6 jugadores',
+        desc_race: 'Carrera hacia 500 ptos — ¡roba los puntos de tus rivales!',
+        players_race: '👥 2 – 6 jugadores',
+        desc_bataille: 'Esconde bien tus barcos y hunde los de los adversarios.',
+        players_bataille: '👥 2 – 6 jugadores',
+        name_horloge: 'RELOJ',
+        desc_horloge: '¡Golpea cada número del 1 al 20 en orden!',
+        players_horloge: '👤 1 – 6 jugadores',
+        ad_connect: 'Conexión', ad_test: 'Probar conexión', ad_info_btn: '📡 Info Autodarts',
+        ad_info_text: 'Info Autodarts',
+        ad_connected: 'Conectado', ad_failed: 'Fallido — verifica la IP y el certificado HTTPS',
+        ad_p1: 'Autodarts es un <b>sistema de puntuación automático</b> con cámaras que detecta dónde cae cada dardo. <a href="https://autodarts.io" target="_blank" style="color:var(--accent);">autodarts.io</a>',
+        ad_h2: 'Conexión',
+        ad_p3: '1. Asegúrate de que tu sistema esté encendido y en la misma red WiFi',
+        ad_p4: '2. Activa Autodarts en los ajustes e introduce la IP de tu board',
+        ad_p5: '3. Acepta el certificado HTTPS visitando <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[IP]:3181</code> una vez en este dispositivo',
+        ad_p6: '4. Activa 🎯 Autodarts en las opciones del juego — ¡listo!',
+        ad_p8: '💡 El logo 📡 en la esquina superior derecha indica la conexión. Tócalo para reiniciar.',
+        rules: {
+          x01: { icon:'🎯', title:'X01 DARTS', players:'👤 1 – 6 jugadores',
+            catch: 'Cada dardo cuenta.\nLlega a cero antes que los demás.',
+            points: [
+              { icon:'🎯', title:'Llegar a cero', desc:'Empieza en 501 (o 301/701) y reduce tu puntuación dardo a dardo — exactamente 0 para ganar.' },
+              { icon:'💥', title:'Evitar el bust', desc:'Bajar de cero cancela toda la ronda — ¡mantén la cabeza fría y calcula!' },
+              { icon:'🔴', title:'Terminar en doble', desc:'En Double Out, el último dardo debe golpear un doble. ¡Apunta bien!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Desarrollo</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 dardos por turno</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Ingresar la puntuación total del turno o dardo a dardo</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Toda puntuación que baje de cero se anula (bust)</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Victoria</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>El primer jugador en llegar exactamente a cero gana el leg</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>En formato de sets, ganar el número de sets requerido</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚡ Lanzamiento especial</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Double Out</strong>: el último dardo debe tocar un doble</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>D.In / D.Out</strong>: entrar Y salir obligatoriamente en un doble</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modo</strong>: 301 · 501 · 701</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Cierre</strong>: Double Out · Simple Out · D.In / D.Out</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Formato</strong>: Legs libres o sets (3 legs/set)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Confirmación</strong>: confirmación manual antes de validar</span></div>
+            </div>` },
+          cricket: { icon:'🦗', title:'CRICKET', players:'👤 2 – 6 jugadores',
+            catch: 'Cierra los campos, acumula puntos.\nDeja al resto atrás.',
+            points: [
+              { icon:'🎯', title:'Zonas a cerrar', desc:'Del 15 al 20 y el Bull — golpear cada número 3 veces para "cerrarlo".' },
+              { icon:'✖️', title:'Puntuar', desc:'Una vez cerrado, cada golpe adicional da puntos — hasta que el adversario también cierre.' },
+              { icon:'🏆', title:'Ganar la partida', desc:'¡Cierra todos los campos con más puntos (Standard) o menos (Cut-throat)!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Desarrollo</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 dardos por turno en los campos 15–20 y Bull</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>/ = 1 marca · X = 2 marcas · ⊗ = cerrado (3 marcas)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Simple = ×1 · Doble = ×2 · Triple = ×3 marcas</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Una vez cerrado, cada marca adicional da puntos mientras el adversario no haya cerrado ese campo</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Victoria</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Standard</strong>: cerrar todos los campos con más puntos</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Cut-throat</strong>: tus puntos van al adversario — ¡el que menos puntos tiene gana!</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>No Score</strong>: el primero en cerrar todos los campos gana, sin puntos</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modo</strong>: Standard · Cut-throat · No Score</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Campos aleatorios</strong>: los números activos se eligen aleatoriamente</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Formato</strong>: Legs libres o sets (3 legs/set)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Confirmación</strong>: confirmación manual antes de validar</span></div>
+            </div>` },
+          shanghai: { icon:'🗼', title:'SHANGHAI', players:'👤 1 – 6 jugadores',
+            catch: 'Un número, tres formas de acertar.\nUn lanzamiento para ganarlo todo.',
+            points: [
+              { icon:'🔢', title:'Un número por ronda', desc:'Cada ronda tiene un número objetivo — ¡solo cuentan los dardos en ese número!' },
+              { icon:'📈', title:'Multiplicar puntos', desc:'Simple = ×1, Doble = ×2, Triple = ×3 — ¡apunta al triple para el máximo!' },
+              { icon:'⚡', title:'El Shanghai', desc:'Simple + Doble + Triple en el mismo número en un turno → ¡victoria inmediata!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Desarrollo</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 dardos por turno</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Cada ronda tiene un número objetivo predeterminado (1, 2, 3… según el número de campos)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Simple = ×1 · Doble = ×2 · Triple = ×3 puntos sobre el número objetivo</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Dardos fuera = 0 puntos</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Victoria</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>El jugador con más puntos al final gana.</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚡ Shanghai</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Simple + Doble + Triple en el mismo número en un turno = ¡victoria inmediata!</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modo</strong>: Standard (1, 2, 3…) · Aleatorio</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Campos</strong>: 7 · 10 · 15 · 20 rondas</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Confirmación</strong>: confirmación manual antes de validar</span></div>
+            </div>` },
+          territoire: { icon:'🏰', title:'TERRITORIO', players:'👥 2 – 6 jugadores',
+            catch: 'Conquistar, defender, dominar.\nEl tablero es un campo de batalla.',
+            points: [
+              { icon:'🏳️', title:'Conquistar zonas', desc:'Golpea el tablero para conquistar zonas neutras o neutralizar territorio enemigo.' },
+              { icon:'🛡️', title:'Colocar escudos', desc:'Un triple en tu zona coloca un escudo — los adversarios deben romperlo primero.' },
+              { icon:'👑', title:'Dominar el tablero', desc:'¡Controla el mayor número de zonas al final o consigue todas para una victoria inmediata!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Desarrollo</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 dardos por jugador por ronda</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Simple / Doble → conquistar zona neutra o neutralizar zona enemiga</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Triple → conquistar directamente zona enemiga sin escudo o nueva zona + colocar escudo</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Triple en propia zona → añadir 🛡️ escudo</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🛡️ Escudo</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Simple/Doble rompe el escudo sin conquistar la zona</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Triple rompe el escudo Y neutraliza la zona</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🎯 Bull</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Bull (25) → neutralizar 2 zonas enemigas aleatorias</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Bull's Eye (50) → conquistar una zona enemiga aleatoria + escudo</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Zonas</strong>: 5 · 7 · 10</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Dificultad</strong>: Fácil · Normal</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modo</strong>: Solo (2-3 jugadores) · Equipo (2-4 jugadores)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Rondas</strong>: 5 · 7 · 10</span></div>
+            </div>` },
+          dartspong: { icon:'🔴', title:'DARTPONG', players:'👥 2 – 6 jugadores',
+            catch: 'Como el Beer Pong — elimina zonas una a una.\n¡Anuncia el Bull cuando lo sientas!',
+            points: [
+              { icon:'🔴', title:'Eliminar cada zona', desc:'Elimina cada zona visible — cada golpe elimina una zona.' },
+              { icon:'📢', title:'El grito del Bull', desc:'Anunciar ANTES del lanzamiento — ¡un golpe elimina 2 zonas enemigas de una vez!' },
+              { icon:'⚡', title:'Serie ×3', desc:'¡Eliminar 3 zonas seguidas = jugar una ronda de bonificación completa!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Desarrollo</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 dardos por ronda</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Cada jugador debe eliminar todas sus zonas para ganar</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Golpear una zona la elimina según la dificultad</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🎯 El Bull</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Lanzamiento especial, usable <strong>una vez por partida</strong></span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Debe <strong>anunciarse antes del lanzamiento</strong></span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Golpe</strong> (Bull 25 o Bull's Eye 50) → eliminar 2 zonas enemigas</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Fallo</strong> → lanzamiento inválido, dardo desperdiciado</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Zonas</strong>: zonas por equipo</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Dificultad</strong>: Fácil · Normal</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modo</strong>: Solo (2-6 jugadores) · Equipo (2-6 jugadores)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modo fiesta</strong>: reglas festivas para más diversión</span></div>
+            </div>` },
+          battleroyal: { icon:'💥', title:'BATTLE ROYAL', players:'👥 2 – 6 jugadores',
+            catch: 'Cada jugador posee zonas.\n¡Recargar, apuntar, eliminar!',
+            points: [
+              { icon:'🎯', title:'Defender y recargar', desc:'Golpear las zonas propias para ganar munición — antes del ataque.' },
+              { icon:'💣', title:'Atacar adversarios', desc:'Cuesta 1 bala — daño: Simple (-1), Doble (-2) o Triple (-3 PV).' },
+              { icon:'💀', title:'Último superviviente', desc:'Llevar a un jugador a 0 PV para eliminarlo. ¡El último superviviente gana!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Desarrollo</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Cada jugador posee 1 o 2 zonas en el tablero (según dificultad) y tiene PV</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Golpear zona propia = recargar munición (Simple +1, Doble +2, Triple +3)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Golpear zona enemiga = cuesta 1 bala, causa daño (Simple -1, Doble -2, Triple -3 PV)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Disparar sin munición o golpear zona neutra = fallo</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🎯 Bull</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Bull verde (25) → +2 PV para ti o reanimar a un aliado eliminado</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Bull rojo (50) → 1 ronda de invulnerabilidad — o efecto del Bull verde</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>PV</strong>: 3 · 5 · 10 puntos de vida iniciales</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Dificultad</strong>: Fácil (2 zonas + Last Stand) · Difícil (1 zona)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modo</strong>: Solo (2-4 jugadores) · Equipo 2v2</span></div>
+            </div>` },
+          blackjack: { icon:'🃏', title:'BLACKDART', players:'👥 2 – 6 jugadores',
+            catch: 'Alcanza la puntuación perfecta.\nNi demasiado baja, ni demasiado alta.',
+            points: [
+              { icon:'🃏', title:'Alcanzar el objetivo', desc:'El valor objetivo de la ronda se elige aleatoriamente — suma tus dardos para acertar exacto.' },
+              { icon:'💥', title:'Evitar el bust', desc:'Superar el objetivo = 0 para la ronda — ¡planifica bien el lanzamiento!' },
+              { icon:'💰', title:'Ganar dinero', desc:'Puntuación perfecta → +2€, superar al crupier → +1€. ¡Más dinero al final gana!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Desarrollo</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 o menos dardos por ronda, sumar puntos</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>El valor objetivo se elige aleatoriamente dentro del rango mín/máx</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Superar el objetivo → puntuación = 0 para esta ronda (bust)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>El crupier juega contra todos los demás jugadores</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Ganancias</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Puntuación perfecta (= valor objetivo) → +2€</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Mejor que el crupier → +1€ · Peor → -1€</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Crupier perfecto → todos los demás pierden 2€</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>El jugador con más dinero al final de todas las rondas gana</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Rondas</strong>: número de rondas jugadas</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Puntuación Mín / Máx</strong>: rango para el valor objetivo aleatorio</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Crupier</strong>: elegido manualmente o al azar</span></div>
+            </div>` },
+          race: { icon:'🏁', title:'RACE', players:'👥 2 – 6 jugadores',
+            catch: 'Subir rápido, robar puntos,\n¡llegar primero a la meta!',
+            points: [
+              { icon:'🏃', title:'Subir hacia la meta', desc:'Lanzar 3 dardos y sumar puntos para subir hacia la meta (300 o 500).' },
+              { icon:'💫', title:'Robar puntos', desc:'Caer exactamente en la puntuación de un rival — ¡y robarle sus puntos!' },
+              { icon:'💥', title:'Evitar el bust', desc:'Superar la meta cancela todo el turno — ¡mantenerse por debajo y concentrado!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Desarrollo</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 dardos por ronda, sumar puntos</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Simple = ×1 · Doble = ×2 · Triple = ×3 · Bull = 25 (sin triple)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Superar la meta = bust — turno anulado, puntuación restablecida al valor del inicio de la ronda</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🥊 Robar puntos</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Caer exactamente en la puntuación de un rival → robarle sus puntos</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Los robos pueden encadenarse si la nueva puntuación coincide con otro rival</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Si un robo superara la meta → turno anulado (bust)</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Victoria</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>El primer jugador en alcanzar exactamente el valor objetivo gana.</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Valor objetivo</strong>: 300 · 500</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Puntos robados</strong>: puntos al robar (25 · 50 · 75)</span></div>
+            </div>` },
+          bataille: { icon:'⚓', title:'BATALLA NAVAL', players:'👥 2 – 6 jugadores',
+            catch: 'Esconde tus barcos. Caza al enemigo.\nHúndelos antes de que te hundan.',
+            points: [
+              { icon:'🗺️', title:'Posicionamiento secreto', desc:'Cada equipo esconde sus barcos en el tablero — el adversario no ve nada.' },
+              { icon:'🎯', title:'Bombardeo a ciegas', desc:'Lanzar dardos por turnos para localizar la flota enemiga.' },
+              { icon:'💥', title:'Hundir la flota', desc:'Golpear los 3 campos de un barco para hundirlo. ¡Quien hunda todo primero gana!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Desarrollo</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Cada equipo coloca sus barcos en secreto en el tablero</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Los equipos lanzan por turnos para encontrar barcos enemigos</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Doble / Simple exterior → aro exterior · Triple / Simple interior → aro interior</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Bull (25) → 2 campos aleatorios · Bull's Eye (50) → 3 campos aleatorios</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🚢 Barcos</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Cada barco ocupa 3 campos adyacentes en el tablero</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>2 barcos: 1 exterior + 1 libre · 3 barcos: 2 exteriores + 1 libre · 4 barcos: 2 exteriores + 2 libres</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Barcos</strong>: 2 · 3 · 4 barcos por equipo</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Modo</strong>: Solo (1v1) · Equipo (2-6 jugadores)</span></div>
+            </div>` },
+          horloge: { icon:'🕐', title:'RELOJ', players:'👤 1 – 6 jugadores',
+            catch: 'El reloj corre.\nGolpea los números en orden o retrocede.',
+            points: [
+              { icon:'🕐', title:'Seguir la secuencia', desc:'Validar cada número en orden (1→20, 20→1 o aleatorio) antes que los adversarios.' },
+              { icon:'🎯', title:'Doble y Triple', desc:'Doble = 2 golpes, Triple = 3 golpes — ¡avanzar más rápido por la secuencia!' },
+              { icon:'🔄', title:'Bonus de repetición', desc:'3 dardos en el objetivo correcto en una ronda = ¡jugar la ronda de nuevo!' }
+            ],
+            full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Desarrollo</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 dardos por ronda</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Simple, Doble o Triple validan el objetivo actual (modo 1 golpe)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Modo multi-golpe: Doble = +2 golpes, Triple = +3 golpes</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Modo saltar (1 golpe): Doble = 2 adelante, Triple = 3 adelante</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Victoria</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>El primer jugador que complete toda la secuencia gana inmediatamente.</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bonus de repetición</strong>: 3 dardos en el objetivo correcto en una ronda = ¡repetir!</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Orden</strong>: 1→20 · 20→1 · Aleatorio</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Bull</strong>: Ninguno · Bull (25) · Bull + Bull's Eye (50)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Golpes por número</strong>: 1 golpe · 2 golpes · 3 golpes</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Confirmación</strong>: confirmación manual antes de continuar</span></div>
+            </div>` }
+        }
       }
     };
 
@@ -2300,19 +3293,23 @@
     const LANG_KEY = 'dartvault_lang';
     let currentLang = localStorage.getItem(LANG_KEY) || 'fr';
 
+    function getLangFlag(lang) {
+      return lang === 'fr' ? '🇫🇷' : lang === 'de' ? '🇩🇪' : lang === 'nl' ? '🇳🇱' : lang === 'es' ? '🇪🇸' : '🇬🇧';
+    }
+
     function applyLang(lang) {
       currentLang = lang;
       localStorage.setItem(LANG_KEY, lang);
       document.documentElement.lang = lang;
-      const T = TRANSLATIONS[lang];
+      const T = TRANSLATIONS[lang] || TRANSLATIONS['en'] || TRANSLATIONS['fr'];
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.dataset.i18n;
         if (T[key] !== undefined) el.innerHTML = T[key];
       });
       const flagBtn = document.getElementById('btn-lang');
-      if(flagBtn) flagBtn.textContent = lang === 'fr' ? '🇫🇷' : '🇬🇧';
+      if(flagBtn) flagBtn.textContent = getLangFlag(lang);
       const sgFlagBtn = document.getElementById('sg-btn-lang');
-      if(sgFlagBtn) sgFlagBtn.textContent = lang === 'fr' ? '🇫🇷' : '🇬🇧';
+      if(sgFlagBtn) sgFlagBtn.textContent = getLangFlag(lang);
       const privacyBtn = document.getElementById('btn-privacy');
       if(privacyBtn) privacyBtn.textContent = T.privacy;
       const contactBtn = document.getElementById('btn-contact');
@@ -2335,11 +3332,15 @@
       if(spDesc) spDesc.textContent = T.support_desc;
     }
 
-    function cycleLang() {
-      applyLang(currentLang === 'fr' ? 'en' : 'fr');
-      vib(12);
-      playSound('tap');
+    function cycleLang(btn) {
+      if (window.DV_LANG && typeof DV_LANG.showPicker === 'function') {
+        DV_LANG.showPicker(btn || document.getElementById('btn-lang'));
+      }
     }
+
+    window.addEventListener('dv-lang-change', function(e) {
+      applyLang(e.detail && e.detail.lang ? e.detail.lang : (localStorage.getItem(LANG_KEY) || 'fr'));
+    });
 
         // ── THÈME ──────────────────────────────────────────────────────────
     const THEME_KEY = 'dartvault_theme';
@@ -2661,7 +3662,7 @@
     function showRules(e, key) {
       e.preventDefault(); e.stopPropagation();
       const lang = currentLang;
-      const T = TRANSLATIONS[lang];
+      const T = TRANSLATIONS[lang] || TRANSLATIONS['en'] || TRANSLATIONS['fr'];
       const r = T.rules[key]; if (!r) return;
 
       // Injecte la couleur du jeu pour le mode coloré
@@ -2980,7 +3981,7 @@
       // Fallback if SW never responds (local dev)
       setTimeout(function() {
         var el = document.getElementById('app-version');
-        if (el && !el.textContent) el.textContent = 'v2.57';
+        if (el && !el.textContent) el.textContent = 'v2.58';
       }, 2000);
     }, 2000);
 
@@ -3038,6 +4039,7 @@
       });
     });
   </script>
+<script src="lang.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
 (function(){

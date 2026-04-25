@@ -15,6 +15,7 @@
       document.documentElement.setAttribute('data-theme', t === 'colored' ? 'colored' : t);
     })();
   </script>
+  <script src="lang.js"></script>
   <style>
     :root {
       --bg:#0A0A0A; --bg2:#141414; --bg3:#1E1E1E; --bg4:#252525;
@@ -596,7 +597,7 @@
 // ══════════════════════════════════════════════════════════════════════
 // i18n
 // ══════════════════════════════════════════════════════════════════════
-const lang = localStorage.getItem('dartvault_lang') || 'fr';
+let lang = localStorage.getItem('dartvault_lang') || 'fr';
 const isFr = lang === 'fr';
 const T = {
   fr: {
@@ -630,9 +631,57 @@ const T = {
     captures: 'Captures', shields: 'Shields', neutralized: 'Neutralized',
     dmg: 'Damage', bullets: 'Bullets', heals: 'Heals',
     stolen: 'pts stolen', lost: 'pts lost',
+  },
+  de: {
+    back: '← Menü', pageTitle: '🔍 STATS',
+    theme: 'Thema', dark: '🌙 Dunkel', light: '☀️ Hell', colored: '🎨 Bunt',
+    vib: 'Vibration', snd: 'Töne', tts: 'Ansager',
+    wins: 'Siege', games: 'Partien',
+    wg: 'S / P', noData: 'Noch keine Partie gespielt',
+    winsLabel: (n) => `${n} Sieg${n!==1?'e':''}`,
+    gamesLabel: (n) => `${n} Partie${n!==1?'n':''}`,
+    winsPct: (p) => `${p}% Siege`,
+    avg: 'Ø', drt: 'Pf',
+    avgGame: 'Ø/Partie',
+    hits: 'Treffer', misses: 'Fehler', acc: 'Genauigkeit',
+    captures: 'Eroberungen', shields: 'Schilde', neutralized: 'Neutralisiert',
+    dmg: 'Schaden', bullets: 'Kugeln', heals: 'Heilung',
+    stolen: 'Pkte gestohlen', lost: 'Pkte verloren',
+  },
+  nl: {
+    back: '← Menu', pageTitle: '🔍 STATS',
+    theme: 'Thema', dark: '🌙 Donker', light: '☀️ Licht', colored: '🎨 Kleurrijk',
+    vib: 'Trillingen', snd: 'Geluiden', tts: 'Omroeper',
+    wins: 'Overwinningen', games: 'Partijen',
+    wg: 'O / P', noData: 'Nog geen partij gespeeld',
+    winsLabel: (n) => `${n} overwinning${n!==1?'en':''}`,
+    gamesLabel: (n) => `${n} partij${n!==1?'en':''}`,
+    winsPct: (p) => `${p}% overwinningen`,
+    avg: 'Gem', drt: 'Pijl',
+    avgGame: 'Gem/partij',
+    hits: 'Treffers', misses: 'Missers', acc: 'Nauwkeurigheid',
+    captures: 'Veroveringen', shields: 'Schilden', neutralized: 'Geneutraliseerd',
+    dmg: 'Schade', bullets: 'Kogels', heals: 'Genezing',
+    stolen: 'pts gestolen', lost: 'pts verloren',
+  },
+  es: {
+    back: '← Menú', pageTitle: '🔍 STATS',
+    theme: 'Tema', dark: '🌙 Oscuro', light: '☀️ Claro', colored: '🎨 Colorido',
+    vib: 'Vibraciones', snd: 'Sonidos', tts: 'Locutor',
+    wins: 'Victorias', games: 'Partidas',
+    wg: 'V / P', noData: 'Ninguna partida jugada aún',
+    winsLabel: (n) => `${n} victoria${n!==1?'s':''}`,
+    gamesLabel: (n) => `${n} partida${n!==1?'s':''}`,
+    winsPct: (p) => `${p}% victorias`,
+    avg: 'Prom', drt: 'Drd',
+    avgGame: 'Prom/partida',
+    hits: 'Aciertos', misses: 'Fallos', acc: 'Precisión',
+    captures: 'Capturas', shields: 'Escudos', neutralized: 'Neutralizados',
+    dmg: 'Daño', bullets: 'Balas', heals: 'Curaciones',
+    stolen: 'pts robados', lost: 'pts perdidos',
   }
 };
-const L = T[isFr ? 'fr' : 'en'];
+const L = T[lang] || T['en'];
 
 // ══════════════════════════════════════════════════════════════════════
 // SETTINGS PANEL
@@ -677,12 +726,12 @@ const L = T[isFr ? 'fr' : 'en'];
   const tts = document.getElementById('sg-tts'); if(tts){ tts.checked = localStorage.getItem('dartvault_tts')!=='off'; tts.addEventListener('change', ()=>localStorage.setItem('dartvault_tts', tts.checked?'on':'off')); }
   const lb  = document.getElementById('sg-lang-btn');
   if(lb){
-    lb.textContent = lang==='fr'?'🇫🇷':'🇬🇧';
+    lb.textContent = lang==='fr'?'🇫🇷':lang==='de'?'🇩🇪':'🇬🇧';
     lb.addEventListener('click', ()=>{
-      localStorage.setItem('dartvault_lang', lang==='fr'?'en':'fr');
-      location.reload();
+      if(window.DV_LANG && typeof DV_LANG.showPicker==='function') DV_LANG.showPicker(lb);
     });
   }
+  window.addEventListener('dv-lang-change', () => { location.reload(); });
   syncPanel();
 })();
 
@@ -702,8 +751,11 @@ const GAME_CONFIGS = [
   { key:'horloge',    icon:'🕐', fr:'Hrlg.',   en:'Hrlg.',   color:'#94A3B8' },
 ];
 const GAME_FULL = {
-  fr:{ '501':'X01 DARTS',cricket:'CRICKET',blackjack:'BLACKDART',bataille:'BATAILLE NAVALE',territoire:'TERRITOIRE',shooter:'BATTLE ROYAL',race500:'RACE 500',dartspong:'DARTSPONG',shanghai:'SHANGHAI',horloge:'HORLOGE' },
-  en:{ '501':'X01 DARTS',cricket:'CRICKET',blackjack:'BLACKDART',bataille:'BATTLESHIP',     territoire:'TERRITORY', shooter:'BATTLE ROYAL',race500:'RACE 500',dartspong:'DARTSPONG',shanghai:'SHANGHAI',horloge:'HORLOGE' }
+  fr:{ '501':'X01 DARTS',cricket:'CRICKET',blackjack:'BLACKDART',bataille:'BATAILLE NAVALE',territoire:'TERRITOIRE', shooter:'BATTLE ROYAL',race500:'RACE 500',dartspong:'DARTSPONG',shanghai:'SHANGHAI',horloge:'HORLOGE' },
+  en:{ '501':'X01 DARTS',cricket:'CRICKET',blackjack:'BLACKDART',bataille:'BATTLESHIP',     territoire:'TERRITORY',  shooter:'BATTLE ROYAL',race500:'RACE 500',dartspong:'DARTSPONG',shanghai:'SHANGHAI',horloge:'HORLOGE' },
+  de:{ '501':'X01 DARTS',cricket:'CRICKET',blackjack:'BLACKDART',bataille:'SEESCHLACHT',    territoire:'TERRITORIUM',shooter:'BATTLE ROYAL',race500:'RACE 500',dartspong:'DARTSPONG',shanghai:'SHANGHAI',horloge:'UHR' },
+  nl:{ '501':'X01 DARTS',cricket:'CRICKET',blackjack:'BLACKDART',bataille:'ZEESLAG',        territoire:'TERRITORIUM', shooter:'BATTLE ROYAL',race500:'RACE 500',dartspong:'DARTSPONG',shanghai:'SHANGHAI',horloge:'KLOK' },
+  es:{ '501':'X01 DARTS',cricket:'CRICKET',blackjack:'BLACKDART',bataille:'BATALLA NAVAL',  territoire:'TERRITORIO',  shooter:'BATTLE ROYAL',race500:'RACE 500',dartspong:'DARTSPONG',shanghai:'SHANGHAI',horloge:'RELOJ' }
 };
 
 // ══════════════════════════════════════════════════════════════════════
@@ -822,7 +874,7 @@ function renderTiles() {
   grid.innerHTML = GAME_CONFIGS.map(g => {
     const hasData = getGamesForPeriod(g.key) > 0;
     const cls     = ['game-tile', hasData ? 'has-data' : ''].filter(Boolean).join(' ');
-    const label   = isFr ? g.fr : g.en;
+    const label   = g[lang] || g.en || g.fr;
     return `<div class="${cls}" id="tile-${g.key}" style="--tile-color:${g.color}" onclick="selectGame('${g.key}')">
       <div class="game-tile-icon">${g.icon}</div>
       <div class="game-tile-name">${label}</div>
@@ -850,7 +902,7 @@ function renderDetail(key) {
   const games   = getGamesForPeriod(key);
   const pct     = games > 0 ? Math.round(wins/games*100) : 0;
   const hasData = games > 0;
-  const fullGameName = (GAME_FULL[isFr?'fr':'en']||GAME_FULL.fr)[key] || g.fr;
+  const fullGameName = (GAME_FULL[lang]||GAME_FULL.en||GAME_FULL.fr)[key] || g.en || g.fr;
 
   let barHtml = '', chipsHtml = '';
 
@@ -936,12 +988,14 @@ render();
 // PERIOD SELECTOR
 // ══════════════════════════════════════════════════════════════════════
 (function() {
-  const PERIODS = {
-    daily:   isFr ? 'Quotidien'    : 'Daily',
-    weekly:  isFr ? 'Hebdomadaire' : 'Weekly',
-    monthly: isFr ? 'Mensuel'      : 'Monthly',
-    alltime: 'All Time',
+  const PERIODS_ALL = {
+    fr: { daily:'Quotidien', weekly:'Hebdomadaire', monthly:'Mensuel', alltime:'All Time' },
+    en: { daily:'Daily', weekly:'Weekly', monthly:'Monthly', alltime:'All Time' },
+    de: { daily:'Täglich', weekly:'Wöchentlich', monthly:'Monatlich', alltime:'Gesamt' },
+    nl: { daily:'Dagelijks', weekly:'Wekelijks', monthly:'Maandelijks', alltime:'Totaal' },
+    es: { daily:'Diario', weekly:'Semanal', monthly:'Mensual', alltime:'Total' },
   };
+  const PERIODS = PERIODS_ALL[lang] || PERIODS_ALL.en;
   const btn      = document.getElementById('btn-period');
   const dropdown = document.getElementById('period-dropdown');
   const label    = document.getElementById('period-label');
@@ -999,8 +1053,9 @@ render();
 
   function buildSwitcher() {
     const profiles = getProfiles();
-    if (!profiles.length) { panel.innerHTML = `<div class="ps-title" style="padding-bottom:10px;">${isFr?'Aucun profil':'No profiles'}</div>`; return; }
-    const title = isFr ? 'CHANGER DE JOUEUR' : 'SWITCH PLAYER';
+    const _noProf = lang==='fr'?'Aucun profil':lang==='de'?'Kein Profil':'No profiles';
+    if (!profiles.length) { panel.innerHTML = `<div class="ps-title" style="padding-bottom:10px;">${_noProf}</div>`; return; }
+    const title = lang==='fr'?'CHANGER DE JOUEUR':lang==='de'?'SPIELER WECHSELN':'SWITCH PLAYER';
     const rows = profiles.map(p => {
       const pName = p.emoji + ' ' + p.name;
       const isCurrent = pName === fullName;

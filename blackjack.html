@@ -2503,10 +2503,97 @@ const _RULES_DATA = {
             <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Dealer</strong>: chosen manually or drawn randomly</span></div>
             </div>`
   }
+  ,de: {
+    icon: '🃏', title: 'Blackdart',
+    catch: 'Triff den perfekten Score.\nNicht zu niedrig, nicht zu hoch.',
+    points: [
+      { icon: '🃏', title: 'Zielwert treffen', desc: 'Der Zielwert der Runde wird zufällig gezogen — addiere deine Pfeile, um ihn genau zu treffen.' },
+      { icon: '💥', title: 'Bust vermeiden', desc: 'Zielwert überschreiten = 0 für die Runde — den Wurf gut planen!' },
+      { icon: '💰', title: 'Geld gewinnen', desc: 'Perfekter Score → +2€, Dealer schlagen → +1€. Meistes Geld am Ende gewinnt!' }
+    ],
+    full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spielablauf</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 oder weniger Pfeile pro Runde, Punkte addieren</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Zielwert wird zufällig im Min/Max-Bereich gezogen</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Zielwert überschreiten → Score = 0 für diese Runde (Bust)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Der Dealer spielt gegen alle anderen Spieler</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Verdienst</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Perfekter Score (= Zielwert) → +2€</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Besser als Dealer → +1€ · Schlechter → -1€</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Dealer ist perfekt → alle anderen verlieren 2€</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Spieler mit dem meisten Geld am Ende aller Runden gewinnt</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Runden</strong>: Anzahl gespielter Runden</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Score Min / Max</strong>: Bereich für den zufälligen Zielwert</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Dealer</strong>: manuell gewählt oder zufällig gezogen</span></div>
+            </div>`
+  },
+  nl: {
+    icon: '🃏', title: 'BlackDart',
+    catch: 'Mik op de perfecte score.\nNiet te laag, niet te hoog.',
+    points: [
+      { icon: '🃏', title: 'Raak het doelgetal', desc: 'Het doelgetal van de ronde wordt willekeurig getrokken — tel je pijlen op om het exact te raken.' },
+      { icon: '💥', title: 'Pas op voor de bust', desc: 'Het doelgetal overschrijden = 0 voor de ronde — plan je worp goed!' },
+      { icon: '💰', title: 'Verdien geld', desc: 'Perfecte score → +2€, de dealer verslaan → +1€. Meeste geld aan het einde wint!' }
+    ],
+    full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Spelverloop</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 of minder pijlen per beurt, punten optellen</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Doelgetal wordt willekeurig getrokken binnen het Min/Max-bereik</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Doelgetal overschrijden → score = 0 voor die ronde (bust)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>De dealer speelt tegen alle andere spelers</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Verdiensten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Perfecte score (= doelgetal) → +2€</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Beter dan dealer → +1€ · Slechter → -1€</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Als dealer perfect is → alle anderen verliezen 2€</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Speler met het meeste geld aan het einde van alle rondes wint</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Varianten</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Rondes</strong>: aantal gespeelde rondes</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Score Min / Max</strong>: bereik voor het willekeurige doelgetal</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Dealer</strong>: handmatig gekozen of willekeurig getrokken</span></div>
+            </div>`
+  },
+  es: {
+    icon: '🃏', title: 'BlackDart',
+    catch: 'Apunta a la puntuación perfecta.\nNi demasiado baja, ni demasiado alta.',
+    points: [
+      { icon: '🃏', title: 'Alcanza el objetivo', desc: 'La puntuación objetivo de la ronda se sortea al azar — suma tus dardos para alcanzarla exactamente.' },
+      { icon: '💥', title: 'Cuidado con el bust', desc: 'Superar el objetivo = 0 para la ronda — ¡planifica bien tu lanzamiento!' },
+      { icon: '💰', title: 'Gana dinero', desc: 'Puntuación perfecta → +2€, superar al crupier → +1€. ¡Gana quien tenga más dinero al final!' }
+    ],
+    full: `<div class="rules-section">
+              <div class="rules-section-title">🎲 Cómo jugar</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>3 dardos o menos por turno, sumar los puntos</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>La puntuación objetivo se sortea al azar dentro del rango Min/Max</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Superar el objetivo → puntuación = 0 para esa ronda (bust)</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>El crupier juega contra todos los demás jugadores</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">🏆 Ganancias</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span>Puntuación perfecta (= objetivo) → +2€</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Mejor que el crupier → +1€ · Peor → -1€</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>Si el crupier es perfecto → todos los demás pierden 2€</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span>El jugador con más dinero al final de todas las rondas gana</span></div>
+            </div>
+            <div class="rules-section">
+              <div class="rules-section-title">⚙️ Variantes</div>
+              <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Rondas</strong>: número de rondas jugadas</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Puntuación Min / Max</strong>: rango para el objetivo aleatorio</span></div>
+            <div class="rules-row"><span class="rules-arrow">→</span><span><strong>Crupier</strong>: elegido manualmente o sorteado al azar</span></div>
+            </div>`
+  }
 };
 function _injectRules() {
   const lang = (window.DV_LANG && typeof DV_LANG.get === 'function') ? DV_LANG.get() : 'fr';
-  const r = _RULES_DATA[lang] || _RULES_DATA.fr;
+  const r = _RULES_DATA[lang] || _RULES_DATA.en || _RULES_DATA.fr;
   const el = document.getElementById('rules-body-content');
   if (!el) return;
 
@@ -2734,7 +2821,7 @@ window.addEventListener('resize',adjustPlayersPadding);
     // Lang flag
     const lang = localStorage.getItem(LANG_KEY) || 'fr';
     const lb = document.getElementById('sg-btn-lang');
-    if (lb) lb.textContent = lang === 'fr' ? '🇫🇷' : '🇬🇧';
+    if (lb) lb.textContent = lang === 'fr' ? '🇫🇷' : lang === 'de' ? '🇩🇪' : lang === 'nl' ? '🇳🇱' : lang === 'es' ? '🇪🇸' : '🇬🇧';
     // i18n labels
     if (typeof applyI18n === 'function') applyI18n(sgPanel);
     else if (typeof L === 'function') {
@@ -2774,14 +2861,9 @@ window.addEventListener('resize',adjustPlayersPadding);
 
   const langBtn = document.getElementById('sg-btn-lang');
   if (langBtn) langBtn.addEventListener('click', () => {
-    const cur = localStorage.getItem(LANG_KEY) || 'fr';
-    const next = cur === 'fr' ? 'en' : 'fr';
-    localStorage.setItem(LANG_KEY, next);
-    // Mise à jour instantanée de l'interface
-    if (window.DV_LANG && typeof window.DV_LANG.apply === 'function') {
-      window.DV_LANG.apply();
-    }
-    // Rappel de la fonction de langue spécifique au jeu si elle existe
+    if (window.DV_LANG && typeof DV_LANG.showPicker === 'function') DV_LANG.showPicker(langBtn);
+  });
+  window.addEventListener('dv-lang-change', () => {
     if (typeof applyGameLang === 'function') applyGameLang();
     syncSgPanel();
   });

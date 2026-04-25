@@ -590,7 +590,7 @@
     if (tt) tt.checked = localStorage.getItem('dartvault_tts') !== 'off';
     const lang = localStorage.getItem(LANG_KEY) || 'fr';
     const lb = document.getElementById('sg-btn-lang');
-    if (lb) lb.textContent = lang === 'fr' ? '🇫🇷' : '🇬🇧';
+    if (lb) lb.textContent = lang === 'fr' ? '🇫🇷' : lang === 'de' ? '🇩🇪' : '🇬🇧';
     // i18n labels via DV_LANG
     if (window.DV_LANG && typeof window.DV_LANG.t === 'function') {
       sgPanel.querySelectorAll('[data-i18n]').forEach(el => {
@@ -629,71 +629,96 @@
 
   const langBtn = document.getElementById('sg-btn-lang');
   if (langBtn) langBtn.addEventListener('click', () => {
-    const cur = localStorage.getItem(LANG_KEY) || 'fr';
-    const next = cur === 'fr' ? 'en' : 'fr';
-    localStorage.setItem(LANG_KEY, next);
-    if (window.DV_LANG && typeof window.DV_LANG.apply === 'function') window.DV_LANG.apply();
-    // Traduire le titre et bouton retour
-    applyPageLang(next);
+    if (window.DV_LANG && typeof DV_LANG.showPicker === 'function') DV_LANG.showPicker(langBtn);
+  });
+  window.addEventListener('dv-lang-change', () => {
+    const lang = localStorage.getItem(LANG_KEY) || 'fr';
+    applyPageLang(lang);
     syncSgPanel();
   });
 
   function applyPageLang(lang) {
     if (!window.DV_LANG) return;
-    const isFr = lang === 'fr';
+    const PL = {
+      fr: { title:'👤 PROFILS', create:'Créer un profil', saved:'Profils enregistrés',
+            newProfile:'✨ NOUVEAU PROFIL', emoji:'Choix de l\'emoji', pseudo:'Pseudo',
+            tapChoose:'Appuie pour choisir', placeholder:'Ton pseudo...', cancel:'Annuler', create_btn:'Créer',
+            del:'🗑 SUPPRIMER', delMsg:'Supprimer le profil', delIrr:'Cette action est irréversible.',
+            delete:'Supprimer', download:'Télécharger les profils', import:'Importer les profils' },
+      en: { title:'👤 PROFILES', create:'Create a profile', saved:'Saved profiles',
+            newProfile:'✨ NEW PROFILE', emoji:'Choose an emoji', pseudo:'Username',
+            tapChoose:'Tap to choose', placeholder:'Your username...', cancel:'Cancel', create_btn:'Create',
+            del:'🗑 DELETE', delMsg:'Delete profile', delIrr:'This action cannot be undone.',
+            delete:'Delete', download:'Download profiles', import:'Import profiles' },
+      de: { title:'👤 PROFILE', create:'Profil erstellen', saved:'Gespeicherte Profile',
+            newProfile:'✨ NEUES PROFIL', emoji:'Emoji wählen', pseudo:'Benutzername',
+            tapChoose:'Tippe zum Auswählen', placeholder:'Dein Benutzername...', cancel:'Abbrechen', create_btn:'Erstellen',
+            del:'🗑 LÖSCHEN', delMsg:'Profil löschen', delIrr:'Diese Aktion ist nicht rückgängig zu machen.',
+            delete:'Löschen', download:'Profile herunterladen', import:'Profile importieren' },
+      nl: { title:'👤 PROFIELEN', create:'Profiel aanmaken', saved:'Opgeslagen profielen',
+            newProfile:'✨ NIEUW PROFIEL', emoji:'Emoji kiezen', pseudo:'Gebruikersnaam',
+            tapChoose:'Tik om te kiezen', placeholder:'Jouw gebruikersnaam...', cancel:'Annuleren', create_btn:'Aanmaken',
+            del:'🗑 VERWIJDEREN', delMsg:'Profiel verwijderen', delIrr:'Deze actie kan niet ongedaan worden gemaakt.',
+            delete:'Verwijderen', download:'Profielen downloaden', import:'Profielen importeren' },
+      es: { title:'👤 PERFILES', create:'Crear un perfil', saved:'Perfiles guardados',
+            newProfile:'✨ NUEVO PERFIL', emoji:'Elegir emoji', pseudo:'Nombre de usuario',
+            tapChoose:'Toca para elegir', placeholder:'Tu nombre de usuario...', cancel:'Cancelar', create_btn:'Crear',
+            del:'🗑 ELIMINAR', delMsg:'Eliminar perfil', delIrr:'Esta acción no se puede deshacer.',
+            delete:'Eliminar', download:'Descargar perfiles', import:'Importar perfiles' }
+    };
+    const p = PL[lang] || PL['en'];
     // Titre page
     const title = document.querySelector('.page-title');
-    if (title) title.textContent = isFr ? '👤 PROFILS' : '👤 PROFILES';
+    if (title) title.textContent = p.title;
     // Bouton retour
     const back = document.querySelector('.btn-back-page');
-    if (back) back.textContent = '← Menu';
+    if (back) back.textContent = lang === 'de' ? '← Menü' : lang === 'es' ? '← Menú' : '← Menu';
     // Bouton créer
     const create = document.getElementById('btn-create');
-    if (create) create.innerHTML = `<span style="font-size:1.3rem">＋</span> ${isFr ? 'Créer un profil' : 'Create a profile'}`;
+    if (create) create.innerHTML = `<span style="font-size:1.3rem">＋</span> ${p.create}`;
     // Label section
     const lbl = document.getElementById('profiles-label');
-    if (lbl) lbl.textContent = isFr ? 'Profils enregistrés' : 'Saved profiles';
+    if (lbl) lbl.textContent = p.saved;
     // ── Modal création ──
     const modalTitle = document.querySelector('#modal-create .modal-title');
-    if (modalTitle) modalTitle.textContent = isFr ? '✨ NOUVEAU PROFIL' : '✨ NEW PROFILE';
+    if (modalTitle) modalTitle.textContent = p.newProfile;
     const emojiLabels = document.querySelectorAll('#modal-create .emoji-section-label');
-    if (emojiLabels[0]) emojiLabels[0].textContent = isFr ? 'Choix de l\'emoji' : 'Choose an emoji';
-    if (emojiLabels[1]) emojiLabels[1].textContent = isFr ? 'Pseudo' : 'Username';
+    if (emojiLabels[0]) emojiLabels[0].textContent = p.emoji;
+    if (emojiLabels[1]) emojiLabels[1].textContent = p.pseudo;
     const emojiHint = document.querySelector('#modal-create .emoji-hint');
-    if (emojiHint) emojiHint.textContent = isFr ? 'Appuie pour choisir' : 'Tap to choose';
+    if (emojiHint) emojiHint.textContent = p.tapChoose;
     const pseudoInput = document.getElementById('pseudo-input');
-    if (pseudoInput) pseudoInput.placeholder = isFr ? 'Ton pseudo...' : 'Your username...';
+    if (pseudoInput) pseudoInput.placeholder = p.placeholder;
     const btnCancel = document.querySelector('#modal-create .btn-modal-cancel');
-    if (btnCancel) btnCancel.textContent = isFr ? 'Annuler' : 'Cancel';
+    if (btnCancel) btnCancel.textContent = p.cancel;
     const btnConfirm = document.getElementById('btn-confirm-create');
-    if (btnConfirm) btnConfirm.textContent = isFr ? 'Créer' : 'Create';
+    if (btnConfirm) btnConfirm.textContent = p.create_btn;
     // ── Modal suppression ──
     const delTitle = document.querySelector('#modal-delete .modal-title');
-    if (delTitle) delTitle.textContent = isFr ? '🗑 SUPPRIMER' : '🗑 DELETE';
+    if (delTitle) delTitle.textContent = p.del;
     const delMsg = document.querySelector('#modal-delete .modal-delete-msg');
     if (delMsg) {
       const name = document.getElementById('delete-profile-name');
       const nameText = name ? name.outerHTML : '';
-      delMsg.innerHTML = (isFr ? 'Supprimer le profil' : 'Delete profile') + '<br>' +
-        nameText + ' ?<br>' +
-        `<span style="font-size:.8rem;color:var(--dim);">${isFr ? 'Cette action est irréversible.' : 'This action cannot be undone.'}</span>`;
+      delMsg.innerHTML = p.delMsg + '<br>' + nameText + ' ?<br>' +
+        `<span style="font-size:.8rem;color:var(--dim);">${p.delIrr}</span>`;
     }
     const delCancel = document.querySelector('#modal-delete .btn-modal-cancel');
-    if (delCancel) delCancel.textContent = isFr ? 'Annuler' : 'Cancel';
+    if (delCancel) delCancel.textContent = p.cancel;
     const delConfirm = document.querySelector('#modal-delete .btn-modal-delete');
-    if (delConfirm) delConfirm.textContent = isFr ? 'Supprimer' : 'Delete';
+    if (delConfirm) delConfirm.textContent = p.delete;
     // ── Boutons transfert ──
     const lblDl = document.getElementById('lbl-download');
-    if (lblDl) lblDl.textContent = isFr ? 'Télécharger les profils' : 'Download profiles';
+    if (lblDl) lblDl.textContent = p.download;
     const lblImp = document.getElementById('lbl-import');
-    if (lblImp) lblImp.textContent = isFr ? 'Importer les profils' : 'Import profiles';
+    if (lblImp) lblImp.textContent = p.import;
     // Re-render pour les dates et boutons
     renderProfiles();
   }
 
   // Init lang au chargement
   const initLang = localStorage.getItem(LANG_KEY) || 'fr';
-  if (initLang === 'en') applyPageLang('en');
+  if (initLang !== 'fr') applyPageLang(initLang);
 })();
 </script>
 
