@@ -1229,18 +1229,18 @@
     <!-- Slot machine Aléatoire -->
     <div id="random-slot-modal">
       <div id="rslot-bg"></div>
-      <div class="rslot-label" id="rslot-status">Tirage en cours...</div>
+      <div class="rslot-label" id="rslot-status" data-i18n="rslot_drawing">Tirage en cours...</div>
       <div class="rslot-box" id="rslot-box">
         <div class="rslot-icon" id="rslot-icon">🎲</div>
         <div class="rslot-name" id="rslot-name">?</div>
         <div class="rslot-players" id="rslot-players"></div>
       </div>
-      <button class="rslot-play-btn" id="rslot-play-btn" style="opacity:0;pointer-events:none;" onclick="rslotGo()">Jouer →</button>
+      <button class="rslot-play-btn" id="rslot-play-btn" style="opacity:0;pointer-events:none;" onclick="rslotGo()" data-i18n="rslot_play">Jouer →</button>
       <div class="rslot-action-slot">
         <button class="rslot-stop" id="rslot-stop-btn" onclick="rslotStop()">⏹ Stop</button>
-        <button class="rslot-reroll" id="rslot-reroll-btn" onclick="rslotReroll()">🎲 Relancer</button>
+        <button class="rslot-reroll" id="rslot-reroll-btn" onclick="rslotReroll()" data-i18n="rslot_reroll">🎲 Relancer</button>
       </div>
-      <button class="rslot-cancel" onclick="rslotClose()" id="rslot-cancel-lbl">✕ Annuler</button>
+      <button class="rslot-cancel" onclick="rslotClose()" id="rslot-cancel-lbl">✕ <span data-i18n="cancel">Annuler</span></button>
     </div>
   </div>
 
@@ -3534,7 +3534,7 @@
       document.getElementById('rslot-players').textContent = _rslotWinPlayers;
       box.className = 'rslot-box reveal';
       modal.classList.add('revealed');
-      statusEl.textContent = currentLang === 'en' ? '— YOUR GAME —' : '— VOTRE JEU —';
+      statusEl.textContent = DV_LANG.t('rslot_your_game');
       playBtn.style.opacity = '1'; playBtn.style.pointerEvents = 'auto';
       playBtn.style.animation = 'none'; void playBtn.offsetWidth; playBtn.style.animation = 'fadeUp .45s cubic-bezier(.34,1.56,.64,1)';
       rerollBtn.className = 'rslot-reroll visible';
@@ -3563,7 +3563,7 @@
       iconEl.textContent = '🎲';
       nameEl.textContent = '?';
       box.className = 'rslot-box';
-      statusEl.textContent = currentLang === 'en' ? 'Drawing...' : 'Tirage en cours...';
+      statusEl.textContent = DV_LANG.t('rslot_drawing');
       playBtn.style.opacity = '0'; playBtn.style.pointerEvents = 'none';
       rerollBtn.className = 'rslot-reroll';
       stopBtn.className = 'rslot-stop spinning';
@@ -3981,7 +3981,7 @@
       // Fallback if SW never responds (local dev)
       setTimeout(function() {
         var el = document.getElementById('app-version');
-        if (el && !el.textContent) el.textContent = 'v2.58';
+        if (el && !el.textContent) el.textContent = 'v2.59';
       }, 2000);
     }, 2000);
 
