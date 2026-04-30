@@ -1765,6 +1765,7 @@ let teams = { A:[], B:[] };
 let setupMode = 'solo'; // 'solo' | 'team'
 let G = {};
 let histLog = [], undoStack = []; // histLog entries: {msg, col}
+let _advanceTimer = null;
 
 function pushHistLog(entry) {
   histLog.unshift(entry);
@@ -2451,13 +2452,20 @@ function handleShot(num, ring, label) {
   // Auto-advance seulement en mode sélection rapide
   if (document.getElementById('quick-select-checkbox')?.checked && G.dartsLeft <= 0 && !G.requireValidate) {
     G._transitioning = true;
-    setTimeout(() => { G._transitioning = false; advanceTurn(); }, 2000);
+    _advanceTimer = setTimeout(() => { _advanceTimer = null; G._transitioning = false; advanceTurn(); }, 2000);
   }
 }
 
 function advanceTurn() {
+  const snap = JSON.parse(JSON.stringify({
+    ...G, fired: { A:[...G.fired.A], B:[...G.fired.B] }
+  }));
+  undoStack.push(snap);
   const prev = G.currentTeam;
-  G.currentTeam = prev === 'A' ? 'B' : 'A';
+  const nextTeam = prev === 'A' ? 'B' : 'A';
+  const nextPlayerName = teams[nextTeam][G.playerIdx[nextTeam]] || nextTeam;
+  pushHistLog({ msg:`── ${nextPlayerName} (${nextTeam}) ──`, col:TEAM_COLOR[nextTeam] });
+  G.currentTeam = nextTeam;
   if (G.currentTeam === 'A') {
     G.turn++;
     if (G.maxRounds > 0 && G.turn > G.maxRounds) {
@@ -2579,13 +2587,14 @@ function executeBull(val) {
   // Pas d'auto-advance : le joueur doit appuyer sur Valider
   if (document.getElementById('quick-select-checkbox')?.checked && G.dartsLeft <= 0 && !G.requireValidate) {
     G._transitioning = true;
-    setTimeout(() => { G._transitioning = false; advanceTurn(); }, 2000);
+    _advanceTimer = setTimeout(() => { _advanceTimer = null; G._transitioning = false; advanceTurn(); }, 2000);
   }
 }
 
 // Undo
 function handleUndo() {
   if (!undoStack.length) return;
+  if (_advanceTimer) { clearTimeout(_advanceTimer); _advanceTimer = null; G._transitioning = false; }
   feedbackUndo();
   const snap = undoStack.pop();
   histLog.shift();
@@ -2609,9 +2618,10 @@ function renderTopBar() {
   document.getElementById('cur-player').style.color = color;
   const dot = document.getElementById('player-dot');
   if(dot){ dot.style.background = color; dot.style.boxShadow = `0 0 8px ${color}`; }
+  const _dispTurn = G.maxRounds > 0 ? Math.min(G.turn, G.maxRounds) : G.turn;
   const _turnTxt = G.maxRounds > 0
-    ? DV_LANG.t('tour_label').replace('{n}', G.turn) + ' / ' + G.maxRounds
-    : DV_LANG.t('tour_label').replace('{n}', G.turn);
+    ? DV_LANG.t('tour_label').replace('{n}', _dispTurn) + ' / ' + G.maxRounds
+    : DV_LANG.t('tour_label').replace('{n}', _dispTurn);
   const _tb = document.getElementById('turn-badge');
   _tb.textContent = _turnTxt;
   _tb.style.color = (G.maxRounds > 0 && G.turn >= G.maxRounds) ? 'var(--danger)' : '';
@@ -2818,20 +2828,39 @@ function _endByMaxRoundsBT() {
   const loser = winner === 'A' ? 'B' : 'A';
   if (winner) {
     const _winTeam = teams[winner] || [];
-    _recordWins(_winTeam.filter(n => profilePlayers.has(n)));
+    G._finalWinnerNames = _winTeam.filter(n => profilePlayers.has(n));
+    _recordWins(G._finalWinnerNames);
   }
 
-  const winnerName = winner ? (winner === 'A' ? DV_LANG.t('bt_blue_team') : DV_LANG.t('bt_yellow_team')) : null;
-  document.getElementById('end-title').textContent = isTie
-    ? '🤝 ' + (DV_LANG.get() === 'en' ? 'Tie game!' : 'Égalité !')
-    : `🏆 ${DV_LANG.t('bt_team_wins').replace('{team}', winnerName)}`;
+  // Stats cumulatives
+  (function() {
+    var STATS_KEY = 'dartvault_game_stats';
+    var stats; try { stats = JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch(e) { stats = {}; }
+    Object.values(G.playerStats).forEach(function(ps) {
+      var fullName = ps.name;
+      if (!profilePlayers.has(fullName) && !window.TournamentBridge) return;
+      if (!stats[fullName]) stats[fullName] = {};
+      if (!stats[fullName].bataille) stats[fullName].bataille = { hits:0, totalShots:0, games:0 };
+      var s = stats[fullName].bataille;
+      s.hits += ps.hits || 0;
+      s.totalShots += (ps.hits || 0) + (ps.misses || 0);
+      s.games += 1;
+      var _dkba=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();
+      if(!s.daily)s.daily={};if(!s.weekly)s.weekly={};if(!s.monthly)s.monthly={};
+      (function(_i){[['daily',_dkba.today],['weekly',_dkba.week],['monthly',_dkba.month]].forEach(function(e){var b=s[e[0]][e[1]];b=typeof b==='number'?{games:b}:(b||{});Object.keys(_i).forEach(function(k){b[k]=(b[k]||0)+_i[k];});s[e[0]][e[1]]=b;});})({games:1,hits:ps.hits||0,totalShots:(ps.hits||0)+(ps.misses||0)});
+    });
+    localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+  })();
 
-  const teamOrder = winner ? [winner, loser] : ['A', 'B'];
+  const winnerName = winner ? (winner === 'A' ? DV_LANG.t('bt_blue_team') : DV_LANG.t('bt_yellow_team')) : null;
+  document.getElementById('end-title').textContent = `🏆 ${DV_LANG.t('bt_team_wins').replace('{team}', winnerName)}`;
+
+  const teamOrder = [winner, loser];
   const sunkCount = { A: sunkByA, B: sunkByB };
-  const hitsCount = { A: hitsOnB, B: hitsOnA }; // hits de A = cases touchées sur B
+  const hitsCount = { A: hitsOnB, B: hitsOnA };
   const tiedOnSunk = sunkByA === sunkByB;
   const podiumHTML = teamOrder.map((team, rank) => {
-    const medal = rank === 0 ? (isTie ? '🤝' : '🥇') : '🥈';
+    const medal = rank === 0 ? '🥇' : '🥈';
     const col = TEAM_COLOR[team];
     const tLabel = team === 'A' ? DV_LANG.t('bt_blue_team') : DV_LANG.t('bt_yellow_team');
     const tiebreaker = tiedOnSunk
@@ -2864,15 +2893,18 @@ function _endByMaxRoundsBT() {
       }).join('')}
     </div>` : '';
 
-  document.getElementById('end-ranking').innerHTML = podiumHTML + statsHTML;
+  document.getElementById('podium-list').innerHTML = podiumHTML + statsHTML;
   document.getElementById('btn-rematch').textContent = DV_LANG.t('rematch');
-  document.getElementById('btn-end-back').textContent = DV_LANG.t('config');
+  document.getElementById('btn-end-config').textContent = DV_LANG.t('config');
   document.getElementById('btn-end-close').textContent = '↩ ' + DV_LANG.t('cancel');
   document.getElementById('end-modal').classList.add('open');
   if (window.TournamentBridge) {
-    const ranked = winner ? [teams[winner], teams[loser]] : [[...teams.A, ...teams.B]];
+    const ranked = [teams[winner], teams[loser]];
     TournamentBridge.onGameEnd(ranked.map(t => t.length === 1 ? t[0] : t));
   }
+  var _ttsLabel = DV_LANG.get()==='en' ? (winner==='A'?'Blue team':'Yellow team') : (winner==='A'?'Équipe bleue':'Équipe jaune');
+  var _ttsMembers = (teams[winner]||[]).join(' ' + (DV_LANG.get()==='en'?'and':'et') + ' ');
+  speak(_ttsLabel + ' ' + (DV_LANG.get()==='en'?'wins the game':'remporte la partie') + ', ' + _ttsMembers, 1200);
 }
 
 function showEnd() {
@@ -3108,7 +3140,7 @@ document.getElementById('btn-out').addEventListener('click', () => {
   // Auto-advance seulement en mode sélection rapide
   if (document.getElementById('quick-select-checkbox')?.checked && G.dartsLeft <= 0 && !G.requireValidate) {
     G._transitioning = true;
-    setTimeout(() => { G._transitioning = false; advanceTurn(); }, 2000);
+    _advanceTimer = setTimeout(() => { _advanceTimer = null; G._transitioning = false; advanceTurn(); }, 2000);
   }
 });
 
@@ -3139,7 +3171,7 @@ document.getElementById('btn-val').addEventListener('click', () => {
 
   // Passer au joueur suivant
   G._transitioning = true;
-  setTimeout(() => { G._transitioning = false; advanceTurn(); }, 400);
+  _advanceTimer = setTimeout(() => { _advanceTimer = null; G._transitioning = false; advanceTurn(); }, 400);
 });
 
 document.getElementById('btn-hist').addEventListener('click', () => {

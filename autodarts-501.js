@@ -92,6 +92,11 @@
 
         console.log('[Autodarts-501] Injecting dart:', mult.toUpperCase() + number, '(' + dart.points + 'pts)');
 
+        // ── Son Out si Miss ──
+        if (dart.bed === 'Miss' && typeof feedbackOut === 'function') {
+          feedbackOut();
+        }
+
         // ── Appeler dHit ──
         dHit(number);
       },

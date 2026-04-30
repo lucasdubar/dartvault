@@ -1534,7 +1534,23 @@ function wiggleValBtn501() {
   btn.classList.add('wiggle');
   btn.addEventListener('animationend', () => btn.classList.remove('wiggle'), { once: true });
 }
-function feedbackOut()    { haptic('light');   playTick(300, 0.08, 0.16); setTimeout(()=>playTick(180, 0.07, 0.14), 90); }
+function feedbackOut() {
+  haptic('medium');
+  if (!_ac || !_soundEnabled) return;
+  if (_ac.state === 'suspended') _ac.resume();
+  try {
+    const o = _ac.createOscillator(), g = _ac.createGain();
+    o.type = 'triangle';
+    o.connect(g); g.connect(_ac.destination);
+    const t = _ac.currentTime;
+    o.frequency.setValueAtTime(420, t);
+    o.frequency.exponentialRampToValueAtTime(140, t + 0.25);
+    g.gain.setValueAtTime(0.22, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+    o.onended = () => { try { o.disconnect(); g.disconnect(); } catch(e){} };
+    o.start(t); o.stop(t + 0.28);
+  } catch(e) {}
+}
 function feedbackValidate(){ haptic('success'); playTick(660, 0.08, 0.18); setTimeout(()=>playTick(880,0.06,0.12),80); }
 function feedbackBust()   { haptic('bust');    playTick(220, 0.12, 0.18); }
 function feedbackUndo()   { haptic('light');   playTick(330, 0.06, 0.12); }
@@ -2634,6 +2650,7 @@ function dHit(n) {
     p.dartsThrown += (3 - dartState.dartIdx);
     // Enregistrer le bust dans throws (score total = 0, tour annulé)
     p.throws.push({ score: 0, remaining: p.score, bust: true, darts: dartState.darts.map(d => ({...d})) });
+    updateDisplay();
     if (G.trackDoubles && G.doubleOut) {
       const snapBefore = G.history[G.history.length - 1];
       const scoreStart = snapBefore ? snapBefore.scores[G.currentIdx] : p.score;
