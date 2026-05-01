@@ -3221,7 +3221,7 @@ function showFinalResult(winner) {
         s.doubleHits += p.allDoubleHits || 0;
       }
       s.games++;
-      var _dk501=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();
+      var _dk501=(function(){var _p=function(v){return('0'+v).slice(-2);},_ld=function(d){return d.getFullYear()+'-'+_p(d.getMonth()+1)+'-'+_p(d.getDate());},n=new Date(),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:_ld(n),week:_ld(d),month:n.getFullYear()+'-'+_p(n.getMonth()+1)};})();
       if(!s.daily)s.daily={};if(!s.weekly)s.weekly={};if(!s.monthly)s.monthly={};
       (function(_i){[['daily',_dk501.today],['weekly',_dk501.week],['monthly',_dk501.month]].forEach(function(e){var b=s[e[0]][e[1]];b=typeof b==='number'?{games:b}:(b||{});Object.keys(_i).forEach(function(k){b[k]=(b[k]||0)+_i[k];});s[e[0]][e[1]]=b;});})({games:1,totalScore:throws.reduce(function(a,t){return a+t.score;},0),totalThrows:throws.length,totalDarts:p.allDartsThrown||0,doubleAttempts:p.allDoubleAttempts||0,doubleHits:p.allDoubleHits||0});
     });
@@ -4487,11 +4487,14 @@ function escPP(s) {
   const GAME_KEY = '501';
 
   function _dateKeys() {
-    const today = new Date().toISOString().slice(0,10);
+    const _p = v => ('0'+v).slice(-2);
+    const _ld = d => d.getFullYear()+'-'+_p(d.getMonth()+1)+'-'+_p(d.getDate());
+    const n = new Date();
+    const today = _ld(n);
     const d = new Date(), day = d.getDay()||7;
     d.setDate(d.getDate()-day+1);
-    const week = d.toISOString().slice(0,10);
-    const month = new Date().toISOString().slice(0,7);
+    const week = _ld(d);
+    const month = n.getFullYear()+'-'+_p(n.getMonth()+1);
     return { today, week, month };
   }
 
@@ -4639,6 +4642,7 @@ const DEFAULT_IP  = '192.168.1.37';
     // car dHit(0) = bouton OUT = fin de tour immédiate
     if (dart.bed === 'miss') {
       if (typeof dartState === 'undefined' || dartState.dartIdx >= 3) return;
+      if (typeof feedbackOut === 'function') feedbackOut();
       if (typeof pushDartSnap === 'function') pushDartSnap();
       var p = typeof currentPlayer === 'function' ? currentPlayer() : G.players[G.currentIdx];
 
@@ -4694,10 +4698,13 @@ const DEFAULT_IP  = '192.168.1.37';
     if (typeof dartState === 'undefined') return;
     // Si aucune fléchette n'a été lancée, ignorer le takeout
     if (dartState.dartIdx === 0) return;
-    // Si le tour courant s'est terminé en bust (via dHit), ignorer le takeout
-    // On vérifie dartState.darts (tour en cours) et non p.throws (historique) pour éviter
-    // de bloquer le takeout sur la base d'un bust d'un tour précédent
-    if (dartState.darts.some(function(d) { return d.bust; })) return;
+    // Si bust : le tour est déjà enregistré, il faut juste passer au joueur suivant
+    if (dartState.darts.some(function(d) { return d.bust; })) {
+      if (G_pending) return;
+      if (dartState.autoNextTimer) { clearTimeout(dartState.autoNextTimer); dartState.autoNextTimer = null; }
+      if (typeof _dNextPlayer === 'function') _dNextPlayer();
+      return;
+    }
 
     // Utiliser dValidateEarly qui gère correctement :
     // - Auto-complétion des fléchettes manquantes en OUT

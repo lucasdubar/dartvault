@@ -767,9 +767,10 @@ function getWins()      { try{ return JSON.parse(localStorage.getItem('dartvault
 function getGameStats() { try{ return JSON.parse(localStorage.getItem('dartvault_game_stats'))||{}; } catch(e){ return {}; } }
 function getProfiles()  { try{ return JSON.parse(localStorage.getItem('dartvault_profiles'))||[]; }  catch(e){ return []; } }
 
-function todayKey()  { return new Date().toISOString().slice(0,10); }
-function weekKey()   { const d=new Date(),day=d.getDay()||7; d.setDate(d.getDate()-day+1); return d.toISOString().slice(0,10); }
-function monthKey()  { return new Date().toISOString().slice(0,7); }
+function _ld(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}
+function todayKey()  { return _ld(new Date()); }
+function weekKey()   { const d=new Date(),day=d.getDay()||7; d.setDate(d.getDate()-day+1); return _ld(d); }
+function monthKey()  { const d=new Date(); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2); }
 
 let currentPeriod = localStorage.getItem('dartvault_period_filter') || 'daily';
 let playerWins  = {};

@@ -79,11 +79,14 @@
     try { wins = JSON.parse(localStorage.getItem(WINS_KEY)) || {}; } catch (e) {}
 
     function _dateKeys() {
-      const today = new Date().toISOString().slice(0, 10);
+      const _p = v => ('0'+v).slice(-2);
+      const _ld = d => d.getFullYear()+'-'+_p(d.getMonth()+1)+'-'+_p(d.getDate());
+      const n = new Date();
+      const today = _ld(n);
       const d = new Date(), day = d.getDay() || 7;
       d.setDate(d.getDate() - day + 1);
-      const week = d.toISOString().slice(0, 10);
-      const month = new Date().toISOString().slice(0, 7);
+      const week = _ld(d);
+      const month = n.getFullYear()+'-'+_p(n.getMonth()+1);
       return { today, week, month };
     }
     function _mutateWin(name) {

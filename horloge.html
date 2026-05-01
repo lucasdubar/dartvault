@@ -1450,7 +1450,7 @@ function showEnd(title,sub,color){
       s.zonesHit += (p.totalHits || 0);
       s.totalDarts += (p.totalDarts || 0);
       s.games++;
-      var _dkhl=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();
+      var _dkhl=(function(){var _p=function(v){return('0'+v).slice(-2);},_ld=function(d){return d.getFullYear()+'-'+_p(d.getMonth()+1)+'-'+_p(d.getDate());},n=new Date(),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:_ld(n),week:_ld(d),month:n.getFullYear()+'-'+_p(n.getMonth()+1)};})();
       if(!s.daily)s.daily={};if(!s.weekly)s.weekly={};if(!s.monthly)s.monthly={};
       (function(_i){[['daily',_dkhl.today],['weekly',_dkhl.week],['monthly',_dkhl.month]].forEach(function(e){var b=s[e[0]][e[1]];b=typeof b==='number'?{games:b}:(b||{});Object.keys(_i).forEach(function(k){b[k]=(b[k]||0)+_i[k];});s[e[0]][e[1]]=b;});})({games:1,zonesHit:p.totalHits||0,totalDarts:p.totalDarts||0});
     });
@@ -2000,7 +2000,7 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
 <script>
 (function(){
   const WK='dartvault_wins',GK='horloge';
-  function dk(){const today=new Date().toISOString().slice(0,10);const d=new Date(),day=d.getDay()||7;d.setDate(d.getDate()-day+1);const week=d.toISOString().slice(0,10),month=new Date().toISOString().slice(0,7);return{today,week,month};}
+  function dk(){const _p=v=>('0'+v).slice(-2),_ld=d=>d.getFullYear()+'-'+_p(d.getMonth()+1)+'-'+_p(d.getDate()),n=new Date(),today=_ld(n),d=new Date(),day=d.getDay()||7;d.setDate(d.getDate()-day+1);const week=_ld(d),month=n.getFullYear()+'-'+_p(n.getMonth()+1);return{today,week,month};}
   function mut(wins,n,delta){if(!wins[n])wins[n]={};['_total',GK].forEach(g=>{if(!wins[n][g])wins[n][g]={daily:{},weekly:{},monthly:{},total:0};const k=dk();wins[n][g].daily[k.today]=Math.max(0,(wins[n][g].daily[k.today]||0)+delta);wins[n][g].weekly[k.week]=Math.max(0,(wins[n][g].weekly[k.week]||0)+delta);wins[n][g].monthly[k.month]=Math.max(0,(wins[n][g].monthly[k.month]||0)+delta);wins[n][g].total=Math.max(0,(wins[n][g].total||0)+delta);});}
   window._recordWins=function(names){if(!names||!names.length)return;let w={};try{w=JSON.parse(localStorage.getItem(WK))||{};}catch(e){}names.forEach(n=>mut(w,n,+1));localStorage.setItem(WK,JSON.stringify(w));};
   window._undoWins=function(names){if(!names||!names.length)return;let w={};try{w=JSON.parse(localStorage.getItem(WK))||{};}catch(e){}names.forEach(n=>mut(w,n,-1));localStorage.setItem(WK,JSON.stringify(w));};

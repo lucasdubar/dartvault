@@ -1878,7 +1878,7 @@ function showEndRanking() {
       s.totalDarts += darts;
       s.shanghais += sh;
       s.games++;
-      var _dksh=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();
+      var _dksh=(function(){var _p=function(v){return('0'+v).slice(-2);},_ld=function(d){return d.getFullYear()+'-'+_p(d.getMonth()+1)+'-'+_p(d.getDate());},n=new Date(),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:_ld(n),week:_ld(d),month:n.getFullYear()+'-'+_p(n.getMonth()+1)};})();
       if(!s.daily)s.daily={};if(!s.weekly)s.weekly={};if(!s.monthly)s.monthly={};
       (function(_i){[['daily',_dksh.today],['weekly',_dksh.week],['monthly',_dksh.month]].forEach(function(e){var b=s[e[0]][e[1]];b=typeof b==='number'?{games:b}:(b||{});Object.keys(_i).forEach(function(k){b[k]=(b[k]||0)+_i[k];});s[e[0]][e[1]]=b;});})({games:1,zonesHit:hits,totalDarts:darts,shanghais:sh});
     });
@@ -2330,7 +2330,7 @@ document.getElementById('btn-shanghai-yes').addEventListener('click', () => {
       s.totalDarts += darts;
       s.shanghais += sh;
       s.games++;
-      var _dksh=(function(){var t=new Date().toISOString().slice(0,10),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:t,week:d.toISOString().slice(0,10),month:new Date().toISOString().slice(0,7)};})();
+      var _dksh=(function(){var _p=function(v){return('0'+v).slice(-2);},_ld=function(d){return d.getFullYear()+'-'+_p(d.getMonth()+1)+'-'+_p(d.getDate());},n=new Date(),d=new Date(),dy=d.getDay()||7;d.setDate(d.getDate()-dy+1);return{today:_ld(n),week:_ld(d),month:n.getFullYear()+'-'+_p(n.getMonth()+1)};})();
       if(!s.daily)s.daily={};if(!s.weekly)s.weekly={};if(!s.monthly)s.monthly={};
       (function(_i){[['daily',_dksh.today],['weekly',_dksh.week],['monthly',_dksh.month]].forEach(function(e){var b=s[e[0]][e[1]];b=typeof b==='number'?{games:b}:(b||{});Object.keys(_i).forEach(function(k){b[k]=(b[k]||0)+_i[k];});s[e[0]][e[1]]=b;});})({games:1,zonesHit:hits,totalDarts:darts,shanghais:sh});
     });
@@ -2746,11 +2746,14 @@ if('serviceWorker' in navigator && !location.hostname.includes('claudeuserconten
   const GAME_KEY = 'shanghai';
 
   function _dateKeys() {
-    const today = new Date().toISOString().slice(0,10);
+    const _p = v => ('0'+v).slice(-2);
+    const _ld = d => d.getFullYear()+'-'+_p(d.getMonth()+1)+'-'+_p(d.getDate());
+    const n = new Date();
+    const today = _ld(n);
     const d = new Date(), day = d.getDay()||7;
     d.setDate(d.getDate()-day+1);
-    const week = d.toISOString().slice(0,10);
-    const month = new Date().toISOString().slice(0,7);
+    const week = _ld(d);
+    const month = n.getFullYear()+'-'+_p(n.getMonth()+1);
     return { today, week, month };
   }
 
