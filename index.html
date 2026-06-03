@@ -1181,7 +1181,7 @@
             </div>
           </div>
         </div>
-        <div class="welcome-autodarts">
+        <div class="welcome-autodarts" id="welcome-autodarts-badge" style="display:none;">
           <span class="welcome-autodarts-dot"></span>
           <span class="welcome-autodarts-text"><strong>Autodarts</strong> compatible</span>
         </div>
@@ -1507,6 +1507,7 @@
       <button id="sg-btn-lang" aria-label="Changer de langue" onclick="cycleLang(this)" style="background:none;border:none;cursor:pointer;font-size:1.8rem;line-height:1;padding:2px;border-radius:6px;touch-action:manipulation;transition:transform .15s;">🇫🇷</button>
     </div>
 
+    <div id="autodarts-settings-wrapper" style="display:none;">
     <div class="settings-section-label" style="margin-top:10px;">🎯 AUTODARTS</div>
     <div class="settings-row" style="padding-top:0;border-top:none;">
       <span>📡</span>
@@ -1526,6 +1527,7 @@
     </div>
     <div style="padding:0 6px 4px;">
       <button id="ad-info-btn" style="background:none;border:none;color:var(--dim);font-size:.78rem;cursor:pointer;touch-action:manipulation;text-decoration:underline;font-family:'Exo 2',sans-serif;padding:0;" data-i18n="ad_info_btn">📡 <span id="ad-info-text">Infos Autodarts</span></button>
+    </div>
     </div>
   </div>
 
@@ -1556,6 +1558,7 @@
       <button class="footer-privacy" id="btn-privacy" onclick="window.location.href='/privacy'">🔒 <span data-i18n="privacy">Confidentialité</span></button>
       <button class="footer-privacy" id="btn-contact" onclick="document.getElementById('contact-modal').classList.add('open')">✉️ Contact</button>
     </div>
+    <button class="footer-privacy" id="btn-autodarts-activate" onclick="document.getElementById('autodarts-activate-modal').classList.add('open')" style="margin-top:4px;">🎯 Autodarts</button>
     <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
       <span id="app-version" style="font-size:.7rem;color:var(--dim2);letter-spacing:.5px;"></span>
       <button id="btn-check-update" style="font-size:.65rem;color:var(--text);opacity:.5;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:3px 8px;cursor:pointer;font-family:'Exo 2',sans-serif;letter-spacing:.3px;touch-action:manipulation;transition:color .2s,border-color .2s,opacity .2s;" data-i18n="check_update">Vérifier les mises à jour</button>
@@ -1600,6 +1603,44 @@
       </div>
       <button id="contact-send" style="width:100%;padding:13px;border-radius:12px;border:none;font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--accent),#888);color:#000;touch-action:manipulation;">Envoyer</button>
       <div id="contact-status" style="text-align:center;margin-top:10px;font-size:.85rem;font-weight:600;min-height:1.2em;"></div>
+    </div>
+  </div>
+
+  <!-- Modal Autodarts Activation -->
+  <div class="mov" id="autodarts-activate-modal" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="mod" style="max-width:440px;text-align:center;">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--accent);margin-bottom:12px;">🎯 Autodarts</div>
+
+      <!-- Step 1: Question -->
+      <div id="ad-activate-step1">
+        <p style="font-size:.9rem;color:var(--text);line-height:1.7;margin-bottom:18px;" id="ad-activate-question">Possédez-vous un système Autodarts et souhaitez-vous l'utiliser avec DartVault ?</p>
+        <div style="display:flex;gap:10px;">
+          <button id="ad-activate-yes" style="flex:1;padding:12px;border-radius:12px;border:none;font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#28C76F,#1e8449);color:#fff;touch-action:manipulation;" onclick="showAdGuide()">Oui</button>
+          <button id="ad-activate-no" style="flex:1;padding:12px;border-radius:12px;border:none;font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;background:var(--bg3);color:var(--dim);touch-action:manipulation;" onclick="document.getElementById('autodarts-activate-modal').classList.remove('open')">Non</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Guide -->
+      <div id="ad-activate-step2" style="display:none;text-align:left;">
+        <div style="font-size:.85rem;color:var(--text);line-height:1.8;">
+          <p style="margin-bottom:12px;opacity:.85;" id="ad-guide-intro">Voici comment connecter votre système Autodarts à DartVault :</p>
+          <p style="margin-bottom:6px;" id="ad-guide-s1">📡 <strong>1.</strong> Assurez-vous que votre board Autodarts est allumée et connectée au même réseau WiFi que cet appareil.</p>
+          <p style="margin-bottom:6px;" id="ad-guide-s2">⚙️ <strong>2.</strong> Ouvrez les réglages (⚙️ en haut à droite) et dans la section Autodarts, entrez l'adresse IP de votre board.</p>
+          <p style="margin-bottom:6px;" id="ad-guide-s3">🔒 <strong>3.</strong> Acceptez le certificat HTTPS en visitant <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[votre-IP]:3181</code> une fois dans votre navigateur.</p>
+          <p style="margin-bottom:6px;" id="ad-guide-s4">🎯 <strong>4.</strong> Activez la connexion dans les réglages, puis cochez Autodarts dans les options de chaque jeu.</p>
+          <p style="margin-bottom:12px;opacity:.7;" id="ad-guide-tip">💡 Le logo 📡 en haut à droite de chaque jeu indique l'état de la connexion.</p>
+        </div>
+        <button id="ad-activate-confirm" style="width:100%;padding:13px;border-radius:12px;border:none;font-family:'Rajdhani',sans-serif;font-size:1.05rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--accent),#6366f1);color:#fff;touch-action:manipulation;margin-top:6px;" onclick="activateAutodarts()">Activer Autodarts</button>
+      </div>
+
+      <!-- Step 3: Already activated (deactivate option) -->
+      <div id="ad-activate-step3" style="display:none;">
+        <p style="font-size:.9rem;color:var(--ok);line-height:1.7;margin-bottom:14px;" id="ad-activated-msg">✅ Autodarts est activé. La section est visible dans les réglages (⚙️).</p>
+        <div style="display:flex;gap:10px;">
+          <button style="flex:1;padding:12px;border-radius:12px;border:none;font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;background:var(--bg3);color:var(--danger);touch-action:manipulation;" onclick="deactivateAutodarts()" id="ad-deactivate-btn">Désactiver</button>
+          <button class="bclose" style="flex:1;" onclick="document.getElementById('autodarts-activate-modal').classList.remove('open')" data-i18n="close">Fermer</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1685,6 +1726,17 @@
         ad_p5: '3. Acceptez le certificat HTTPS en visitant <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[IP]:3181</code> une fois sur cet appareil',
         ad_p6: '4. Cochez 🎯 Autodarts dans les options du jeu — c\'est prêt !',
         ad_p8: '💡 Le logo 📡 en haut à droite indique la connexion. Tapez dessus pour reset si ça bloque.',
+        ad_activate_question: 'Possédez-vous un système Autodarts et souhaitez-vous l\'utiliser avec DartVault ?',
+        ad_activate_yes: 'Oui', ad_activate_no: 'Non',
+        ad_guide_intro: 'Voici comment connecter votre système Autodarts à DartVault :',
+        ad_guide_s1: '📡 <strong>1.</strong> Assurez-vous que votre board Autodarts est allumée et connectée au même réseau WiFi que cet appareil.',
+        ad_guide_s2: '⚙️ <strong>2.</strong> Ouvrez les réglages (⚙️ en haut à droite) et dans la section Autodarts, entrez l\'adresse IP de votre board.',
+        ad_guide_s3: '🔒 <strong>3.</strong> Acceptez le certificat HTTPS en visitant <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[votre-IP]:3181</code> une fois dans votre navigateur.',
+        ad_guide_s4: '🎯 <strong>4.</strong> Activez la connexion dans les réglages, puis cochez Autodarts dans les options de chaque jeu.',
+        ad_guide_tip: '💡 Le logo 📡 en haut à droite de chaque jeu indique l\'état de la connexion.',
+        ad_activate_confirm: 'Activer Autodarts',
+        ad_activated_msg: '✅ Autodarts est activé. La section est visible dans les réglages (⚙️).',
+        ad_deactivate: 'Désactiver',
         rules: {
           x01: { icon:'🎯', title:'X01 DARTS', players:'👤 1 – 6 joueurs',
             catch: 'Chaque fléchette compte.\nDescends à zéro avant tout le monde.',
@@ -2016,6 +2068,17 @@
         ad_p5: '3. Accept the HTTPS certificate by visiting <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[IP]:3181</code> once on this device',
         ad_p6: '4. Check 🎯 Autodarts in the game options — you\'re all set!',
         ad_p8: '💡 The 📡 icon in the top-right shows connection status. Tap it to reset if it gets stuck.',
+        ad_activate_question: 'Do you own an Autodarts system and want to use it with DartVault?',
+        ad_activate_yes: 'Yes', ad_activate_no: 'No',
+        ad_guide_intro: 'Here\'s how to connect your Autodarts system to DartVault:',
+        ad_guide_s1: '📡 <strong>1.</strong> Make sure your Autodarts board is powered on and connected to the same WiFi network as this device.',
+        ad_guide_s2: '⚙️ <strong>2.</strong> Open settings (⚙️ top-right) and in the Autodarts section, enter your board\'s IP address.',
+        ad_guide_s3: '🔒 <strong>3.</strong> Accept the HTTPS certificate by visiting <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[your-IP]:3181</code> once in your browser.',
+        ad_guide_s4: '🎯 <strong>4.</strong> Enable the connection in settings, then check Autodarts in each game\'s options.',
+        ad_guide_tip: '💡 The 📡 icon in the top-right of each game shows the connection status.',
+        ad_activate_confirm: 'Enable Autodarts',
+        ad_activated_msg: '✅ Autodarts is enabled. The section is visible in settings (⚙️).',
+        ad_deactivate: 'Disable',
         rules: {
           x01: { icon:'🎯', title:'X01 DARTS', players:'👤 1 – 6 players',
             catch: 'Every dart counts.\nGet down to zero before everyone else.',
@@ -2347,6 +2410,17 @@
         ad_p5: '3. Akzeptiere das HTTPS-Zertifikat, indem du <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[IP]:3181</code> einmal auf diesem Gerät aufrufst',
         ad_p6: '4. Aktiviere 🎯 Autodarts in den Spieloptionen — fertig!',
         ad_p8: '💡 Das 📡 Symbol oben rechts zeigt den Verbindungsstatus. Tippe darauf zum Zurücksetzen.',
+        ad_activate_question: 'Besitzt du ein Autodarts-System und möchtest es mit DartVault verwenden?',
+        ad_activate_yes: 'Ja', ad_activate_no: 'Nein',
+        ad_guide_intro: 'So verbindest du dein Autodarts-System mit DartVault:',
+        ad_guide_s1: '📡 <strong>1.</strong> Stelle sicher, dass dein Autodarts-Board eingeschaltet und mit demselben WLAN wie dieses Gerät verbunden ist.',
+        ad_guide_s2: '⚙️ <strong>2.</strong> Öffne die Einstellungen (⚙️ oben rechts) und gib in der Autodarts-Sektion die IP-Adresse deines Boards ein.',
+        ad_guide_s3: '🔒 <strong>3.</strong> Akzeptiere das HTTPS-Zertifikat, indem du <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[deine-IP]:3181</code> einmal in deinem Browser öffnest.',
+        ad_guide_s4: '🎯 <strong>4.</strong> Aktiviere die Verbindung in den Einstellungen und setze das Häkchen bei Autodarts in den Optionen jedes Spiels.',
+        ad_guide_tip: '💡 Das 📡 Symbol oben rechts in jedem Spiel zeigt den Verbindungsstatus.',
+        ad_activate_confirm: 'Autodarts aktivieren',
+        ad_activated_msg: '✅ Autodarts ist aktiviert. Die Sektion ist in den Einstellungen (⚙️) sichtbar.',
+        ad_deactivate: 'Deaktivieren',
         rules: {
           x01: { icon:'🎯', title:'X01 DARTS', players:'👤 1 – 6 Spieler',
             catch: 'Jeder Pfeil zählt.\nGeh auf null, bevor alle anderen es tun.',
@@ -2678,6 +2752,17 @@
         ad_p5: '3. Accepteer het HTTPS-certificaat door <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[IP]:3181</code> eenmalig te openen op dit apparaat',
         ad_p6: '4. Activeer 🎯 Autodarts in de spelopties — klaar!',
         ad_p8: '💡 Het 📡 pictogram rechts bovenaan toont de verbindingsstatus. Tik erop om te resetten.',
+        ad_activate_question: 'Heb je een Autodarts-systeem en wil je het gebruiken met DartVault?',
+        ad_activate_yes: 'Ja', ad_activate_no: 'Nee',
+        ad_guide_intro: 'Zo verbind je je Autodarts-systeem met DartVault:',
+        ad_guide_s1: '📡 <strong>1.</strong> Zorg ervoor dat je Autodarts-board aan staat en verbonden is met hetzelfde wifi-netwerk als dit apparaat.',
+        ad_guide_s2: '⚙️ <strong>2.</strong> Open de instellingen (⚙️ rechtsboven) en voer in de Autodarts-sectie het IP-adres van je board in.',
+        ad_guide_s3: '🔒 <strong>3.</strong> Accepteer het HTTPS-certificaat door <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[jouw-IP]:3181</code> eenmalig te openen in je browser.',
+        ad_guide_s4: '🎯 <strong>4.</strong> Activeer de verbinding in de instellingen en vink Autodarts aan in de opties van elk spel.',
+        ad_guide_tip: '💡 Het 📡 pictogram rechtsboven in elk spel toont de verbindingsstatus.',
+        ad_activate_confirm: 'Autodarts activeren',
+        ad_activated_msg: '✅ Autodarts is geactiveerd. De sectie is zichtbaar in de instellingen (⚙️).',
+        ad_deactivate: 'Deactiveren',
         rules: {
           x01: { icon:'🎯', title:'X01 DARTS', players:'👤 1 – 6 spelers',
             catch: 'Elke pijl telt.\nGa naar nul voor iedereen anders.',
@@ -3009,6 +3094,17 @@
         ad_p5: '3. Acepta el certificado HTTPS visitando <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[IP]:3181</code> una vez en este dispositivo',
         ad_p6: '4. Activa 🎯 Autodarts en las opciones del juego — ¡listo!',
         ad_p8: '💡 El logo 📡 en la esquina superior derecha indica la conexión. Tócalo para reiniciar.',
+        ad_activate_question: '¿Tienes un sistema Autodarts y quieres usarlo con DartVault?',
+        ad_activate_yes: 'Sí', ad_activate_no: 'No',
+        ad_guide_intro: 'Así conectas tu sistema Autodarts a DartVault:',
+        ad_guide_s1: '📡 <strong>1.</strong> Asegúrate de que tu board Autodarts esté encendida y conectada a la misma red WiFi que este dispositivo.',
+        ad_guide_s2: '⚙️ <strong>2.</strong> Abre los ajustes (⚙️ arriba a la derecha) y en la sección Autodarts, introduce la dirección IP de tu board.',
+        ad_guide_s3: '🔒 <strong>3.</strong> Acepta el certificado HTTPS visitando <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.8rem;">https://[tu-IP]:3181</code> una vez en tu navegador.',
+        ad_guide_s4: '🎯 <strong>4.</strong> Activa la conexión en los ajustes y marca Autodarts en las opciones de cada juego.',
+        ad_guide_tip: '💡 El logo 📡 arriba a la derecha de cada juego muestra el estado de la conexión.',
+        ad_activate_confirm: 'Activar Autodarts',
+        ad_activated_msg: '✅ Autodarts está activado. La sección es visible en los ajustes (⚙️).',
+        ad_deactivate: 'Desactivar',
         rules: {
           x01: { icon:'🎯', title:'X01 DARTS', players:'👤 1 – 6 jugadores',
             catch: 'Cada dardo cuenta.\nLlega a cero antes que los demás.',
@@ -3981,7 +4077,7 @@
       // Fallback if SW never responds (local dev)
       setTimeout(function() {
         var el = document.getElementById('app-version');
-        if (el && !el.textContent) el.textContent = 'v2.62';
+        if (el && !el.textContent) el.textContent = 'v2.63';
       }, 2000);
     }, 2000);
 
@@ -4200,6 +4296,19 @@
     el = document.getElementById('ad-info-h3'); if (el && T.ad_h3) el.textContent = T.ad_h3;
     el = document.getElementById('ad-info-p8'); if (el && T.ad_p8) el.innerHTML = T.ad_p8;
     el = document.getElementById('ad-info-p9'); if (el && T.ad_p9) el.innerHTML = T.ad_p9;
+    // Activation modal
+    el = document.getElementById('ad-activate-question'); if (el && T.ad_activate_question) el.textContent = T.ad_activate_question;
+    el = document.getElementById('ad-activate-yes'); if (el && T.ad_activate_yes) el.textContent = T.ad_activate_yes;
+    el = document.getElementById('ad-activate-no'); if (el && T.ad_activate_no) el.textContent = T.ad_activate_no;
+    el = document.getElementById('ad-guide-intro'); if (el && T.ad_guide_intro) el.textContent = T.ad_guide_intro;
+    el = document.getElementById('ad-guide-s1'); if (el && T.ad_guide_s1) el.innerHTML = T.ad_guide_s1;
+    el = document.getElementById('ad-guide-s2'); if (el && T.ad_guide_s2) el.innerHTML = T.ad_guide_s2;
+    el = document.getElementById('ad-guide-s3'); if (el && T.ad_guide_s3) el.innerHTML = T.ad_guide_s3;
+    el = document.getElementById('ad-guide-s4'); if (el && T.ad_guide_s4) el.innerHTML = T.ad_guide_s4;
+    el = document.getElementById('ad-guide-tip'); if (el && T.ad_guide_tip) el.innerHTML = T.ad_guide_tip;
+    el = document.getElementById('ad-activate-confirm'); if (el && T.ad_activate_confirm) el.textContent = T.ad_activate_confirm;
+    el = document.getElementById('ad-activated-msg'); if (el && T.ad_activated_msg) el.textContent = T.ad_activated_msg;
+    el = document.getElementById('ad-deactivate-btn'); if (el && T.ad_deactivate) el.textContent = T.ad_deactivate;
   }
 
   // Observe language changes
@@ -4207,6 +4316,67 @@
   var _adLangBtn = document.getElementById('sg-btn-lang');
   if (_adLangBtn) _adLangObs.observe(_adLangBtn, { childList: true, characterData: true, subtree: true });
   updateAdTexts();
+})();
+
+// ═══════════════════════════════════════════════════════
+// AUTODARTS ACTIVATION (footer button + modal)
+// ═══════════════════════════════════════════════════════
+(function() {
+  var AD_ACTIVATED_KEY = 'dartvault_autodarts_activated';
+  var settingsWrapper = document.getElementById('autodarts-settings-wrapper');
+  var welcomeBadge = document.getElementById('welcome-autodarts-badge');
+  var step1 = document.getElementById('ad-activate-step1');
+  var step2 = document.getElementById('ad-activate-step2');
+  var step3 = document.getElementById('ad-activate-step3');
+
+  function isActivated() {
+    return localStorage.getItem(AD_ACTIVATED_KEY) === '1';
+  }
+
+  function refreshUI() {
+    var active = isActivated();
+    if (settingsWrapper) settingsWrapper.style.display = active ? '' : 'none';
+    if (welcomeBadge) welcomeBadge.style.display = active ? '' : 'none';
+  }
+
+  function resetModalSteps() {
+    step1.style.display = 'none';
+    step2.style.display = 'none';
+    step3.style.display = 'none';
+  }
+
+  document.getElementById('btn-autodarts-activate').addEventListener('click', function() {
+    resetModalSteps();
+    if (isActivated()) {
+      step3.style.display = '';
+    } else {
+      step1.style.display = '';
+    }
+  });
+
+  window.showAdGuide = function() {
+    resetModalSteps();
+    step2.style.display = '';
+  };
+
+  window.activateAutodarts = function() {
+    localStorage.setItem(AD_ACTIVATED_KEY, '1');
+    refreshUI();
+    document.getElementById('autodarts-activate-modal').classList.remove('open');
+  };
+
+  window.deactivateAutodarts = function() {
+    localStorage.setItem(AD_ACTIVATED_KEY, '0');
+    localStorage.setItem('dartvault_autodarts_enabled', '0');
+    var toggle = document.getElementById('toggle-autodarts');
+    if (toggle) toggle.checked = false;
+    var configArea = document.getElementById('ad-config-area');
+    if (configArea) configArea.style.display = 'none';
+    refreshUI();
+    document.getElementById('autodarts-activate-modal').classList.remove('open');
+  };
+
+  refreshUI();
 })();
 
 // ── STATS PLAYER PICKER ──────────────────────────────────

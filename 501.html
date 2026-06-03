@@ -4824,16 +4824,11 @@ const DEFAULT_IP  = '192.168.1.37';
     if (testRow) testRow.style.display = visible ? '' : 'none';
   }
 
-  // Restore saved state
-  if (localStorage.getItem('dartvault_autodarts_enabled') === '1') {
-    chk.checked = true;
-    setAutodartsRows(true);
-    applyAutodartsValidate(true);
-  }
+  // Checkbox never auto-checked — user opts in per game
+  // Global toggle (main menu) only controls visibility via shared-utils.js
   ipField.value = getIP();
 chk.addEventListener('change', function() {
     setAutodartsRows(this.checked);
-    localStorage.setItem('dartvault_autodarts_enabled', this.checked ? '1' : '0');
     if (this.checked) setIP(ipField.value.trim() || DEFAULT_IP);
     applyAutodartsValidate(this.checked);
   });
